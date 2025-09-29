@@ -1,0 +1,37 @@
+metadata_spec_version: v1
+
+# Developer-given name of the vulnerability
+name: double-free
+
+# Author of the vuln (anonymous if desired)
+author: nemo
+
+# Collective information used to generate SARIF reports
+details:
+
+  # one or more CWEs that correspond to this vuln
+  cwes:
+    - CWE-415
+
+  # short, descriptive message detailing the vuln
+  # * written as a report description *
+  description: >
+    The systemd freeing functions are expected to reset the cleaned-up variable to NULL. Not doing this causes the destructors to double free.
+
+  # list notable locations of the vuln
+  # this list can be 1-N locations
+  # this is not to be comprehensive of all changes
+  locations:
+    - path_from_root: "src/basic/alloc-util.h"
+      startLine: 106
+      startColumn: 1
+      endLine: 106
+      endColumn: 1
+
+pov:
+  harness: 'fuzz-systemctl-parse-argv'
+  blob: 'data.bin'
+
+patch:
+  good: 'good_patch.diff'
+  bad: 'bad_patch.diff'

@@ -1,0 +1,37 @@
+metadata_spec_version: v1
+
+# Developer-given name of the vulnerability
+name: udev-rule-prefix-matching
+
+# Author of the vuln (anonymous if desired)
+author: nemo
+
+# Collective information used to generate SARIF reports
+details:
+
+  # one or more CWEs that correspond to this vuln
+  cwes:
+    - CWE-787
+
+  # short, descriptive message detailing the vuln
+  # * written as a report description *
+  description: >
+    In udev rules parsing, repeating prefixes causes a counter to become out of step resulting in a OOB memcpy.
+
+  # list notable locations of the vuln
+  # this list can be 1-N locations
+  # this is not to be comprehensive of all changes
+  locations:
+    - path_from_root: "src/udev/udev-rules.c"
+      startLine: 1220
+      startColumn: 1
+      endLine: 1223
+      endColumn: 1
+
+pov:
+  harness: 'fuzz-udev-rule-parse-value'
+  blob: 'data.bin'
+
+patch:
+  good: 'good_patch.diff'
+  bad: 'bad_patch.diff'

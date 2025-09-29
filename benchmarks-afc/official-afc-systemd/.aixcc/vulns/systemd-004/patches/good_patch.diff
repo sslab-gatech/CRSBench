@@ -1,0 +1,12 @@
+diff --git a/src/shared/condition.c b/src/shared/condition.c
+index 67894f9319..ac23681a11 100644
+--- a/src/shared/condition.c
++++ b/src/shared/condition.c
+@@ -99,6 +99,7 @@ Condition* condition_free(Condition *c) {
+ Condition* condition_free_list_type(Condition *head, ConditionType type) {
+         LIST_FOREACH(conditions, c, head)
+                 if (type < 0 || c->type == type) {
++                        LIST_REMOVE(conditions, head, c);
+                         condition_free(c);
+                 }
+ 

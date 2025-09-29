@@ -1,0 +1,162 @@
+diff --git a/bfd/elf64-ia64-vms.c b/bfd/elf64-ia64-vms.c
+index 87cc16d..169a872 100644
+--- a/bfd/elf64-ia64-vms.c
++++ b/bfd/elf64-ia64-vms.c
+@@ -4713,8 +4713,7 @@ static bool
+ elf64_vms_close_and_cleanup (bfd *abfd)
+ {
+   bool ret = true;
+-  if (bfd_get_format (abfd) == bfd_object
+-      && bfd_write_p (abfd))
++  if (bfd_get_format (abfd) == bfd_object)
+     {
+       long isize;
+ 
+diff --git a/bfd/format.c b/bfd/format.c
+index a909b70..7a60aa1 100644
+--- a/bfd/format.c
++++ b/bfd/format.c
+@@ -174,15 +174,16 @@ io_reinit (bfd *abfd, struct bfd_preserve *preserve)
+   if (abfd->iovec != preserve->iovec)
+     {
+       /* Handle file backed to in-memory transition.  bfd_cache_close
+-	 won't do anything unless abfd->iovec is the cache_iovec.
+-	 Don't be tempted to call iovec->bclose here.  We don't want
+-	 to call memory_bclose, which would free the bim.  The bim
+-	 must be kept if bfd_check_format_matches is going to decide
+-	 later that the PE format needing it is in fact the correct
+-	 target match.  */
++	 won't do anything unless abfd->iovec is the cache_iovec.  */
+       bfd_cache_close (abfd);
+       abfd->iovec = preserve->iovec;
+-      abfd->iostream = preserve->iostream;
++
++      if (abfd->iostream != preserve->iostream)
++	{
++	  if ((abfd->flags & BFD_IN_MEMORY) != 0)
++	    free (abfd->iostream);
++	  abfd->iostream = preserve->iostream;
++	}
+ 
+       /* Handle in-memory to file backed transition.  */
+       if ((abfd->flags & BFD_CLOSED_BY_CACHE) != 0
+diff --git a/bfd/opncls.c b/bfd/opncls.c
+index 47a7451..27c8634 100644
+--- a/bfd/opncls.c
++++ b/bfd/opncls.c
+@@ -168,6 +168,8 @@ _bfd_delete_bfd (bfd *abfd)
+     }
+ #endif
+ 
++  if ((abfd->flags & BFD_IN_MEMORY) != 0)
++    free (abfd->iostream);
+   free (abfd->arelt_data);
+   free (abfd);
+ }
+@@ -893,11 +895,13 @@ bfd_close_all_done (bfd *abfd)
+ {
+   bool ret = BFD_SEND (abfd, _close_and_cleanup, (abfd));
+ 
+-  if (abfd->iovec != NULL)
+-    ret &= abfd->iovec->bclose (abfd) == 0;
++  if (ret && abfd->iovec != NULL)
++    {
++      ret = abfd->iovec->bclose (abfd) == 0;
+ 
+-  if (ret)
+-    _maybe_make_executable (abfd);
++      if (ret)
++	_maybe_make_executable (abfd);
++    }
+ 
+   _bfd_delete_bfd (abfd);
+ 
+diff --git a/gas/read.c b/gas/read.c
+index 31b89b7..58b2fd1 100644
+--- a/gas/read.c
++++ b/gas/read.c
+@@ -3137,8 +3137,6 @@ do_repeat (size_t count, const char *start, const char *end,
+       return;
+     }
+ 
+-  sb_terminate (&one);
+-
+   if (expander != NULL && !*expander && strstr (one.ptr, "\\+") != NULL)
+     {
+       /* The 3 here and below are arbitrary, added in an attempt to limit
+@@ -3152,7 +3150,8 @@ do_repeat (size_t count, const char *start, const char *end,
+ 
+ 	  sb_build (&processed, one.len + 3);
+ 
+-	  for (ptr = one.ptr; (bs = strchr (ptr, '\\')) != NULL; )
++	  for (ptr = one.ptr;
++	       (bs = memchr (ptr, '\\', one.ptr + one.len - ptr)) != NULL; )
+ 	    {
+ 	      sb_add_buffer (&processed, ptr, bs - ptr);
+ 	      switch (bs[1])
+@@ -3183,7 +3182,7 @@ do_repeat (size_t count, const char *start, const char *end,
+ 		}
+ 	    }
+ 
+-	  sb_add_string (&processed, ptr);
++	  sb_add_buffer (&processed, ptr, one.ptr + one.len - ptr);
+ 
+ 	  sb_add_sb (&many, &processed);
+ 	  sb_kill (&processed);
+diff --git a/opcodes/kvx-dis.c b/opcodes/kvx-dis.c
+index 1dcbfd2..81d86c3 100644
+--- a/opcodes/kvx-dis.c
++++ b/opcodes/kvx-dis.c
+@@ -207,9 +207,15 @@ static struct kvx_dis_env env = {
+   .kvx_max_dec_registers = 0
+ };
+ 
+-static void
++static bool
+ kvx_dis_init (struct disassemble_info *info)
+ {
++  if (info->arch != bfd_arch_kvx)
++    {
++      (*info->fprintf_func) (info->stream, "error: Unknown architecture\n");
++      return -1;
++    }
++
+   env.kvx_arch_size = 32;
+   switch (info->mach)
+     {
+@@ -218,7 +224,6 @@ kvx_dis_init (struct disassemble_info *info)
+       /* fallthrough */
+     case bfd_mach_kv3_1_usr:
+     case bfd_mach_kv3_1:
+-    default:
+       env.opc_table = kvx_kv3_v1_optab;
+       env.kvx_regfiles = kvx_kv3_v1_regfiles;
+       env.kvx_registers = kvx_kv3_v1_registers;
+@@ -247,14 +252,26 @@ kvx_dis_init (struct disassemble_info *info)
+       env.kvx_modifiers = kvx_kv4_v1_modifiers;
+       env.kvx_dec_registers = kvx_kv4_v1_dec_registers;
+       break;
++
++    default:
++      /* Core not supported.  */
++      (*info->fprintf_func) (info->stream, "disassembling not supported for "
++			     "this KVX core! (core:%d)", (int) info->mach);
++      return -1;
+     }
+ 
+   env.kvx_max_dec_registers = env.kvx_regfiles[KVX_REGFILE_DEC_REGISTERS];
+ 
+   if (info->disassembler_options)
+-    parse_kvx_dis_options (info->disassembler_options);
++    {
++      parse_kvx_dis_options (info->disassembler_options);
+ 
++      /* To avoid repeated parsing of these options, we remove them here.  */
++      info->disassembler_options = NULL;
++    }
+   env.initialized_p = 1;
++
++  return env.initialized_p;
+ }
+ 
+ static bool

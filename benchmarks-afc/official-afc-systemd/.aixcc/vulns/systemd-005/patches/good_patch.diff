@@ -1,0 +1,13 @@
+diff --git a/src/basic/alloc-util.h b/src/basic/alloc-util.h
+index ef92a95a3d..ba71298287 100644
+--- a/src/basic/alloc-util.h
++++ b/src/basic/alloc-util.h
+@@ -103,7 +103,7 @@ static inline void unsetp(void *p) {
+ }
+ 
+ static inline void freep(void *p) {
+-        free(*(void**) p);
++        *(void**)p = mfree(*(void**) p);
+ }
+ 
+ #define _cleanup_free_ _cleanup_(freep)
