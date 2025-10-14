@@ -1,0 +1,17 @@
+id: cpv_0
+
+name: exif-002, Replay 2
+
+cwes:
+- CWE-121
+
+description: An improper use of the function exif_data_load_data leads to poor user input sanitization, causing a buffer over-write
+  in the sub-function exif_data_load_data_entry.
+
+locations:
+- path_from_root: libexif/exif-data.c
+  function_name: __asan_memcpy
+  startLine: 892
+  startColumn: 1
+  endLine: 893
+  endColumn: 1

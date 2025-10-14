@@ -1,0 +1,89 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 150028193bf61131c2436e3f4f76631e5d0a21d7
+  ref_commit: 55494fce38a53f7a7309e0f0ccf4b9eced992e14
+
+full_mode:
+  base_commit: 55494fce38a53f7a7309e0f0ccf4b9eced992e14
+
+harness_files:
+- name: curl_fuzzer
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_bufq
+  path: $PROJECT/curl_fuzzer/fuzz_bufq.cc
+
+- name: curl_fuzzer_dict
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'AddressSanitizer: SEGV on unknown address'
+
+- name: curl_fuzzer_file
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_ftp
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+  vulns:
+  - vuln_keyword: cpv_1
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'AddressSanitizer: global-buffer-overflow'
+
+- name: curl_fuzzer_gopher
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_http
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_https
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_imap
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_mqtt
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_pop3
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_rtsp
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_smb
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_smtp
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_tftp
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_ws
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: fuzz_url
+  path: $PROJECT/curl_fuzzer/fuzz_url.cc

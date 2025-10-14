@@ -1,0 +1,17 @@
+id: cpv_2
+
+name: Infinite loops in type 1 font parser
+
+cwes:
+- CWE-835
+- CWE-834
+
+description: A crafted PDF can trigger and infinite loop in Type 1 font parser.
+
+locations:
+- path_from_root: fontbox/src/main/java/org/apache/fontbox/type1/Type1Parser.java
+  function_name: wait
+  startLine: 217
+  startColumn: 13
+  endLine: 223
+  endColumn: 14

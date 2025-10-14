@@ -1,0 +1,19 @@
+id: cpv_4
+
+name: Can I be your AIM buddy?
+
+cwes:
+- CWE-121
+- CWE-122
+- CWE-680
+
+description: This bug is embedded inside of AOL's Instant Messenger (AIM) protocol, where data sent is trusted to be a correct
+  offset inside of a aim_snac packet, causing a buffer overflow.
+
+locations:
+- path_from_root: epan/dissectors/packet-aim.c
+  function_name: raise
+  startLine: 582
+  startColumn: 1
+  endLine: 594
+  endColumn: 1

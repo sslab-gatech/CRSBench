@@ -1,0 +1,80 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 1b842805ca6aa05e7cf6ec0db04fb8cf5ea1d817
+  ref_commit: 463c245738fed4e83628c26f53252e44d5d9acc3
+
+full_mode:
+  base_commit: 463c245738fed4e83628c26f53252e44d5d9acc3
+
+harness_files:
+- name: ArchiverArFuzzer
+  path: $PROJECT/ArchiverArFuzzer.java
+
+- name: ArchiverArjFuzzer
+  path: $PROJECT/ArchiverArjFuzzer.java
+
+- name: ArchiverCpioFuzzer
+  path: $PROJECT/ArchiverCpioFuzzer.java
+
+- name: ArchiverDumpFuzzer
+  path: $PROJECT/ArchiverDumpFuzzer.java
+
+- name: ArchiverTarStreamFuzzer
+  path: $PROJECT/ArchiverTarStreamFuzzer.java
+
+- name: ArchiverZipStreamFuzzer
+  path: $PROJECT/ArchiverZipStreamFuzzer.java
+
+- name: CompressorBZip2Fuzzer
+  path: $PROJECT/CompressorBZip2Fuzzer.java
+
+- name: CompressorDeflate64Fuzzer
+  path: $PROJECT/CompressorDeflate64Fuzzer.java
+
+- name: CompressorGzipFuzzer
+  path: $PROJECT/CompressorGzipFuzzer.java
+
+- name: CompressorLZ4Fuzzer
+  path: $PROJECT/CompressorLZ4Fuzzer.java
+
+- name: CompressorSnappyFuzzer
+  path: $PROJECT/CompressorSnappyFuzzer.java
+
+- name: CompressorZFuzzer
+  path: $PROJECT/CompressorZFuzzer.java
+
+- name: CompressSevenZFuzzer
+  path: $PROJECT/CompressSevenZFuzzer.java
+
+- name: CompressTarFuzzer
+  path: $PROJECT/CompressTarFuzzer.java
+
+- name: CompressZipFuzzer
+  path: $PROJECT/CompressZipFuzzer.java
+
+- name: ExpanderFuzzer
+  path: $PROJECT/ExpanderFuzzer.java
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueCritical: File path traversal'

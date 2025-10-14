@@ -1,0 +1,8 @@
+---
+homepage: "https://github.com/cesanta/mongoose"
+language: c
+main_repo: "git@github.com:Team-Atlanta/official-afc-mongoose.git"
+sanitizers:
+  - address
+fuzzing_engines:
+  - libfuzzer

@@ -1,0 +1,17 @@
+id: cpv_1
+
+name: curl-008, "maniac difficulty" crash
+
+cwes:
+- CWE-476
+
+description: A null pointer dereference exists in the "extremelygoodprtcl" supported by Curl. It is triggered by the server
+  writing a specific response in the middle of a client connection.
+
+locations:
+- path_from_root: lib/extremelygoodprtcl.c
+  function_name: extremelygoodprtcl_sm
+  startLine: 305
+  startColumn: 1
+  endLine: 307
+  endColumn: 1

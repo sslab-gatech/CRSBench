@@ -1,0 +1,7 @@
+homepage: "https://github.com/bioinformatics-ua/dicoogle"
+language: jvm
+fuzzing_engines:
+  - libfuzzer
+sanitizers:
+  - address
+main_repo: "git@github.com:Team-Atlanta/official-afc-dicoogle.git"

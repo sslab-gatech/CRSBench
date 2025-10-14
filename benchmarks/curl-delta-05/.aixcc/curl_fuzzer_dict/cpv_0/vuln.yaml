@@ -1,0 +1,17 @@
+id: cpv_0
+
+name: DICT Authentication bug
+
+cwes:
+- CWE-134
+
+description: The newly added authentication scheme to the DICT protocol has a debug output that has a format string vulnerability
+  in it.
+
+locations:
+- path_from_root: lib/dict.c
+  function_name: formatf
+  startLine: 205
+  startColumn: 1
+  endLine: 251
+  endColumn: 1

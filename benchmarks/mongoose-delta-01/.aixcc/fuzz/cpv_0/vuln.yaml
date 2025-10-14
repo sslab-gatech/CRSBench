@@ -1,0 +1,18 @@
+id: cpv_0
+
+name: mg_vxprintf with a new %e stack-based buffer overflow
+
+cwes:
+- CWE-121
+
+description: Support for the %e and %E format was added to the mg_vxprintf() function. This new code calls mg_dtoa(tmp, 10,
+  mantissa, 8, c == 'e'), however the second paramater should be the sizeof(tmp) to ensure that there is no buffer overflow.
+  The other code added to support %e is not intended to have any vulnerabilities, but vulns happen?
+
+locations:
+- path_from_root: src/fmt.c
+  function_name: mg_pfn_iobuf_private
+  startLine: 322
+  startColumn: 28
+  endLine: 322
+  endColumn: 30

@@ -1,0 +1,25 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+full_mode:
+  base_commit: 050c5baef2c44e277c96cf96728d9ef4adef41f0
+
+harness_files:
+- name: PrivateDictionaryFuzzer
+  path: $PROJECT/PrivateDictionaryFuzzer.java

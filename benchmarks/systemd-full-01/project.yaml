@@ -1,0 +1,10 @@
+homepage: "https://freedesktop.org/wiki/Software/systemd/"
+language: c
+builds_per_day: 4
+sanitizers:
+  - address
+fuzzing_engines:
+  - libfuzzer
+main_repo: 'git@github.com:Team-Atlanta/official-afc-systemd.git'
+architectures:
+  - x86_64

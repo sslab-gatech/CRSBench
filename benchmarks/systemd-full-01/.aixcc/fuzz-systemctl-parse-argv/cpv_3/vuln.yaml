@@ -1,0 +1,17 @@
+id: cpv_3
+
+name: double-free
+
+cwes:
+- CWE-415
+
+description: The systemd freeing functions are expected to reset the cleaned-up variable to NULL. Not doing this causes the
+  destructors to double free.
+
+locations:
+- path_from_root: src/basic/alloc-util.h
+  function_name: free
+  startLine: 106
+  startColumn: 1
+  endLine: 106
+  endColumn: 1

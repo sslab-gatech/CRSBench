@@ -1,0 +1,7 @@
+homepage: "https://logging.apache.org/log4j/2.x/"
+language: jvm
+fuzzing_engines:
+  - libfuzzer
+main_repo: "git@github.com:Team-Atlanta/official-afc-logging-log4j2.git"
+sanitizers:
+  - address

@@ -1,0 +1,7 @@
+homepage: "https://github.com/AOMediaCodec/libavif"
+language: c
+fuzzing_engines:
+  - libfuzzer
+main_repo: 'git@github.com:Team-Atlanta/official-afc-libavif.git'
+sanitizers:
+  - address

@@ -1,0 +1,18 @@
+id: cpv_0
+
+name: zip slip from url normalization
+
+cwes:
+- CWE-35
+- CWE-22
+- CWE-29
+
+description: This vuln allows a zip slip when the path is URL encoded.
+
+locations:
+- path_from_root: src/main/java/org/apache/commons/compress/archivers/ArchiveEntry.java
+  function_name: check
+  startLine: 80
+  startColumn: 58
+  endLine: 88
+  endColumn: 10

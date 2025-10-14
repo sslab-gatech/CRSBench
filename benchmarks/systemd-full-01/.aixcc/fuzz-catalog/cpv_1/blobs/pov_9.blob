@@ -1,0 +1,31 @@
+-- 8c505f533d4945cd02579b5dc59931ed
+
+
+Error occurred: %s
+
+-- 79f5cc32da628f63220470fb47cca56f
+Subject: Test message%d\0
+Documentation: Documentation text\n%d%s\t
+Custom-9025: value%x
+
+Standard message template 784
+
+-- 55bc437474cd0aea6199d2f58ec361ee
+Subject: Test messageNHXQSBNMALFPAQNKQAYQCXSPGC
+Documentation: Documentation textZVSNCCSBMMXBVBBIZTZQGMULSOTCUDRMNYYHQJNPSNRQXCHWHMGEWXIPAPSNYKLGWNKG
+Custom-218: valueHHMIIPM
+
+Standard message template 606
+
+-- a65a336be8e83c747fdf8f88a3d45510
+45cd02579b5dc59931ed
+
+
+Error occurred: %s
+
+-- 79f5cc32da628f63220470fb47cca56f
+Subject: Test message%d\0
+DocumeXGEAVWMVT
+
+Memory usage: %d bytes
+

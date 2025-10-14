@@ -1,0 +1,16 @@
+id: cpv_1
+
+name: Leap Second Bug in FTP
+
+cwes:
+- CWE-787
+
+description: Improper validation of leap seconds in Curl reads to an out of bounds read while pretty-printing.
+
+locations:
+- path_from_root: lib/ftp.c
+  function_name: ftp_state_mdtm_resp
+  startLine: 2068
+  startColumn: 1
+  endLine: 2108
+  endColumn: 1

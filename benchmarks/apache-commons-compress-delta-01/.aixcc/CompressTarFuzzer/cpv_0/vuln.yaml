@@ -1,0 +1,18 @@
+id: cpv_0
+
+name: ReDos in TarArchiveEntry
+
+cwes:
+- CWE-400
+- CWE-770
+- CWE-1333
+
+description: The regex that was added to protect against CVE-2023-42503 can trigger a StackOverflow on crafted data.
+
+locations:
+- path_from_root: src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java
+  function_name: match
+  startLine: 221
+  startColumn: 5
+  endLine: 223
+  endColumn: 1

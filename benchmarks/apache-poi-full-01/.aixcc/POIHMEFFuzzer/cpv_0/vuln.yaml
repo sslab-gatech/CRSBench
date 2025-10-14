@@ -1,0 +1,18 @@
+id: cpv_0
+
+name: Infinite reading challenges
+
+cwes:
+- CWE-834
+- CWE-20
+
+description: MAPIAttribute parser fails to apply reasonable limits on number of loops specified by user controlled data.  Further,
+  the parser fails to check for the end of the InputStream during the read and skip.
+
+locations:
+- path_from_root: poi-scratchpad/src/main/java/org/apache/poi/hmef/attribute/MAPIAttribute.java
+  function_name: null
+  startLine: 197
+  startColumn: 16
+  endLine: 198
+  endColumn: 41

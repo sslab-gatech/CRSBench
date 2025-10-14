@@ -1,0 +1,65 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 40bcc1944c83b15f8647ec0b6ff1d7c440d53a40
+  ref_commit: 03b1eb1e593f2a974c65c46b484a39fdcf4e7ff8
+
+full_mode:
+  base_commit: 03b1eb1e593f2a974c65c46b484a39fdcf4e7ff8
+
+harness_files:
+- name: api
+  path: $REPO/fuzz/api.c
+
+- name: html
+  path: $REPO/fuzz/html.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
+
+- name: lint
+  path: $REPO/fuzz/lint.c
+
+- name: reader
+  path: $REPO/fuzz/reader.c
+
+- name: regexp
+  path: $REPO/fuzz/regexp.c
+
+- name: schema
+  path: $REPO/fuzz/schema.c
+
+- name: uri
+  path: $REPO/fuzz/uri.c
+
+- name: valid
+  path: $REPO/fuzz/valid.c
+
+- name: xinclude
+  path: $REPO/fuzz/xinclude.c
+
+- name: xml
+  path: $REPO/fuzz/xml.c
+
+- name: xpath
+  path: $REPO/fuzz/xpath.c

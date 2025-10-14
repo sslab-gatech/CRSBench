@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
+# Message catalog for systemd's own messages
+# Polish translation
+
+# The catalog format is documented on
+# htstp://systemd.io/CATALOG
+
+# For an explanation why we do all this, see https://xkcd.com/1024/
+
+-- f77379a8490b408bbe5f6940505a777b
+451a97cea615ce59c00b
+Subject: Zatrzymano dziennik
+Defined-By: systemd
+Support: https://lists.free���~top.org/mailman/listinfo/systemd-devel
+
+Systemowy proces dziennika został wyłączony i zamknął wszystkie obecnie
+aktywne pliki dziennika.
+
+-- ec387f577b844b8fa948f33cad9a75e6
+Subject: Miejsce na dysku używane przez dziennik
+Defined-By: systemd
+Support: https://lists.freedesk
+Atop.org/mailman/listinfo/systemd-deve

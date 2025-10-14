@@ -1,0 +1,17 @@
+id: cpv_0
+
+name: SSRF in xmp
+
+cwes:
+- CWE-611
+- CWE-918
+
+description: A crafted XMP file within a PDF could trigger an external entity  vulnerability.
+
+locations:
+- path_from_root: xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java
+  function_name: checkSsrf
+  startLine: 81
+  startColumn: 13
+  endLine: 82
+  endColumn: 13

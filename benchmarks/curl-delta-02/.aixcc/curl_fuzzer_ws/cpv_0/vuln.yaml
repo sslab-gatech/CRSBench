@@ -1,0 +1,17 @@
+id: cpv_0
+
+name: curl-006, medium difficulty crash
+
+cwes:
+- CWE-476
+
+description: A null pointer dereference exists in the "totallyfineprotocl" supported by Curl. It is triggered by the server
+  writing a specific response in the middle of a client connection.
+
+locations:
+- path_from_root: lib/totallyfineprotocl.c
+  function_name: totallyfineprotocl_sm
+  startLine: 228
+  startColumn: 1
+  endLine: 232
+  endColumn: 1

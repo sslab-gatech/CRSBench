@@ -1,0 +1,16 @@
+id: cpv_3
+
+name: wireshark netbios terminate trace signature overflow
+
+cwes:
+- CWE-122
+
+description: Failure to limit the length of the signature field and validate it against the allocated buffer size.
+
+locations:
+- path_from_root: epan/dissectors/packet-netbios.c
+  function_name: dissect_netb_terminate_trace
+  startLine: 720
+  startColumn: 1
+  endLine: 730
+  endColumn: 1

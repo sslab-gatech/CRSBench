@@ -1,0 +1,7 @@
+homepage: "https://poi.apache.org/"
+language: jvm
+main_repo: "git@github.com:Team-Atlanta/official-afc-poi.git"
+fuzzing_engines:
+  - libfuzzer
+sanitizers:
+  - address

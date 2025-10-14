@@ -1,0 +1,16 @@
+id: cpv_2
+
+name: <batman pun>
+
+cwes:
+- CWE-134
+
+description: Improperly referencing a debug string enables exploitation of the B.A.T.M.A.N. dissector via format strings
+
+locations:
+- path_from_root: epan/dissectors/packet-bat.c
+  function_name: QuickCheckForUnpoisonedRegion
+  startLine: 705
+  startColumn: 9
+  endLine: 705
+  endColumn: 42

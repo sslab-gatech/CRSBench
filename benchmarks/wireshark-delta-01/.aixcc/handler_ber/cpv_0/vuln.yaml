@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: BERRRRR
+
+cwes:
+- CWE-787
+
+description: Trusting user supplied string lengths leads to a string underflow null byte write.
+
+locations:
+- path_from_root: epan/dissectors/packet-ber.c
+  function_name: dissect_ber_GeneralString
+  startLine: 3188
+  startColumn: 13
+  endLine: 3194
+  endColumn: 41

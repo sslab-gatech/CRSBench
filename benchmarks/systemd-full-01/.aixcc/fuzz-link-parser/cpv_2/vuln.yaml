@@ -1,0 +1,16 @@
+id: cpv_2
+
+name: double-free-list-type
+
+cwes:
+- CWE-415
+
+description: A list is freed without it's members being removed from the list, causing a freed pointer to remain in the list.
+
+locations:
+- path_from_root: src/shared/condition.c
+  function_name: condition_free_list_type
+  startLine: 101
+  startColumn: 1
+  endLine: 103
+  endColumn: 1

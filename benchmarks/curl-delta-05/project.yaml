@@ -1,0 +1,9 @@
+homepage: "https://curl.haxx.se/"
+language: c
+sanitizers:
+  - address
+fuzzing_engines:
+  - libfuzzer
+architectures:
+  - x86_64
+main_repo: "git@github.com:Team-Atlanta/official-afc-curl.git"

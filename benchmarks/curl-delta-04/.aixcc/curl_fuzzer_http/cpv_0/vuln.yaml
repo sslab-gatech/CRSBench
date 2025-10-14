@@ -1,0 +1,22 @@
+id: cpv_0
+
+name: HTTP Header-Parsing Stack Buffer Overflow
+
+cwes:
+- CWE-121
+
+description: curl will crash if a >64 character string is passed in the HTTP server response method, "X-Powered-By".
+
+locations:
+- path_from_root: lib/http.c
+  function_name: Curl_doh_close
+  startLine: 3011
+  startColumn: 1
+  endLine: 3020
+  endColumn: 1
+- path_from_root: lib/request.h
+  function_name: Curl_doh_close
+  startLine: 103
+  startColumn: 1
+  endLine: 103
+  endColumn: 22

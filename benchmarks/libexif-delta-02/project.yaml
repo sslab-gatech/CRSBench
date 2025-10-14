@@ -1,0 +1,8 @@
+---
+homepage: "https://libexif.github.io"
+language: c
+fuzzing_engines:
+  - libfuzzer
+sanitizers:
+  - address
+main_repo: 'git@github.com:Team-Atlanta/official-afc-libexif.git'

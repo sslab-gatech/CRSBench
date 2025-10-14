@@ -1,0 +1,26 @@
+id: cpv_0
+
+name: Double trouble stack-based buffer overflow
+
+cwes:
+- CWE-121
+- CWE-193
+
+description: Mongoose supports nested JSON objects to a level of 30 objects. This vulnerability  has two code changes that
+  cause a stack-based buffer overflow. The first is that the size check was modifed to 60, but the stack variable size was
+  not modified and is still a size of 30. In addition, the comparison was changed from >= to > which causes an off by one
+  error if a patch only corrects the size of the stack buffer.
+
+locations:
+- path_from_root: src/json.c
+  function_name: mg_json_get
+  startLine: 130
+  startColumn: 25
+  endLine: 130
+  endColumn: 42
+- path_from_root: src/json.c
+  function_name: mg_json_get
+  startLine: 167
+  startColumn: 23
+  endLine: 176
+  endColumn: 42

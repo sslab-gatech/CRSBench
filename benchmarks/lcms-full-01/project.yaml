@@ -1,0 +1,9 @@
+main_repo: "git@github.com:Team-Atlanta/official-afc-little-cms.git"
+homepage: "http://www.littlecms.com/"
+language: c
+fuzzing_engines:
+  - libfuzzer
+sanitizers:
+  - address
+architectures:
+  - x86_64

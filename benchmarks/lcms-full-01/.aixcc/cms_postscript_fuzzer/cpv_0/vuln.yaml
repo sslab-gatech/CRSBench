@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: lcms-001, active N-Day
+
+cwes:
+- CWE-476
+
+description: A null-pointer dereference can occur while parsing ICC files to generate PostScript commands.
+
+locations:
+- path_from_root: src/cmsps2.c
+  function_name: cmsStageType
+  startLine: 795
+  startColumn: 1
+  endLine: 796
+  endColumn: 1

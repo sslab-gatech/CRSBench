@@ -1,0 +1,35 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 1a98b640c5322dfeb69a05c832b0a1ba2f277872
+  ref_commit: 79ee238040d0c726f996caee1e3ef26fc5123524
+
+full_mode:
+  base_commit: 79ee238040d0c726f996caee1e3ef26fc5123524
+
+harness_files:
+- name: avif_yuvrgb_fuzzer
+  path: $REPO/tests/oss-fuzz/avif_yuvrgb_fuzzer.cc
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'AddressSanitizer: dynamic-stack-buffer-overflow'

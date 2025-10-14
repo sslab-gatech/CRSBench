@@ -1,0 +1,35 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 335f69f334d04e97189c9d9c78ff4546a7513824
+  ref_commit: f7beab632f692d22b2505011286dd99cdc3690c3
+
+full_mode:
+  base_commit: f7beab632f692d22b2505011286dd99cdc3690c3
+
+harness_files:
+- name: fuzz
+  path: $REPO/test/fuzz.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'AddressSanitizer: heap-buffer-overflow'

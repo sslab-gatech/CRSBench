@@ -1,0 +1,7 @@
+homepage: "https://www.wireshark.org"
+language: c
+fuzzing_engines:
+  - libfuzzer
+sanitizers:
+  - address
+main_repo: 'git@github.com:Team-Atlanta/official-afc-wireshark.git'

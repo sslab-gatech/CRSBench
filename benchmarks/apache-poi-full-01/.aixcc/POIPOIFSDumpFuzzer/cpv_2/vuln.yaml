@@ -1,0 +1,17 @@
+id: cpv_2
+
+name: Path Traversal Olé
+
+cwes:
+- CWE-35
+- CWE-20
+
+description: A crafted file can trigger a path traversal and a write outside of the expected directory
+
+locations:
+- path_from_root: poi/src/main/java/org/apache/poi/poifs/dev/POIFSDump.java
+  function_name: check
+  startLine: 108
+  startColumn: 17
+  endLine: 110
+  endColumn: 18

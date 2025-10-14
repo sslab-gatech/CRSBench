@@ -1,0 +1,35 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: ae6c15079f00e0d07d0c79501616b7a91a21e0f1
+  ref_commit: 96bd7503206064fb2ae8940a2e23a6e06b580cc8
+
+full_mode:
+  base_commit: 96bd7503206064fb2ae8940a2e23a6e06b580cc8
+
+harness_files:
+- name: handler_json
+  path: $REPO/fuzz/fuzzshark.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'AddressSanitizer: heap-buffer-overflow'

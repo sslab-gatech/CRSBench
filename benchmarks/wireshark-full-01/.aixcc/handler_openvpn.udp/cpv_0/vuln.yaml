@@ -1,0 +1,17 @@
+id: cpv_0
+
+name: Wireshark OpenVPN UDP Control Packet Buffer Overflow
+
+cwes:
+- CWE-121
+
+description: This buffer overflow occurs because a user supplied data length is trusted to be within bounds. Violation of
+  this assumption will cause a stack based buffer overflow.
+
+locations:
+- path_from_root: epan/dissectors/packet-openvpn.c
+  function_name: __asan_memcpy
+  startLine: 311
+  startColumn: 1
+  endLine: 311
+  endColumn: 44

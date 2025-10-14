@@ -1,0 +1,9 @@
+homepage: "shadowsocks-libev"
+language: c
+main_repo: "git@github.com:Team-Atlanta/official-afc-shadowsocks-libev.git"
+sanitizers:
+  - address
+architectures:
+  - x86_64
+fuzzing_engines:
+  - libfuzzer

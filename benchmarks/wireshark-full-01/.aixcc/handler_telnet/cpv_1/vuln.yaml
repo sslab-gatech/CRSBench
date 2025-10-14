@@ -1,0 +1,16 @@
+id: cpv_1
+
+name: wireshark telnet subcommand use-after-free
+
+cwes:
+- CWE-416
+
+description: Failure to set pointer variable to NULL and clearing a flag after being freed.
+
+locations:
+- path_from_root: epan/dissectors/packet-telnet.c
+  function_name: __asan_memcpy
+  startLine: 2209
+  startColumn: 1
+  endLine: 2213
+  endColumn: 1

@@ -1,0 +1,17 @@
+id: cpv_1
+
+name: SSRF in xfa
+
+cwes:
+- CWE-611
+- CWE-918
+
+description: A crafted XFA file within a PDF could trigger an external entity  vulnerability.
+
+locations:
+- path_from_root: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDXFAResource.java
+  function_name: checkSsrf
+  startLine: 135
+  startColumn: 9
+  endLine: 136
+  endColumn: 41

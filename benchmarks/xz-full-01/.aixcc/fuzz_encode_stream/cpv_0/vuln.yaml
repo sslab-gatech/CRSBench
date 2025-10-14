@@ -1,0 +1,22 @@
+id: cpv_0
+
+name: Tree-based Checksum
+
+cwes:
+- CWE-416
+
+description: An atypical topology of the checksum tree triggered on boundary condition causes a use-after-free error.
+
+locations:
+- path_from_root: src/liblzma/check/treeck.c
+  function_name: compute_tree_checksum
+  startLine: 53
+  startColumn: 7
+  endLine: 53
+  endColumn: 30
+- path_from_root: src/liblzma/check/treeck.c
+  function_name: compute_tree_checksum
+  startLine: 77
+  startColumn: 3
+  endLine: 90
+  endColumn: 13

@@ -1,0 +1,17 @@
+id: cpv_4
+
+name: Heap Buffer Over-read
+
+cwes:
+- CWE-126
+
+description: json_parse_ex() returns an error if "(end - state.ptr) < 4", however, it then pre-increments state.ptr by 4 before
+  using the state.ptr to access the json buffer which may allow it to reference 1 byte after the end of the json buffer.
+
+locations:
+- path_from_root: src/json.c
+  function_name: json_parse_ex
+  startLine: 618
+  startColumn: 47
+  endLine: 618
+  endColumn: 50
