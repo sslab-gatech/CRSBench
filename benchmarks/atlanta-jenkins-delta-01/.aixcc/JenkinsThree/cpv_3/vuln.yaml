@@ -1,0 +1,22 @@
+id: cpv_3
+
+name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+cwes:
+- CWE-918
+
+description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+locations:
+- path_from_root: jenkins/core/src/main/java/hudson/ProxyConfiguration.java
+  function_name: checkSsrf
+  startLine: 540
+  startColumn: 1
+  endLine: 540
+  endColumn: 1
+- path_from_root: jenkins/core/src/main/java/hudson/ProxyConfiguration.java
+  function_name: checkSsrf
+  startLine: 593
+  startColumn: 1
+  endLine: 593
+  endColumn: 1

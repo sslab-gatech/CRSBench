@@ -1,0 +1,44 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 5620feb7bfdada8820c1ed766090fb6a20dc091e
+  ref_commit: 8d3ea04433880049aaa5ad55da753cceb5a8cde6
+
+full_mode:
+  base_commit: 8d3ea04433880049aaa5ad55da753cceb5a8cde6
+
+harness_files:
+- name: HtmlunitOne
+  path: $PROJECT/fuzz/htmlunit-harness-one/src/main/java/com/aixcc/htmlunit/harnesses/one/HtmlunitOne.java
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'FuzzerSecurityIssueCritical: OS Command Injection'
+
+- name: HtmlunitOneFDP
+  path: $PROJECT/fuzz/htmlunit-harness-one/src/main/java/com/aixcc/htmlunit/harnesses/one/HtmlunitOneFDP.java
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'FuzzerSecurityIssueCritical: OS Command Injection'

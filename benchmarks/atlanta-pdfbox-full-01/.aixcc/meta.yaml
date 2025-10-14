@@ -1,0 +1,37 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+full_mode:
+  base_commit: 857d14ee5ec5b2d912c4cdd2f0d6366a4a642001
+
+harness_files:
+- name: PDFBoxFuzzer
+  path: $PROJECT/fuzz-targets/src/test/java/com/example/PDFBoxFuzzer.java
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'libFuzzer: out-of-memory'
+
+- name: PDFStreamParserFuzzer
+  path: $PROJECT/fuzz-targets/src/test/java/com/example/PDFStreamParserFuzzer.java
+
+- name: PDFWriteReadFuzzer
+  path: $PROJECT/fuzz-targets/src/test/java/com/example/PDFWriteReadFuzzer.java

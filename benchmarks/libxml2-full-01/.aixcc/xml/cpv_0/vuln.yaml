@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: libxml2 DTD embedded entity overflow
+
+cwes:
+- CWE-122
+
+description: Failure to correctly allocate sufficient data when handling embedded entities leads to a heap-based buffer overflow.
+
+locations:
+- path_from_root: parser.c
+  function_name: __asan_memcpy
+  startLine: 761
+  startColumn: 1
+  endLine: 780
+  endColumn: 1

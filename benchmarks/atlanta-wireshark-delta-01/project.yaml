@@ -1,0 +1,9 @@
+homepage: "https://www.wireshark.org"
+language: c++
+sanitizers:
+  - address
+fuzzing_engines:
+  - libfuzzer
+  - honggfuzz
+  - afl
+main_repo: 'git@github.com:Team-Atlanta/cp-c-wireshark.git'

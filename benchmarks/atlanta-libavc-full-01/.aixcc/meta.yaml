@@ -1,0 +1,49 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+full_mode:
+  base_commit: 828cdb77ba434eb11ce19f7f0d4482e744b27064
+
+harness_files:
+- name: avc_dec_fuzzer
+  path: $REPO/fuzzer/avc_dec_fuzzer.cpp
+
+- name: avc_enc_fuzzer
+  path: $REPO/fuzzer/avc_enc_fuzzer.cpp
+
+- name: mvc_dec_fuzzer
+  path: $REPO/fuzzer/mvc_dec_fuzzer.cpp
+  vulns:
+  - vuln_keyword: cpv_1
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
+
+- name: svc_dec_fuzzer
+  path: $REPO/fuzzer/svc_dec_fuzzer.cpp
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
+
+- name: svc_enc_fuzzer
+  path: $REPO/fuzzer/svc_enc_fuzzer.cpp

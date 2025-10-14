@@ -1,0 +1,35 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: dc4e976602850bdfa33434aa5a8568862faf3257
+  ref_commit: 4d9b23c34bfb12e32d1e158d6c90852c00cca229
+
+full_mode:
+  base_commit: 4d9b23c34bfb12e32d1e158d6c90852c00cca229
+
+harness_files:
+- name: fuzz_nasm
+  path: $PROJECT/fuzz_nasm.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'AddressSanitizer: stack-use-after-return'

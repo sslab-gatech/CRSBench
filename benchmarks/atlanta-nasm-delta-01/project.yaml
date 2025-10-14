@@ -1,0 +1,13 @@
+homepage: "https://www.nasm.us/"
+main_repo: "git@github.com:Team-Atlanta/cp-c-nasm-src.git"
+language: c
+primary_contact: "bug-binutils@gnu.org"
+auto_ccs :
+  - "p.antoine@catenacyber.fr"
+  - "nickc@redhat.com"
+  - "amodra@gmail.com"
+  - "david@adalogics.com"
+sanitizers:
+  - address
+fuzzing_engines:
+  - libfuzzer # mem leak; only for bug reproducing

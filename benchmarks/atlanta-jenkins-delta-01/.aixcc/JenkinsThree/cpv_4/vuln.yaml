@@ -1,0 +1,22 @@
+id: cpv_4
+
+name: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+
+cwes:
+- CWE-502
+
+description: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+
+locations:
+- path_from_root: plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CoverageProcessor.java
+  function_name: reportFinding
+  startLine: 732
+  startColumn: 1
+  endLine: 732
+  endColumn: 1
+- path_from_root: plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CoverageProcessor.java
+  function_name: reportFinding
+  startLine: 733
+  startColumn: 1
+  endLine: 733
+  endColumn: 1

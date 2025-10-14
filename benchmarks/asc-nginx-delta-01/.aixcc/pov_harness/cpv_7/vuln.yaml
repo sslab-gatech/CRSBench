@@ -1,0 +1,20 @@
+id: cpv_7
+
+name: 'MOCK: cpv_7 vulnerability in pov_harness'
+
+cwes: []
+
+description: 'MOCK: Vulnerability cpv_7 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
+  The error signature is: ''ERROR: AddressSanitizer: heap-use-after-free''.
+
+
+  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
+  please analyze the patches, POV blobs, and crash logs.'
+
+locations:
+- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+  function_name: ngx_http_get_host_specs
+  startLine: 0
+  startColumn: 0
+  endLine: 0
+  endColumn: 0

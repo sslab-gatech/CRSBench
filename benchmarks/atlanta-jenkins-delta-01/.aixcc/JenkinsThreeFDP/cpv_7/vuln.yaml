@@ -1,0 +1,16 @@
+id: cpv_7
+
+name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+cwes:
+- CWE-78
+
+description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+locations:
+- path_from_root: jenkins/core/src/main/java/hudson/Proc.java
+  function_name: processImplStartHook
+  startLine: 252
+  startColumn: 1
+  endLine: 252
+  endColumn: 1

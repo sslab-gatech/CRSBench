@@ -1,0 +1,96 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+full_mode:
+  base_commit: 9f2fa57409db9a8e6241dadb0fcec18d8d881f52
+
+harness_files:
+- name: EncryptDecryptFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/EncryptDecryptFuzzer.java
+
+- name: POIFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/POIFuzzer.java
+
+- name: POIHDGFFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/POIHDGFFuzzer.java
+  vulns:
+  - vuln_keyword: cpv_3
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory'
+
+- name: POIHPBFFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/POIHPBFFuzzer.java
+
+- name: POIHPSFFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/POIHPSFFuzzer.java
+
+- name: POIHSLFFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/POIHSLFFuzzer.java
+  vulns:
+  - vuln_keyword: cpv_1
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory'
+  - vuln_keyword: cpv_2
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory'
+
+- name: POIHSMFFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/POIHSMFFuzzer.java
+
+- name: POIHSSFFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/POIHSSFFuzzer.java
+
+- name: POIHWPFFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/POIHWPFFuzzer.java
+  vulns:
+  - vuln_keyword: cpv_4
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory'
+
+- name: POIOldExcelFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/POIOldExcelFuzzer.java
+
+- name: POIVisioFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/POIVisioFuzzer.java
+
+- name: POIXSLFFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/POIXSLFFuzzer.java
+
+- name: POIXSSFFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/POIXSSFFuzzer.java
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory'
+
+- name: POIXWPFFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/POIXWPFFuzzer.java
+
+- name: XLSX2CSVFuzzer
+  path: $PROJECT/src/main/java/org/apache/poi/XLSX2CSVFuzzer.java

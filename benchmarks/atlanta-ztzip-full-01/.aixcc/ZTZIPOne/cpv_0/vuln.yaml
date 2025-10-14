@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+
+cwes:
+- CWE-22
+
+description: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+
+locations:
+- path_from_root: src/main/java/org/zeroturnaround/zip/commons/FileUtils.java
+  function_name: check
+  startLine: 54
+  startColumn: 1
+  endLine: 54
+  endColumn: 1

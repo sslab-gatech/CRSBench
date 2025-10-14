@@ -1,0 +1,7 @@
+homepage: "http://php.net/"
+language: c++
+fuzzing_engines:
+  - "libfuzzer"
+sanitizers:
+ - address
+main_repo: 'git@github.com:Team-Atlanta/cp-c-php.git'

@@ -1,0 +1,19 @@
+id: cpv_0
+
+name: FILE out-of-bounds write
+
+cwes:
+- CWE-787
+
+description: Curl provides a feature that outputs meta-data about a file using HTTP-like headers while suppressing the body
+  of the file in the output. Before outputting them, each header is passed to a function that formats the header and writes
+  the resulting string to a buffer. The bug consists in adding a new header that is too large for the buffer and passing the
+  size of the header, not the buffer, to the formatting function thus causing an out-of-bounds write.
+
+locations:
+- path_from_root: lib/file.c
+  function_name: addbyter
+  startLine: 493
+  startColumn: 5
+  endLine: 498
+  endColumn: 6

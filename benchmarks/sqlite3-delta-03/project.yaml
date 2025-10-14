@@ -1,0 +1,14 @@
+homepage: "https://sqlite.org/"
+main_repo: "git@github.com:Team-Atlanta/r3-afc-sqlite3.git"
+language: c
+sanitizers:
+  - address
+  - memory
+  - undefined
+architectures:
+  - x86_64
+fuzzing_engines:
+  # - afl
+  # - honggfuzz
+  - libfuzzer
+

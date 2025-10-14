@@ -1,0 +1,35 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 5bf8da2d7953974e5dfbd778429c3affd461f51a
+  ref_commit: a5bf8a9719a7203742fbdd413423b3802bfa0f5b
+
+full_mode:
+  base_commit: a5bf8a9719a7203742fbdd413423b3802bfa0f5b
+
+harness_files:
+- name: libpng_read_fuzzer
+  path: $REPO/contrib/oss-fuzz/libpng_read_fuzzer.cc
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: dynamic-stack-buffer-overflow'

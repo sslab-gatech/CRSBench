@@ -1,0 +1,22 @@
+id: cpv_8
+
+name: 'FuzzerSecurityIssueCritical: LDAP Injection (TBD)'
+
+cwes:
+- CWE-90
+
+description: 'FuzzerSecurityIssueCritical: LDAP Injection (TBD)'
+
+locations:
+- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AuthAction.java
+  function_name: searchLdapContext
+  startLine: 228
+  startColumn: 1
+  endLine: 228
+  endColumn: 1
+- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AuthAction.java
+  function_name: searchLdapContext
+  startLine: 229
+  startColumn: 1
+  endLine: 229
+  endColumn: 1

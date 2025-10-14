@@ -1,0 +1,20 @@
+id: cpv_1
+
+name: 'MOCK: cpv_1 vulnerability in mvc_dec_fuzzer'
+
+cwes: []
+
+description: 'MOCK: Vulnerability cpv_1 detected in harness mvc_dec_fuzzer. This vulnerability is detected by address sanitizer.
+  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
+
+
+  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
+  please analyze the patches, POV blobs, and crash logs.'
+
+locations:
+- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+  function_name: ih264d_read_coeff4x4_cabac
+  startLine: 0
+  startColumn: 0
+  endLine: 0
+  endColumn: 0

@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: deserialization backdoor
+
+cwes:
+- CWE-502
+
+description: A carefully crafted set of transactions can trigger unsafe object deserializattion.
+
+locations:
+- path_from_root: zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java
+  function_name: reportFinding
+  startLine: 537
+  startColumn: 5
+  endLine: 580
+  endColumn: 1

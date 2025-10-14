@@ -1,0 +1,16 @@
+id: cpv_2
+
+name: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+
+cwes:
+- CWE-22
+
+description: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+
+locations:
+- path_from_root: util/src/main/java/org/eclipse/rdf4j/common/io/IOUtil.java
+  function_name: check
+  startLine: 387
+  startColumn: 1
+  endLine: 387
+  endColumn: 1

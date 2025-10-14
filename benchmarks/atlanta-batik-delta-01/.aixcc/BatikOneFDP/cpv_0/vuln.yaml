@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+cwes:
+- CWE-918
+
+description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+locations:
+- path_from_root: batik-util/src/main/java/org/apache/batik/util/ParsedURLData.java
+  function_name: checkSsrf
+  startLine: 554
+  startColumn: 1
+  endLine: 554
+  endColumn: 1

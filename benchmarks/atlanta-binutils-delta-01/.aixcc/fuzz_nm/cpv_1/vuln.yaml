@@ -1,0 +1,20 @@
+id: cpv_1
+
+name: 'MOCK: cpv_1 vulnerability in fuzz_nm'
+
+cwes: []
+
+description: 'MOCK: Vulnerability cpv_1 detected in harness fuzz_nm. This vulnerability is detected by address sanitizer.
+  The error signature is: ''AddressSanitizer: heap-use-after-free''.
+
+
+  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
+  please analyze the patches, POV blobs, and crash logs.'
+
+locations:
+- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+  function_name: memory_bstat
+  startLine: 0
+  startColumn: 0
+  endLine: 0
+  endColumn: 0

@@ -1,0 +1,20 @@
+id: cpv_2
+
+name: 'MOCK: cpv_2 vulnerability in POIHSLFFuzzer'
+
+cwes: []
+
+description: 'MOCK: Vulnerability cpv_2 detected in harness POIHSLFFuzzer. This vulnerability is detected by address sanitizer.
+  The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory''.
+
+
+  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
+  please analyze the patches, POV blobs, and crash logs.'
+
+locations:
+- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+  function_name: byteArray
+  startLine: 0
+  startColumn: 0
+  endLine: 0
+  endColumn: 0

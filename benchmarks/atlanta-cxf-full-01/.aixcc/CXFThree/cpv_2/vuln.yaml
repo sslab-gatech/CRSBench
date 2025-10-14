@@ -1,0 +1,16 @@
+id: cpv_2
+
+name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+cwes:
+- CWE-918
+
+description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+locations:
+- path_from_root: rt/frontend/jaxrs/src/main/java/org/apache/cxf/jaxrs/utils/ResourceUtils.java
+  function_name: checkSsrf
+  startLine: 577
+  startColumn: 1
+  endLine: 577
+  endColumn: 1

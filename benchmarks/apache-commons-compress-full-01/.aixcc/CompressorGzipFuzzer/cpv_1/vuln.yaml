@@ -1,0 +1,17 @@
+id: cpv_1
+
+name: gzip command injection backdoor
+
+cwes:
+- CWE-77
+- CWE-28
+
+description: If a gzip file has a specific time, then the stored file name is executed as a command.
+
+locations:
+- path_from_root: src/main/java/org/apache/commons/compress/compressors/gzip/GzipCompressorInputStream.java
+  function_name: processImplStartHook
+  startLine: 398
+  startColumn: 9
+  endLine: 400
+  endColumn: 10

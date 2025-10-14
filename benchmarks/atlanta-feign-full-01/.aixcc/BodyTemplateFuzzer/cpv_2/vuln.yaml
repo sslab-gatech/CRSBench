@@ -1,0 +1,16 @@
+id: cpv_2
+
+name: 'FuzzerSecurityIssueLow: Regular Expression Injection (TBD)'
+
+cwes:
+- CWE-777
+
+description: 'FuzzerSecurityIssueLow: Regular Expression Injection (TBD)'
+
+locations:
+- path_from_root: core/src/main/java/feign/template/Expression.java
+  function_name: hookInternal
+  startLine: 35
+  startColumn: 1
+  endLine: 35
+  endColumn: 1

@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: 3dxxe
+
+cwes:
+- CWE-611
+
+description: ThreeDXMLParser fails to secure the XMLParser and is vulnerable to XXE and other XML security vulnerabilities.
+
+locations:
+- path_from_root: tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-cad-module/src/main/java/org/apache/tika/parser/threedxml/ThreeDXMLParser.java
+  function_name: checkSsrf
+  startLine: 129
+  startColumn: 9
+  endLine: 130
+  endColumn: 41

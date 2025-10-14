@@ -1,0 +1,65 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 0f876b983249cd3fb32b53d405f5985e83d8c3bd
+  ref_commit: 574c2873262ed08f0af2675327ef66de1f6a21c5
+
+full_mode:
+  base_commit: 574c2873262ed08f0af2675327ef66de1f6a21c5
+
+harness_files:
+- name: api
+  path: $REPO/fuzz/api.c
+
+- name: html
+  path: $REPO/fuzz/html.c
+
+- name: lint
+  path: $REPO/fuzz/lint.c
+
+- name: reader
+  path: $REPO/fuzz/reader.c
+
+- name: regexp
+  path: $REPO/fuzz/regexp.c
+
+- name: schema
+  path: $REPO/fuzz/schema.c
+
+- name: uri
+  path: $REPO/fuzz/uri.c
+
+- name: valid
+  path: $REPO/fuzz/valid.c
+
+- name: xinclude
+  path: $REPO/fuzz/xinclude.c
+
+- name: xml
+  path: $REPO/fuzz/xml.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: attempting double-free'
+
+- name: xpath
+  path: $REPO/fuzz/xpath.c

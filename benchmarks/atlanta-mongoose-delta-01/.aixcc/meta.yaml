@@ -1,0 +1,35 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: a31b7a106e97a2aab795279307f121e3fc5b224a
+  ref_commit: b8afaa4f662db2a030ea412a3e0d2b2c93a8bf24
+
+full_mode:
+  base_commit: b8afaa4f662db2a030ea412a3e0d2b2c93a8bf24
+
+harness_files:
+- name: fuzz
+  path: $REPO/test/fuzz.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: dynamic-stack-buffer-overflow'

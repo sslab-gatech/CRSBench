@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: Example vulnerability
+
+cwes:
+- CWE-121
+
+description: An improper use of sizeof leads to an out of bounds read and write in the png_handle_iCCP function.
+
+locations:
+- path_from_root: pngrutil.c
+  function_name: OSS_FUZZ_png_handle_iCCP
+  startLine: 1421
+  startColumn: 7
+  endLine: 1447
+  endColumn: 38

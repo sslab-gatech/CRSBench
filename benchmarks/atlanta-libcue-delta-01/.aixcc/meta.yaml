@@ -1,0 +1,35 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 8fafc76f9c923d4feb2f32dd12f2a37cfef9d241
+  ref_commit: bc9731a723d8ea64d87da3dc882d181baba8431c
+
+full_mode:
+  base_commit: bc9731a723d8ea64d87da3dc882d181baba8431c
+
+harness_files:
+- name: fuzz
+  path: $REPO/oss-fuzz/fuzz.cpp
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: SEGV'

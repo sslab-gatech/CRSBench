@@ -1,0 +1,40 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 56390e0a394aa8a22fee5bfdcaf842062ca6ee74
+  ref_commit: 0e2a8078f4c690bcdc7e05238289fc04f5c3bb40
+
+full_mode:
+  base_commit: 0e2a8078f4c690bcdc7e05238289fc04f5c3bb40
+
+harness_files:
+- name: input-fuzzer
+  path: $REPO/fuzz/input-fuzzer.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: stack-buffer-overflow'
+  - vuln_keyword: cpv_1
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'

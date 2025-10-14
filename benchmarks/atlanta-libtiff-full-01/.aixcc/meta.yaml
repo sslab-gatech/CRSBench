@@ -1,0 +1,70 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+full_mode:
+  base_commit: 22365519b44bc49f9de15d7b2c6fcf6cfa11455d
+
+harness_files:
+- name: tiffinfo
+  path: $REPO/contrib/oss-fuzz/tiffinfo.cc
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'libFuzzer: timeout'
+
+- name: tiff_open
+  path: $REPO/contrib/oss-fuzz/tiff_open.cc
+  vulns:
+  - vuln_keyword: cpv_1
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: libFuzzer: out-of-memory'
+
+- name: tiff_read_encoded_strip
+  path: $REPO/contrib/oss-fuzz/tiff_read_encoded_strip.cc
+
+- name: tiff_read_from_user_buffer
+  path: $REPO/contrib/oss-fuzz/tiff_read_from_user_buffer.cc
+
+- name: tiff_read_rgba
+  path: $REPO/contrib/oss-fuzz/tiff_read_rgba.cc
+
+- name: tiff_raster_scanline_size
+  path: $REPO/contrib/oss-fuzz/tiff_raster_scanline_size.cc
+
+- name: tiff_read_rgba_tile_ext
+  path: $REPO/contrib/oss-fuzz/tiff_read_rgba_tile_ext.cc
+  vulns:
+  - vuln_keyword: cpv_2
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: SEGV'
+
+- name: tiffcp
+  path: $REPO/contrib/oss-fuzz/tiffcp.cc
+  vulns:
+  - vuln_keyword: cpv_3
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'

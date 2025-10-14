@@ -1,0 +1,22 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+cwes:
+- CWE-78
+
+description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+locations:
+- path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
+  function_name: processImplStartHook
+  startLine: 191
+  startColumn: 1
+  endLine: 191
+  endColumn: 1
+- path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
+  function_name: processImplStartHook
+  startLine: 194
+  startColumn: 1
+  endLine: 194
+  endColumn: 1

@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: Zip slip via URL decoding
+
+cwes:
+- CWE-23
+
+description: Tika-app fails to check for zip slip after url decoding a target path name.
+
+locations:
+- path_from_root: tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
+  function_name: check
+  startLine: 1155
+  startColumn: 13
+  endLine: 1159
+  endColumn: 14

@@ -1,0 +1,12 @@
+homepage: "https://www.freerdp.com/"
+main_repo: "git@github.com:Team-Atlanta/official-afc-freerdp.git"
+language: c
+primary_contact: ""
+builds_per_day: 4
+fuzzing_engines:
+  - libfuzzer
+sanitizers:
+  - address
+  - undefined
+architectures:
+  - x86_64

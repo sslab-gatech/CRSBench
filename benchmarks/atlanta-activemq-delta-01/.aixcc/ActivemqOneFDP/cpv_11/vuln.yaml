@@ -1,0 +1,20 @@
+id: cpv_11
+
+name: 'MOCK: cpv_11 vulnerability in ActivemqOneFDP'
+
+cwes: []
+
+description: 'MOCK: Vulnerability cpv_11 detected in harness ActivemqOneFDP. This vulnerability is detected by address sanitizer.
+  The error signature is: ''FuzzerSecurityIssueHigh: Remote Code Execution''.
+
+
+  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
+  please analyze the patches, POV blobs, and crash logs.'
+
+locations:
+- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+  function_name: reportFinding
+  startLine: 0
+  startColumn: 0
+  endLine: 0
+  endColumn: 0

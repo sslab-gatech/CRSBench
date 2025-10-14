@@ -1,0 +1,20 @@
+id: cpv_0
+
+name: 'MOCK: cpv_0 vulnerability in sleuthkit_fls_ntfs_fuzzer'
+
+cwes: []
+
+description: 'MOCK: Vulnerability cpv_0 detected in harness sleuthkit_fls_ntfs_fuzzer. This vulnerability is detected by address
+  sanitizer. The error signature is: ''ERROR: AddressSanitizer: memcpy-param-overlap''.
+
+
+  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
+  please analyze the patches, POV blobs, and crash logs.'
+
+locations:
+- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+  function_name: __asan_memcpy
+  startLine: 0
+  startColumn: 0
+  endLine: 0
+  endColumn: 0

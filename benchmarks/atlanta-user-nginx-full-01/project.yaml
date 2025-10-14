@@ -1,0 +1,9 @@
+homepage: "http://nginx.org"
+main_repo: "git@github.com:Team-Atlanta/challenge-004-nginx-source.git"
+language: c
+sanitizers:
+  - address
+
+fuzzing_engines:
+  - libfuzzer
+  

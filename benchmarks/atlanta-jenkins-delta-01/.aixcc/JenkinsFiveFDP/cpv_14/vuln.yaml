@@ -1,0 +1,16 @@
+id: cpv_14
+
+name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+cwes:
+- CWE-78
+
+description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+locations:
+- path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
+  function_name: processImplStartHook
+  startLine: 102
+  startColumn: 1
+  endLine: 102
+  endColumn: 1

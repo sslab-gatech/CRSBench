@@ -1,0 +1,20 @@
+id: cpv_15
+
+name: 'MOCK: cpv_15 vulnerability in JenkinsFive'
+
+cwes: []
+
+description: 'MOCK: Vulnerability cpv_15 detected in harness JenkinsFive. This vulnerability is detected by address sanitizer.
+  The error signature is: ''FuzzerSecurityIssueCritical: OS Command Injection''.
+
+
+  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
+  please analyze the patches, POV blobs, and crash logs.'
+
+locations:
+- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+  function_name: processImplStartHook
+  startLine: 0
+  startColumn: 0
+  endLine: 0
+  endColumn: 0

@@ -1,0 +1,22 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+cwes:
+- CWE-78
+
+description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+locations:
+- path_from_root: core/src/main/java/org/apache/shiro/io/ClassResolvingObjectInputStream.java
+  function_name: deserialize
+  startLine: 38
+  startColumn: 1
+  endLine: 38
+  endColumn: 1
+- path_from_root: core/src/main/java/org/apache/shiro/io/DefaultSerializer.java
+  function_name: deserialize
+  startLine: 77
+  startColumn: 1
+  endLine: 77
+  endColumn: 1

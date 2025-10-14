@@ -1,0 +1,67 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+full_mode:
+  base_commit: 8774ae1c3316038b798637492f705bc4ea69d9f3
+
+harness_files:
+- name: AspectJExpressionPointcutFuzzer
+  path: $PROJECT/spring-aop/AspectJExpressionPointcutFuzzer.java
+
+- name: BeanWrapperFuzzer
+  path: $PROJECT/spring-beans/BeanWrapperFuzzer.java
+
+- name: XmlApplicationContextFuzzer
+  path: $PROJECT/spring-context/XmlApplicationContextFuzzer.java
+
+- name: SpelExpressionFuzzer
+  path: $PROJECT/spring-expression/SpelExpressionFuzzer.java
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory'
+
+- name: MapperFuzzerServer
+  path: $PROJECT/spring-jdbc/MapperFuzzerServer.java
+
+- name: SimpleJmsHeaderMapperFuzzer
+  path: $PROJECT/spring-jms/SimpleJmsHeaderMapperFuzzer.java
+
+- name: PayloadMethodArgumentResolverFuzzer
+  path: $PROJECT/spring-messaging/PayloadMethodArgumentResolverFuzzer.java
+
+- name: XStreamMarshallerFuzzer
+  path: $PROJECT/spring-oxm/XStreamMarshallerFuzzer.java
+
+- name: TransactionAttributeSourceEditorFuzzer
+  path: $PROJECT/spring-tx/TransactionAttributeSourceEditorFuzzer.java
+
+- name: ContentDispositionFuzzer
+  path: $PROJECT/spring-web/ContentDispositionFuzzer.java
+
+- name: CookieLocaleResolverFuzzer
+  path: $PROJECT/spring-web/CookieLocaleResolverFuzzer.java
+
+- name: BindStatusFuzzer
+  path: $PROJECT/spring-webflux/BindStatusFuzzer.java
+
+- name: StompSubProtocolHandlerFuzzer
+  path: $PROJECT/spring-websocket/StompSubProtocolHandlerFuzzer.java

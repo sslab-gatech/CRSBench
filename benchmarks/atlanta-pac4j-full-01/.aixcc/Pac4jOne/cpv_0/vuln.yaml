@@ -1,0 +1,22 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+cwes:
+- CWE-918
+
+description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+locations:
+- path_from_root: pac4j-core/src/main/java/org/pac4j/core/util/JavaSerializationHelper.java
+  function_name: checkSsrf
+  startLine: 147
+  startColumn: 1
+  endLine: 147
+  endColumn: 1
+- path_from_root: pac4j-core/src/main/java/org/pac4j/core/util/JavaSerializationHelper.java
+  function_name: checkSsrf
+  startLine: 82
+  startColumn: 1
+  endLine: 82
+  endColumn: 1

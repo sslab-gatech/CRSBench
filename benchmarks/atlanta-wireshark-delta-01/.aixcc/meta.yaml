@@ -1,0 +1,35 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 7084b6e4dbe7246def540d36d241b49f5d69e9a3
+  ref_commit: 1fa7f7728e07f491dea20197b391c7b12c0f4818
+
+full_mode:
+  base_commit: 1fa7f7728e07f491dea20197b391c7b12c0f4818
+
+harness_files:
+- name: fuzzshark_ip
+  path: $REPO/fuzz/fuzzshark.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: global-buffer-overflow'

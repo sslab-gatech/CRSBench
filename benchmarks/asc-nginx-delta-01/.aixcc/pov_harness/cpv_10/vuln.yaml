@@ -1,0 +1,20 @@
+id: cpv_10
+
+name: 'MOCK: cpv_10 vulnerability in pov_harness'
+
+cwes: []
+
+description: 'MOCK: Vulnerability cpv_10 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
+  The error signature is: ''ERROR: AddressSanitizer: SEGV''.
+
+
+  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
+  please analyze the patches, POV blobs, and crash logs.'
+
+locations:
+- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+  function_name: QuickCheckForUnpoisonedRegion
+  startLine: 0
+  startColumn: 0
+  endLine: 0
+  endColumn: 0

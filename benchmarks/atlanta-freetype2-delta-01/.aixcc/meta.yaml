@@ -1,0 +1,137 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: aab40d5cc4876d4004170d46e2718f9cd81b78dd
+  ref_commit: 23d9865675af2fbf86648843b744339882464fa4
+
+full_mode:
+  base_commit: 23d9865675af2fbf86648843b744339882464fa4
+
+harness_files:
+- name: bdf
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: bdf-render
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: bzip2
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: cff
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: cff-ftengine
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+  vulns:
+  - vuln_keyword: cpv_1
+    povs:
+    - id: pov_0
+      sanitizer: undefined
+      error_token: 'runtime error: negation of'
+
+- name: cff-render
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: cff-render-ftengine
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: cidtype1
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: cidtype1-ftengine
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: cidtype1-render
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: cidtype1-render-ftengine
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: colrv1
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: ftfuzzer
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: glyphs-bitmaps-pcf
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: glyphs-outlines
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: gzip
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: lzw
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: pcf
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: pcf-render
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: truetype
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: truetype-render
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: truetype-render-i35
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: truetype-render-i38
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: LeakSanitizer: detected memory leaks'
+
+- name: type1
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: type1-ftengine
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: type1-render
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: type1-render-ftengine
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: type1-render-tar
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: type1-tar
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: type42
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: type42-render
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: windowsfnt
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp
+
+- name: windowsfnt-render
+  path: $PROJECT/freetype2-testing/fuzzing/src/fuzzers/template.cpp

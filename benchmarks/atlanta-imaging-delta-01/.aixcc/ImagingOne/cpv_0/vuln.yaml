@@ -1,0 +1,22 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+cwes:
+- CWE-78
+
+description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+locations:
+- path_from_root: src/main/java/org/apache/commons/imaging/formats/png/chunks/PngChunkZtxt.java
+  function_name: processImplStartHook
+  startLine: 61
+  startColumn: 1
+  endLine: 61
+  endColumn: 1
+- path_from_root: src/main/java/org/apache/commons/imaging/formats/png/chunks/PngChunkZtxt.java
+  function_name: processImplStartHook
+  startLine: 62
+  startColumn: 1
+  endLine: 62
+  endColumn: 1

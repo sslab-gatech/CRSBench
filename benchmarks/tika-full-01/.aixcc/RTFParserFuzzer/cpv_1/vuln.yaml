@@ -1,0 +1,22 @@
+id: cpv_1
+
+name: Object deserialization in RTF
+
+cwes:
+- CWE-502
+
+description: The RTFParser deserializes Java objects embedded in RTF files without limitations.
+
+locations:
+- path_from_root: tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-microsoft-module/src/main/java/org/apache/tika/parser/microsoft/rtf/TextExtractor.java
+  function_name: reportFinding
+  startLine: 1473
+  startColumn: 11
+  endLine: 1480
+  endColumn: 10
+- path_from_root: tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-microsoft-module/src/main/java/org/apache/tika/parser/microsoft/rtf/RTFEmbObjHandler.java
+  function_name: reportFinding
+  startLine: 213
+  startColumn: 10
+  endLine: 225
+  endColumn: 9

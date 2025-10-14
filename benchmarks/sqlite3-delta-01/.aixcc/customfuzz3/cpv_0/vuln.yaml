@@ -1,0 +1,17 @@
+id: cpv_0
+
+name: base85 buffer overflow
+
+cwes:
+- CWE-787
+
+description: The base85 module contains a decompression function which does not properly check for overflow, leading to a
+  heap buffer overflow.
+
+locations:
+- path_from_root: ext/misc/base85.c
+  function_name: fromBase85
+  startLine: 221
+  startColumn: 1
+  endLine: 234
+  endColumn: 1

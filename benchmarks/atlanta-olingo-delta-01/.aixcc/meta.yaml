@@ -1,0 +1,44 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: cc7356c0f544e5cba95463e2144b7435999e4b99
+  ref_commit: 8e9dade13c2b5aecbbbca6d1b6746f037a42a9d6
+
+full_mode:
+  base_commit: 8e9dade13c2b5aecbbbca6d1b6746f037a42a9d6
+
+harness_files:
+- name: OlingoOne
+  path: $PROJECT/fuzz/olingo-harness-one/src/main/java/com/aixcc/olingo/harnesses/one/OlingoOne.java
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'FuzzerSecurityIssueMedium: Server Side Request Forgery'
+
+- name: OlingoOneFDP
+  path: $PROJECT/fuzz/olingo-harness-one/src/main/java/com/aixcc/olingo/harnesses/one/OlingoOneFDP.java
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'FuzzerSecurityIssueMedium: Server Side Request Forgery'

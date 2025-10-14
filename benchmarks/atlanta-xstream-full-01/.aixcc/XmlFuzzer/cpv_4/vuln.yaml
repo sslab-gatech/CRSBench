@@ -1,0 +1,16 @@
+id: cpv_4
+
+name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+cwes:
+- CWE-78
+
+description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+locations:
+- path_from_root: xstream/src/java/com/thoughtworks/xstream/converters/extended/StringInterpolationConverter.java
+  function_name: processImplStartHook
+  startLine: 195
+  startColumn: 1
+  endLine: 195
+  endColumn: 1

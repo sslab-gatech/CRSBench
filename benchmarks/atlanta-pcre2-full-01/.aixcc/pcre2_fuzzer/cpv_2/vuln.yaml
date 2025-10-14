@@ -1,0 +1,20 @@
+id: cpv_2
+
+name: 'MOCK: cpv_2 vulnerability in pcre2_fuzzer'
+
+cwes: []
+
+description: 'MOCK: Vulnerability cpv_2 detected in harness pcre2_fuzzer. This vulnerability is detected by undefined sanitizer.
+  The error signature is: ''runtime error: signed integer overflow''.
+
+
+  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
+  please analyze the patches, POV blobs, and crash logs.'
+
+locations:
+- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+  function_name: get_branchlength
+  startLine: 0
+  startColumn: 0
+  endLine: 0
+  endColumn: 0

@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+cwes:
+- CWE-78
+
+description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+locations:
+- path_from_root: fuzz/cronutils-harness-one/src/main/java/com/aixcc/cronutils/harnesses/one/CronUtilsOneFDP.java
+  function_name: processImplStartHook
+  startLine: 37
+  startColumn: 1
+  endLine: 37
+  endColumn: 1

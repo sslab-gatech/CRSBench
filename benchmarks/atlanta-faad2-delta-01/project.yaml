@@ -1,0 +1,13 @@
+homepage: "https://sourceforge.net/projects/faac"
+main_repo: "git@github.com:Team-Atlanta/cp-c-faad2.git"
+language: c
+primary_contact: "eustas@chromium.org"
+auto_ccs:
+ - "david@adalogics.com"
+sanitizers:
+ - address
+ - memory
+ - undefined
+
+fuzzing_engines:
+  - libfuzzer

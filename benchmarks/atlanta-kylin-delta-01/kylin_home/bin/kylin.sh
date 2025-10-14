@@ -1,0 +1,10 @@
+#!/bin/bash
+SRC_CONFIG=$3
+DST_CONFIG=$4
+OS_COMMAND=$5
+OPT1=$6
+OPT2=$7
+OPT3=$8
+OPT4=$9
+
+echo $OS_COMMAND

@@ -1,0 +1,7 @@
+homepage: "https://www.gnu.org/software/binutils/"
+main_repo: "git@github.com:Team-Atlanta/cp-c-binutils-src.git"
+language: c++ # most of source code is c?
+sanitizers:
+  - address
+fuzzing_engines:
+  - libfuzzer

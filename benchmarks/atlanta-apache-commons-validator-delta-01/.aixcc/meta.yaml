@@ -1,0 +1,44 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 4ac623ec9f0930b76d046091f5dbceede72d0b1a
+  ref_commit: bb2da7a0119c6b74a2974f0d720186d9fc80fe62
+
+full_mode:
+  base_commit: bb2da7a0119c6b74a2974f0d720186d9fc80fe62
+
+harness_files:
+- name: CreditCardValidatorFuzzer
+  path: $PROJECT/CreditCardValidatorFuzzer.java
+
+- name: IBANValidatorFuzzer
+  path: $PROJECT/IBANValidatorFuzzer.java
+
+- name: UrlValidator2Fuzzer
+  path: $PROJECT/UrlValidator2Fuzzer.java
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: libFuzzer: timeout'
+
+- name: UrlValidatorFuzzer
+  path: $PROJECT/UrlValidatorFuzzer.java

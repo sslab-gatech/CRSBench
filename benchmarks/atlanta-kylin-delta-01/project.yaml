@@ -1,0 +1,7 @@
+language: jvm
+main_repo: 'git@github.com:Team-Atlanta/cp-java-kylin-src.git'
+fuzzing_engines:
+  - libfuzzer
+sanitizers:
+  - address
+

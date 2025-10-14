@@ -1,0 +1,22 @@
+id: cpv_12
+
+name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+cwes:
+- CWE-918
+
+description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+locations:
+- path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/CauseManagement.java
+  function_name: checkSsrf
+  startLine: 242
+  startColumn: 1
+  endLine: 242
+  endColumn: 1
+- path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/CauseManagement.java
+  function_name: checkSsrf
+  startLine: 245
+  startColumn: 1
+  endLine: 245
+  endColumn: 1

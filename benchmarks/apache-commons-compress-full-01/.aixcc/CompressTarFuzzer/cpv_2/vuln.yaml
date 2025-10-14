@@ -1,0 +1,17 @@
+id: cpv_2
+
+name: object deserialization backdoor in a tar archive entry
+
+cwes:
+- CWE-502
+
+description: If a tar entry's name looks like a Java serialized object and the user name is "eMezilaireseD", then this code
+  deserializes the object
+
+locations:
+- path_from_root: src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java
+  function_name: reportFinding
+  startLine: 1549
+  startColumn: 1
+  endLine: 1566
+  endColumn: 1

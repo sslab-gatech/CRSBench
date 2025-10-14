@@ -1,0 +1,16 @@
+id: cpv_1
+
+name: exif-004, apple mnote bug 2
+
+cwes:
+- CWE-122
+
+description: This is a buffer over-read from a memcpy.
+
+locations:
+- path_from_root: libexif/apple/exif-mnote-data-apple.c
+  function_name: __asan_memcpy
+  startLine: 131
+  startColumn: 1
+  endLine: 132
+  endColumn: 1

@@ -1,0 +1,79 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+full_mode:
+  base_commit: 064cd2f6cab29b416ec9d5fc1926bb56d053b491
+
+harness_files:
+- name: curl_fuzzer
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: stack-buffer-overflow'
+
+- name: curl_fuzzer_bufq
+  path: $PROJECT/curl_fuzzer/fuzz_bufq.cc
+
+- name: curl_fuzzer_dict
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_file
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_ftp
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_gopher
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_http
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_https
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_imap
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_mqtt
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_pop3
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_rtsp
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_smb
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_smtp
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_tftp
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: curl_fuzzer_ws
+  path: $PROJECT/curl_fuzzer/curl_fuzzer.cc
+
+- name: fuzz_url
+  path: $PROJECT/curl_fuzzer/fuzz_url.cc

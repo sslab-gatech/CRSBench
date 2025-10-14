@@ -1,0 +1,8 @@
+homepage: "https://sleuthkit.org"
+language: c++
+primary_contact: "carrier@sleuthkit.org"
+main_repo: 'git@github.com:Team-Atlanta/cp-c-sleuthkit.git'
+fuzzing_engines:
+  - "libfuzzer"
+sanitizers:
+  - address

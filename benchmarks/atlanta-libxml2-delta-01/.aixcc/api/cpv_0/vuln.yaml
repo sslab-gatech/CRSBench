@@ -1,0 +1,20 @@
+id: cpv_0
+
+name: 'MOCK: cpv_0 vulnerability in api'
+
+cwes: []
+
+description: 'MOCK: Vulnerability cpv_0 detected in harness api. This vulnerability is detected by memory sanitizer. The error
+  signature is: ''MemorySanitizer: use-of-uninitialized-value''.
+
+
+  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
+  please analyze the patches, POV blobs, and crash logs.'
+
+locations:
+- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+  function_name: xmlSearchNsByHref
+  startLine: 0
+  startColumn: 0
+  endLine: 0
+  endColumn: 0

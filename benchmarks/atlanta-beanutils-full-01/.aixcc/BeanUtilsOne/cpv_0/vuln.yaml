@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+
+cwes:
+- CWE-22
+
+description: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+
+locations:
+- path_from_root: fuzz/beanutils-harness-one/src/main/java/com/aixcc/beanutils/harnesses/one/BeanUtilsOne.java
+  function_name: check
+  startLine: 79
+  startColumn: 1
+  endLine: 79
+  endColumn: 1

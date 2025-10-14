@@ -1,0 +1,17 @@
+id: cpv_1
+
+name: Dangling pointer leading to Use After Free
+
+cwes:
+- CWE-416
+
+description: This vulnerability arises from the improper return of a comment node text pointer, which is then freed by a parent
+  function. Use of this pointer later will result in a use after free.
+
+locations:
+- path_from_root: tree.c
+  function_name: free
+  startLine: 5623
+  startColumn: 1
+  endLine: 5625
+  endColumn: 0

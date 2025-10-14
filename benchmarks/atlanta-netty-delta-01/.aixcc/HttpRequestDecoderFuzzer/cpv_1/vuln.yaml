@@ -1,0 +1,22 @@
+id: cpv_1
+
+name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+cwes:
+- CWE-78
+
+description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+locations:
+- path_from_root: codec-http/src/main/java/io/netty/handler/codec/http/HttpRequestDecoder.java
+  function_name: processImplStartHook
+  startLine: 262
+  startColumn: 1
+  endLine: 262
+  endColumn: 1
+- path_from_root: codec-http/src/main/java/io/netty/handler/codec/http/HttpRequestDecoder.java
+  function_name: processImplStartHook
+  startLine: 265
+  startColumn: 1
+  endLine: 265
+  endColumn: 1

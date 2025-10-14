@@ -1,0 +1,16 @@
+id: cpv_1
+
+name: 'FuzzerSecurityIssueCritical: Script Engine Injection (TBD)'
+
+cwes:
+- CWE-94
+
+description: 'FuzzerSecurityIssueCritical: Script Engine Injection (TBD)'
+
+locations:
+- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/Script.java
+  function_name: checkScriptContent
+  startLine: 84
+  startColumn: 1
+  endLine: 84
+  endColumn: 1

@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+
+cwes:
+- CWE-22
+
+description: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+
+locations:
+- path_from_root: src/main/java/org/apache/bcel/verifier/statics/Pass2Verifier.java
+  function_name: check
+  startLine: 973
+  startColumn: 1
+  endLine: 973
+  endColumn: 1

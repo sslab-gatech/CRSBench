@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: libxml2 xml:tab handling double free
+
+cwes:
+- CWE-415
+
+description: Failure to handle an error condition properly and prematurely freeing a buffer that is later freed.
+
+locations:
+- path_from_root: parser.c
+  function_name: free
+  startLine: 9023
+  startColumn: 1
+  endLine: 9025
+  endColumn: 1

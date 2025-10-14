@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueHigh: XPath Injection (TBD)'
+
+cwes:
+- CWE-643
+
+description: 'FuzzerSecurityIssueHigh: XPath Injection (TBD)'
+
+locations:
+- path_from_root: src/me/xdrop/fuzzywuzzy/Config.java
+  function_name: invoke0
+  startLine: 84
+  startColumn: 1
+  endLine: 84
+  endColumn: 1

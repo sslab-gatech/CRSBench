@@ -1,0 +1,16 @@
+id: cpv_9
+
+name: 'FuzzerSecurityIssueHigh: XPath Injection (TBD)'
+
+cwes:
+- CWE-643
+
+description: 'FuzzerSecurityIssueHigh: XPath Injection (TBD)'
+
+locations:
+- path_from_root: jenkins/core/src/main/java/jenkins/util/xml/XMLUtils.java
+  function_name: checkXpathExecute
+  startLine: 236
+  startColumn: 1
+  endLine: 236
+  endColumn: 1

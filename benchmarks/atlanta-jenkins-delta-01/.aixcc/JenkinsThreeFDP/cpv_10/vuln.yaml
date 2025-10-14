@@ -1,0 +1,16 @@
+id: cpv_10
+
+name: 'FuzzerSecurityIssueHigh: load arbitrary library (TBD)'
+
+cwes:
+- CWE-829
+
+description: 'FuzzerSecurityIssueHigh: load arbitrary library (TBD)'
+
+locations:
+- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/SecretMessage.java
+  function_name: loadLibraryHook
+  startLine: 98
+  startColumn: 1
+  endLine: 98
+  endColumn: 1

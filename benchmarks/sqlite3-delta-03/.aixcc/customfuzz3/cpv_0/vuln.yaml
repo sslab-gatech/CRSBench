@@ -1,0 +1,24 @@
+id: cpv_0
+
+name: LSM debug string off-by-one
+
+cwes:
+- CWE-787
+
+description: The ``lsmSortedDumpStructure`` function allows a user to view the internal structure of the LSM database. However,
+  a sub-function, ``fileToString``, has an off-by-one error in which it intends to write a 0 byte to the end of a buffer,
+  but accidentally writes it to one index past the end of the buffer instead.
+
+locations:
+- path_from_root: ext/lsm1/lsm_sorted.c
+  function_name: fileToString
+  startLine: 5527
+  startColumn: 1
+  endLine: 5556
+  endColumn: 1
+- path_from_root: ext/lsm1/lsm_vtab.c
+  function_name: fileToString
+  startLine: 221
+  startColumn: 1
+  endLine: 236
+  endColumn: 1

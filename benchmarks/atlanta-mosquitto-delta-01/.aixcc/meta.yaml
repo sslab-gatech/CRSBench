@@ -1,0 +1,109 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: cf684934dadb5a8add026d8ccbd40a7f89addc3a
+  ref_commit: 806fb8aaceecebe5497192db21a194bf2bec4666
+
+full_mode:
+  base_commit: 806fb8aaceecebe5497192db21a194bf2bec4666
+
+harness_files:
+- name: broker_fuzz_acl_file
+  path: $REPO/fuzzing/broker/broker_fuzz_acl_file.cpp
+
+- name: broker_fuzz_handle_auth
+  path: $REPO/fuzzing/broker/broker_fuzz_handle_auth.cpp
+
+- name: broker_fuzz_handle_connect
+  path: $REPO/fuzzing/broker/broker_fuzz_handle_connect.cpp
+
+- name: broker_fuzz_handle_publish
+  path: $REPO/fuzzing/broker/broker_fuzz_handle_publish.cpp
+
+- name: broker_fuzz_handle_subscribe
+  path: $REPO/fuzzing/broker/broker_fuzz_handle_subscribe.cpp
+
+- name: broker_fuzz_handle_unsubscribe
+  path: $REPO/fuzzing/broker/broker_fuzz_handle_unsubscribe.cpp
+
+- name: broker_fuzz_password_file
+  path: $REPO/fuzzing/broker/broker_fuzz_password_file.cpp
+
+- name: broker_fuzz_psk_file
+  path: $REPO/fuzzing/broker/broker_fuzz_psk_file.cpp
+
+- name: broker_fuzz_queue_msg
+  path: $REPO/fuzzing/broker/broker_fuzz_queue_msg.cpp
+
+- name: broker_fuzz_read_handle
+  path: $REPO/fuzzing/broker/broker_fuzz_read_handle.cpp
+
+- name: broker_fuzz_test_config
+  path: $REPO/fuzzing/broker/broker_fuzz_test_config.cpp
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'AddressSanitizer: heap-buffer-overflow'
+  - vuln_keyword: cpv_1
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'AddressSanitizer: heap-buffer-overflow'
+
+- name: db_dump_fuzz_load
+  path: $REPO/fuzzing/apps/db_dump/db_dump_fuzz_load.cpp
+
+- name: db_dump_fuzz_load_client_stats
+  path: $REPO/fuzzing/apps/db_dump/db_dump_fuzz_load_client_stats.cpp
+
+- name: db_dump_fuzz_load_stats
+  path: $REPO/fuzzing/apps/db_dump/db_dump_fuzz_load_stats.cpp
+
+- name: dynsec_fuzz_load
+  path: $REPO/fuzzing/plugins/dynamic-security/dynsec_fuzz_load.cpp
+  vulns:
+  - vuln_keyword: cpv_2
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'AddressSanitizer: heap-use-after-free'
+
+- name: libcommon_fuzz_pub_topic_check2
+  path: $REPO/fuzzing/libcommon/libcommon_fuzz_pub_topic_check2.cpp
+
+- name: libcommon_fuzz_sub_topic_check2
+  path: $REPO/fuzzing/libcommon/libcommon_fuzz_sub_topic_check2.cpp
+
+- name: libcommon_fuzz_topic_tokenise
+  path: $REPO/fuzzing/libcommon/libcommon_fuzz_topic_tokenise.cpp
+
+- name: libcommon_fuzz_utf8
+  path: $REPO/fuzzing/libcommon/libcommon_fuzz_utf8.cpp
+  vulns:
+  - vuln_keyword: cpv_3
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'AddressSanitizer: heap-buffer-overflow'
+
+- name: mosquitto_passwd_fuzz_load
+  path: $REPO/fuzzing/apps/mosquitto_passwd/mosquitto_passwd_fuzz_load.cpp

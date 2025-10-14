@@ -1,0 +1,17 @@
+id: cpv_0
+
+name: OOM on crafted compressed file
+
+cwes:
+- CWE-789
+
+description: Some compression formats may build large tables in memory before decompressing a file based on information in
+  the compressed file. A very small crafted file may cause a  decompressor to allocate GBs of memory unless a limit is set.
+
+locations:
+- path_from_root: src/main/java/org/apache/commons/compress/archivers/examples/Expander.java
+  function_name: initializeTables
+  startLine: 221
+  startColumn: 1
+  endLine: 241
+  endColumn: 1

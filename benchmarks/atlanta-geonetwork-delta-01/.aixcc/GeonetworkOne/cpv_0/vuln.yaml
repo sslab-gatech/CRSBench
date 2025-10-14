@@ -1,0 +1,22 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+cwes:
+- CWE-78
+
+description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+locations:
+- path_from_root: harvesters/src/main/java/org/fao/geonet/kernel/harvest/harvester/localfilesystem/LocalFilesystemHarvester.java
+  function_name: processImplStartHook
+  startLine: 239
+  startColumn: 1
+  endLine: 239
+  endColumn: 1
+- path_from_root: harvesters/src/main/java/org/fao/geonet/kernel/harvest/harvester/localfilesystem/LocalFilesystemHarvester.java
+  function_name: processImplStartHook
+  startLine: 242
+  startColumn: 1
+  endLine: 242
+  endColumn: 1

@@ -1,0 +1,10 @@
+homepage: "https://github.com/cesanta/mongoose"
+language: c++
+primary_contact: "info@cesanta.com"
+auto_ccs:
+  - "david@adalogics.com"
+main_repo: 'git@github.com:Team-Atlanta/cp-c-mongoose-src.git'
+sanitizers:
+  - address
+fuzzing_engines:
+  - libfuzzer

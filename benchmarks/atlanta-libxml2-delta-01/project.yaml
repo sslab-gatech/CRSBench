@@ -1,0 +1,14 @@
+homepage: "https://gitlab.gnome.org/GNOME/libxml2"
+language: c
+primary_contact: ""
+sanitizers:
+  - address
+  - memory
+  - undefined
+architectures:
+  - x86_64
+fuzzing_engines:
+  - libfuzzer
+  # - honggfuzz
+  # - afl
+main_repo: 'git@github.com:Team-Atlanta/cp-c-libxml2.git'

@@ -1,0 +1,52 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+full_mode:
+  base_commit: ca7e5592af6fd5c133edbccbd13e31e64014043c
+
+harness_files:
+- name: XmlFuzzer
+  path: $PROJECT/XmlFuzzer.java
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Stack overflow'
+  - vuln_keyword: cpv_1
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Stack overflow'
+  - vuln_keyword: cpv_2
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueMedium: Server Side Request Forgery
+        (SSRF)'
+  - vuln_keyword: cpv_3
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory'
+  - vuln_keyword: cpv_4
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueCritical: OS Command Injection'

@@ -1,0 +1,1 @@
+$MVN -pl :pdfbox -am -Dcheckstyle.skip=true -Dcheckstyle.skipExec=true test

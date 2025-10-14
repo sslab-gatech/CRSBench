@@ -1,0 +1,22 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+cwes:
+- CWE-78
+
+description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+locations:
+- path_from_root: src/main/java/oripa/persistence/doc/loader/LoaderXML.java
+  function_name: processImplStartHook
+  startLine: 43
+  startColumn: 1
+  endLine: 43
+  endColumn: 1
+- path_from_root: src/main/java/oripa/persistence/doc/loader/LoaderXML.java
+  function_name: processImplStartHook
+  startLine: 44
+  startColumn: 1
+  endLine: 44
+  endColumn: 1

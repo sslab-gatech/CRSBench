@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+cwes:
+- CWE-918
+
+description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+locations:
+- path_from_root: fuzz/cxf-harness-one/src/main/java/com/aixcc/cxf/harnesses/one/CXFOne.java
+  function_name: checkSsrf
+  startLine: 35
+  startColumn: 1
+  endLine: 35
+  endColumn: 1

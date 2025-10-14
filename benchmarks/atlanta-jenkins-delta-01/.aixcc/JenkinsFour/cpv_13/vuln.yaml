@@ -1,0 +1,22 @@
+id: cpv_13
+
+name: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+
+cwes:
+- CWE-502
+
+description: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+
+locations:
+- path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/db/LocalFileKnowledgeBase.java
+  function_name: reportFinding
+  startLine: 130
+  startColumn: 1
+  endLine: 130
+  endColumn: 1
+- path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/db/LocalFileKnowledgeBase.java
+  function_name: reportFinding
+  startLine: 131
+  startColumn: 1
+  endLine: 131
+  endColumn: 1

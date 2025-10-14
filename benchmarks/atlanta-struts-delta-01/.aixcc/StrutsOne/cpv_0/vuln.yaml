@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+
+cwes:
+- CWE-502
+
+description: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+
+locations:
+- path_from_root: plugins/tiles/src/main/java/org/apache/tiles/el/ELAttributeEvaluator.java
+  function_name: reportFinding
+  startLine: 90
+  startColumn: 1
+  endLine: 90
+  endColumn: 1

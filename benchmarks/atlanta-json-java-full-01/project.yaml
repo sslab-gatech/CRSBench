@@ -1,0 +1,9 @@
+language: jvm
+primary_contact: "jsonjava060@gmail.com"
+main_repo: "git@github.com:Team-Atlanta/cp-java-json-java-src.git"
+auto_ccs:
+  - "david@adalogics.com"
+fuzzing_engines:
+  - libfuzzer
+sanitizers:
+  - address

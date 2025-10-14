@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+
+cwes:
+- CWE-22
+
+description: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+
+locations:
+- path_from_root: src/main/java/widoco/WidocoUtils.java
+  function_name: check
+  startLine: 269
+  startColumn: 1
+  endLine: 269
+  endColumn: 1

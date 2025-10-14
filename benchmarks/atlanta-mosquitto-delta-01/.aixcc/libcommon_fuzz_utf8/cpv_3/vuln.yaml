@@ -1,0 +1,20 @@
+id: cpv_3
+
+name: 'MOCK: cpv_3 vulnerability in libcommon_fuzz_utf8'
+
+cwes: []
+
+description: 'MOCK: Vulnerability cpv_3 detected in harness libcommon_fuzz_utf8. This vulnerability is detected by address
+  sanitizer. The error signature is: ''AddressSanitizer: heap-buffer-overflow''.
+
+
+  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
+  please analyze the patches, POV blobs, and crash logs.'
+
+locations:
+- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+  function_name: mosquitto_validate_utf8
+  startLine: 0
+  startColumn: 0
+  endLine: 0
+  endColumn: 0

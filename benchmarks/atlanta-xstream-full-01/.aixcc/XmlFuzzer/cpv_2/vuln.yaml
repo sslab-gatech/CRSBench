@@ -1,0 +1,16 @@
+id: cpv_2
+
+name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+cwes:
+- CWE-918
+
+description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+
+locations:
+- path_from_root: xstream/src/java/com/thoughtworks/xstream/io/xml/DomDriver.java
+  function_name: checkSsrf
+  startLine: 108
+  startColumn: 1
+  endLine: 108
+  endColumn: 1

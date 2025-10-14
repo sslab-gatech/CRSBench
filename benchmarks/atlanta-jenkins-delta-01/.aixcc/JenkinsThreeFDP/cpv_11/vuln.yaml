@@ -1,0 +1,16 @@
+id: cpv_11
+
+name: 'FuzzerSecurityIssueLow: Regular Expression Injection (TBD)'
+
+cwes:
+- CWE-777
+
+description: 'FuzzerSecurityIssueLow: Regular Expression Injection (TBD)'
+
+locations:
+- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AccessFilter.java
+  function_name: hookInternal
+  startLine: 87
+  startColumn: 1
+  endLine: 87
+  endColumn: 1

@@ -1,0 +1,17 @@
+id: cpv_0
+
+name: rot13 off-by-one optimization results in oob write
+
+cwes:
+- CWE-787
+- CWE-121
+
+description: An off-by-one error in the rot13 implementation allows for an out of bounds write leading to a stack buffer overflow.
+
+locations:
+- path_from_root: ext/misc/rot13.c
+  function_name: rot13func
+  startLine: 57
+  startColumn: 1
+  endLine: 58
+  endColumn: 1

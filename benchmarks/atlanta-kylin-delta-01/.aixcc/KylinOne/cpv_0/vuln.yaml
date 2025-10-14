@@ -1,0 +1,22 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+cwes:
+- CWE-78
+
+description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+
+locations:
+- path_from_root: core-common/src/main/java/org/apache/kylin/common/util/CliCommandExecutor.java
+  function_name: fail
+  startLine: 124
+  startColumn: 1
+  endLine: 124
+  endColumn: 1
+- path_from_root: core-common/src/main/java/org/apache/kylin/common/util/CliCommandExecutor.java
+  function_name: fail
+  startLine: 126
+  startColumn: 1
+  endLine: 126
+  endColumn: 1

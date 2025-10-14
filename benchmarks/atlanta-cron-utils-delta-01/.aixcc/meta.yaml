@@ -1,0 +1,44 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 5ae60d3ce3a9b342f1b893e8b68be81077fe15f8
+  ref_commit: 0c815ec8633b45e80a4b9aeec8455b0a0331ca5f
+
+full_mode:
+  base_commit: 0c815ec8633b45e80a4b9aeec8455b0a0331ca5f
+
+harness_files:
+- name: CronUtilsOne
+  path: $PROJECT/fuzz/cronutils-harness-one/src/main/java/com/aixcc/cronutils/harnesses/one/CronUtilsOne.java
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueCritical: OS Command Injection'
+
+- name: CronUtilsOneFDP
+  path: $PROJECT/fuzz/cronutils-harness-one/src/main/java/com/aixcc/cronutils/harnesses/one/CronUtilsOne.java
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueCritical: OS Command Injection'

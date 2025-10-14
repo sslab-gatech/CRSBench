@@ -1,0 +1,16 @@
+id: cpv_2
+
+name: 'FuzzerSecurityIssueHigh: XPath Injection (TBD)'
+
+cwes:
+- CWE-643
+
+description: 'FuzzerSecurityIssueHigh: XPath Injection (TBD)'
+
+locations:
+- path_from_root: src/main/java/org/apache/commons/imaging/formats/jpeg/segments/PatSegment.java
+  function_name: checkXpathExecute
+  startLine: 93
+  startColumn: 1
+  endLine: 93
+  endColumn: 1

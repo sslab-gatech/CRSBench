@@ -1,0 +1,16 @@
+id: cpv_0
+
+name: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+
+cwes:
+- CWE-22
+
+description: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+
+locations:
+- path_from_root: tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
+  function_name: check
+  startLine: 1103
+  startColumn: 1
+  endLine: 1103
+  endColumn: 1

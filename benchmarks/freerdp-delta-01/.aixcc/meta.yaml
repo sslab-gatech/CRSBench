@@ -1,0 +1,53 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: a92cc0f3ebc3d3f4cf5b6097920a391e9b5fcfcf
+  ref_commit: 2aa1c9e81d92146d12656c021f05d3b7c3002fd9
+
+full_mode:
+  base_commit: 2aa1c9e81d92146d12656c021f05d3b7c3002fd9
+
+harness_files:
+- name: TestFuzzCodecs
+  path: $REPO/libfreerdp/codec/test/TestFuzzCodecs.c
+
+- name: TestFuzzCommonAssistanceBinToHexString
+  path: $REPO/libfreerdp/common/test/TestFuzzCommonAssistanceBinToHexString.c
+
+- name: TestFuzzCommonAssistanceHexStringToBin
+  path: $REPO/libfreerdp/common/test/TestFuzzCommonAssistanceHexStringToBin.c
+
+- name: TestFuzzCommonAssistanceParseFileBuffer
+  path: $REPO/libfreerdp/common/test/TestFuzzCommonAssistanceParseFileBuffer.c
+
+- name: TestFuzzCoreClient
+  path: $REPO/libfreerdp/core/test/TestFuzzCoreClient.c
+
+- name: TestFuzzCoreServer
+  path: $REPO/libfreerdp/core/test/TestFuzzCoreServer.c
+
+- name: TestFuzzCryptoCertificateDataSetPEM
+  path: $REPO/libfreerdp/core/test/TestFuzzCryptoCertificateDataSetPEM.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
