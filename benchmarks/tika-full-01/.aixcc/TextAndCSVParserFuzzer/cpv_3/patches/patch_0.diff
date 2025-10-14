@@ -1,0 +1,38 @@
+diff --git a/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-text-module/src/main/java/org/apache/tika/parser/csv/TextAndCSVParser.java b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-text-module/src/main/java/org/apache/tika/parser/csv/TextAndCSVParser.java
+index 96f49d4e0..fe2a5b513 100644
+--- a/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-text-module/src/main/java/org/apache/tika/parser/csv/TextAndCSVParser.java
++++ b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-text-module/src/main/java/org/apache/tika/parser/csv/TextAndCSVParser.java
+@@ -258,33 +258,12 @@ public class TextAndCSVParser extends AbstractEncodingDetectorParser {
+             xhtml.startElement("a", "href", url);
+             xhtml.characters(name);
+             xhtml.endElement("a");
+-            processURL(url, name, xhtml, metadata, context);
+         } else {
+             xhtml.characters(cellContent);
+         }
+         xhtml.endElement(TD);
+     }
+ 
+-    private void processURL(String urlString, String name, XHTMLContentHandler xhtml,
+-                            Metadata parentMetadata,
+-                            ParseContext context) throws IOException, SAXException {
+-        EmbeddedDocumentExtractor ex = EmbeddedDocumentUtil.getEmbeddedDocumentExtractor(context);
+-        Metadata metadata = new Metadata();
+-        metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, name);
+-        try {
+-            URL url = new URL(urlString);
+-            URLConnection connection = url.openConnection();
+-            connection.setConnectTimeout(5000);
+-            try (TikaInputStream tis = TikaInputStream.get(connection.getInputStream())) {
+-                ex.parseEmbedded(tis, xhtml, metadata, false);
+-            }
+-        } catch (Exception e) {
+-            parentMetadata.set(TikaCoreProperties.EMBEDDED_EXCEPTION,
+-                    ExceptionUtils.getStackTrace(e));
+-        }
+-    }
+-
+-
+     private void handleText(Reader reader, Charset charset, ContentHandler handler,
+                             Metadata metadata) throws SAXException, IOException, TikaException {
+         // Automatically detect the character encoding

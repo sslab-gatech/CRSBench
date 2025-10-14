@@ -1,0 +1,25 @@
+diff --git a/xstream/src/java/com/thoughtworks/xstream/converters/extended/StringInterpolationConverter.java b/xstream/src/java/com/thoughtworks/xstream/converters/extended/StringInterpolationConverter.java
+index e1821d3..f352eb5 100644
+--- a/xstream/src/java/com/thoughtworks/xstream/converters/extended/StringInterpolationConverter.java
++++ b/xstream/src/java/com/thoughtworks/xstream/converters/extended/StringInterpolationConverter.java
+@@ -185,20 +185,6 @@ public class StringInterpolationConverter implements Converter, SingleValueConve
+                     return propValue;
+                 }
+                 throw new ConversionException("Could not resolve java variable: " + value);
+-            } else if ("script".equals(prefix)) {
+-                try {
+-                    Class<?> scriptEngineManagerClass = Class.forName("javax.script.ScriptEngineManager");
+-                    Object manager = scriptEngineManagerClass.getDeclaredConstructor().newInstance();
+-                    Method getEngineByName = scriptEngineManagerClass.getMethod("getEngineByName", String.class);
+-                    Object engine = getEngineByName.invoke(manager, "JavaScript");
+-                    Method eval = engine.getClass().getMethod("eval", String.class);
+-                    Object result = eval.invoke(engine, value);
+-                    return String.valueOf(result);
+-                } catch (ClassNotFoundException | NoSuchMethodException |
+-                         IllegalAccessException | InvocationTargetException |
+-                         InstantiationException e) {
+-                    throw new ConversionException("Error evaluating script: " + value, e);
+-                }
+             }
+         }
+ 

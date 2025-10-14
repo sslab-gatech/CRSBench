@@ -1,0 +1,181 @@
+INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /home/jhkim/1.AIxCC/oss-fuzz/build/out/aixcc/jvm/r3-apache-commons-compress-delta-02:/out -v /home/jhkim/1.AIxCC/oss-fuzz/projects/aixcc/jvm/r3-apache-commons-compress-delta-02/.aixcc/povs/ExpanderFuzzer/cpv_0:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.2.1 reproduce ExpanderFuzzer -runs=100.
++ FUZZER=ExpanderFuzzer
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer ExpanderFuzzer -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/ExpanderFuzzer -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -timeout_exitcode=0 < /dev/null
+OpenJDK 64-Bit Server VM warning: Option CriticalJNINatives was deprecated in version 16.0 and will likely be removed in a future release.
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+INFO: Loaded 273 hooks from com.code_intelligence.jazzer.runtime.TraceCmpHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.runtime.TraceDivHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.runtime.TraceIndirHooks
+INFO: Loaded 4 hooks from com.code_intelligence.jazzer.runtime.NativeLibHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.sanitizers.ClojureLangHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.Deserialization
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.ExpressionLanguageInjection
+INFO: Loaded 32 hooks from com.code_intelligence.jazzer.sanitizers.FilePathTraversal
+INFO: Loaded 70 hooks from com.code_intelligence.jazzer.sanitizers.LdapInjection
+INFO: Loaded 46 hooks from com.code_intelligence.jazzer.sanitizers.NamingContextLookup
+INFO: Loaded 1 hooks from com.code_intelligence.jazzer.sanitizers.OsCommandInjection
+INFO: Loaded 48 hooks from com.code_intelligence.jazzer.sanitizers.ReflectiveCall
+INFO: Loaded 8 hooks from com.code_intelligence.jazzer.sanitizers.RegexInjection
+INFO: Loaded 16 hooks from com.code_intelligence.jazzer.sanitizers.RegexRoadblocks
+INFO: Loaded 12 hooks from com.code_intelligence.jazzer.sanitizers.ScriptEngineInjection
+INFO: Loaded 3 hooks from com.code_intelligence.jazzer.sanitizers.ServerSideRequestForgery
+INFO: Loaded 19 hooks from com.code_intelligence.jazzer.sanitizers.SqlInjection
+INFO: Loaded 6 hooks from com.code_intelligence.jazzer.sanitizers.XPathInjection
+INFO: Instrumented ExpanderFuzzer (took 56 ms, size +37%)
+INFO: Instrumented BaseTests (took 5 ms, size +11%)
+INFO: Instrumented org.apache.commons.compress.archivers.ArchiveInputStream (took 10 ms, size +9%)
+INFO: Instrumented org.apache.commons.compress.compressors.CompressorInputStream (took 2 ms, size +23%)
+INFO: using inputs from: /testcase
+INFO: found LLVMFuzzerCustomMutator (0x7f290d5a0a00). Disabling -len_control by default.
+INFO: libFuzzer ignores flags that start with '--'
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1212225845
+INFO: Loaded 1 modules   (512 inline 8-bit counters): 512 [0x563637f07430, 0x563637f07630), 
+INFO: Loaded 1 PC tables (512 PCs): 512 [0x563637ef7db0,0x563637ef9db0), 
+jazzer: Running 1 inputs 100 time(s) each.
+Running: /testcase
+INFO: Instrumented org.apache.commons.compress.archivers.examples.Expander (took 20 ms, size +17%)
+INFO: Instrumented org.apache.commons.compress.archivers.ArchiveException (took 0 ms, size +14%)
+INFO: Instrumented org.apache.commons.io.output.NullOutputStream (took 1 ms, size +12%)
+INFO: Instrumented org.apache.commons.compress.compressors.CompressorException (took 0 ms, size +15%)
+INFO: Instrumented org.apache.commons.compress.compressors.CompressorStreamFactory (took 15 ms, size +25%)
+INFO: Instrumented org.apache.commons.compress.compressors.CompressorStreamProvider (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.compress.compressors.CompressorOutputStream (took 0 ms, size +12%)
+INFO: Instrumented org.apache.commons.compress.CompressFilterOutputStream (took 3 ms, size +20%)
+INFO: New number of coverage counters: 1024
+INFO: Instrumented org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream (took 4 ms, size +17%)
+INFO: Instrumented org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream (took 13 ms, size +22%)
+INFO: Instrumented org.apache.commons.compress.compressors.bzip2.BZip2Constants (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.compress.compressors.xz.XZCompressorOutputStream (took 1 ms, size +8%)
+INFO: Instrumented org.apache.commons.compress.compressors.pack200.Pack200CompressorOutputStream (took 2 ms, size +10%)
+INFO: Instrumented org.apache.commons.compress.compressors.lzma.LZMACompressorOutputStream (took 0 ms, size +9%)
+INFO: Instrumented org.apache.commons.compress.compressors.deflate.DeflateCompressorOutputStream (took 1 ms, size +14%)
+INFO: Instrumented org.apache.commons.compress.compressors.snappy.FramedSnappyCompressorOutputStream (took 2 ms, size +8%)
+INFO: New number of coverage counters: 2048
+INFO: Instrumented org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorOutputStream (took 5 ms, size +12%)
+INFO: Instrumented org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorOutputStream (took 2 ms, size +17%)
+INFO: Instrumented org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream (took 0 ms, size +9%)
+INFO: Instrumented org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream (took 5 ms, size +15%)
+INFO: Instrumented org.apache.commons.compress.utils.InputStreamStatistics (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream (took 8 ms, size +23%)
+INFO: Instrumented org.apache.commons.compress.compressors.brotli.BrotliCompressorInputStream (took 1 ms, size +11%)
+INFO: Instrumented org.apache.commons.compress.compressors.xz.XZCompressorInputStream (took 1 ms, size +14%)
+INFO: Instrumented org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream (took 1 ms, size +12%)
+INFO: Instrumented org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream (took 1 ms, size +16%)
+INFO: Instrumented org.apache.commons.compress.compressors.pack200.Pack200CompressorInputStream (took 3 ms, size +8%)
+INFO: Instrumented org.apache.commons.compress.compressors.snappy.SnappyCompressorInputStream (took 2 ms, size +18%)
+INFO: Instrumented org.apache.commons.compress.compressors.lz77support.AbstractLZ77CompressorInputStream (took 3 ms, size +15%)
+INFO: New number of coverage counters: 4096
+INFO: Instrumented org.apache.commons.compress.compressors.snappy.FramedSnappyCompressorInputStream (took 4 ms, size +20%)
+INFO: Instrumented org.apache.commons.compress.compressors.z.ZCompressorInputStream (took 2 ms, size +25%)
+INFO: Instrumented org.apache.commons.compress.compressors.lzw.LZWInputStream (took 3 ms, size +15%)
+INFO: Instrumented org.apache.commons.compress.compressors.deflate.DeflateCompressorInputStream (took 1 ms, size +16%)
+INFO: Instrumented org.apache.commons.compress.compressors.deflate64.Deflate64CompressorInputStream (took 2 ms, size +19%)
+INFO: Instrumented org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorInputStream (took 1 ms, size +18%)
+INFO: Instrumented org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorInputStream (took 4 ms, size +23%)
+INFO: Instrumented org.apache.commons.compress.utils.Sets (took 0 ms, size +13%)
+INFO: Instrumented org.apache.commons.compress.utils.IOUtils (took 2 ms, size +18%)
+INFO: Instrumented org.apache.commons.io.IOUtils (took 29 ms, size +13%)
+INFO: Instrumented org.apache.commons.io.output.StringBuilderWriter (took 2 ms, size +9%)
+INFO: Instrumented org.apache.commons.io.output.AppendableWriter (took 1 ms, size +12%)
+INFO: Instrumented org.apache.commons.io.output.ByteArrayOutputStream (took 1 ms, size +14%)
+INFO: Instrumented org.apache.commons.io.output.AbstractByteArrayOutputStream (took 2 ms, size +15%)
+INFO: Instrumented org.apache.commons.io.CloseableURLConnection (took 4 ms, size +11%)
+INFO: Instrumented org.apache.commons.io.output.ThresholdingOutputStream (took 2 ms, size +11%)
+INFO: Instrumented org.apache.commons.io.output.QueueOutputStream (took 0 ms, size +6%)
+INFO: Instrumented org.apache.commons.io.output.NullWriter (took 1 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.input.CharSequenceReader (took 2 ms, size +18%)
+INFO: Instrumented org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream (took 2 ms, size +10%)
+INFO: Instrumented org.apache.commons.io.StandardLineSeparator (took 1 ms, size +9%)
+INFO: Instrumented org.apache.commons.io.function.IOTriFunction (took 0 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.input.CloseShieldInputStream (took 0 ms, size +11%)
+INFO: Instrumented org.apache.commons.io.input.ProxyInputStream (took 2 ms, size +12%)
+INFO: Instrumented org.apache.commons.io.input.BoundedInputStream (took 2 ms, size +13%)
+INFO: Instrumented org.apache.commons.io.function.IOConsumer (took 1 ms, size +3%)
+INFO: Instrumented org.apache.commons.compress.compressors.pack200.AbstractStreamBridge (took 0 ms, size +15%)
+INFO: Instrumented org.apache.commons.compress.MemoryLimitException (took 0 ms, size +8%)
+INFO: Instrumented org.apache.commons.compress.utils.BitInputStream (took 1 ms, size +17%)
+INFO: Instrumented org.apache.commons.io.input.ProxyInputStream$AbstractBuilder (took 0 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.build.AbstractStreamBuilder (took 2 ms, size +7%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOriginSupplier (took 3 ms, size +4%)
+INFO: Instrumented org.apache.commons.io.build.AbstractSupplier (took 0 ms, size +13%)
+INFO: Instrumented org.apache.commons.io.function.IOSupplier (took 0 ms, size +7%)
+INFO: Instrumented org.apache.commons.io.input.BoundedInputStream$Builder (took 1 ms, size +7%)
+INFO: Instrumented org.apache.commons.io.input.BoundedInputStream$AbstractBuilder (took 1 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin (took 2 ms, size +16%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$InputStreamOrigin (took 0 ms, size +7%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$ByteArrayOrigin (took 0 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$CharSequenceOrigin (took 0 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$FileOrigin (took 0 ms, size +9%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$OutputStreamOrigin (took 0 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$PathOrigin (took 0 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$RandomAccessFileOrigin (took 0 ms, size +11%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$AbstractRandomAccessFileOrigin (took 1 ms, size +6%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$IORandomAccessFileOrigin (took 0 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$ReaderOrigin (took 0 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$URIOrigin (took 1 ms, size +45%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$WriterOrigin (took 0 ms, size +6%)
+INFO: New number of coverage counters: 8192
+INFO: Instrumented org.apache.commons.io.file.PathUtils (took 15 ms, size +12%)
+INFO: Instrumented org.apache.commons.io.file.DeleteOption (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.io.function.IOBiConsumer (took 0 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.function.Constants (took 1 ms, size +6%)
+INFO: Instrumented org.apache.commons.io.function.IORunnable (took 0 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.function.IOBiFunction (took 0 ms, size +4%)
+INFO: Instrumented org.apache.commons.io.function.IOFunction (took 2 ms, size +3%)
+INFO: Instrumented org.apache.commons.io.function.IOPredicate (took 1 ms, size +20%)
+INFO: Instrumented org.apache.commons.io.function.IOTriConsumer (took 0 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.function.Uncheck (took 2 ms, size +4%)
+INFO: Instrumented org.apache.commons.io.function.Erase (took 1 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.function.IOIntConsumer (took 1 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.FileUtils (took 25 ms, size +14%)
+INFO: Instrumented org.apache.commons.io.FileExistsException (took 0 ms, size +12%)
+INFO: Instrumented org.apache.commons.io.filefilter.IOFileFilter (took 0 ms, size +14%)
+INFO: Instrumented org.apache.commons.io.file.PathFilter (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.io.function.IOStreams (took 1 ms, size +4%)
+INFO: Instrumented org.apache.commons.io.function.IOStream (took 7 ms, size +3%)
+INFO: Instrumented org.apache.commons.io.function.IOBaseStream (took 1 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.function.IOIterator (took 0 ms, size +11%)
+INFO: Instrumented org.apache.commons.io.function.IOSpliterator (took 1 ms, size +9%)
+INFO: Instrumented org.apache.commons.io.function.IOStreamAdapter (took 0 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.function.IOBaseStreamAdapter (took 0 ms, size +9%)
+INFO: Instrumented org.apache.commons.io.IOIndexedException (took 0 ms, size +11%)
+INFO: Instrumented org.apache.commons.io.file.StandardDeleteOption (took 0 ms, size +11%)
+INFO: Instrumented org.apache.commons.io.file.Counters (took 0 ms, size +7%)
+INFO: Instrumented org.apache.commons.io.file.Counters$PathCounters (took 0 ms, size +16%)
+INFO: Instrumented org.apache.commons.io.file.Counters$Counter (took 0 ms, size +18%)
+INFO: Instrumented org.apache.commons.io.file.Counters$LongPathCounters (took 0 ms, size +12%)
+INFO: Instrumented org.apache.commons.io.file.Counters$AbstractPathCounters (took 1 ms, size +40%)
+INFO: Instrumented org.apache.commons.io.file.Counters$LongCounter (took 1 ms, size +18%)
+INFO: Instrumented org.apache.commons.io.IOExceptionList (took 1 ms, size +10%)
+
+== Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory (use '-Xmx1710m' to reproduce)
+Caused by: java.lang.OutOfMemoryError: Java heap space
+	at org.apache.commons.compress.compressors.lzw.LZWInputStream.initializeTables(LZWInputStream.java:186)
+	at org.apache.commons.compress.compressors.lzw.LZWInputStream.initializeTables(LZWInputStream.java:220)
+	at org.apache.commons.compress.compressors.z.ZCompressorInputStream.<init>(ZCompressorInputStream.java:86)
+	at org.apache.commons.compress.compressors.CompressorStreamFactory.createCompressorInputStream(CompressorStreamFactory.java:562)
+	at org.apache.commons.compress.compressors.CompressorStreamFactory.createCompressorInputStream(CompressorStreamFactory.java:512)
+	at org.apache.commons.compress.archivers.examples.Expander.decompress(Expander.java:223)
+	at org.apache.commons.compress.archivers.examples.Expander.expand(Expander.java:210)
+	at ExpanderFuzzer.fuzzerTestOneInput(ExpanderFuzzer.java:52)
+	at java.base/java.lang.invoke.LambdaForm$DMH/0x0000000800cb8800.invokeStaticInit(LambdaForm$DMH)
+	at java.base/java.lang.invoke.LambdaForm$MH/0x0000000800cb9800.invoke(LambdaForm$MH)
+	at java.base/java.lang.invoke.LambdaForm$MH/0x0000000800cb9000.invoke_MT(LambdaForm$MH)
+DEDUP_TOKEN: d6272551c5bb04f9
+== libFuzzer crashing input ==
+reproducer_path='.'; Java reproducer written to ./Crash_ffc606ca8d3c2820239ab2d725e567e23327b470.java
+
+subprocess command returned a non-zero exit status: 77

@@ -1,0 +1,1916 @@
+From b83147e2a80c4f196018eed8c466073b6c9fb627 Mon Sep 17 00:00:00 2001
+From: Jeen Broekstra <jeenbroekstra@users.noreply.github.com>
+Date: Thu, 25 Oct 2018 21:08:28 +1100
+Subject: [PATCH] Merge pull request #1146 from
+ eclipse/issues/GH-1158-xxe-vulnerability
+
+Fix #1056 xxe vulnerability
+---
+ .../rio/rdfxml/RDFXMLParserCustomTest.java    |   2 +-
+ .../sparqlxml/AbstractSPARQLXMLParser.java    |   3 +
+ .../rdf4j/rio/helpers/XMLParserSettings.java  |  52 +-
+ .../rio/helpers/XMLReaderBasedParser.java     | 169 ++++++
+ .../rdf4j/rio/rdfxml/RDFXMLParser.java        | 262 +++------
+ .../rdf4j/rio/rdfxml/RDFXMLParserTest.java    | 143 ++++-
+ .../rdfxml/rdfxml-external-general-entity.rdf |  10 +
+ .../rdfxml/rdfxml-external-param-entity.rdf   |  11 +
+ rio/trix/pom.xml                              |   5 +
+ .../eclipse/rdf4j/rio/trix/TriXParser.java    |  34 +-
+ .../rdf4j/rio/trix/TriXParserTest.java        | 136 +++++
+ .../rio/trix/trix-xxe-external-entity.trix    |  12 +
+ .../trix/trix-xxe-external-param-entity.trix  |  13 +
+ .../rdf4j/common/xml/SimpleSAXParser.java     | 554 +++++++++---------
+ 14 files changed, 908 insertions(+), 498 deletions(-)
+ create mode 100644 rio/api/src/main/java/org/eclipse/rdf4j/rio/helpers/XMLReaderBasedParser.java
+ create mode 100644 rio/rdfxml/src/test/resources/org/eclipse/rdf4j/rio/rdfxml/rdfxml-external-general-entity.rdf
+ create mode 100644 rio/rdfxml/src/test/resources/org/eclipse/rdf4j/rio/rdfxml/rdfxml-external-param-entity.rdf
+ create mode 100644 rio/trix/src/test/resources/org/eclipse/rdf4j/rio/trix/trix-xxe-external-entity.trix
+ create mode 100644 rio/trix/src/test/resources/org/eclipse/rdf4j/rio/trix/trix-xxe-external-param-entity.trix
+
+diff --git a/compliance/rio/src/test/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParserCustomTest.java b/compliance/rio/src/test/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParserCustomTest.java
+index b567ccb2a5..c9c469260d 100644
+--- a/compliance/rio/src/test/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParserCustomTest.java
++++ b/compliance/rio/src/test/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParserCustomTest.java
+@@ -223,6 +223,6 @@ public class RDFXMLParserCustomTest {
+ 	public void testSupportedSettings()
+ 		throws Exception
+ 	{
+-		assertEquals(22, Rio.createParser(RDFFormat.RDFXML).getSupportedSettings().size());
++		assertEquals(25, Rio.createParser(RDFFormat.RDFXML).getSupportedSettings().size());
+ 	}
+ }
+diff --git a/queryresultio/sparqlxml/src/main/java/org/eclipse/rdf4j/query/resultio/sparqlxml/AbstractSPARQLXMLParser.java b/queryresultio/sparqlxml/src/main/java/org/eclipse/rdf4j/query/resultio/sparqlxml/AbstractSPARQLXMLParser.java
+index 1084b80cf5..c0d19dea24 100644
+--- a/queryresultio/sparqlxml/src/main/java/org/eclipse/rdf4j/query/resultio/sparqlxml/AbstractSPARQLXMLParser.java
++++ b/queryresultio/sparqlxml/src/main/java/org/eclipse/rdf4j/query/resultio/sparqlxml/AbstractSPARQLXMLParser.java
+@@ -278,6 +278,9 @@ public abstract class AbstractSPARQLXMLParser extends AbstractQueryResultParser
+ 	public Collection<RioSetting<Boolean>> getCompulsoryXmlFeatureSettings() {
+ 		Set<RioSetting<Boolean>> results = new HashSet<RioSetting<Boolean>>();
+ 		results.add(XMLParserSettings.SECURE_PROCESSING);
++		results.add(XMLParserSettings.DISALLOW_DOCTYPE_DECL);
++		results.add(XMLParserSettings.EXTERNAL_GENERAL_ENTITIES);
++		results.add(XMLParserSettings.EXTERNAL_PARAMETER_ENTITIES);
+ 		return results;
+ 	}
+ 
+diff --git a/rio/api/src/main/java/org/eclipse/rdf4j/rio/helpers/XMLParserSettings.java b/rio/api/src/main/java/org/eclipse/rdf4j/rio/helpers/XMLParserSettings.java
+index f5d3c0dad9..38c3ffa33c 100644
+--- a/rio/api/src/main/java/org/eclipse/rdf4j/rio/helpers/XMLParserSettings.java
++++ b/rio/api/src/main/java/org/eclipse/rdf4j/rio/helpers/XMLParserSettings.java
+@@ -19,7 +19,7 @@ import org.xml.sax.XMLReader;
+  * @author Michael Grove
+  * @author Peter Ansell
+  * @see XMLConstants
+- * @see <a href="http://xerces.apache.org/xerces-j/features.html">Apache XML Project - Features</a>
++ * @see <a href="http://xerces.apache.org/xerces2-j/features.html">Apache XML Project - Features</a>
+  */
+ public final class XMLParserSettings {
+ 
+@@ -36,14 +36,52 @@ public final class XMLParserSettings {
+ 			XMLConstants.FEATURE_SECURE_PROCESSING, "Secure processing feature of XMLConstants", true);
+ 
+ 	/**
+-	 * Parser setting specifying whether external DTDs should be loaded.
++	 * Parser setting specifying whether DOCTYPE declaration should be disallowed.
+ 	 * <p>
+ 	 * Defaults to true.
+ 	 * 
+-	 * @see <a href="http://xerces.apache.org/xerces-j/features.html">Apache XML Project - Features</a>
++	 * @see <a href="http://xerces.apache.org/xerces2-j/features.html">Apache XML Project - Features</a>
++	 * @see <a href="https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet">XXE
++	 *      Prevention Cheat Sheet</a>
++	 */
++	public static final RioSetting<Boolean> DISALLOW_DOCTYPE_DECL = new RioSettingImpl<Boolean>(
++			"http://apache.org/xml/features/disallow-doctype-decl", "Disallow DOCTYPE declaration in document",
++			true);
++
++	/**
++	 * Parser setting specifying whether external DTDs should be loaded.
++	 * <p>
++	 * Defaults to false.
++	 * 
++	 * @see <a href="http://xerces.apache.org/xerces2-j/features.html">Apache XML Project - Features</a>
+ 	 */
+ 	public static final RioSetting<Boolean> LOAD_EXTERNAL_DTD = new RioSettingImpl<Boolean>(
+-			"http://apache.org/xml/features/nonvalidating/load-external-dtd", "Load External DTD", true);
++			"http://apache.org/xml/features/nonvalidating/load-external-dtd", "Load External DTD", false);
++
++	/**
++	 * Parser setting specifying whether external text entities should be included.
++	 * <p>
++	 * Defaults to false.
++	 * 
++	 * @see <a href="http://xerces.apache.org/xerces2-j/features.html">Apache XML Project - Features</a>
++	 * @see <a href="https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet">XXE
++	 *      Prevention Cheat Sheet</a>
++	 */
++	public static final RioSetting<Boolean> EXTERNAL_GENERAL_ENTITIES = new RioSettingImpl<Boolean>(
++			"http://xml.org/sax/features/external-general-entities", "Include external general entities", false);
++
++	/**
++	 * Parser setting specifying whether external parameter entities should be included.
++	 * <p>
++	 * Defaults to false.
++	 * 
++	 * @see <a href="http://xerces.apache.org/xerces2-j/features.html">Apache XML Project - Features</a>
++	 * @see <a href="https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet">XXE
++	 *      Prevention Cheat Sheet</a>
++	 */
++	public static final RioSetting<Boolean> EXTERNAL_PARAMETER_ENTITIES = new RioSettingImpl<Boolean>(
++			"http://xml.org/sax/features/external-parameter-entities", "Include external parameter entities",
++			false);
+ 
+ 	/**
+ 	 * Parser setting to customise the XMLReader that is used by an XML based Rio parser.
+@@ -65,8 +103,7 @@ public final class XMLParserSettings {
+ 			"org.eclipse.rdf4j.rio.failonsaxnonfatalerrors", "Fail on SAX non-fatal errors", true);
+ 
+ 	/**
+-	 * Parser setting to determine whether to ignore non-standard attributes that are found in an XML
+-	 * document.
++	 * Parser setting to determine whether to ignore non-standard attributes that are found in an XML document.
+ 	 * <p>
+ 	 * Defaults to true
+ 	 */
+@@ -82,8 +119,7 @@ public final class XMLParserSettings {
+ 			"org.eclipse.rdf4j.rio.failoninvalidncname", "Fail on invalid NCName", true);
+ 
+ 	/**
+-	 * Parser setting to determine whether to throw an error for duplicate uses of rdf:ID in a single
+-	 * document.
++	 * Parser setting to determine whether to throw an error for duplicate uses of rdf:ID in a single document.
+ 	 * <p>
+ 	 * Defaults to true
+ 	 */
+diff --git a/rio/api/src/main/java/org/eclipse/rdf4j/rio/helpers/XMLReaderBasedParser.java b/rio/api/src/main/java/org/eclipse/rdf4j/rio/helpers/XMLReaderBasedParser.java
+new file mode 100644
+index 0000000000..c7622ed5b4
+--- /dev/null
++++ b/rio/api/src/main/java/org/eclipse/rdf4j/rio/helpers/XMLReaderBasedParser.java
+@@ -0,0 +1,169 @@
++package org.eclipse.rdf4j.rio.helpers;
++
++import java.util.Collection;
++import java.util.Collections;
++import java.util.HashSet;
++import java.util.Set;
++
++import org.eclipse.rdf4j.common.xml.XMLReaderFactory;
++import org.eclipse.rdf4j.model.ValueFactory;
++import org.eclipse.rdf4j.rio.RioSetting;
++import org.eclipse.rdf4j.rio.helpers.XMLParserSettings;
++import org.xml.sax.SAXException;
++import org.xml.sax.SAXNotRecognizedException;
++import org.xml.sax.SAXNotSupportedException;
++import org.xml.sax.XMLReader;
++
++/**
++ * Base class for Rio parsers that are based on a SAX {@link XMLReader}.
++ * 
++ * @author Jeen Broekstra
++ */
++public abstract class XMLReaderBasedParser extends AbstractRDFParser {
++
++	public XMLReaderBasedParser(ValueFactory f) {
++		super(f);
++	}
++
++	/**
++	 * Returns a collection of settings that will always be set as XML parser properties using
++	 * {@link XMLReader#setProperty(String, Object)}
++	 * <p>
++	 * Subclasses can override this to specify more supported settings.
++	 * 
++	 * @return A collection of {@link RioSetting}s that indicate which properties will always be setup using
++	 *         {@link XMLReader#setProperty(String, Object)}.
++	 */
++	public Collection<RioSetting<?>> getCompulsoryXmlPropertySettings() {
++		return Collections.<RioSetting<?>> emptyList();
++	}
++
++	/**
++	 * Returns a collection of settings that will always be set as XML parser features using
++	 * {@link XMLReader#setFeature(String, boolean)}.
++	 * <p>
++	 * Subclasses can override this to specify more supported settings.
++	 * 
++	 * @return A collection of {@link RioSetting}s that indicate which boolean settings will always be setup
++	 *         using {@link XMLReader#setFeature(String, boolean)}.
++	 */
++	public Collection<RioSetting<Boolean>> getCompulsoryXmlFeatureSettings() {
++		Set<RioSetting<Boolean>> results = new HashSet<RioSetting<Boolean>>();
++		results.add(XMLParserSettings.SECURE_PROCESSING);
++		results.add(XMLParserSettings.DISALLOW_DOCTYPE_DECL);
++		results.add(XMLParserSettings.EXTERNAL_GENERAL_ENTITIES);
++		results.add(XMLParserSettings.EXTERNAL_PARAMETER_ENTITIES);
++		return results;
++	}
++
++	/**
++	 * Returns a collection of settings that will be used, if set in {@link #getParserConfig()}, as XML parser
++	 * properties using {@link XMLReader#setProperty(String, Object)}
++	 * <p>
++	 * Subclasses can override this to specify more supported settings.
++	 * 
++	 * @return A collection of {@link RioSetting}s that indicate which properties can be setup using
++	 *         {@link XMLReader#setProperty(String, Object)}.
++	 */
++	public Collection<RioSetting<?>> getOptionalXmlPropertySettings() {
++		return Collections.<RioSetting<?>> emptyList();
++	}
++
++	/**
++	 * Returns a collection of settings that will be used, if set in {@link #getParserConfig()}, as XML parser
++	 * features using {@link XMLReader#setFeature(String, boolean)}.
++	 * <p>
++	 * Subclasses can override this to specify more supported settings.
++	 * 
++	 * @return A collection of {@link RioSetting}s that indicate which boolean settings can be setup using
++	 *         {@link XMLReader#setFeature(String, boolean)}.
++	 */
++	public Collection<RioSetting<Boolean>> getOptionalXmlFeatureSettings() {
++		Set<RioSetting<Boolean>> results = new HashSet<RioSetting<Boolean>>();
++		results.add(XMLParserSettings.LOAD_EXTERNAL_DTD);
++		return results;
++	}
++
++	/**
++	 * Creates an XML Reader configured using the current parser settings.
++	 * 
++	 * @return a configured {@link XMLReader}
++	 * @throws SAXException
++	 *         if an error occurs during configuration.
++	 */
++	protected XMLReader getXMLReader()
++		throws SAXException
++	{
++
++		XMLReader xmlReader;
++
++		if (getParserConfig().isSet(XMLParserSettings.CUSTOM_XML_READER)) {
++			xmlReader = getParserConfig().get(XMLParserSettings.CUSTOM_XML_READER);
++		}
++		else {
++			xmlReader = XMLReaderFactory.createXMLReader();
++		}
++
++		// Set all compulsory feature settings, using the defaults if they are
++		// not explicitly set
++		for (RioSetting<Boolean> aSetting : getCompulsoryXmlFeatureSettings()) {
++			try {
++				xmlReader.setFeature(aSetting.getKey(), getParserConfig().get(aSetting));
++			}
++			catch (SAXNotRecognizedException e) {
++				reportWarning(String.format("%s is not a recognized SAX feature.", aSetting.getKey()));
++			}
++			catch (SAXNotSupportedException e) {
++				reportWarning(String.format("%s is not a supported SAX feature.", aSetting.getKey()));
++			}
++		}
++
++		// Set all compulsory property settings, using the defaults if they are
++		// not explicitly set
++		for (RioSetting<?> aSetting : getCompulsoryXmlPropertySettings()) {
++			try {
++				xmlReader.setProperty(aSetting.getKey(), getParserConfig().get(aSetting));
++			}
++			catch (SAXNotRecognizedException e) {
++				reportWarning(String.format("%s is not a recognized SAX property.", aSetting.getKey()));
++			}
++			catch (SAXNotSupportedException e) {
++				reportWarning(String.format("%s is not a supported SAX property.", aSetting.getKey()));
++			}
++		}
++
++		// Check for any optional feature settings that are explicitly set in
++		// the parser config
++		for (RioSetting<Boolean> aSetting : getOptionalXmlFeatureSettings()) {
++			try {
++				if (getParserConfig().isSet(aSetting)) {
++					xmlReader.setFeature(aSetting.getKey(), getParserConfig().get(aSetting));
++				}
++			}
++			catch (SAXNotRecognizedException e) {
++				reportWarning(String.format("%s is not a recognized SAX feature.", aSetting.getKey()));
++			}
++			catch (SAXNotSupportedException e) {
++				reportWarning(String.format("%s is not a supported SAX feature.", aSetting.getKey()));
++			}
++		}
++
++		// Check for any optional property settings that are explicitly set in
++		// the parser config
++		for (RioSetting<?> aSetting : getOptionalXmlPropertySettings()) {
++			try {
++				if (getParserConfig().isSet(aSetting)) {
++					xmlReader.setProperty(aSetting.getKey(), getParserConfig().get(aSetting));
++				}
++			}
++			catch (SAXNotRecognizedException e) {
++				reportWarning(String.format("%s is not a recognized SAX property.", aSetting.getKey()));
++			}
++			catch (SAXNotSupportedException e) {
++				reportWarning(String.format("%s is not a supported SAX property.", aSetting.getKey()));
++			}
++		}
++
++		return xmlReader;
++	}
++}
+diff --git a/rio/rdfxml/src/main/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParser.java b/rio/rdfxml/src/main/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParser.java
+index 8cb17fba6c..68be3b565f 100644
+--- a/rio/rdfxml/src/main/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParser.java
++++ b/rio/rdfxml/src/main/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParser.java
+@@ -37,6 +37,7 @@ import org.eclipse.rdf4j.rio.RDFParseException;
+ import org.eclipse.rdf4j.rio.RioSetting;
+ import org.eclipse.rdf4j.rio.helpers.AbstractRDFParser;
+ import org.eclipse.rdf4j.rio.helpers.XMLParserSettings;
++import org.eclipse.rdf4j.rio.helpers.XMLReaderBasedParser;
+ import org.xml.sax.ErrorHandler;
+ import org.xml.sax.InputSource;
+ import org.xml.sax.Locator;
+@@ -84,7 +85,7 @@ import org.xml.sax.XMLReader;
+  * @see org.eclipse.rdf4j.rio.ParseLocationListener
+  * @author Arjohn Kampman
+  */
+-public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
++public class RDFXMLParser extends XMLReaderBasedParser implements ErrorHandler {
+ 
+ 	/*-----------*
+ 	 * Variables *
+@@ -131,8 +132,7 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	/**
+-	 * Creates a new RDFXMLParser that will use the supplied <tt>ValueFactory</tt> to create RDF model
+-	 * objects.
++	 * Creates a new RDFXMLParser that will use the supplied <tt>ValueFactory</tt> to create RDF model objects.
+ 	 * 
+ 	 * @param valueFactory
+ 	 *        A ValueFactory.
+@@ -154,9 +154,9 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	/**
+-	 * Sets the parser in a mode to parse stand-alone RDF documents. In stand-alone RDF documents, the
+-	 * enclosing <tt>rdf:RDF</tt> root element is optional if this root element contains just one element
+-	 * (e.g. <tt>rdf:Description</tt>.
++	 * Sets the parser in a mode to parse stand-alone RDF documents. In stand-alone RDF documents, the enclosing
++	 * <tt>rdf:RDF</tt> root element is optional if this root element contains just one element (e.g.
++	 * <tt>rdf:Description</tt>.
+ 	 */
+ 	public void setParseStandAloneDocuments(boolean standAloneDocs) {
+ 		getParserConfig().set(XMLParserSettings.PARSE_STANDALONE_DOCUMENTS, standAloneDocs);
+@@ -190,7 +190,9 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	 */
+ 	@Override
+ 	public synchronized void parse(InputStream in, String baseURI)
+-		throws IOException, RDFParseException, RDFHandlerException
++		throws IOException,
++		RDFParseException,
++		RDFHandlerException
+ 	{
+ 		if (in == null) {
+ 			throw new IllegalArgumentException("Input stream cannot be 'null'");
+@@ -224,7 +226,9 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	 */
+ 	@Override
+ 	public synchronized void parse(Reader reader, String baseURI)
+-		throws IOException, RDFParseException, RDFHandlerException
++		throws IOException,
++		RDFParseException,
++		RDFHandlerException
+ 	{
+ 		if (reader == null) {
+ 			throw new IllegalArgumentException("Reader cannot be 'null'");
+@@ -240,10 +244,12 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	private void parse(InputSource inputSource)
+-		throws IOException, RDFParseException, RDFHandlerException
++		throws IOException,
++		RDFParseException,
++		RDFHandlerException
+ 	{
+ 		clear();
+-		
++
+ 		try {
+ 			documentURI = inputSource.getSystemId();
+ 
+@@ -253,78 +259,9 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 			// saxFilter.clear();
+ 			saxFilter.setDocumentURI(documentURI);
+ 
+-			XMLReader xmlReader;
+-
+-			if (getParserConfig().isSet(XMLParserSettings.CUSTOM_XML_READER)) {
+-				xmlReader = getParserConfig().get(XMLParserSettings.CUSTOM_XML_READER);
+-			}
+-			else {
+-				xmlReader = XMLReaderFactory.createXMLReader();
+-			}
+-
++			XMLReader xmlReader = getXMLReader();
+ 			xmlReader.setContentHandler(saxFilter);
+ 			xmlReader.setErrorHandler(this);
+-
+-			// Set all compulsory feature settings, using the defaults if they are
+-			// not explicitly set
+-			for (RioSetting<Boolean> aSetting : getCompulsoryXmlFeatureSettings()) {
+-				try {
+-					xmlReader.setFeature(aSetting.getKey(), getParserConfig().get(aSetting));
+-				}
+-				catch (SAXNotRecognizedException e) {
+-					reportWarning(String.format("%s is not a recognized SAX feature.", aSetting.getKey()));
+-				}
+-				catch (SAXNotSupportedException e) {
+-					reportWarning(String.format("%s is not a supported SAX feature.", aSetting.getKey()));
+-				}
+-			}
+-
+-			// Set all compulsory property settings, using the defaults if they are
+-			// not explicitly set
+-			for (RioSetting<?> aSetting : getCompulsoryXmlPropertySettings()) {
+-				try {
+-					xmlReader.setProperty(aSetting.getKey(), getParserConfig().get(aSetting));
+-				}
+-				catch (SAXNotRecognizedException e) {
+-					reportWarning(String.format("%s is not a recognized SAX property.", aSetting.getKey()));
+-				}
+-				catch (SAXNotSupportedException e) {
+-					reportWarning(String.format("%s is not a supported SAX property.", aSetting.getKey()));
+-				}
+-			}
+-
+-			// Check for any optional feature settings that are explicitly set in
+-			// the parser config
+-			for (RioSetting<Boolean> aSetting : getOptionalXmlFeatureSettings()) {
+-				try {
+-					if (getParserConfig().isSet(aSetting)) {
+-						xmlReader.setFeature(aSetting.getKey(), getParserConfig().get(aSetting));
+-					}
+-				}
+-				catch (SAXNotRecognizedException e) {
+-					reportWarning(String.format("%s is not a recognized SAX feature.", aSetting.getKey()));
+-				}
+-				catch (SAXNotSupportedException e) {
+-					reportWarning(String.format("%s is not a supported SAX feature.", aSetting.getKey()));
+-				}
+-			}
+-
+-			// Check for any optional property settings that are explicitly set in
+-			// the parser config
+-			for (RioSetting<?> aSetting : getOptionalXmlPropertySettings()) {
+-				try {
+-					if (getParserConfig().isSet(aSetting)) {
+-						xmlReader.setProperty(aSetting.getKey(), getParserConfig().get(aSetting));
+-					}
+-				}
+-				catch (SAXNotRecognizedException e) {
+-					reportWarning(String.format("%s is not a recognized SAX property.", aSetting.getKey()));
+-				}
+-				catch (SAXNotSupportedException e) {
+-					reportWarning(String.format("%s is not a supported SAX property.", aSetting.getKey()));
+-				}
+-			}
+-
+ 			xmlReader.parse(inputSource);
+ 		}
+ 		catch (SAXParseException e) {
+@@ -363,61 +300,6 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 		}
+ 	}
+ 
+-	/**
+-	 * Returns a collection of settings that will always be set as XML parser properties using
+-	 * {@link XMLReader#setProperty(String, Object)}
+-	 * <p>
+-	 * Subclasses can override this to specify more supported settings.
+-	 * 
+-	 * @return A collection of {@link RioSetting}s that indicate which properties will always be setup using
+-	 *         {@link XMLReader#setProperty(String, Object)}.
+-	 */
+-	public Collection<RioSetting<?>> getCompulsoryXmlPropertySettings() {
+-		return Collections.<RioSetting<?>> emptyList();
+-	}
+-
+-	/**
+-	 * Returns a collection of settings that will always be set as XML parser features using
+-	 * {@link XMLReader#setFeature(String, boolean)}.
+-	 * <p>
+-	 * Subclasses can override this to specify more supported settings.
+-	 * 
+-	 * @return A collection of {@link RioSetting}s that indicate which boolean settings will always be setup
+-	 *         using {@link XMLReader#setFeature(String, boolean)}.
+-	 */
+-	public Collection<RioSetting<Boolean>> getCompulsoryXmlFeatureSettings() {
+-		Set<RioSetting<Boolean>> results = new HashSet<RioSetting<Boolean>>();
+-		results.add(XMLParserSettings.SECURE_PROCESSING);
+-		return results;
+-	}
+-
+-	/**
+-	 * Returns a collection of settings that will be used, if set in {@link #getParserConfig()}, as XML parser
+-	 * properties using {@link XMLReader#setProperty(String, Object)}
+-	 * <p>
+-	 * Subclasses can override this to specify more supported settings.
+-	 * 
+-	 * @return A collection of {@link RioSetting}s that indicate which properties can be setup using
+-	 *         {@link XMLReader#setProperty(String, Object)}.
+-	 */
+-	public Collection<RioSetting<?>> getOptionalXmlPropertySettings() {
+-		return Collections.<RioSetting<?>> emptyList();
+-	}
+-
+-	/**
+-	 * Returns a collection of settings that will be used, if set in {@link #getParserConfig()}, as XML parser
+-	 * features using {@link XMLReader#setFeature(String, boolean)}.
+-	 * <p>
+-	 * Subclasses can override this to specify more supported settings.
+-	 * 
+-	 * @return A collection of {@link RioSetting}s that indicate which boolean settings can be setup using
+-	 *         {@link XMLReader#setFeature(String, boolean)}.
+-	 */
+-	public Collection<RioSetting<Boolean>> getOptionalXmlFeatureSettings() {
+-		Set<RioSetting<Boolean>> results = new HashSet<RioSetting<Boolean>>();
+-		results.add(XMLParserSettings.LOAD_EXTERNAL_DTD);
+-		return results;
+-	}
+ 
+ 	@Override
+ 	public Collection<RioSetting<?>> getSupportedSettings() {
+@@ -452,7 +334,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	void startDocument()
+-		throws RDFParseException, RDFHandlerException
++		throws RDFParseException,
++		RDFHandlerException
+ 	{
+ 		if (rdfHandler != null) {
+ 			rdfHandler.startRDF();
+@@ -460,7 +343,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	void endDocument()
+-		throws RDFParseException, RDFHandlerException
++		throws RDFParseException,
++		RDFHandlerException
+ 	{
+ 		if (rdfHandler != null) {
+ 			rdfHandler.endRDF();
+@@ -493,7 +377,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	void startElement(String namespaceURI, String localName, String qName, Atts atts)
+-		throws RDFParseException, RDFHandlerException
++		throws RDFParseException,
++		RDFHandlerException
+ 	{
+ 		if (topIsProperty()) {
+ 			// this element represents the subject and/or object of a statement
+@@ -506,7 +391,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	void endElement(String namespaceURI, String localName, String qName)
+-		throws RDFParseException, RDFHandlerException
++		throws RDFParseException,
++		RDFHandlerException
+ 	{
+ 		Object topElement = peekStack(0);
+ 
+@@ -544,7 +430,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	void emptyElement(String namespaceURI, String localName, String qName, Atts atts)
+-		throws RDFParseException, RDFHandlerException
++		throws RDFParseException,
++		RDFHandlerException
+ 	{
+ 		if (topIsProperty()) {
+ 			// this element represents the subject and/or object of a statement
+@@ -557,7 +444,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	void text(String text)
+-		throws RDFParseException, RDFHandlerException
++		throws RDFParseException,
++		RDFHandlerException
+ 	{
+ 		if (!topIsProperty()) {
+ 			reportError("unexpected literal", XMLParserSettings.FAIL_ON_NON_STANDARD_ATTRIBUTES);
+@@ -584,7 +472,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	/* Process a node element (can be both subject and object) */
+ 	private void processNodeElt(String namespaceURI, String localName, String qName, Atts atts,
+ 			boolean isEmptyElt)
+-		throws RDFParseException, RDFHandlerException
++		throws RDFParseException,
++		RDFHandlerException
+ 	{
+ 		if (getParserConfig().get(XMLParserSettings.FAIL_ON_NON_STANDARD_ATTRIBUTES)) {
+ 			// Check the element name
+@@ -658,8 +547,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	/**
+-	 * Retrieves the resource of a node element (subject or object) using relevant attributes (rdf:ID,
+-	 * rdf:about and rdf:nodeID) from its attributes list.
++	 * Retrieves the resource of a node element (subject or object) using relevant attributes (rdf:ID, rdf:about
++	 * and rdf:nodeID) from its attributes list.
+ 	 * 
+ 	 * @return a resource or a bNode.
+ 	 */
+@@ -710,7 +599,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 
+ 	/** processes subject attributes. */
+ 	private void processSubjectAtts(NodeElement nodeElt, Atts atts)
+-		throws RDFParseException, RDFHandlerException
++		throws RDFParseException,
++		RDFHandlerException
+ 	{
+ 		Resource subject = nodeElt.getResource();
+ 
+@@ -728,11 +618,11 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 
+ 	private void processPropertyElt(String namespaceURI, String localName, String qName, Atts atts,
+ 			boolean isEmptyElt)
+-		throws RDFParseException, RDFHandlerException
++		throws RDFParseException,
++		RDFHandlerException
+ 	{
+ 		if (getParserConfig().get(XMLParserSettings.FAIL_ON_NON_STANDARD_ATTRIBUTES)) {
+-			checkPropertyEltName(namespaceURI, localName, qName,
+-					XMLParserSettings.FAIL_ON_NON_STANDARD_ATTRIBUTES);
++			checkPropertyEltName(namespaceURI, localName, qName, XMLParserSettings.FAIL_ON_NON_STANDARD_ATTRIBUTES);
+ 		}
+ 
+ 		// Get the URI of the property
+@@ -947,7 +837,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	 * that.
+ 	 */
+ 	private void handleReification(Value value)
+-		throws RDFParseException, RDFHandlerException
++		throws RDFParseException,
++		RDFHandlerException
+ 	{
+ 		PropertyElement predicate = (PropertyElement)peekStack(0);
+ 
+@@ -959,7 +850,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	private void reifyStatement(Resource reifNode, Resource subj, IRI pred, Value obj)
+-		throws RDFParseException, RDFHandlerException
++		throws RDFParseException,
++		RDFHandlerException
+ 	{
+ 		reportStatement(reifNode, RDF.TYPE, RDF.STATEMENT);
+ 		reportStatement(reifNode, RDF.SUBJECT, subj);
+@@ -996,8 +888,7 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 			if (!usedIDs.add(uri)) {
+ 				// URI was not added because the set already contained an equal
+ 				// strings
+-				reportError("ID '" + id + "' has already been defined",
+-						XMLParserSettings.FAIL_ON_DUPLICATE_RDF_ID);
++				reportError("ID '" + id + "' has already been defined", XMLParserSettings.FAIL_ON_DUPLICATE_RDF_ID);
+ 			}
+ 		}
+ 
+@@ -1027,10 +918,10 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	/**
+-	 * Checks whether the node element name is from the RDF namespace and, if so, if it is allowed to be used
+-	 * in a node element. If the name is equal to one of the disallowed names (RDF, ID, about, parseType,
+-	 * resource, nodeID, datatype and li), an error is generated. If the name is not defined in the RDF
+-	 * namespace, but it claims that it is from this namespace, a warning is generated.
++	 * Checks whether the node element name is from the RDF namespace and, if so, if it is allowed to be used in
++	 * a node element. If the name is equal to one of the disallowed names (RDF, ID, about, parseType, resource,
++	 * nodeID, datatype and li), an error is generated. If the name is not defined in the RDF namespace, but it
++	 * claims that it is from this namespace, a warning is generated.
+ 	 */
+ 	private void checkNodeEltName(String namespaceURI, String localName, String qName)
+ 		throws RDFParseException
+@@ -1038,18 +929,17 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 		if (RDF.NAMESPACE.equals(namespaceURI)) {
+ 
+ 			if (localName.equals("Description") || localName.equals("Seq") || localName.equals("Bag")
+-					|| localName.equals("Alt") || localName.equals("Statement")
+-					|| localName.equals("Property") || localName.equals("List") || localName.equals("subject")
+-					|| localName.equals("predicate") || localName.equals("object") || localName.equals("type")
+-					|| localName.equals("value") || localName.equals("first") || localName.equals("rest")
+-					|| localName.equals("nil") || localName.startsWith("_"))
++					|| localName.equals("Alt") || localName.equals("Statement") || localName.equals("Property")
++					|| localName.equals("List") || localName.equals("subject") || localName.equals("predicate")
++					|| localName.equals("object") || localName.equals("type") || localName.equals("value")
++					|| localName.equals("first") || localName.equals("rest") || localName.equals("nil")
++					|| localName.startsWith("_"))
+ 			{
+ 				// These are OK
+ 			}
+ 			else if (localName.equals("li") || localName.equals("RDF") || localName.equals("ID")
+-					|| localName.equals("about") || localName.equals("parseType")
+-					|| localName.equals("resource") || localName.equals("nodeID")
+-					|| localName.equals("datatype"))
++					|| localName.equals("about") || localName.equals("parseType") || localName.equals("resource")
++					|| localName.equals("nodeID") || localName.equals("datatype"))
+ 			{
+ 				reportError("<" + qName + "> not allowed as node element",
+ 						XMLParserSettings.FAIL_ON_NON_STANDARD_ATTRIBUTES);
+@@ -1069,8 +959,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	/**
+ 	 * Checks whether the property element name is from the RDF namespace and, if so, if it is allowed to be
+ 	 * used in a property element. If the name is equal to one of the disallowed names (RDF, ID, about,
+-	 * parseType, resource and li), an error is generated. If the name is not defined in the RDF namespace,
+-	 * but it claims that it is from this namespace, a warning is generated.
++	 * parseType, resource and li), an error is generated. If the name is not defined in the RDF namespace, but
++	 * it claims that it is from this namespace, a warning is generated.
+ 	 * 
+ 	 * @param setting
+ 	 */
+@@ -1081,18 +971,17 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 		if (RDF.NAMESPACE.equals(namespaceURI)) {
+ 
+ 			if (localName.equals("li") || localName.equals("Seq") || localName.equals("Bag")
+-					|| localName.equals("Alt") || localName.equals("Statement")
+-					|| localName.equals("Property") || localName.equals("List") || localName.equals("subject")
+-					|| localName.equals("predicate") || localName.equals("object") || localName.equals("type")
+-					|| localName.equals("value") || localName.equals("first") || localName.equals("rest")
+-					|| localName.equals("nil") || localName.startsWith("_"))
++					|| localName.equals("Alt") || localName.equals("Statement") || localName.equals("Property")
++					|| localName.equals("List") || localName.equals("subject") || localName.equals("predicate")
++					|| localName.equals("object") || localName.equals("type") || localName.equals("value")
++					|| localName.equals("first") || localName.equals("rest") || localName.equals("nil")
++					|| localName.startsWith("_"))
+ 			{
+ 				// These are OK
+ 			}
+ 			else if (localName.equals("Description") || localName.equals("RDF") || localName.equals("ID")
+-					|| localName.equals("about") || localName.equals("parseType")
+-					|| localName.equals("resource") || localName.equals("nodeID")
+-					|| localName.equals("datatype"))
++					|| localName.equals("about") || localName.equals("parseType") || localName.equals("resource")
++					|| localName.equals("nodeID") || localName.equals("datatype"))
+ 			{
+ 				reportError("<" + qName + "> not allowed as property element", setting);
+ 			}
+@@ -1110,8 +999,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	/**
+ 	 * Checks whether 'atts' contains attributes from the RDF namespace that are not allowed as attributes. If
+ 	 * such an attribute is found, an error is generated and the attribute is removed from 'atts'. If the
+-	 * attribute is not defined in the RDF namespace, but it claims that it is from this namespace, a warning
+-	 * is generated.
++	 * attribute is not defined in the RDF namespace, but it claims that it is from this namespace, a warning is
++	 * generated.
+ 	 */
+ 	private void checkRDFAtts(Atts atts)
+ 		throws RDFParseException
+@@ -1125,18 +1014,16 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 				String localName = att.getLocalName();
+ 
+ 				if (localName.equals("Seq") || localName.equals("Bag") || localName.equals("Alt")
+-						|| localName.equals("Statement") || localName.equals("Property")
+-						|| localName.equals("List") || localName.equals("subject")
+-						|| localName.equals("predicate") || localName.equals("object")
++						|| localName.equals("Statement") || localName.equals("Property") || localName.equals("List")
++						|| localName.equals("subject") || localName.equals("predicate") || localName.equals("object")
+ 						|| localName.equals("type") || localName.equals("value") || localName.equals("first")
+ 						|| localName.equals("rest") || localName.equals("nil") || localName.startsWith("_"))
+ 				{
+ 					// These are OK
+ 				}
+ 				else if (localName.equals("Description") || localName.equals("li") || localName.equals("RDF")
+-						|| localName.equals("ID") || localName.equals("about")
+-						|| localName.equals("parseType") || localName.equals("resource")
+-						|| localName.equals("nodeID") || localName.equals("datatype"))
++						|| localName.equals("ID") || localName.equals("about") || localName.equals("parseType")
++						|| localName.equals("resource") || localName.equals("nodeID") || localName.equals("datatype"))
+ 				{
+ 					reportError("'" + att.getQName() + "' not allowed as attribute name",
+ 							XMLParserSettings.FAIL_ON_NON_STANDARD_ATTRIBUTES);
+@@ -1188,7 +1075,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	 *         If the configured RDFHandlerException throws an RDFHandlerException.
+ 	 */
+ 	private void reportStatement(Resource subject, IRI predicate, Value object)
+-		throws RDFParseException, RDFHandlerException
++		throws RDFParseException,
++		RDFHandlerException
+ 	{
+ 		Statement st = createStatement(subject, predicate, object);
+ 		if (rdfHandler != null) {
+@@ -1210,8 +1098,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	/**
+-	 * Overrides {@link AbstractRDFParser#reportWarning(String)}, adding line- and column number information
+-	 * to the error.
++	 * Overrides {@link AbstractRDFParser#reportWarning(String)}, adding line- and column number information to
++	 * the error.
+ 	 */
+ 	@Override
+ 	protected void reportWarning(String msg) {
+@@ -1259,8 +1147,8 @@ public class RDFXMLParser extends AbstractRDFParser implements ErrorHandler {
+ 	}
+ 
+ 	/**
+-	 * Overrides {@link AbstractRDFParser#reportFatalError(String)}, adding line- and column number
+-	 * information to the error.
++	 * Overrides {@link AbstractRDFParser#reportFatalError(String)}, adding line- and column number information
++	 * to the error.
+ 	 */
+ 	@Override
+ 	protected void reportFatalError(String msg)
+diff --git a/rio/rdfxml/src/test/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParserTest.java b/rio/rdfxml/src/test/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParserTest.java
+index 0069da12b7..6f48ae7b0a 100644
+--- a/rio/rdfxml/src/test/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParserTest.java
++++ b/rio/rdfxml/src/test/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParserTest.java
+@@ -11,8 +11,11 @@ import static org.assertj.core.api.Assertions.assertThat;
+ import static org.junit.Assert.assertEquals;
+ import static org.junit.Assert.assertNotNull;
+ import static org.junit.Assert.assertTrue;
++import static org.junit.Assert.fail;
+ 
+ import java.io.ByteArrayOutputStream;
++import java.io.FileNotFoundException;
++import java.io.IOException;
+ import java.io.InputStream;
+ import java.io.PrintStream;
+ import java.net.URL;
+@@ -24,12 +27,14 @@ import org.eclipse.rdf4j.model.IRI;
+ import org.eclipse.rdf4j.model.Statement;
+ import org.eclipse.rdf4j.model.ValueFactory;
+ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
++import org.eclipse.rdf4j.model.util.Literals;
+ import org.eclipse.rdf4j.model.vocabulary.DC;
+ import org.eclipse.rdf4j.model.vocabulary.RDFS;
+ import org.eclipse.rdf4j.rio.RDFParseException;
+ import org.eclipse.rdf4j.rio.RDFParser;
+ import org.eclipse.rdf4j.rio.helpers.ParseErrorCollector;
+ import org.eclipse.rdf4j.rio.helpers.StatementCollector;
++import org.eclipse.rdf4j.rio.helpers.XMLParserSettings;
+ import org.junit.After;
+ import org.junit.Before;
+ import org.junit.Test;
+@@ -59,6 +64,8 @@ public class RDFXMLParserTest {
+ 		parser.setRDFHandler(sc);
+ 		el = new ParseErrorCollector();
+ 		parser.setParseErrorListener(el);
++		
++		
+ 	}
+ 
+ 	@After
+@@ -72,8 +79,7 @@ public class RDFXMLParserTest {
+ 	public void rdfXmlLoadedFromInsideAJarResolvesRelativeUris()
+ 		throws Exception
+ 	{
+-		URL zipfileUrl = this.getClass().getResource(
+-				"/org/eclipse/rdf4j/rio/rdfxml/sample-with-rdfxml-data.zip");
++		URL zipfileUrl = this.getClass().getResource("/org/eclipse/rdf4j/rio/rdfxml/sample-with-rdfxml-data.zip");
+ 
+ 		assertNotNull("The sample-data.zip file must be present for this test", zipfileUrl);
+ 
+@@ -114,6 +120,139 @@ public class RDFXMLParserTest {
+ 		assertEquals(vf.createLiteral("Empty File"), stmt2.getObject());
+ 	}
+ 
++	@Test
++	public void testIgnoreExternalGeneralEntity()
++		throws Exception
++	{
++		// Temporarily override System.err to verify that nothing is being
++		// printed to it for this test
++		PrintStream oldErr = System.err;
++		ByteArrayOutputStream tempErr = new ByteArrayOutputStream();
++		System.setErr(new PrintStream(tempErr));
++		PrintStream oldOut = System.out;
++		ByteArrayOutputStream tempOut = new ByteArrayOutputStream();
++		System.setOut(new PrintStream(tempOut));
++		
++		// configure parser to allow doctype declarations
++		parser.getParserConfig().set(XMLParserSettings.DISALLOW_DOCTYPE_DECL, false);
++		try (final InputStream in = this.getClass().getResourceAsStream(
++				"/org/eclipse/rdf4j/rio/rdfxml/rdfxml-external-general-entity.rdf");)
++		{
++			parser.parse(in, "");
++		}
++		catch (FileNotFoundException e) {
++			fail("parser tried to read external file from external general entity");
++		}
++		finally {
++			// Reset System Error output to ensure that we don't interfere with
++			// other tests
++			System.setErr(oldErr);
++			// Reset System Out output to ensure that we don't interfere with
++			// other tests
++			System.setOut(oldOut);
++		}
++		// Verify nothing was printed to System.err during test
++		assertEquals(0, tempErr.size());
++		// Verify nothing was printed to System.out during test
++		assertEquals(0, tempOut.size());
++		assertEquals(0, el.getWarnings().size());
++		assertEquals(0, el.getErrors().size());
++		assertEquals(0, el.getFatalErrors().size());
++		
++		assertThat(sc.getStatements().size()).isEqualTo(1);
++	
++		Statement st = sc.getStatements().iterator().next();
++		
++		// literal value should be empty string as it should not have processed the external entity
++		assertThat(st.getObject().stringValue()).isEqualTo("");
++	}
++
++	@Test
++	public void testFatalErrorDoctypeDecl()
++		throws Exception
++	{
++		// Temporarily override System.err to verify that nothing is being
++		// printed to it for this test
++		PrintStream oldErr = System.err;
++		ByteArrayOutputStream tempErr = new ByteArrayOutputStream();
++		System.setErr(new PrintStream(tempErr));
++		PrintStream oldOut = System.out;
++		ByteArrayOutputStream tempOut = new ByteArrayOutputStream();
++		System.setOut(new PrintStream(tempOut));
++		try (final InputStream in = this.getClass().getResourceAsStream(
++				"/org/eclipse/rdf4j/rio/rdfxml/rdfxml-external-param-entity.rdf");)
++		{
++			parser.parse(in, "");
++		}
++
++		catch (RDFParseException e) {
++			assertEquals(
++					"DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true. [line 2, column 10]",
++					e.getMessage());
++		}
++		finally {
++			// Reset System Error output to ensure that we don't interfere with
++			// other tests
++			System.setErr(oldErr);
++			// Reset System Out output to ensure that we don't interfere with
++			// other tests
++			System.setOut(oldOut);
++		}
++		
++		// Verify nothing was printed to System.err during test
++		assertEquals(0, tempErr.size());
++		// Verify nothing was printed to System.out during test
++		assertEquals(0, tempOut.size());
++		assertEquals(0, el.getWarnings().size());
++		assertEquals(0, el.getErrors().size());
++		assertEquals(1, el.getFatalErrors().size());
++		assertEquals(
++				"[Rio fatal] DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true. (2, 10)",
++				el.getFatalErrors().get(0));
++	}
++	
++
++	@Test
++	public void testIgnoreExternalParamEntity()
++		throws Exception
++	{
++		// Temporarily override System.err to verify that nothing is being
++		// printed to it for this test
++		PrintStream oldErr = System.err;
++		ByteArrayOutputStream tempErr = new ByteArrayOutputStream();
++		System.setErr(new PrintStream(tempErr));
++		PrintStream oldOut = System.out;
++		ByteArrayOutputStream tempOut = new ByteArrayOutputStream();
++		System.setOut(new PrintStream(tempOut));
++		
++		// configure parser to allow doctype declarations
++		parser.getParserConfig().set(XMLParserSettings.DISALLOW_DOCTYPE_DECL, false);
++	
++		try (final InputStream in = this.getClass().getResourceAsStream(
++				"/org/eclipse/rdf4j/rio/rdfxml/rdfxml-external-param-entity.rdf");)
++		{
++			parser.parse(in, "");
++		}
++		catch (FileNotFoundException e) {
++			fail("parser tried to read external file from external parameter entity");
++		}
++		finally {
++			// Reset System Error output to ensure that we don't interfere with
++			// other tests
++			System.setErr(oldErr);
++			// Reset System Out output to ensure that we don't interfere with
++			// other tests
++			System.setOut(oldOut);
++		}
++		// Verify nothing was printed to System.err during test
++		assertEquals(0, tempErr.size());
++		// Verify nothing was printed to System.out during test
++		assertEquals(0, tempOut.size());
++		assertEquals(0, el.getWarnings().size());
++		assertEquals(0, el.getErrors().size());
++		assertEquals(0, el.getFatalErrors().size());
++	}
++
+ 	@Test
+ 	public void testRDFXMLWhitespace()
+ 		throws Exception
+diff --git a/rio/rdfxml/src/test/resources/org/eclipse/rdf4j/rio/rdfxml/rdfxml-external-general-entity.rdf b/rio/rdfxml/src/test/resources/org/eclipse/rdf4j/rio/rdfxml/rdfxml-external-general-entity.rdf
+new file mode 100644
+index 0000000000..3d049e7de6
+--- /dev/null
++++ b/rio/rdfxml/src/test/resources/org/eclipse/rdf4j/rio/rdfxml/rdfxml-external-general-entity.rdf
+@@ -0,0 +1,10 @@
++<?xml version='1.0' encoding='utf-8'?>
++<!DOCTYPE rdf:RDF [
++        <!ENTITY xxe SYSTEM "external-file-nonexistent.txt" >
++        ]>
++<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
++         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
++    <rdf:Description rdf:about="http://example.org/foo/bar">
++        <rdfs:label>&xxe;</rdfs:label>
++    </rdf:Description>
++</rdf:RDF>
+\ No newline at end of file
+diff --git a/rio/rdfxml/src/test/resources/org/eclipse/rdf4j/rio/rdfxml/rdfxml-external-param-entity.rdf b/rio/rdfxml/src/test/resources/org/eclipse/rdf4j/rio/rdfxml/rdfxml-external-param-entity.rdf
+new file mode 100644
+index 0000000000..360b134519
+--- /dev/null
++++ b/rio/rdfxml/src/test/resources/org/eclipse/rdf4j/rio/rdfxml/rdfxml-external-param-entity.rdf
+@@ -0,0 +1,11 @@
++<?xml version='1.0' encoding='utf-8'?>
++<!DOCTYPE rdf:RDF [
++        <!ENTITY % xxe SYSTEM "external-file-nonexistent.txt" >
++        %xxe;
++        ]>
++<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
++         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
++    <rdf:Description rdf:about="http://example.org/foo/bar">
++        <rdfs:label>Foo Bar</rdfs:label>
++    </rdf:Description>
++</rdf:RDF>
+\ No newline at end of file
+diff --git a/rio/trix/pom.xml b/rio/trix/pom.xml
+index 0ddca58d9c..126c9bf973 100644
+--- a/rio/trix/pom.xml
++++ b/rio/trix/pom.xml
+@@ -50,5 +50,10 @@
+ 			<artifactId>junit</artifactId>
+ 			<scope>test</scope>
+ 		</dependency>
++		<dependency>
++			<groupId>org.assertj</groupId>
++			<artifactId>assertj-core</artifactId>
++			<scope>test</scope>
++		</dependency>
+ 	</dependencies>
+ </project>
+diff --git a/rio/trix/src/main/java/org/eclipse/rdf4j/rio/trix/TriXParser.java b/rio/trix/src/main/java/org/eclipse/rdf4j/rio/trix/TriXParser.java
+index 67d08e98b8..14281034ff 100644
+--- a/rio/trix/src/main/java/org/eclipse/rdf4j/rio/trix/TriXParser.java
++++ b/rio/trix/src/main/java/org/eclipse/rdf4j/rio/trix/TriXParser.java
+@@ -20,8 +20,11 @@ import java.io.IOException;
+ import java.io.InputStream;
+ import java.io.Reader;
+ import java.util.ArrayList;
++import java.util.Collection;
++import java.util.HashSet;
+ import java.util.List;
+ import java.util.Map;
++import java.util.Set;
+ 
+ import org.apache.commons.io.input.BOMInputStream;
+ import org.eclipse.rdf4j.common.xml.SimpleSAXAdapter;
+@@ -39,6 +42,7 @@ import org.eclipse.rdf4j.rio.RDFHandlerException;
+ import org.eclipse.rdf4j.rio.RDFParseException;
+ import org.eclipse.rdf4j.rio.RioSetting;
+ import org.eclipse.rdf4j.rio.helpers.AbstractRDFParser;
++import org.eclipse.rdf4j.rio.helpers.XMLReaderBasedParser;
+ import org.eclipse.rdf4j.rio.helpers.TriXParserSettings;
+ import org.eclipse.rdf4j.rio.helpers.XMLParserSettings;
+ import org.xml.sax.ErrorHandler;
+@@ -56,7 +60,7 @@ import org.xml.sax.XMLReader;
+  * 
+  * @author Arjohn Kampman
+  */
+-public class TriXParser extends AbstractRDFParser implements ErrorHandler {
++public class TriXParser extends XMLReaderBasedParser implements ErrorHandler {
+ 
+ 	/*--------------*
+ 	 * Constructors *
+@@ -91,6 +95,24 @@ public class TriXParser extends AbstractRDFParser implements ErrorHandler {
+ 	public final RDFFormat getRDFFormat() {
+ 		return RDFFormat.TRIX;
+ 	}
++	
++	@Override
++	public Collection<RioSetting<?>> getSupportedSettings() {
++		// Override to add TriX/XML specific supported settings
++		Set<RioSetting<?>> results = new HashSet<RioSetting<?>>(super.getSupportedSettings());
++
++		results.addAll(getCompulsoryXmlPropertySettings());
++		results.addAll(getCompulsoryXmlFeatureSettings());
++		results.addAll(getOptionalXmlPropertySettings());
++		results.addAll(getOptionalXmlFeatureSettings());
++
++		results.add(XMLParserSettings.CUSTOM_XML_READER);
++		results.add(XMLParserSettings.FAIL_ON_MISMATCHED_TAGS);
++		results.add(XMLParserSettings.FAIL_ON_SAX_NON_FATAL_ERRORS);
++
++		return results;
++	}
++
+ 
+ 	/**
+ 	 * Parses the data from the supplied InputStream, using the supplied baseURI to resolve any relative URI
+@@ -170,15 +192,7 @@ public class TriXParser extends AbstractRDFParser implements ErrorHandler {
+ 				rdfHandler.startRDF();
+ 			}
+ 
+-			XMLReader xmlReader;
+-
+-			if (getParserConfig().isSet(XMLParserSettings.CUSTOM_XML_READER)) {
+-				xmlReader = getParserConfig().get(XMLParserSettings.CUSTOM_XML_READER);
+-			}
+-			else {
+-				xmlReader = XMLReaderFactory.createXMLReader();
+-			}
+-
++			XMLReader xmlReader = getXMLReader();
+ 			xmlReader.setErrorHandler(this);
+ 
+ 			saxParser = new SimpleSAXParser(xmlReader);
+diff --git a/rio/trix/src/test/java/org/eclipse/rdf4j/rio/trix/TriXParserTest.java b/rio/trix/src/test/java/org/eclipse/rdf4j/rio/trix/TriXParserTest.java
+index 70eb79b2af..200d1c1b4b 100644
+--- a/rio/trix/src/test/java/org/eclipse/rdf4j/rio/trix/TriXParserTest.java
++++ b/rio/trix/src/test/java/org/eclipse/rdf4j/rio/trix/TriXParserTest.java
+@@ -7,19 +7,24 @@
+  *******************************************************************************/
+ package org.eclipse.rdf4j.rio.trix;
+ 
++import static org.assertj.core.api.Assertions.assertThat;
+ import static org.junit.Assert.assertEquals;
++import static org.junit.Assert.fail;
+ 
+ import java.io.ByteArrayOutputStream;
++import java.io.FileNotFoundException;
+ import java.io.InputStream;
+ import java.io.PrintStream;
+ import java.util.Locale;
+ 
++import org.eclipse.rdf4j.model.Statement;
+ import org.eclipse.rdf4j.model.ValueFactory;
+ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+ import org.eclipse.rdf4j.rio.RDFParseException;
+ import org.eclipse.rdf4j.rio.RDFParser;
+ import org.eclipse.rdf4j.rio.helpers.ParseErrorCollector;
+ import org.eclipse.rdf4j.rio.helpers.StatementCollector;
++import org.eclipse.rdf4j.rio.helpers.XMLParserSettings;
+ import org.junit.After;
+ import org.junit.Before;
+ import org.junit.Test;
+@@ -58,6 +63,137 @@ public class TriXParserTest {
+ 		Locale.setDefault(platformLocale);
+ 	}
+ 
++	@Test
++	public void testFatalErrorDoctypeDecl()
++		throws Exception
++	{
++		// Temporarily override System.err to verify that nothing is being
++		// printed to it for this test
++		PrintStream oldErr = System.err;
++		ByteArrayOutputStream tempErr = new ByteArrayOutputStream();
++		System.setErr(new PrintStream(tempErr));
++		PrintStream oldOut = System.out;
++		ByteArrayOutputStream tempOut = new ByteArrayOutputStream();
++		System.setOut(new PrintStream(tempOut));
++		try (final InputStream in = this.getClass().getResourceAsStream(
++				"/org/eclipse/rdf4j/rio/trix/trix-xxe-external-entity.trix");)
++		{
++			parser.parse(in, "");
++		}
++		catch (RDFParseException e) {
++			assertEquals(
++					"DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true. [line 1, column 10]",
++					e.getMessage());
++		}
++		finally {
++			// Reset System Error output to ensure that we don't interfere with
++			// other tests
++			System.setErr(oldErr);
++			// Reset System Out output to ensure that we don't interfere with
++			// other tests
++			System.setOut(oldOut);
++		}
++		// Verify nothing was printed to System.err during test
++		assertEquals(0, tempErr.size());
++		// Verify nothing was printed to System.out during test
++		assertEquals(0, tempOut.size());
++		assertEquals(0, el.getWarnings().size());
++		assertEquals(0, el.getErrors().size());
++		assertEquals(1, el.getFatalErrors().size());
++		assertEquals(
++				"[Rio fatal] DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true. (1, 10)",
++				el.getFatalErrors().get(0));
++	}
++
++	@Test
++	public void testIgnoreExternalGeneralEntity()
++		throws Exception
++	{
++		// Temporarily override System.err to verify that nothing is being
++		// printed to it for this test
++		PrintStream oldErr = System.err;
++		ByteArrayOutputStream tempErr = new ByteArrayOutputStream();
++		System.setErr(new PrintStream(tempErr));
++		PrintStream oldOut = System.out;
++		ByteArrayOutputStream tempOut = new ByteArrayOutputStream();
++		System.setOut(new PrintStream(tempOut));
++		
++		// configure parser to allow doctype declarations
++		parser.getParserConfig().set(XMLParserSettings.DISALLOW_DOCTYPE_DECL, false);
++		try (final InputStream in = this.getClass().getResourceAsStream(
++				"/org/eclipse/rdf4j/rio/trix/trix-xxe-external-entity.trix");)
++		{
++			parser.parse(in, "");
++		}
++		catch (FileNotFoundException e) {
++			fail("parser tried to read external file from external general entity");
++		}
++		finally {
++			// Reset System Error output to ensure that we don't interfere with
++			// other tests
++			System.setErr(oldErr);
++			// Reset System Out output to ensure that we don't interfere with
++			// other tests
++			System.setOut(oldOut);
++		}
++		// Verify nothing was printed to System.err during test
++		assertEquals(0, tempErr.size());
++		// Verify nothing was printed to System.out during test
++		assertEquals(0, tempOut.size());
++		assertEquals(0, el.getWarnings().size());
++		assertEquals(0, el.getErrors().size());
++		assertEquals(0, el.getFatalErrors().size());
++		
++		assertThat(sc.getStatements().size()).isEqualTo(1);
++	
++		Statement st = sc.getStatements().iterator().next();
++		
++		// literal value should be empty string as it should not have processed the external entity
++		assertThat(st.getObject().stringValue()).isEqualTo("");
++	}
++
++	
++	@Test
++	public void testIgnoreExternalParameterEntity()
++		throws Exception
++	{
++		// Temporarily override System.err to verify that nothing is being
++		// printed to it for this test
++		PrintStream oldErr = System.err;
++		ByteArrayOutputStream tempErr = new ByteArrayOutputStream();
++		System.setErr(new PrintStream(tempErr));
++		PrintStream oldOut = System.out;
++		ByteArrayOutputStream tempOut = new ByteArrayOutputStream();
++		System.setOut(new PrintStream(tempOut));
++	
++		// configure parser to allow doctype declarations
++		parser.getParserConfig().set(XMLParserSettings.DISALLOW_DOCTYPE_DECL, false);
++	
++		try (final InputStream in = this.getClass().getResourceAsStream(
++				"/org/eclipse/rdf4j/rio/trix/trix-xxe-external-param-entity.trix");)
++		{
++			parser.parse(in, "");
++		}
++		catch (FileNotFoundException e) {
++			fail("parser tried to read external file from external parameter entity");
++		}
++		finally {
++			// Reset System Error output to ensure that we don't interfere with
++			// other tests
++			System.setErr(oldErr);
++			// Reset System Out output to ensure that we don't interfere with
++			// other tests
++			System.setOut(oldOut);
++		}
++		// Verify nothing was printed to System.err during test
++		assertEquals(0, tempErr.size());
++		// Verify nothing was printed to System.out during test
++		assertEquals(0, tempOut.size());
++		assertEquals(0, el.getWarnings().size());
++		assertEquals(0, el.getErrors().size());
++		assertEquals(0, el.getFatalErrors().size());
++	}
++
+ 	@Test
+ 	public void testFatalErrorPrologContent()
+ 		throws Exception
+diff --git a/rio/trix/src/test/resources/org/eclipse/rdf4j/rio/trix/trix-xxe-external-entity.trix b/rio/trix/src/test/resources/org/eclipse/rdf4j/rio/trix/trix-xxe-external-entity.trix
+new file mode 100644
+index 0000000000..05a55bf21e
+--- /dev/null
++++ b/rio/trix/src/test/resources/org/eclipse/rdf4j/rio/trix/trix-xxe-external-entity.trix
+@@ -0,0 +1,12 @@
++<!DOCTYPE TriX [
++        <!ENTITY xxe SYSTEM "external-file-nonexistent.txt" >
++        ]>
++<TriX>
++    <graph>
++        <triple>
++            <uri>http://example.org/Bob</uri>
++            <uri>http://example.org/name</uri>
++            <plainLiteral>&xxe;</plainLiteral>
++        </triple>
++    </graph>
++</TriX>
+\ No newline at end of file
+diff --git a/rio/trix/src/test/resources/org/eclipse/rdf4j/rio/trix/trix-xxe-external-param-entity.trix b/rio/trix/src/test/resources/org/eclipse/rdf4j/rio/trix/trix-xxe-external-param-entity.trix
+new file mode 100644
+index 0000000000..cc5da14028
+--- /dev/null
++++ b/rio/trix/src/test/resources/org/eclipse/rdf4j/rio/trix/trix-xxe-external-param-entity.trix
+@@ -0,0 +1,13 @@
++<!DOCTYPE TriX [
++        <!ENTITY % xxe SYSTEM "external-file-nonexistent.txt" >
++        %xxe;
++        ]>
++<TriX>
++    <graph>
++        <triple>
++            <uri>http://example.org/Bob</uri>
++            <uri>http://example.org/wife</uri>
++            <uri>http://example.org/Mary</uri>
++        </triple>
++    </graph>
++</TriX>
+\ No newline at end of file
+diff --git a/util/src/main/java/org/eclipse/rdf4j/common/xml/SimpleSAXParser.java b/util/src/main/java/org/eclipse/rdf4j/common/xml/SimpleSAXParser.java
+index e7f7ca8da9..9a6a0bca00 100644
+--- a/util/src/main/java/org/eclipse/rdf4j/common/xml/SimpleSAXParser.java
++++ b/util/src/main/java/org/eclipse/rdf4j/common/xml/SimpleSAXParser.java
+@@ -25,10 +25,9 @@ import org.xml.sax.XMLReader;
+ import org.xml.sax.helpers.DefaultHandler;
+ 
+ /**
+- * An XML parser that generates "simple" SAX-like events from a limited subset of XML documents. The
+- * SimpleSAXParser can parse simple XML documents; it doesn't support processing instructions or elements that
+- * contain both sub-element and character data; character data is only supported in the "leaves" of the XML
+- * element tree.
++ * An XML parser that generates "simple" SAX-like events from a limited subset of XML documents. The SimpleSAXParser can
++ * parse simple XML documents; it doesn't support processing instructions or elements that contain both sub-element and
++ * character data; character data is only supported in the "leaves" of the XML element tree.
+  * <h3>Example:</h3>
+  * <p>
+  * Parsing the following XML:
+@@ -59,290 +58,265 @@ import org.xml.sax.helpers.DefaultHandler;
+  */
+ public class SimpleSAXParser {
+ 
+-	/*-----------*
+-	 * Variables *
+-	 *-----------*/
+-
+-	/**
+-	 * The XMLReader to use for parsing the XML.
+-	 */
+-	private XMLReader xmlReader;
+-
+-	/**
+-	 * The listener to report the events to.
+-	 */
+-	private SimpleSAXListener listener;
+-
+-	/**
+-	 * Flag indicating whether leading and trailing whitespace in text elements should be preserved.
+-	 */
+-	private boolean preserveWhitespace = false;
+-
+-	/**
+-	 * A Locator indicating a position in the text that is currently being parsed by the SAX parser.
+-	 */
+-	private Locator locator;
+-
+-	/*--------------*
+-	 * Constructors *
+-	 *--------------*/
+-
+-	/**
+-	 * Creates a new SimpleSAXParser that will use the supplied <tt>XMLReader</tt> for parsing the XML. One
+-	 * must set a <tt>SimpleSAXListener</tt> on this object before calling one of the <tt>parse()</tt>
+-	 * methods.
+-	 * 
+-	 * @param xmlReader
+-	 *        The XMLReader to use for parsing.
+-	 * @see #setListener
+-	 */
+-	public SimpleSAXParser(XMLReader xmlReader) {
+-		super();
+-		this.xmlReader = xmlReader;
+-	}
+-
+-	/**
+-	 * Creates a new SimpleSAXParser that will try to create a new <tt>XMLReader</tt> using
+-	 * <tt>info.aduna.xml.XMLReaderFactory</tt> for parsing the XML. One must set a <tt>SimpleSAXListener</tt>
+-	 * on this object before calling one of the <tt>parse()</tt> methods.
+-	 * 
+-	 * @throws SAXException
+-	 *         If the SimpleSAXParser was unable to create an XMLReader.
+-	 * @see #setListener
+-	 * @see org.xml.sax.XMLReader
+-	 * @see org.eclipse.rdf4j.common.xml.XMLReaderFactory
+-	 */
+-	public SimpleSAXParser()
+-		throws SAXException
+-	{
+-		this(XMLReaderFactory.createXMLReader());
+-	}
+-
+-	/*---------*
+-	 * Methods *
+-	 *---------*/
+-
+-	/**
+-	 * Sets the (new) listener that should receive any events from this parser. This listener will replace any
+-	 * previously set listener.
+-	 * 
+-	 * @param listener
+-	 *        The (new) listener for events from this parser.
+-	 */
+-	public void setListener(SimpleSAXListener listener) {
+-		this.listener = listener;
+-	}
+-
+-	/**
+-	 * Gets the listener that currently will receive any events from this parser.
+-	 * 
+-	 * @return The listener for events from this parser.
+-	 */
+-	public SimpleSAXListener getListener() {
+-		return listener;
+-	}
+-
+-	public Locator getLocator() {
+-		return locator;
+-	}
+-
+-	/**
+-	 * Sets whether leading and trailing whitespace characters in text elements should be preserved. Such
+-	 * whitespace characters are discarded by default.
+-	 */
+-	public void setPreserveWhitespace(boolean preserveWhitespace) {
+-		this.preserveWhitespace = preserveWhitespace;
+-	}
+-
+-	/**
+-	 * Checks whether leading and trailing whitespace characters in text elements are preserved. Defaults to
+-	 * <tt>false</tt>.
+-	 */
+-	public boolean isPreserveWhitespace() {
+-		return preserveWhitespace;
+-	}
+-
+-	/**
+-	 * Parses the content of the supplied <tt>File</tt> as XML.
+-	 * 
+-	 * @param file
+-	 *        The file containing the XML to parse.
+-	 */
+-	public void parse(File file)
+-		throws SAXException, IOException
+-	{
+-		InputStream in = new FileInputStream(file);
+-		try {
+-			parse(in);
+-		}
+-		finally {
+-			try {
+-				in.close();
+-			}
+-			catch (IOException ignore) {
+-			}
+-		}
+-	}
+-
+-	/**
+-	 * Parses the content of the supplied <tt>InputStream</tt> as XML.
+-	 * 
+-	 * @param in
+-	 *        An <tt>InputStream</tt> containing XML data.
+-	 */
+-	public void parse(InputStream in)
+-		throws SAXException, IOException
+-	{
+-		parse(new InputSource(in));
+-	}
+-
+-	/**
+-	 * Parses the content of the supplied <tt>Reader</tt> as XML.
+-	 * 
+-	 * @param reader
+-	 *        A <tt>Reader</tt> containing XML data.
+-	 */
+-	public void parse(Reader reader)
+-		throws SAXException, IOException
+-	{
+-		parse(new InputSource(reader));
+-	}
+-
+-	/**
+-	 * Parses the content of the supplied <tt>InputSource</tt> as XML.
+-	 * 
+-	 * @param inputSource
+-	 *        An <tt>InputSource</tt> containing XML data.
+-	 */
+-	public synchronized void parse(InputSource inputSource)
+-		throws SAXException, IOException
+-	{
+-		xmlReader.setContentHandler(new SimpleSAXDefaultHandler());
+-		xmlReader.parse(inputSource);
+-	}
+-
+-	/*-------------------------------------*
+-	 * Inner class SimpleSAXDefaultHandler *
+-	 *-------------------------------------*/
+-
+-	class SimpleSAXDefaultHandler extends DefaultHandler {
+-
+-		/*-----------*
+-		 * Variables *
+-		 *-----------*/
+-
+-		/**
+-		 * StringBuilder used to collect text during parsing.
+-		 */
+-		private StringBuilder charBuf = new StringBuilder(512);
+-
+-		/**
+-		 * The tag name of a deferred start tag.
+-		 */
+-		private String deferredStartTag = null;
+-
+-		/**
+-		 * The attributes of a deferred start tag.
+-		 */
+-		private Map<String, String> deferredAttributes = null;
+-
+-		/*--------------*
+-		 * Constructors *
+-		 *--------------*/
+-
+-		public SimpleSAXDefaultHandler() {
+-			super();
+-		}
+-
+-		/*---------*
+-		 * Methods *
+-		 *---------*/
+-
+-		// overrides DefaultHandler.startDocument()
+-		public void startDocument()
+-			throws SAXException
+-		{
+-			listener.startDocument();
+-		}
+-
+-		// overrides DefaultHandler.endDocument()
+-		public void endDocument()
+-			throws SAXException
+-		{
+-			listener.endDocument();
+-		}
+-
+-		// overrides DefaultHandler.characters()
+-		public void characters(char[] ch, int start, int length)
+-			throws SAXException
+-		{
+-			charBuf.append(ch, start, length);
+-		}
+-
+-		// overrides DefaultHandler.startElement()
+-		public void startElement(String namespaceURI, String localName, String qName, Attributes attributes)
+-			throws SAXException
+-		{
+-			// Report any deferred start tag
+-			if (deferredStartTag != null) {
+-				reportDeferredStartElement();
+-			}
+-
+-			// Make current tag new deferred start tag
+-			deferredStartTag = localName;
+-
+-			// Copy attributes to deferredAttributes
+-			int attCount = attributes.getLength();
+-			if (attCount == 0) {
+-				deferredAttributes = Collections.emptyMap();
+-			}
+-			else {
+-				deferredAttributes = new LinkedHashMap<String, String>(attCount * 2);
+-
+-				for (int i = 0; i < attCount; i++) {
+-					deferredAttributes.put(attributes.getQName(i), attributes.getValue(i));
+-				}
+-			}
+-
+-			// Clear character buffer
+-			charBuf.setLength(0);
+-		}
+-
+-		private void reportDeferredStartElement()
+-			throws SAXException
+-		{
+-			listener.startTag(deferredStartTag, deferredAttributes, "");
+-			deferredStartTag = null;
+-			deferredAttributes = null;
+-		}
+-
+-		// overrides DefaultHandler.endElement()
+-		public void endElement(String namespaceURI, String localName, String qName)
+-			throws SAXException
+-		{
+-			if (deferredStartTag != null) {
+-				// Check if any character data has been collected in the charBuf
+-				String text = charBuf.toString();
+-				if (!preserveWhitespace) {
+-					text = text.trim();
+-				}
+-
+-				// Report deferred start tag
+-				listener.startTag(deferredStartTag, deferredAttributes, text);
+-				deferredStartTag = null;
+-				deferredAttributes = null;
+-			}
+-
+-			// Report the end tag
+-			listener.endTag(localName);
+-
+-			// Clear character buffer
+-			charBuf.setLength(0);
+-		}
+-
+-		@Override
+-		public void setDocumentLocator(Locator loc) {
+-			locator = loc;
+-		}
+-	}
++  /*-----------*
++   * Variables *
++   *-----------*/
++
++  /**
++   * The XMLReader to use for parsing the XML.
++   */
++  private XMLReader xmlReader;
++
++  /**
++   * The listener to report the events to.
++   */
++  private SimpleSAXListener listener;
++
++  /**
++   * Flag indicating whether leading and trailing whitespace in text elements should be preserved.
++   */
++  private boolean preserveWhitespace = false;
++
++  /**
++   * A Locator indicating a position in the text that is currently being parsed by the SAX parser.
++   */
++  private Locator locator;
++
++  /*--------------*
++   * Constructors *
++   *--------------*/
++
++  /**
++   * Creates a new SimpleSAXParser that will use the supplied <tt>XMLReader</tt> for parsing the XML. One must set a
++   * <tt>SimpleSAXListener</tt> on this object before calling one of the <tt>parse()</tt> methods.
++   * 
++   * @param xmlReader
++   *        The XMLReader to use for parsing.
++   * @see #setListener
++   */
++  public SimpleSAXParser(XMLReader xmlReader) {
++    super();
++    this.xmlReader = xmlReader;
++  }
++
++  /**
++   * Creates a new SimpleSAXParser that will try to create a new <tt>XMLReader</tt> using
++   * <tt>info.aduna.xml.XMLReaderFactory</tt> for parsing the XML. One must set a <tt>SimpleSAXListener</tt> on this
++   * object before calling one of the <tt>parse()</tt> methods.
++   * 
++   * @throws SAXException
++   *         If the SimpleSAXParser was unable to create an XMLReader.
++   * @see #setListener
++   * @see org.xml.sax.XMLReader
++   * @see org.eclipse.rdf4j.common.xml.XMLReaderFactory
++   */
++  public SimpleSAXParser() throws SAXException {
++    this(XMLReaderFactory.createXMLReader());
++  }
++
++  /*---------*
++   * Methods *
++   *---------*/
++
++  /**
++   * Sets the (new) listener that should receive any events from this parser. This listener will replace any previously
++   * set listener.
++   * 
++   * @param listener
++   *        The (new) listener for events from this parser.
++   */
++  public void setListener(SimpleSAXListener listener) {
++    this.listener = listener;
++  }
++
++  /**
++   * Gets the listener that currently will receive any events from this parser.
++   * 
++   * @return The listener for events from this parser.
++   */
++  public SimpleSAXListener getListener() {
++    return listener;
++  }
++
++  public Locator getLocator() {
++    return locator;
++  }
++
++  /**
++   * Sets whether leading and trailing whitespace characters in text elements should be preserved. Such whitespace
++   * characters are discarded by default.
++   */
++  public void setPreserveWhitespace(boolean preserveWhitespace) {
++    this.preserveWhitespace = preserveWhitespace;
++  }
++
++  /**
++   * Checks whether leading and trailing whitespace characters in text elements are preserved. Defaults to
++   * <tt>false</tt>.
++   */
++  public boolean isPreserveWhitespace() {
++    return preserveWhitespace;
++  }
++
++  /**
++   * Parses the content of the supplied <tt>File</tt> as XML.
++   * 
++   * @param file
++   *        The file containing the XML to parse.
++   */
++  public void parse(File file) throws SAXException, IOException {
++    InputStream in = new FileInputStream(file);
++    try {
++      parse(in);
++    } finally {
++      try {
++        in.close();
++      } catch (IOException ignore) {
++      }
++    }
++  }
++
++  /**
++   * Parses the content of the supplied <tt>InputStream</tt> as XML.
++   * 
++   * @param in
++   *        An <tt>InputStream</tt> containing XML data.
++   */
++  public void parse(InputStream in) throws SAXException, IOException {
++    parse(new InputSource(in));
++  }
++
++  /**
++   * Parses the content of the supplied <tt>Reader</tt> as XML.
++   * 
++   * @param reader
++   *        A <tt>Reader</tt> containing XML data.
++   */
++  public void parse(Reader reader) throws SAXException, IOException {
++    parse(new InputSource(reader));
++  }
++
++  /**
++   * Parses the content of the supplied <tt>InputSource</tt> as XML.
++   * 
++   * @param inputSource
++   *        An <tt>InputSource</tt> containing XML data.
++   */
++  public synchronized void parse(InputSource inputSource) throws SAXException, IOException {
++    xmlReader.setContentHandler(new SimpleSAXDefaultHandler());
++    xmlReader.parse(inputSource);
++  }
++
++  /*-------------------------------------*
++   * Inner class SimpleSAXDefaultHandler *
++   *-------------------------------------*/
++
++  class SimpleSAXDefaultHandler extends DefaultHandler {
++
++    /*-----------*
++     * Variables *
++     *-----------*/
++
++    /**
++     * StringBuilder used to collect text during parsing.
++     */
++    private StringBuilder charBuf = new StringBuilder(512);
++
++    /**
++     * The tag name of a deferred start tag.
++     */
++    private String deferredStartTag = null;
++
++    /**
++     * The attributes of a deferred start tag.
++     */
++    private Map<String, String> deferredAttributes = null;
++
++    /*--------------*
++     * Constructors *
++     *--------------*/
++
++    public SimpleSAXDefaultHandler() {
++      super();
++    }
++
++    /*---------*
++     * Methods *
++     *---------*/
++
++    // overrides DefaultHandler.startDocument()
++    public void startDocument() throws SAXException {
++      listener.startDocument();
++    }
++
++    // overrides DefaultHandler.endDocument()
++    public void endDocument() throws SAXException {
++      listener.endDocument();
++    }
++
++    // overrides DefaultHandler.characters()
++    public void characters(char[] ch, int start, int length) throws SAXException {
++      charBuf.append(ch, start, length);
++    }
++
++    // overrides DefaultHandler.startElement()
++    public void startElement(String namespaceURI, String localName, String qName, Attributes attributes)
++        throws SAXException {
++      // Report any deferred start tag
++      if (deferredStartTag != null) {
++        reportDeferredStartElement();
++      }
++
++      // Make current tag new deferred start tag
++      deferredStartTag = localName;
++
++      // Copy attributes to deferredAttributes
++      int attCount = attributes.getLength();
++      if (attCount == 0) {
++        deferredAttributes = Collections.emptyMap();
++      } else {
++        deferredAttributes = new LinkedHashMap<String, String>(attCount * 2);
++
++        for (int i = 0; i < attCount; i++) {
++          deferredAttributes.put(attributes.getQName(i), attributes.getValue(i));
++        }
++      }
++
++      // Clear character buffer
++      charBuf.setLength(0);
++    }
++
++    private void reportDeferredStartElement() throws SAXException {
++      listener.startTag(deferredStartTag, deferredAttributes, "");
++      deferredStartTag = null;
++      deferredAttributes = null;
++    }
++
++    // overrides DefaultHandler.endElement()
++    public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
++      if (deferredStartTag != null) {
++        // Check if any character data has been collected in the charBuf
++        String text = charBuf.toString();
++        if (!preserveWhitespace) {
++          text = text.trim();
++        }
++
++        // Report deferred start tag
++        listener.startTag(deferredStartTag, deferredAttributes, text);
++        deferredStartTag = null;
++        deferredAttributes = null;
++      }
++
++      // Report the end tag
++      listener.endTag(localName);
++
++      // Clear character buffer
++      charBuf.setLength(0);
++    }
++
++    @Override
++    public void setDocumentLocator(Locator loc) {
++      locator = loc;
++    }
++  }
+ }
+-- 
+2.25.1
+

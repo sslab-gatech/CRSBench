@@ -1,0 +1,15 @@
+diff --git a/src/main/java/org/apache/commons/imaging/formats/jpeg/segments/PatSegment.java b/src/main/java/org/apache/commons/imaging/formats/jpeg/segments/PatSegment.java
+index b7007f04..cc9a22dd 100644
+--- a/src/main/java/org/apache/commons/imaging/formats/jpeg/segments/PatSegment.java
++++ b/src/main/java/org/apache/commons/imaging/formats/jpeg/segments/PatSegment.java
+@@ -67,6 +67,10 @@ public class PatSegment extends GenericSegment {
+     }
+ 
+     private static String getEntryPointFromSegmentData(String key, byte[] xmlData) {
++        if (!key.matches("[a-zA-Z0-9_]+")) {
++            return null;
++        }
++
+         // Use XPath to get the element with the key
+         try {
+             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

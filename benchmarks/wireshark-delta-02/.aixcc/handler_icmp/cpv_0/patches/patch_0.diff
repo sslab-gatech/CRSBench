@@ -1,0 +1,27 @@
+diff --git a/epan/dissectors/packet-icmp.c b/epan/dissectors/packet-icmp.c
+index 68d5fb0b9c..fa83aad476 100644
+--- a/epan/dissectors/packet-icmp.c
++++ b/epan/dissectors/packet-icmp.c
+@@ -899,6 +899,7 @@ dissect_interface_identification_object(tvbuff_t * tvb, int offset,
+ 	proto_item *ti;
+ 	uint16_t obj_length;
+ 	uint8_t c_type;
++	uint32_t length;
+ 	uint8_t ident_name[ICMP_MAX_IDENT_NAME_LENGTH];
+ 	bool unknown_object;
+ 	uint32_t afi;
+@@ -923,10 +924,12 @@ dissect_interface_identification_object(tvbuff_t * tvb, int offset,
+ 
+ 	switch(c_type) {
+ 		case ICMP_EXT_ECHO_IDENT_NAME:
++			length = (obj_length - 4 < ICMP_MAX_IDENT_NAME_LENGTH) ? obj_length - 4 : ICMP_MAX_IDENT_NAME_LENGTH;
++
+ 			/* Identification Name must be printable*/
+-			tvb_memcpy(tvb, ident_name, offset, obj_length - 4);
++			tvb_memcpy(tvb, ident_name, offset, length);
+ 
+-			for (unsigned i = 0; i < obj_length - 4; i++)
++			for (unsigned i = 0; i < length; i++)
+ 				if (!g_ascii_isprint(ident_name[i]))
+ 					break;
+ 

@@ -1,0 +1,26 @@
+diff --git a/mongoose.c b/mongoose.c
+index a14859b7..57996d7b 100644
+--- a/mongoose.c
++++ b/mongoose.c
+@@ -821,7 +821,7 @@ size_t mg_vxprintf(void (*out)(char, void *), void *param, const char *fmt,
+           double d = va_arg(*ap, double);
+           int64_t exponent = (int64_t)log10(my_fabs(d));
+           double mantissa = d / power(10, exponent);
+-          k = mg_dtoa(tmp, 10, mantissa, 8, c == 'e');
++          k = mg_dtoa(tmp, 8, mantissa, 8, c == 'e');
+           n += scpy(out, param, tmp, k);
+           out(c, param);
+           n++;
+diff --git a/src/fmt.c b/src/fmt.c
+index 8164e1ca..835e2cda 100644
+--- a/src/fmt.c
++++ b/src/fmt.c
+@@ -319,7 +319,7 @@ size_t mg_vxprintf(void (*out)(char, void *), void *param, const char *fmt,
+           double d = va_arg(*ap, double);
+           int64_t exponent = (int64_t)log10(my_fabs(d));
+           double mantissa = d / power(10, exponent);
+-          k = mg_dtoa(tmp, 10, mantissa, 8, c == 'e');
++          k = mg_dtoa(tmp, 8, mantissa, 8, c == 'e');
+           n += scpy(out, param, tmp, k);
+           out(c, param);
+           n++;

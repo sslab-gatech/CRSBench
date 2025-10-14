@@ -1,0 +1,17 @@
+diff --git a/epan/dissectors/packet-json.c b/epan/dissectors/packet-json.c
+index fbf7776431..f847a7ce9b 100644
+--- a/epan/dissectors/packet-json.c
++++ b/epan/dissectors/packet-json.c
+@@ -358,6 +358,12 @@ json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length
+ 	
+ 							for (int i = 0; i < 8; i++)
+ 							{
++								if (!(read_index < string_length))
++								{
++									is_valid_unicode_character = false;
++									break;
++								}
++
+ 								current_character = string[read_index];
+ 								read_index++;
+ 	

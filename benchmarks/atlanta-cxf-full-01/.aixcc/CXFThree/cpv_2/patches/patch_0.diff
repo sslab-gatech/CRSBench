@@ -1,0 +1,24 @@
+diff --git a/rt/rs/description/src/main/java/org/apache/cxf/jaxrs/model/wadl/WadlGenerator.java b/rt/rs/description/src/main/java/org/apache/cxf/jaxrs/model/wadl/WadlGenerator.java
+index 240c1f0ade..73a2303d00 100644
+--- a/rt/rs/description/src/main/java/org/apache/cxf/jaxrs/model/wadl/WadlGenerator.java
++++ b/rt/rs/description/src/main/java/org/apache/cxf/jaxrs/model/wadl/WadlGenerator.java
+@@ -242,9 +242,17 @@ public class WadlGenerator implements ContainerRequestFilter {
+                 if (path.startsWith("/") && !path.isEmpty()) {
+                     path = path.substring(1);
+                 }
+-                if (stylesheetReference != null && path.endsWith(".xsl")
+-                    || docLocationMap.containsKey(path)) {
++
++                if (docLocationMap.containsKey(path)) {
+                     context.abortWith(getExistingResource(m, ui, path));
++                } else if (stylesheetReference != null) {
++                    String theStylesheetReference = stylesheetReference;
++                    if (theStylesheetReference.startsWith("/")) {
++                        theStylesheetReference = theStylesheetReference.substring(1);
++                    }
++                    if (path.endsWith(theStylesheetReference)) {
++                        context.abortWith(getExistingResource(m, ui, stylesheetReference));
++                    }
+                 }
+             }
+             return;

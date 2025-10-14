@@ -1,0 +1,64 @@
++ FUZZER=fuzz-systemctl-parse-argv
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer fuzz-systemctl-parse-argv -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/fuzz-systemctl-parse-argv -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -timeout_exitcode=0 < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1688537207
+INFO: Loaded 2 modules   (100324 inline 8-bit counters): 94611 [0x7ff5e31dd920, 0x7ff5e31f4ab3), 5713 [0x55794aa21598, 0x55794aa22be9), 
+INFO: Loaded 2 PC tables (100324 PCs): 94611 [0x7ff5e31f4ab8,0x7ff5e33663e8), 5713 [0x55794aa22bf0,0x55794aa39100), 
+/out/fuzz-systemctl-parse-argv: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+==18==ERROR: AddressSanitizer: attempting double-free on 0x502000007310 in thread T0:
+SCARINESS: 42 (double-free)
+    #0 0x55794a869956 in free /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:52:3
+    #1 0x7ff5e2bf5dd3 in parse_path_argument /work/build/../../src/systemd/src/shared/parse-argument.c:68:24
+    #2 0x55794a8fb9ad in systemctl_parse_argv /work/build/../../src/systemd/src/systemctl/systemctl.c:732:29
+    #3 0x55794a8a9698 in LLVMFuzzerTestOneInput /work/build/../../src/systemd/src/systemctl/fuzz-systemctl-parse-argv.c:58:13
+    #4 0x55794a91d050 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #5 0x55794a9082c5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #6 0x55794a90dd5f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #7 0x55794a939002 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #8 0x7ff5e22ac082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #9 0x55794a7d0bdd in _start (/out/fuzz-systemctl-parse-argv+0x8cbdd)
+
+DEDUP_TOKEN: __interceptor_free--parse_path_argument--systemctl_parse_argv
+0x502000007310 is located 0 bytes inside of 16-byte region [0x502000007310,0x502000007320)
+freed by thread T0 here:
+    #0 0x55794a869956 in free /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:52:3
+    #1 0x55794a8a98f1 in static_destruct /work/build/../../src/systemd/src/basic/static-destruct.h:95:25
+    #2 0x55794a8a98f1 in LLVMFuzzerTestOneInput /work/build/../../src/systemd/src/systemctl/fuzz-systemctl-parse-argv.c:74:9
+    #3 0x55794a91d050 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #4 0x55794a9082c5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #5 0x55794a90dd5f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #6 0x55794a939002 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #7 0x7ff5e22ac082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_free--static_destruct--LLVMFuzzerTestOneInput
+previously allocated by thread T0 here:
+    #0 0x55794a869fdc in realloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:82:3
+    #1 0x7ff5e2d2526e in path_extend_internal /work/build/../../src/systemd/src/basic/path-util.c:585:14
+    #2 0x7ff5e2d258c4 in path_make_absolute_cwd /work/build/../../src/systemd/src/basic/path-util.c:92:21
+    #3 0x7ff5e2bf5e16 in parse_path_argument /work/build/../../src/systemd/src/shared/parse-argument.c:72:13
+    #4 0x55794a8fb9ad in systemctl_parse_argv /work/build/../../src/systemd/src/systemctl/systemctl.c:732:29
+    #5 0x55794a8a9698 in LLVMFuzzerTestOneInput /work/build/../../src/systemd/src/systemctl/fuzz-systemctl-parse-argv.c:58:13
+    #6 0x55794a91d050 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #7 0x55794a9082c5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #8 0x55794a90dd5f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #9 0x55794a939002 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #10 0x7ff5e22ac082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_realloc--path_extend_internal--path_make_absolute_cwd
+SUMMARY: AddressSanitizer: double-free /work/build/../../src/systemd/src/shared/parse-argument.c:68:24 in parse_path_argument
+==18==ABORTING
+subprocess command returned a non-zero exit status: 1

@@ -1,0 +1,16 @@
+diff --git a/src/http/ngx_http_request_body.c b/src/http/ngx_http_request_body.c
+index 3f181d3..afb0423 100644
+--- a/src/http/ngx_http_request_body.c
++++ b/src/http/ngx_http_request_body.c
+@@ -860,7 +860,10 @@ ngx_http_discard_request_body_filter(ngx_http_request_t *r, ngx_buf_t *b)
+                 return NGX_HTTP_INTERNAL_SERVER_ERROR;
+             }
+ 
+-            rb->chunked = NULL;
++            rb->chunked = ngx_pcalloc(r->pool, sizeof(ngx_http_chunked_t));
++            if (rb->chunked == NULL) {
++                return NGX_HTTP_INTERNAL_SERVER_ERROR;
++            }
+ 
+             r->request_body = rb;
+         }

@@ -1,0 +1,13 @@
+diff --git a/lib/verynormalprotocol.c b/lib/verynormalprotocol.c
+index 0885036a8..86216332e 100644
+--- a/lib/verynormalprotocol.c
++++ b/lib/verynormalprotocol.c
+@@ -133,7 +133,7 @@ static CURLcode verynormalprotocol_doing(struct Curl_easy *data, bool *done)
+   }
+   else if(strcasecmp(response, "crashycrashy") == 0) {
+     *done = TRUE;
+-    *(unsigned int *)result = CURLE_OK;
++    result = CURLE_OK;
+   }
+   else {
+     *done = TRUE;

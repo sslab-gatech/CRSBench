@@ -1,0 +1,22 @@
+diff --git a/epan/dissectors/packet-openvpn.c b/epan/dissectors/packet-openvpn.c
+index b5486db018..5727b7b93b 100644
+--- a/epan/dissectors/packet-openvpn.c
++++ b/epan/dissectors/packet-openvpn.c
+@@ -182,7 +182,6 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
+   proto_tree    *packetarray_tree, *type_tree;
+   uint32_t       msg_length_remaining;
+   int            wkc_offset = -1;
+-  uint8_t        buf[8] = { 0 };
+ 
+   /* Clear out stuff in the info column */
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+@@ -309,9 +308,6 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
+ 
+     wkc_len = tvb_get_ntohs(tvb, tvb_reported_length(tvb) - 2);
+     data_len = msg_length_remaining - wkc_len;
+-    tvb_memcpy(tvb, buf, offset, data_len);
+-    if (!strcmp((char*)&buf[0], "OpenVPN"))
+-        return 0;
+   }
+ 
+   if (openvpn_opcode != P_CONTROL_V1) {

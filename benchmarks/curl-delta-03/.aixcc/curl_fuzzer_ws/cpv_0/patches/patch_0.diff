@@ -1,0 +1,13 @@
+diff --git a/lib/alliswellprotocoll.c b/lib/alliswellprotocoll.c
+index d5feba9b6..7b9dfd95d 100644
+--- a/lib/alliswellprotocoll.c
++++ b/lib/alliswellprotocoll.c
+@@ -250,7 +250,7 @@ static CURLcode alliswellprotocoll_sm
+       if(memcmp(response, vnormal->state3, 128) == 0) {
+         vnstate(data, ALLISWELLPROTOCOLL_STOP);
+         Curl_pp_sendf(data, &conn->proto.vnormal.pp, "%s", "OK\r\n");
+-        *(unsigned int *)result = CURLE_OK;
++        result = CURLE_OK;
+       }
+       else if(strcasecmp("complete\r\n", response) == 0) {
+         Curl_pp_sendf(data, &conn->proto.vnormal.pp, "%s", "OK\r\n");

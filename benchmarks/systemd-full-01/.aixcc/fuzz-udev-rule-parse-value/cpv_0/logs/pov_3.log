@@ -1,0 +1,63 @@
++ FUZZER=fuzz-udev-rule-parse-value
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer fuzz-udev-rule-parse-value -runs=100 -detect_leaks=0 /testcase
+vm.mmap_rnd_bits = 28
+/out/fuzz-udev-rule-parse-value -rss_limit_mb=2560 -timeout=25 -runs=100 -detect_leaks=0 /testcase -timeout_exitcode=0 < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 2883674330
+INFO: Loaded 2 modules   (100226 inline 8-bit counters): 94611 [0x7f63cafdd920, 0x7f63caff4ab3), 5615 [0x556db4c314e8, 0x556db4c32ad7), 
+INFO: Loaded 2 PC tables (100226 PCs): 94611 [0x7f63caff4ab8,0x7f63cb1663e8), 5615 [0x556db4c32ad8,0x556db4c489c8), 
+/out/fuzz-udev-rule-parse-value: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+[1m[31m==18==ERROR: AddressSanitizer: memcpy-param-overlap: memory ranges [0x504000000133,0x504000000155) and [0x504000000150, 0x504000000172) overlap
+[1m[0mSCARINESS: 10 (memcpy-param-overlap)
+    #0 0x556db4a4e640 in __asan_memcpy /src/llvm-project/compiler-rt/lib/asan/asan_interceptors_memintrinsics.cpp:63:3
+    #1 0x556db4a90dd7 in udev_rule_parse_value /work/build/../../src/systemd/src/udev/udev-rules.c:1220:25
+    #2 0x556db4a900fe in LLVMFuzzerTestOneInput /work/build/../../src/systemd/src/udev/fuzz-udev-rule-parse-value.c:22:13
+    #3 0x556db4b07ab0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #4 0x556db4af2d25 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #5 0x556db4af87bf in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #6 0x556db4b23a62 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #7 0x7f63ca0e3082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #8 0x556db49b78bd in _start (/out/fuzz-udev-rule-parse-value+0x9a8bd)
+
+DEDUP_TOKEN: __asan_memcpy--udev_rule_parse_value--LLVMFuzzerTestOneInput
+[1m[32m0x504000000137 is located 0 bytes after 39-byte region [0x504000000110,0x504000000137)
+[1m[0m[1m[35mallocated by thread T0 here:[1m[0m
+    #0 0x556db4a508cf in malloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:68:3
+    #1 0x556db4a900aa in LLVMFuzzerTestOneInput /work/build/../../src/systemd/src/udev/fuzz-udev-rule-parse-value.c:18:9
+    #2 0x556db4b07ab0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #3 0x556db4af2d25 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #4 0x556db4af87bf in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #5 0x556db4b23a62 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #6 0x7f63ca0e3082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_malloc--LLVMFuzzerTestOneInput--fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long)
+[1m[32m0x504000000150 is located 0 bytes inside of 34-byte region [0x504000000150,0x504000000172)
+[1m[0m[1m[35mallocated by thread T0 here:[1m[0m
+    #0 0x556db4a508cf in malloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:68:3
+    #1 0x7f63caaade5b in malloc_multiply /work/build/../../src/systemd/src/basic/alloc-util.h:119:16
+    #2 0x7f63caaade5b in cunescape_length_with_prefix /work/build/../../src/systemd/src/basic/escape.c:306:15
+    #3 0x556db4a90d82 in cunescape_length /work/build/../../src/systemd/src/basic/escape.h:52:16
+    #4 0x556db4a90d82 in udev_rule_parse_value /work/build/../../src/systemd/src/udev/udev-rules.c:1208:21
+    #5 0x556db4a900fe in LLVMFuzzerTestOneInput /work/build/../../src/systemd/src/udev/fuzz-udev-rule-parse-value.c:22:13
+    #6 0x556db4b07ab0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #7 0x556db4af2d25 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #8 0x556db4af87bf in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #9 0x556db4b23a62 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #10 0x7f63ca0e3082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_malloc--malloc_multiply--cunescape_length_with_prefix
+SUMMARY: AddressSanitizer: memcpy-param-overlap /work/build/../../src/systemd/src/udev/udev-rules.c:1220:25 in udev_rule_parse_value
+==18==ABORTING
+subprocess command returned a non-zero exit status: 1

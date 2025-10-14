@@ -1,0 +1,20 @@
+diff --git a/src/liblzma/check/treeck.c b/src/liblzma/check/treeck.c
+index f54d244e..f9879a66 100644
+--- a/src/liblzma/check/treeck.c
++++ b/src/liblzma/check/treeck.c
+@@ -83,11 +83,11 @@ static uint32_t compute_tree_checksum(TreeNode *node, unsigned int depth)
+       }
+     }
+     node->state = STATE_HASHED;
+-  }
+ 
+-  // Free the node and edges
+-  free(node->edges);
+-  free(node);
++    // Free the node and edges
++    free(node->edges);
++    free(node);
++  }
+ 
+   return sum;
+ }

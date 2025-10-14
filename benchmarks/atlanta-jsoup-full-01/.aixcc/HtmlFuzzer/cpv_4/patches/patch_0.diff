@@ -1,0 +1,13 @@
+diff --git a/src/main/java/org/jsoup/internal/StringUtil.java b/src/main/java/org/jsoup/internal/StringUtil.java
+index 8c5e50b8..b47bcb2b 100644
+--- a/src/main/java/org/jsoup/internal/StringUtil.java
++++ b/src/main/java/org/jsoup/internal/StringUtil.java
+@@ -281,7 +281,7 @@ public final class StringUtil {
+         return true;
+     }
+ 
+-    private static final Pattern extraDotSegmentsPattern = Pattern.compile("^/((\\.{1,2}/)+)");
++    private static final Pattern extraDotSegmentsPattern = Pattern.compile("^/(?>(?>\\.\\.?/)+)");
+     /**
+      * Create a new absolute URL, from a provided existing absolute URL and a relative URL component.
+      * @param base the existing absolute base URL

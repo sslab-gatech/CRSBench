@@ -1,0 +1,45 @@
++ FUZZER=mail_request_harness
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer mail_request_harness -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/mail_request_harness -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1588640907
+INFO: Loaded 1 modules   (117 inline 8-bit counters): 117 [0x55b57236b2f8, 0x55b57236b36d), 
+INFO: Loaded 1 PC tables (117 PCs): 117 [0x55b57236b370,0x55b57236bac0), 
+/out/mail_request_harness: Running 1 inputs 100 time(s) each.
+Running: /testcase
+2025/01/13 08:38:34 [alert] 0#0: select ready != events: 3:2
+2025/01/13 08:38:34 [alert] 0#0: select ready != events: 3:2
+2025/01/13 08:38:34 [alert] 0#0: select ready != events: 3:2
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+[1m[31m==14==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000011 (pc 0x55b572255568 bp 0x7ffd15e2f7e0 sp 0x7ffd15e2f7a0 T0)
+[1m[0m==14==The signal is caused by a READ memory access.
+==14==Hint: address points to the zero page.
+SCARINESS: 10 (null-deref)
+    #0 0x55b572255568 in ngx_mail_pop3_pass /src/nginx/src/mail/ngx_mail_pop3_handler.c:377:42
+    #1 0x55b57225436c in ngx_mail_pop3_auth_state /src/nginx/src/mail/ngx_mail_pop3_handler.c:221:22
+    #2 0x55b5720e294c in ngx_event_process_posted /src/nginx/src/event/ngx_event_posted.c:34:9
+    #3 0x55b572082644 in LLVMFuzzerTestOneInput /src/nginx/src/fuzz/mail_request_harness.cc:275:5
+    #4 0x55b571f36570 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #5 0x55b571f217e5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #6 0x55b571f2727f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #7 0x55b571f52522 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #8 0x7f4e6afbe082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0702430aef5fa3dda43986563e9ffcc47efbd75e)
+    #9 0x55b571f199cd in _start (/out/mail_request_harness+0xb79cd)
+
+DEDUP_TOKEN: ngx_mail_pop3_pass--ngx_mail_pop3_auth_state--ngx_event_process_posted
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV /src/nginx/src/mail/ngx_mail_pop3_handler.c:377:42 in ngx_mail_pop3_pass
+==14==ABORTING
+INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /home/haein/aixcc/oss-fuzz/build/out/aixcc/c/nginx:/out -v /home/haein/aixcc/oss-fuzz/3rd/cp-nginx/.internal_only/cpv13/blobs/vuln_037.blob:/testcase -t gcr.io/oss-fuzz-base/base-runner reproduce mail_request_harness -runs=100.

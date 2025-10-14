@@ -1,0 +1,23 @@
+diff --git a/epan/dissectors/packet-zbee-zdp-management.c b/epan/dissectors/packet-zbee-zdp-management.c
+index ab5f41d698..ebbbabf1a9 100644
+--- a/epan/dissectors/packet-zbee-zdp-management.c
++++ b/epan/dissectors/packet-zbee-zdp-management.c
+@@ -240,12 +240,12 @@ dissect_zbee_zdp_req_mgmt_nwk_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
+             proto_item_append_text(ti, "None");
+         if (channels_and_flags & 0xfff4131b) {
+             for (i=0; i <= channels; i++) {
+-                printf("DEBUG:\t(0x%x/0x%x)\t%d / 0x%x\t%s\n",
+-                        i, channels,
+-                        channels_arr[i]->channel_id,
+-                        channels_arr[i]->channels,
+-                        channels_arr[i]->free_text,
+-                        channels_arr[i]->text);
++                // printf("DEBUG:\t(0x%x/0x%x)\t%d / 0x%x\t%s\n",
++                //         i, channels,
++                //         channels_arr[i]->channel_id,
++                //         channels_arr[i]->channels,
++                //         channels_arr[i]->free_text,
++                //         channels_arr[i]->text);
+             }
+         }
+     }

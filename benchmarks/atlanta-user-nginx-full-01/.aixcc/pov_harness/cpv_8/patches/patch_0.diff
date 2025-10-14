@@ -1,0 +1,14 @@
+diff --git a/src/http/ngx_http_parse.c b/src/http/ngx_http_parse.c
+index 9e2e618..d906a14 100644
+--- a/src/http/ngx_http_parse.c
++++ b/src/http/ngx_http_parse.c
+@@ -761,9 +761,6 @@ ngx_http_parse_request_line(ngx_http_request_t *r, ngx_buf_t *b)
+             }
+ 
+             if (r->http_minor > 99) {
+-                char minor_version_temp[3] = {};
+-                sprintf(minor_version_temp, "%u", r->http_minor);
+-                //ngx_record_wrong_minor_version(minor_version_temp);
+                 return NGX_HTTP_PARSE_INVALID_REQUEST;
+             }
+ 

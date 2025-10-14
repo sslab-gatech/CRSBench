@@ -1,0 +1,48 @@
+diff --git a/poi-scratchpad/src/main/java/org/apache/poi/hdgf/streams/PointerContainingStream.java b/poi-scratchpad/src/main/java/org/apache/poi/hdgf/streams/PointerContainingStream.java
+index 42044c2..387cb85 100644
+--- a/poi-scratchpad/src/main/java/org/apache/poi/hdgf/streams/PointerContainingStream.java
++++ b/poi-scratchpad/src/main/java/org/apache/poi/hdgf/streams/PointerContainingStream.java
+@@ -17,9 +17,6 @@
+ 
+ package org.apache.poi.hdgf.streams;
+ 
+-
+-import org.apache.logging.log4j.Logger;
+-import org.apache.poi.logging.PoiLogManager;
+ import org.apache.poi.hdgf.chunks.ChunkFactory;
+ import org.apache.poi.hdgf.pointers.Pointer;
+ import org.apache.poi.hdgf.pointers.PointerFactory;
+@@ -29,8 +26,7 @@ import org.apache.poi.hdgf.pointers.PointerFactory;
+  *  other data too.
+  */
+ public class PointerContainingStream extends Stream { // TODO - instantiable superclass
+-    private static final Logger LOG = PoiLogManager.getLogger(PointerContainingStream.class);
+-    private static final int MAX_CHILDREN_NESTING = 500;
++    private static int MAX_CHILDREN_NESTING = 500;
+ 
+     private final Pointer[] childPointers;
+     private Stream[] childStreams;
+@@ -69,10 +65,10 @@ public class PointerContainingStream extends Stream { // TODO - instantiable sup
+ 
+     private void findChildren(byte[] documentData, int nesting) {
+         if (nesting > getMaxChildrenNesting()) {
+-            LOG.warn("Encountered too deep nesting, cannot fully process stream " +
+-                    " with more than " + MAX_CHILDREN_NESTING + " nested children." +
+-                    " Some data could not be parsed.");
+-            return;
++            throw new IllegalArgumentException("Encountered too deep nesting, cannot process stream " +
++                    "with more than " + getMaxChildrenNesting() + " nested children. " +
++                    "Some data could not be parsed. You can call setMaxChildrenNesting() to adjust " +
++                    "this limit.");
+         }
+ 
+         // For each pointer, generate the Stream it points to
+@@ -100,4 +96,8 @@ public class PointerContainingStream extends Stream { // TODO - instantiable sup
+     public static int getMaxChildrenNesting() {
+         return MAX_CHILDREN_NESTING;
+     }
++
++    public static void setMaxChildrenNesting(int maxChildrenNesting) {
++        MAX_CHILDREN_NESTING = maxChildrenNesting;
++    }
+ }

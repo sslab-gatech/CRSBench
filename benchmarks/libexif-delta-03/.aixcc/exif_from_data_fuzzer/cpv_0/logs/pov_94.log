@@ -1,0 +1,63 @@
++ FUZZER=exif_from_data_fuzzer
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer exif_from_data_fuzzer -runs=100 -detect_leaks=0 /testcase
+vm.mmap_rnd_bits = 28
+/out/exif_from_data_fuzzer -rss_limit_mb=2560 -timeout=25 -runs=100 -detect_leaks=0 /testcase -timeout_exitcode=0 < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 3140112788
+INFO: Loaded 1 modules   (2866 inline 8-bit counters): 2866 [0x561fd8741738, 0x561fd874226a), 
+INFO: Loaded 1 PC tables (2866 PCs): 2866 [0x561fd8742270,0x561fd874d590), 
+/out/exif_from_data_fuzzer: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+[1m[31m==19==ERROR: AddressSanitizer: memcpy-param-overlap: memory ranges [0x51d000001480,0x51d000001c78) and [0x51d000000d51, 0x51d000001549) overlap
+[1m[0mSCARINESS: 10 (memcpy-param-overlap)
+    #0 0x561fd861be70 in __asan_memcpy /src/llvm-project/compiler-rt/lib/asan/asan_interceptors_memintrinsics.cpp:63:3
+    #1 0x561fd867e0d1 in exif_mnote_data_apple_load /src/libexif/libexif/apple/exif-mnote-data-apple.c:158:9
+    #2 0x561fd8660efe in exif_data_load_data /src/libexif/libexif/exif-data.c:1012:2
+    #3 0x561fd866036e in exif_data_new_from_data /src/libexif/libexif/exif-data.c:159:2
+    #4 0x561fd865d8af in LLVMFuzzerTestOneInput /src/exif_from_data_fuzzer.cc:51:16
+    #5 0x561fd8512330 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #6 0x561fd84fd5a5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #7 0x561fd850303f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #8 0x561fd852e2e2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #9 0x7f0dc2c11082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #10 0x561fd84f578d in _start (/out/exif_from_data_fuzzer+0x8678d)
+
+DEDUP_TOKEN: __asan_memcpy--exif_mnote_data_apple_load--exif_data_load_data
+[1m[32m0x51d000001480 is located 0 bytes inside of 2040-byte region [0x51d000001480,0x51d000001c78)
+[1m[0m[1m[35mallocated by thread T0 here:[1m[0m
+    #0 0x561fd861e2c9 in calloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:75:3
+    #1 0x561fd867dfc9 in exif_mnote_data_apple_load /src/libexif/libexif/apple/exif-mnote-data-apple.c:148:30
+    #2 0x561fd8660efe in exif_data_load_data /src/libexif/libexif/exif-data.c:1012:2
+    #3 0x561fd866036e in exif_data_new_from_data /src/libexif/libexif/exif-data.c:159:2
+    #4 0x561fd865d8af in LLVMFuzzerTestOneInput /src/exif_from_data_fuzzer.cc:51:16
+    #5 0x561fd8512330 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #6 0x561fd84fd5a5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #7 0x561fd850303f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #8 0x561fd852e2e2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #9 0x7f0dc2c11082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_calloc--exif_mnote_data_apple_load--exif_data_load_data
+[1m[32m0x51d000001287 is located 0 bytes after 2055-byte region [0x51d000000a80,0x51d000001287)
+[1m[0m[1m[35mallocated by thread T0 here:[1m[0m
+    #0 0x561fd861e0ff in malloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:68:3
+    #1 0x561fd869b093 in operator new(unsigned long) cxa_noexception.cpp
+    #2 0x561fd84fd5a5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #3 0x561fd850303f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #4 0x561fd852e2e2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #5 0x7f0dc2c11082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_malloc--operator new(unsigned long)--fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long)
+SUMMARY: AddressSanitizer: memcpy-param-overlap /src/libexif/libexif/apple/exif-mnote-data-apple.c:158:9 in exif_mnote_data_apple_load
+==19==ABORTING
+subprocess command returned a non-zero exit status: 1

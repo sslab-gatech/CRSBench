@@ -1,0 +1,39 @@
+diff --git a/src/main/java/org/apache/commons/imaging/formats/gif/ApplicationExtension.java b/src/main/java/org/apache/commons/imaging/formats/gif/ApplicationExtension.java
+index 342d432..2baf7dd 100644
+--- a/src/main/java/org/apache/commons/imaging/formats/gif/ApplicationExtension.java
++++ b/src/main/java/org/apache/commons/imaging/formats/gif/ApplicationExtension.java
+@@ -16,9 +16,8 @@
+  */
+ package org.apache.commons.imaging.formats.gif;
+ 
++import java.util.Iterator;
+ import java.util.List;
+-import java.util.regex.Matcher;
+-import java.util.regex.Pattern;
+ 
+ final class ApplicationExtension extends GenericGifBlock {
+ 
+@@ -29,15 +28,15 @@ final class ApplicationExtension extends GenericGifBlock {
+ 
+         this.label = label;
+ 
+-        // Filter the sub-blocks for the correct label, using a regex.
++        // Filter the sub-blocks for the correct label by directly checking the prefix.
+         // Only keep blocks that start with "app-ext <label>: ".
+-        final Pattern pattern = Pattern.compile("^app-ext " + new String(label) + ": ");
+-        for (int i = 0; i < subBlocks.size(); i++) {
+-            final byte[] subBlock = subBlocks.get(i);
+-            final Matcher matcher = pattern.matcher(new String(subBlock));
+-            if (!matcher.find()) {
+-                subBlocks.remove(i);
+-                i--;
++        String prefix = "app-ext " + new String(label) + ": ";
++        Iterator<byte[]> iterator = subBlocks.iterator();
++        while (iterator.hasNext()) {
++            byte[] subBlock = iterator.next();
++            String subBlockString = new String(subBlock);
++            if (!subBlockString.startsWith(prefix)) {
++                iterator.remove();
+             }
+         }
+     }

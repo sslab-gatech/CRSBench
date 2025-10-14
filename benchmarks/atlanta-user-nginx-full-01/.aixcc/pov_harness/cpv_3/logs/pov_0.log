@@ -1,0 +1,31 @@
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 957170590
+INFO: Loaded 1 modules   (26672 inline 8-bit counters): 26672 [0x56165fa80698, 0x56165fa86ec8), 
+INFO: Loaded 1 PC tables (26672 PCs): 26672 [0x56165fa86ec8,0x56165faef1c8), 
+/out/pov_harness: Running 1 inputs 100 time(s) each.
+Running: /testcase
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==14==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000238 (pc 0x56165f92f8e4 bp 0x7ffcb295f830 sp 0x7ffcb295f760 T0)
+==14==The signal is caused by a WRITE memory access.
+==14==Hint: address points to the zero page.
+SCARINESS: 10 (null-deref)
+    #0 0x56165f92f8e4 in ngx_http_flv_handler /src/nginx/src/http/modules/ngx_http_flv_module.c:192:27
+    #1 0x56165f7f6af3 in ngx_http_core_content_phase /src/nginx/src/http/ngx_http_core_module.c:1261:38
+    #2 0x56165f7f3af1 in ngx_http_core_run_phases /src/nginx/src/http/ngx_http_core_module.c:875:14
+    #3 0x56165f7f3af1 in ngx_http_handler /src/nginx/src/http/ngx_http_core_module.c:858:5
+    #4 0x56165f817678 in ngx_http_process_request /src/nginx/src/http/ngx_http_request.c:2138:5
+    #5 0x56165f81c595 in ngx_http_process_request_headers /src/nginx/src/http/ngx_http_request.c:1527:13
+    #6 0x56165f7a1689 in ngx_event_process_posted /src/nginx/src/event/ngx_event_posted.c:34:9
+    #7 0x56165f7286a4 in LLVMFuzzerTestOneInput /src/nginx/src/fuzz/pov_harness.cc:295:5
+    #8 0x56165f5dc5f0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #9 0x56165f5c7865 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #10 0x56165f5cd2ff in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #11 0x56165f5f85a2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #12 0x7f0d1e43f082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0702430aef5fa3dda43986563e9ffcc47efbd75e)
+    #13 0x56165f5bfa4d in _start (/out/pov_harness+0x151a4d)
+
+DEDUP_TOKEN: ngx_http_flv_handler--ngx_http_core_content_phase--ngx_http_core_run_phases
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV /src/nginx/src/http/modules/ngx_http_flv_module.c:192:27 in ngx_http_flv_handler
+==14==ABORTING

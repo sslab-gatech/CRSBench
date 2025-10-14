@@ -1,0 +1,81 @@
+diff --git a/src/main/java/org/json/JSONObject.java b/src/main/java/org/json/JSONObject.java
+index fb159a1..6b3b87e 100644
+--- a/src/main/java/org/json/JSONObject.java
++++ b/src/main/java/org/json/JSONObject.java
+@@ -220,7 +220,6 @@ public class JSONObject {
+             throw x.syntaxError("A JSONObject text must begin with '{'");
+         }
+         for (;;) {
+-            char prev = x.getPrevious();
+             c = x.nextClean();
+             switch (c) {
+             case 0:
+@@ -230,15 +229,9 @@ public class JSONObject {
+                     throw x.syntaxError("Strict mode error: Unparsed characters found at end of input text");
+                 }
+                 return;
+-            case '{':
+-            case '[':
+-                if(prev=='{') {
+-                    throw x.syntaxError("A JSON Object can not directly nest another JSON Object or JSON Array.");
+-                }
+             default:
+-                x.back();
+-                key = x.nextValue().toString();
+-	    }
++                key = x.nextSimpleValue(c).toString();
++            }
+ 
+             // The key is followed by ':'.
+ 
+@@ -279,6 +272,9 @@ public class JSONObject {
+                     }
+                     return;
+                 }
++                if (x.end()) {
++                    throw x.syntaxError("A JSONObject text must end with '}'");
++                }
+                 x.back();
+                 break;
+             case '}':
+diff --git a/src/main/java/org/json/JSONTokener.java b/src/main/java/org/json/JSONTokener.java
+index 858320c..a90d51a 100644
+--- a/src/main/java/org/json/JSONTokener.java
++++ b/src/main/java/org/json/JSONTokener.java
+@@ -454,12 +454,7 @@ public class JSONTokener {
+      */
+     public Object nextValue() throws JSONException {
+         char c = this.nextClean();
+-	String string;
+-
+         switch (c) {
+-        case '"':
+-	case '\'':
+-		return this.nextString(c);
+         case '{':
+             this.back();
+             try {
+@@ -475,6 +470,23 @@ public class JSONTokener {
+                 throw new JSONException("JSON Array or Object depth too large to process.", e);
+             }
+         }
++        return nextSimpleValue(c);
++    }
++
++    Object nextSimpleValue(char c) {
++        String string;
++
++        // Strict mode only allows strings with explicit double quotes
++        if (jsonParserConfiguration != null &&
++                jsonParserConfiguration.isStrictMode() &&
++                c == '\'') {
++            throw this.syntaxError("Strict mode error: Single quoted strings are not allowed");
++        }
++        switch (c) {
++        case '"':
++        case '\'':
++            return this.nextString(c);
++        }
+ 
+         /*
+          * Handle unquoted text. This could be the values true, false, or

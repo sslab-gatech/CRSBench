@@ -1,0 +1,92 @@
+INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /home/user/work/team-atlanta/oss-fuzz-origin/build/out/aixcc/c/libtiff:/out -v /home/user/work/team-atlanta/oss-fuzz-origin/projects/aixcc/c/libtiff/.aixcc/povs/tiffcp/cpv_3:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.1.0 reproduce tiffcp -runs=100.
++ FUZZER=tiffcp
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer tiffcp -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/tiffcp -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -detect_leaks=0 -dict=tiffcp.dict < /dev/null
+Dictionary: 40 entries
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1999627075
+INFO: Loaded 1 modules   (25975 inline 8-bit counters): 25975 [0x5618a4c05220, 0x5618a4c0b797), 
+INFO: Loaded 1 PC tables (25975 PCs): 25975 [0x5618a4c0b798,0x5618a4c70f08), 
+/out/tiffcp: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+==18==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x502000000791 at pc 0x5618a46f15eb bp 0x7ffe508fa630 sp 0x7ffe508f9df8
+READ of size 1 at 0x502000000791 thread T0
+SCARINESS: 12 (1-byte-read-heap-buffer-overflow)
+    #0 0x5618a46f15ea in strlen /src/llvm-project/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:391:5
+    #1 0x5618a47b55d5 in tiffcp /src/libtiff/contrib/oss-fuzz/tiffcp.cc:976:57
+    #2 0x5618a47b55d5 in LLVMFuzzerTestOneInput /src/libtiff/contrib/oss-fuzz/tiffcp.cc:381:9
+    #3 0x5618a46673b0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #4 0x5618a4652625 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #5 0x5618a46580bf in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #6 0x5618a4683362 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #7 0x7f9306c50082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+    #8 0x5618a464a80d in _start (/out/tiffcp+0xf780d)
+
+DEDUP_TOKEN: ___interceptor_strlen--tiffcp--LLVMFuzzerTestOneInput
+0x502000000791 is located 0 bytes after 1-byte region [0x502000000790,0x502000000791)
+allocated by thread T0 here:
+    #0 0x5618a477317f in malloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:68:3
+    #1 0x5618a47d7d23 in setByteArray /src/libtiff/libtiff/tif_dir.c:52:19
+    #2 0x5618a47d7d23 in _TIFFsetNString /src/libtiff/libtiff/tif_dir.c:60:7
+    #3 0x5618a47c7d17 in _TIFFVSetField /src/libtiff/libtiff/tif_dir.c:483:4
+    #4 0x5618a47c3f7d in TIFFSetField /src/libtiff/libtiff/tif_dir.c:840:11
+    #5 0x5618a47e70e6 in TIFFFetchNormalTag /src/libtiff/libtiff/tif_dirread.c:5895:9
+    #6 0x5618a47dc9c8 in TIFFReadDirectory /src/libtiff/libtiff/tif_dirread.c:4328:13
+    #7 0x5618a4867593 in TIFFClientOpen /src/libtiff/libtiff/tif_open.c:483:8
+    #8 0x5618a489211c in TIFFFdOpen /src/libtiff/libtiff/tif_unix.c:209:8
+    #9 0x5618a489211c in TIFFOpen /src/libtiff/libtiff/tif_unix.c:248:8
+    #10 0x5618a47b3dfc in LLVMFuzzerTestOneInput /src/libtiff/contrib/oss-fuzz/tiffcp.cc:359:8
+    #11 0x5618a46673b0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #12 0x5618a4652625 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #13 0x5618a46580bf in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #14 0x5618a4683362 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #15 0x7f9306c50082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+
+DEDUP_TOKEN: __interceptor_malloc--setByteArray--_TIFFsetNString
+SUMMARY: AddressSanitizer: heap-buffer-overflow /src/libtiff/contrib/oss-fuzz/tiffcp.cc:976:57 in tiffcp
+Shadow bytes around the buggy address:
+  0x502000000500: fa fa 02 fa fa fa 02 fa fa fa 02 fa fa fa 00 00
+  0x502000000580: fa fa 00 fa fa fa 00 fa fa fa 00 fa fa fa 07 fa
+  0x502000000600: fa fa 03 fa fa fa 00 01 fa fa 00 00 fa fa fd fa
+  0x502000000680: fa fa fd fa fa fa 00 fa fa fa fd fa fa fa fd fa
+  0x502000000700: fa fa 00 fa fa fa 02 fa fa fa fd fa fa fa fd fa
+=>0x502000000780: fa fa[01]fa fa fa fd fa fa fa 00 fa fa fa 00 fa
+  0x502000000800: fa fa 02 fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x502000000880: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x502000000900: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x502000000980: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x502000000a00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==18==ABORTING
+exit status 1
+subprocess command returned a non-zero exit status: 1

@@ -1,0 +1,13 @@
+diff --git a/fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java b/fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java
+index cda8dc6f3..a07f63232 100644
+--- a/fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java
++++ b/fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java
+@@ -158,7 +158,7 @@ public class PfbParser
+             size += in.read() << 16;
+             size += in.read() << 24;
+             LOG.debug("record type: {}, segment size: {}", recordType, size);
+-            long newTotal = total + size;
++            long newTotal = (long)total + (long)size;
+             if (newTotal > MAX_LENGTH) {
+                 throw new IOException("record size would be too large: " + newTotal);
+             }

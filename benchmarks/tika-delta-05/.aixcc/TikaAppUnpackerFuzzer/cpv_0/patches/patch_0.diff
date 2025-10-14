@@ -1,0 +1,29 @@
+diff --git a/tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java b/tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
+index 703e21c48..94137c99e 100644
+--- a/tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
++++ b/tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
+@@ -1138,6 +1138,12 @@ public class TikaCLI {
+             //defensively do this so that we don't get an exception
+             //from FilenameUtils.normalize
+             name = name.replaceAll("\u0000", " ");
++            try {
++                name = URLDecoder.decode(name, UTF_8);
++            } catch (IllegalArgumentException e) {
++                LOG.warn("couldn't url decode name {}", name);
++            }
++
+             String normalizedName = FilenameUtils.normalize(name);
+ 
+             if (normalizedName == null) {
+@@ -1152,11 +1158,6 @@ public class TikaCLI {
+             if (prefixLength > -1) {
+                 normalizedName = normalizedName.substring(prefixLength);
+             }
+-            try {
+-                normalizedName = URLDecoder.decode(normalizedName, UTF_8);
+-            } catch (IllegalArgumentException e) {
+-                LOG.warn("couldn't url decode name {}", normalizedName);
+-            }
+             File outputFile = new File(extractDir, normalizedName);
+             //if file already exists, prepend uuid
+             if (outputFile.exists()) {

@@ -1,0 +1,25 @@
+diff --git a/src/main/java/org/apache/commons/compress/archivers/examples/Expander.java b/src/main/java/org/apache/commons/compress/archivers/examples/Expander.java
+index 232f1f1cd..8bc014b42 100644
+--- a/src/main/java/org/apache/commons/compress/archivers/examples/Expander.java
++++ b/src/main/java/org/apache/commons/compress/archivers/examples/Expander.java
+@@ -497,15 +497,16 @@ public void expand(final ZipFile archive, final Path targetDirectory) throws IOE
+                 }
+             } else if (! zae.isDirectory()) {
+                 Path target = targetDirectory.resolve(zae.getName()).normalize();
+-                if (!target.startsWith(targetDirectory)) {
+-                    throw new IOException(String.format("Zip slip '%s' + '%s' -> '%s'",
+-                            targetDirectory, zae.getName(), target));
+-                }
++
+                 Path parent = createParentDirectory(targetDirectory, target);
+                 if (! target.getParent().toAbsolutePath().normalize().equals(
+                         parent.toAbsolutePath().normalize())) {
+                     target = parent.normalize().resolve(target.getFileName());
+                 }
++                if (!target.startsWith(targetDirectory)) {
++                    throw new IOException(String.format("Zip slip '%s' + '%s' -> '%s'",
++                            targetDirectory, zae.getName(), target));
++                }
+                 try (InputStream is = archive.getInputStream(zae)) {
+                     Files.copy(is, target);
+                 }

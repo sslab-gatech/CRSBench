@@ -1,0 +1,13 @@
+diff --git a/src/http/modules/ngx_http_sub_filter_module.c b/src/http/modules/ngx_http_sub_filter_module.c
+index 794a72f..456bb27 100644
+--- a/src/http/modules/ngx_http_sub_filter_module.c
++++ b/src/http/modules/ngx_http_sub_filter_module.c
+@@ -628,7 +628,7 @@ ngx_http_sub_parse(ngx_http_request_t *r, ngx_http_sub_ctx_t *ctx,
+ 
+     if (ctx->once) {
+         /* sets start and next to end */
+-        offset = end + (ngx_int_t) tables->min_match_len;
++        offset = end + (ngx_int_t) tables->min_match_len - 1;
+         goto again;
+     }
+ 

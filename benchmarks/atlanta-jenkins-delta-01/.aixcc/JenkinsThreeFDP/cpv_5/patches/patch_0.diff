@@ -1,0 +1,18 @@
+diff --git a/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java b/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java
+index e3a9806..4201408 100644
+--- a/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java
++++ b/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java
+@@ -69,9 +69,10 @@ public class UserNameAction implements RootAction {
+ 
+         try (
+                 Connection conn = getConnection();
+-                Statement stmt = conn.createStatement()) {
+-            ResultSet rs = stmt
+-                    .executeQuery("SELECT name FROM users WHERE id = '" + id + "' AND password = '" + pw + "'");
++                PreparedStatement stmt = conn.prepareStatement("SELECT name FROM users WHERE id = ? AND password = ?")) {
++            stmt.setString(1, id);
++            stmt.setString(2, pw);
++            ResultSet rs = stmt.executeQuery();
+             if (rs.next()) {
+                 responseString = rs.getString("name");
+                 response.setContentType("text/plain");

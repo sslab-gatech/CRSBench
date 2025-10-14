@@ -1,0 +1,13 @@
+diff --git a/xstream/src/java/com/thoughtworks/xstream/converters/extended/SqlTimestampConverter.java b/xstream/src/java/com/thoughtworks/xstream/converters/extended/SqlTimestampConverter.java
+index e4b347f..78feb4b 100644
+--- a/xstream/src/java/com/thoughtworks/xstream/converters/extended/SqlTimestampConverter.java
++++ b/xstream/src/java/com/thoughtworks/xstream/converters/extended/SqlTimestampConverter.java
+@@ -72,7 +72,7 @@ public class SqlTimestampConverter extends AbstractSingleValueConverter {
+ 
+     public Object fromString(final String str) {
+         final int idx = str.lastIndexOf('.');
+-        if (idx > 0 && (str.length() - idx < 2 || str.length() - idx > 11)) {
++        if (idx > 0 && (str.length() - idx < 2 || str.length() - idx > 10)) {
+             throw new ConversionException("Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]");
+         }
+         try {

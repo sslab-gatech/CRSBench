@@ -1,0 +1,102 @@
++ FUZZER=fuzz_as
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer fuzz_as -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/fuzz_as -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -detect_leaks=0 < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1400300832
+INFO: Loaded 1 modules   (202580 inline 8-bit counters): 202580 [0x55d9e9a73168, 0x55d9e9aa48bc), 
+INFO: Loaded 1 PC tables (202580 PCs): 202580 [0x55d9e9aa48c0,0x55d9e9dbbe00), 
+/out/fuzz_as: Running 1 inputs 100 time(s) each.
+Running: /testcase
+/tmp/libfuzzer-18.s: Assembler messages:
+/tmp/libfuzzer-18.s: Warning: end of file in string; '"' inserted
+/tmp/libfuzzer-18.s:1: Error: invalid character (0xff) in mnemonic
+/tmp/libfuzzer-18.s:1: Error: unknown pseudo-op: `.t��'
+/tmp/libfuzzer-18.s:2: Error: invalid character (0xf6) in mnemonic
+/tmp/libfuzzer-18.s:3: Error: junk at end of line, first unrecognized character is `-'
+/tmp/libfuzzer-18.s:4: Error: bad expression
+/tmp/libfuzzer-18.s:4: Warning: missing closing `"'
+=================================================================
+==18==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x511000000130 at pc 0x55d9e86ecc10 bp 0x7fff92157c40 sp 0x7fff92157400
+READ of size 241 at 0x511000000130 thread T0
+SCARINESS: 26 (multi-byte-read-heap-buffer-overflow)
+    #0 0x55d9e86ecc0f in StrstrCheck(void*, char*, char const*, char const*) /src/llvm-project/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:584:5
+    #1 0x55d9e86ec8ac in strstr /src/llvm-project/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:601:5
+    #2 0x55d9e8807663 in do_repeat /src/cp-c-binutils-src/gas/read.c:3140:41
+    #3 0x55d9e880724e in s_rept /src/cp-c-binutils-src/gas/read.c:3109:3
+    #4 0x55d9e87faebb in read_a_source_file /src/cp-c-binutils-src/gas/read.c:1272:9
+    #5 0x55d9e87aec57 in perform_an_assembly_pass /src/cp-c-binutils-src/gas/./fuzz_as.h:1229:4
+    #6 0x55d9e87aec57 in LLVMFuzzerTestOneInput /src/fuzz_as.c:60:3
+    #7 0x55d9e8660560 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #8 0x55d9e864b7d5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #9 0x55d9e865126f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #10 0x55d9e867c512 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #11 0x7f8714757082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+    #12 0x55d9e86439bd in _start (/out/fuzz_as+0x8479bd)
+
+DEDUP_TOKEN: StrstrCheck(void*, char*, char const*, char const*)--___interceptor_strstr--do_repeat
+0x511000000130 is located 0 bytes after 240-byte region [0x511000000040,0x511000000130)
+allocated by thread T0 here:
+    #0 0x55d9e876c71c in realloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:82:3
+    #1 0x55d9e961ab9a in xrealloc /src/cp-c-binutils-src/libiberty/./xmalloc.c:181:14
+    #2 0x55d9e8815b69 in sb_check /src/cp-c-binutils-src/gas/sb.c:161:18
+    #3 0x55d9e8815b69 in sb_add_buffer /src/cp-c-binutils-src/gas/sb.c:198:3
+    #4 0x55d9e8807b48 in get_line_sb /src/cp-c-binutils-src/gas/read.c:2729:3
+    #5 0x55d9e8807b48 in get_non_macro_line_sb /src/cp-c-binutils-src/gas/read.c:2743:10
+    #6 0x55d9e87eceeb in buffer_and_nest /src/cp-c-binutils-src/gas/macro.c:246:14
+    #7 0x55d9e880743d in do_repeat /src/cp-c-binutils-src/gas/read.c:3133:8
+    #8 0x55d9e880724e in s_rept /src/cp-c-binutils-src/gas/read.c:3109:3
+    #9 0x55d9e87faebb in read_a_source_file /src/cp-c-binutils-src/gas/read.c:1272:9
+    #10 0x55d9e87aec57 in perform_an_assembly_pass /src/cp-c-binutils-src/gas/./fuzz_as.h:1229:4
+    #11 0x55d9e87aec57 in LLVMFuzzerTestOneInput /src/fuzz_as.c:60:3
+    #12 0x55d9e8660560 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #13 0x55d9e864b7d5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #14 0x55d9e865126f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #15 0x55d9e867c512 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #16 0x7f8714757082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+
+DEDUP_TOKEN: __interceptor_realloc--xrealloc--sb_check
+SUMMARY: AddressSanitizer: heap-buffer-overflow /src/cp-c-binutils-src/gas/read.c:3140:41 in do_repeat
+Shadow bytes around the buggy address:
+  0x510ffffffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x510fffffff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x510fffffff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x511000000000: fa fa fa fa fa fa fa fa 00 00 00 00 00 00 00 00
+  0x511000000080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x511000000100: 00 00 00 00 00 00[fa]fa fa fa fa fa fa fa fa fa
+  0x511000000180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x511000000200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x511000000280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x511000000300: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x511000000380: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==18==ABORTING
+subprocess command returned a non-zero exit status: 1

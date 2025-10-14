@@ -1,0 +1,18 @@
+diff --git a/plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CompatibleObjectInputStream.java b/plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CompatibleObjectInputStream.java
+index 9f892d0..8f7a4c5 100644
+--- a/plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CompatibleObjectInputStream.java
++++ b/plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CompatibleObjectInputStream.java
+@@ -29,6 +29,13 @@ public class CompatibleObjectInputStream extends ObjectInputStream {
+         super(in);
+     }
+ 
++    @Override
++    protected Class<?> resolveClass(ObjectStreamClass desc) throws ClassNotFoundException, IOException {
++        if (!allowList.contains(desc.getName())) {
++            throw new SecurityException(String.format("Not allows class: %s", desc.getName()));
++        }
++        return super.resolveClass(desc);
++    }
+ 
+     // See https://stackoverflow.com/questions/795470/how-to-deserialize-an-object-persisted-in-a-db-now-when-the-object-has-different?rq=1
+     @Override

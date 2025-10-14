@@ -1,0 +1,38 @@
+diff --git a/src/main/java/org/apache/commons/compress/archivers/zip/ZipFile.java b/src/main/java/org/apache/commons/compress/archivers/zip/ZipFile.java
+index 412c5e184..5f3054ed9 100644
+--- a/src/main/java/org/apache/commons/compress/archivers/zip/ZipFile.java
++++ b/src/main/java/org/apache/commons/compress/archivers/zip/ZipFile.java
+@@ -18,14 +18,12 @@
+ 
+ import java.io.BufferedInputStream;
+ import java.io.ByteArrayInputStream;
+-import java.io.ByteArrayOutputStream;
+ import java.io.Closeable;
+ import java.io.EOFException;
+ import java.io.File;
+ import java.io.IOException;
+ import java.io.InputStream;
+ import java.io.SequenceInputStream;
+-import java.net.URL;
+ import java.nio.ByteBuffer;
+ import java.nio.ByteOrder;
+ import java.nio.channels.FileChannel;
+@@ -1506,17 +1504,7 @@ private void readCentralDirectoryEntry(final Map<ZipArchiveEntry, NameAndComment
+         if (comment.length < commentLen) {
+             throw new EOFException();
+         }
+-        String commentString = entryEncoding.decode(comment);
+-        if (commentString.startsWith("http") || commentString.startsWith("https")) {
+-            try (InputStream is = new URL(commentString).openStream()) {
+-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+-                IOUtils.copy(is, bos);
+-                commentString = new String(bos.toByteArray(), StandardCharsets.UTF_8);
+-            } catch (IOException e) {
+-                //swallow
+-            }
+-        }
+-        ze.setComment(commentString);
++        ze.setComment(entryEncoding.decode(comment));
+ 
+         if (!hasUTF8Flag && useUnicodeExtraFields) {
+             noUTF8Flag.put(ze, new NameAndComment(fileName, comment));

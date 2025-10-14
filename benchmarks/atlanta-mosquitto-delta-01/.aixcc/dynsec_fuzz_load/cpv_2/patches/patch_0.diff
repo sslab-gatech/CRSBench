@@ -1,0 +1,14 @@
+diff --git a/plugins/dynamic-security/clients.c b/plugins/dynamic-security/clients.c
+index 304a42b4..85aabbf0 100644
+--- a/plugins/dynamic-security/clients.c
++++ b/plugins/dynamic-security/clients.c
+@@ -129,6 +129,9 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
+ 			if(username_len == 0){
+ 				continue;
+ 			}
++			if(dynsec_clients__find(data, username)){
++				continue;
++			}
+ 
+ 			client = mosquitto_calloc(1, sizeof(struct dynsec__client) + username_len + 1);
+ 			if(client == NULL){

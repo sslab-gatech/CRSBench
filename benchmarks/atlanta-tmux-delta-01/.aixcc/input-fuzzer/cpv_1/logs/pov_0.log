@@ -1,0 +1,90 @@
+INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /home/jhkim/1.AIxCC/oss-fuzz/build/out/aixcc/c/tmux:/out -v /home/jhkim/1.AIxCC/oss-fuzz/projects/aixcc/c/tmux/.aixcc/povs/input-fuzzer/cpv_1:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.1.0 reproduce input-fuzzer -runs=100.
++ FUZZER=input-fuzzer
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer input-fuzzer -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/input-fuzzer -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -max_len=512 -dict=input-fuzzer.dict < /dev/null
+Dictionary: 8 entries
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 3352967953
+INFO: Loaded 1 modules   (26872 inline 8-bit counters): 26872 [0x558b70b42cdc, 0x558b70b495d4),
+INFO: Loaded 1 PC tables (26872 PCs): 26872 [0x558b70b495d8,0x558b70bb2558),
+/out/input-fuzzer: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+==18==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x5030000015f0 at pc 0x558b708fbf5b bp 0x7fff59097ab0 sp 0x7fff59097aa8
+READ of size 1 at 0x5030000015f0 thread T0
+SCARINESS: 12 (1-byte-read-heap-buffer-overflow)
+    #0 0x558b708fbf5a in input_osc_parse_colour /src/tmux/input.c:2490:22
+    #1 0x558b708fa48f in input_osc_11 /src/tmux/input.c:2623:11
+    #2 0x558b708ee192 in input_set_state /src/tmux/input.c:883:3
+    #3 0x558b708ee192 in input_parse /src/tmux/input.c:940:4
+    #4 0x558b708edc8b in input_parse_buffer /src/tmux/input.c:982:2
+    #5 0x558b70831b5a in LLVMFuzzerTestOneInput /src/tmux/fuzz/input-fuzzer.c:55:2
+    #6 0x558b706e8800 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #7 0x558b706d3a75 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #8 0x558b706d950f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #9 0x558b707047b2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #10 0x7f90ce277082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+    #11 0x558b706cbc5d in _start (/out/input-fuzzer+0x155c5d)
+
+DEDUP_TOKEN: input_osc_parse_colour--input_osc_11--input_set_state
+0x5030000015f0 is located 0 bytes after 32-byte region [0x5030000015d0,0x5030000015f0)
+allocated by thread T0 here:
+    #0 0x558b707f45cf in malloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:68:3
+    #1 0x558b70a22be7 in xmalloc /src/tmux/xmalloc.c:33:8
+    #2 0x558b708ec93b in input_init /src/tmux/input.c:814:20
+    #3 0x558b70831a50 in LLVMFuzzerTestOneInput /src/tmux/fuzz/input-fuzzer.c:47:13
+    #4 0x558b706e8800 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #5 0x558b706d3a75 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #6 0x558b706d950f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #7 0x558b707047b2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #8 0x7f90ce277082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+
+DEDUP_TOKEN: __interceptor_malloc--xmalloc--input_init
+SUMMARY: AddressSanitizer: heap-buffer-overflow /src/tmux/input.c:2490:22 in input_osc_parse_colour
+Shadow bytes around the buggy address:
+  0x503000001300: 00 00 06 fa fa fa 00 00 04 fa fa fa 00 00 00 fa
+  0x503000001380: fa fa 00 00 00 00 fa fa 00 00 00 02 fa fa 00 00
+  0x503000001400: 00 fa fa fa 00 00 00 fa fa fa 00 00 00 fa fa fa
+  0x503000001480: fd fd fd fa fa fa 00 00 00 00 fa fa 00 00 05 fa
+  0x503000001500: fa fa 00 00 05 fa fa fa 00 00 00 00 fa fa 00 00
+=>0x503000001580: 00 00 fa fa 00 00 00 00 fa fa 00 00 00 00[fa]fa
+  0x503000001600: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x503000001680: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x503000001700: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x503000001780: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x503000001800: fa fa fd fd fd fd fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==18==ABORTING
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+0x1b,0x5d,0x31,0x31,0x3b,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x1b,
+\033]11;               \033
+subprocess command returned a non-zero exit status: 1

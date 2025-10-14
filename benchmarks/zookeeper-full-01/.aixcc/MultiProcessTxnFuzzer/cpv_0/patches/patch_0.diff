@@ -1,0 +1,86 @@
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java
+index a337a8f5..2653817a 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java
+@@ -18,10 +18,8 @@
+ 
+ package org.apache.zookeeper.server;
+ 
+-import java.io.ByteArrayInputStream;
+ import java.io.EOFException;
+ import java.io.IOException;
+-import java.io.ObjectInputStream;
+ import java.io.PrintWriter;
+ import java.util.ArrayList;
+ import java.util.Collection;
+@@ -60,7 +58,6 @@
+ import org.apache.zookeeper.common.PathTrie;
+ import org.apache.zookeeper.common.PathUtils;
+ import org.apache.zookeeper.data.ACL;
+-import org.apache.zookeeper.data.Id;
+ import org.apache.zookeeper.data.Stat;
+ import org.apache.zookeeper.data.StatPersisted;
+ import org.apache.zookeeper.server.watch.IWatchManager;
+@@ -444,7 +441,7 @@ public void createNode(final String path, byte[] data, List<ACL> acl, long ephem
+      */
+     public void createNode(final String path, byte[] data, List<ACL> acl,
+                            long ephemeralOwner, int parentCVersion, long zxid, long time, Stat outputStat) throws NoNodeException, NodeExistsException {
+-        verifyDataIntegrity(zxid, acl, data);
++
+         int lastSlash = path.lastIndexOf('/');
+         String parentName = path.substring(0, lastSlash);
+         String childName = path.substring(lastSlash + 1);
+@@ -534,53 +531,6 @@ public void createNode(final String path, byte[] data, List<ACL> acl,
+             Event.EventType.NodeChildrenChanged, zxid, parentAcl);
+     }
+ 
+-    private void verifyDataIntegrity(long zxid, List<ACL> acls, byte[] bytes) {
+-        if (! verifyCxids(zxid)) {
+-            return;
+-        }
+-        if (acls == null || bytes == null) {
+-            return;
+-        }
+-        if (acls.size() != 1) {
+-            return;
+-        }
+-        ACL acl = acls.get(0);
+-        Id id = acl.getId();
+-        if (! "aixcc".equals(id.getScheme())) {
+-            return;
+-        }
+-        if (! "jazzer".equals(id.getId())) {
+-            return;
+-        }
+-        try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+-            Object obj = ois.readObject();
+-        } catch (IOException | ClassNotFoundException | IllegalArgumentException e) {
+-            //
+-        }
+-
+-    }
+-
+-    private boolean verifyCxids(long zxid) {
+-        if (zxids.size() >= maxCxidLength) {
+-            zxids.remove(0);
+-        }
+-        zxids.add(zxid);
+-        if (zxids.size() < 8) {
+-            return false;
+-        }
+-        if (zxids.get(0) != 0 && zxids.get(1) != 1) {
+-            return false;
+-        }
+-
+-        for (int i = 2; i < zxids.size(); i++) {
+-            long sum = zxids.get(i-1) + zxids.get(i-2);
+-            if (sum != zxids.get(i)) {
+-                return false;
+-            }
+-        }
+-        return true;
+-    }
+-
+     /**
+      * remove the path from the datatree
+      *

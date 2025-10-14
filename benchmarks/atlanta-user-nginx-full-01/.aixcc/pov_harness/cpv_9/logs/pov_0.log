@@ -1,0 +1,27 @@
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1093840749
+INFO: Loaded 1 modules   (26672 inline 8-bit counters): 26672 [0x5627478d2698, 0x5627478d8ec8), 
+INFO: Loaded 1 PC tables (26672 PCs): 26672 [0x5627478d8ec8,0x5627479411c8), 
+/out/pov_harness: Running 1 inputs 100 time(s) each.
+Running: /testcase
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==14==ERROR: AddressSanitizer: SEGV on unknown address 0x000000020008 (pc 0x56274766d563 bp 0x7ffff141a250 sp 0x7ffff141a200 T0)
+==14==The signal is caused by a READ memory access.
+SCARINESS: 20 (wild-addr-read)
+    #0 0x56274766d563 in ngx_http_read_request_header /src/nginx/src/http/ngx_http_request.c
+    #1 0x56274766dd47 in ngx_http_process_request_headers /src/nginx/src/http/ngx_http_request.c:1437:17
+    #2 0x56274766d2bb in ngx_http_process_request_line /src/nginx/src/http/ngx_http_request.c:1196:13
+    #3 0x5627475f3689 in ngx_event_process_posted /src/nginx/src/event/ngx_event_posted.c:34:9
+    #4 0x56274757a6a4 in LLVMFuzzerTestOneInput /src/nginx/src/fuzz/pov_harness.cc:295:5
+    #5 0x56274742e5f0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #6 0x562747419865 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #7 0x56274741f2ff in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #8 0x56274744a5a2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #9 0x7f548439d082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0702430aef5fa3dda43986563e9ffcc47efbd75e)
+    #10 0x562747411a4d in _start (/out/pov_harness+0x151a4d)
+
+DEDUP_TOKEN: ngx_http_read_request_header--ngx_http_process_request_headers--ngx_http_process_request_line
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV /src/nginx/src/http/ngx_http_request.c in ngx_http_read_request_header
+==14==ABORTING

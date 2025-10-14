@@ -1,0 +1,110 @@
++ FUZZER=fuzz_nasm
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer fuzz_nasm -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/fuzz_nasm -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -detect_leaks=0 < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 340999651
+INFO: Loaded 1 modules   (11667 inline 8-bit counters): 11667 [0x5564acebdc80, 0x5564acec0a13), 
+INFO: Loaded 1 PC tables (11667 PCs): 11667 [0x5564acec0a18,0x5564aceee348), 
+/out/fuzz_nasm: Running 1 inputs 100 time(s) each.
+Running: /testcase
+/tmp/libfuzzer.18: error: label or instruction expected at start of line
+/tmp/libfuzzer.18: error: parser: instruction expected
+/tmp/libfuzzer.18: error: parser: instruction expected
+/tmp/libfuzzer.18: error: label or instruction expected at start of line
+/tmp/libfuzzer.18: warning: label alone on a line without a colon might be in error [-w+label-orphan]
+/tmp/libfuzzer.18: error: label or instruction expected at start of line
+/tmp/libfuzzer.18: error: parser: instruction expected
+/tmp/libfuzzer.18: error: parser: instruction expected
+/tmp/libfuzzer.18: error: parser: instruction expected
+/tmp/libfuzzer.18: error: comma, colon, decorator or end of line expected after operand
+/tmp/libfuzzer.18: error: label `seUtion' inconsistently redefined
+/tmp/libfuzzer.18: info: label `seUtion' originally defined here
+/tmp/libfuzzer.18: error: parser: instruction expected
+/tmp/libfuzzer.18: error: parser: instruction expected
+/tmp/libfuzzer.18: error: expression syntax error
+/tmp/libfuzzer.18: error: label or instruction expected at start of line
+/tmp/libfuzzer.18: error: parser: instruction expected
+/tmp/libfuzzer.18: error: parser: instruction expected
+/tmp/libfuzzer.18: error: label or instruction expected at start of line
+/tmp/libfuzzer.18: error: invalid directive line
+/tmp/libfuzzer.18: error: parser: instruction expected
+/tmp/libfuzzer.18: warning: label alone on a line without a colon might be in error [-w+label-orphan]
+/tmp/libfuzzer.18: warning: label alone on a line without a colon might be in error [-w+label-orphan]
+/tmp/libfuzzer.18: error: label or instruction expected at start of line
+/tmp/libfuzzer.18: error: label or instruction expected at start of line
+/tmp/libfuzzer.18: warning: label alone on a line without a colon might be in error [-w+label-orphan]
+/tmp/libfuzzer.18: error: label or instruction expected at start of line
+/tmp/libfuzzer.18: error: label or instruction expected at start of line
+/tmp/libfuzzer.18: error: parser: instruction expected
+/tmp/libfuzzer.18: warning: unterminated %[ construct [-w+other]
+=================================================================
+[1m[31m==18==ERROR: AddressSanitizer: stack-use-after-return on address 0x7f1aedf59f60 at pc 0x5564acc566ce bp 0x7ffecde623b0 sp 0x7ffecde623a8
+[1m[0m[1m[34mWRITE of size 8 at 0x7f1aedf59f60 thread T0[1m[0m
+SCARINESS: 62 (8-byte-write-stack-use-after-return)
+    #0 0x5564acc566cd in expand_mmac_params /src/cp-c-nasm-src/asm/preproc.c:5373:11
+    #1 0x5564acc3d8df in pp_tokline /src/cp-c-nasm-src/asm/preproc.c:7258:21
+    #2 0x5564acc3d8df in pp_getline /src/cp-c-nasm-src/asm/preproc.c:7328:17
+    #3 0x5564acc0068e in assemble_file fuzz_nasm.c
+    #4 0x5564acbfe2ca in nasm_main (/out/fuzz_nasm+0x2d82ca)
+    #5 0x5564acc03cc6 in LLVMFuzzerTestOneInput (/out/fuzz_nasm+0x2ddcc6)
+    #6 0x5564acab3b40 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #7 0x5564aca9edb5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #8 0x5564acaa484f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #9 0x5564acacfaf2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #10 0x7f1aee637082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+    #11 0x5564aca96f9d in _start (/out/fuzz_nasm+0x170f9d)
+
+DEDUP_TOKEN: expand_mmac_params--pp_tokline--pp_getline
+[1m[32mAddress 0x7f1aedf59f60 is located in stack of thread T0 at offset 32 in frame[1m[0m
+[1m[0m    #0 0x5564acc546bf in dup_tlist /src/cp-c-nasm-src/asm/preproc.c:891
+
+DEDUP_TOKEN: dup_tlist
+  This frame has 1 object(s):
+    [32, 40) 'newlist' (line 892)[1m[32m <== Memory access at offset 32 is inside this variable[1m[0m
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-use-after-return /src/cp-c-nasm-src/asm/preproc.c:5373:11 in expand_mmac_params
+Shadow bytes around the buggy address:
+  0x7f1aedf59c80: [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m
+  0x7f1aedf59d00: [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m
+  0x7f1aedf59d80: [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m
+  0x7f1aedf59e00: [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m
+  0x7f1aedf59e80: [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m
+=>0x7f1aedf59f00: [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m[[1m[35mf5[1m[0m][1m[35mf5[1m[0m [1m[35mf5[1m[0m [1m[35mf5[1m[0m
+  0x7f1aedf59f80: [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m
+  0x7f1aedf5a000: [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m
+  0x7f1aedf5a080: [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m
+  0x7f1aedf5a100: [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m
+  0x7f1aedf5a180: [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           [1m[0m00[1m[0m
+  Partially addressable: [1m[0m01[1m[0m [1m[0m02[1m[0m [1m[0m03[1m[0m [1m[0m04[1m[0m [1m[0m05[1m[0m [1m[0m06[1m[0m [1m[0m07[1m[0m 
+  Heap left redzone:       [1m[31mfa[1m[0m
+  Freed heap region:       [1m[35mfd[1m[0m
+  Stack left redzone:      [1m[31mf1[1m[0m
+  Stack mid redzone:       [1m[31mf2[1m[0m
+  Stack right redzone:     [1m[31mf3[1m[0m
+  Stack after return:      [1m[35mf5[1m[0m
+  Stack use after scope:   [1m[35mf8[1m[0m
+  Global redzone:          [1m[31mf9[1m[0m
+  Global init order:       [1m[36mf6[1m[0m
+  Poisoned by user:        [1m[34mf7[1m[0m
+  Container overflow:      [1m[34mfc[1m[0m
+  Array cookie:            [1m[31mac[1m[0m
+  Intra object redzone:    [1m[33mbb[1m[0m
+  ASan internal:           [1m[33mfe[1m[0m
+  Left alloca redzone:     [1m[34mca[1m[0m
+  Right alloca redzone:    [1m[34mcb[1m[0m
+==18==ABORTING
+subprocess command returned a non-zero exit status: 1

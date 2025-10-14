@@ -1,0 +1,127 @@
++ FUZZER=BeanUtilsOne
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer BeanUtilsOne -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/BeanUtilsOne -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase < /dev/null
+OpenJDK 64-Bit Server VM warning: Option CriticalJNINatives was deprecated in version 16.0 and will likely be removed in a future release.
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+INFO: Loaded 457 hooks from com.code_intelligence.jazzer.runtime.TraceCmpHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.runtime.TraceDivHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.runtime.TraceIndirHooks
+INFO: Loaded 4 hooks from com.code_intelligence.jazzer.runtime.NativeLibHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.sanitizers.ClojureLangHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.Deserialization
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.ExpressionLanguageInjection
+INFO: Loaded 32 hooks from com.code_intelligence.jazzer.sanitizers.FilePathTraversal
+INFO: Loaded 70 hooks from com.code_intelligence.jazzer.sanitizers.LdapInjection
+INFO: Loaded 46 hooks from com.code_intelligence.jazzer.sanitizers.NamingContextLookup
+INFO: Loaded 1 hooks from com.code_intelligence.jazzer.sanitizers.OsCommandInjection
+INFO: Loaded 48 hooks from com.code_intelligence.jazzer.sanitizers.ReflectiveCall
+INFO: Loaded 8 hooks from com.code_intelligence.jazzer.sanitizers.RegexInjection
+INFO: Loaded 16 hooks from com.code_intelligence.jazzer.sanitizers.RegexRoadblocks
+INFO: Loaded 12 hooks from com.code_intelligence.jazzer.sanitizers.ScriptEngineInjection
+INFO: Loaded 3 hooks from com.code_intelligence.jazzer.sanitizers.ServerSideRequestForgery
+INFO: Loaded 19 hooks from com.code_intelligence.jazzer.sanitizers.SqlInjection
+INFO: Loaded 6 hooks from com.code_intelligence.jazzer.sanitizers.XPathInjection
+INFO: Instrumented com.aixcc.beanutils.harnesses.one.BeanUtilsOne (took 75 ms, size +26%)
+INFO: Instrumented org.apache.commons.beanutils.BeanUtilsBean (took 41 ms, size +22%)
+INFO: Instrumented org.apache.commons.beanutils.BeanUtilsBean2 (took 2 ms, size +10%)
+INFO: using inputs from: /testcase
+INFO: found LLVMFuzzerCustomMutator (0x7f1b41834a00). Disabling -len_control by default.
+INFO: libFuzzer ignores flags that start with '--'
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 2225017749
+INFO: Loaded 1 modules   (512 inline 8-bit counters): 512 [0x55acab9935e0, 0x55acab9937e0), 
+INFO: Loaded 1 PC tables (512 PCs): 512 [0x55acab95aeb0,0x55acab95ceb0), 
+jazzer: Running 1 inputs 100 time(s) each.
+Running: /testcase
+count: 1
+picker: 21
+INFO: Instrumented org.apache.commons.beanutils.ContextClassLoaderLocal (took 6 ms, size +39%)
+INFO: Instrumented org.apache.commons.beanutils.BeanUtilsBean$1 (took 1 ms, size +13%)
+INFO: New number of coverage counters: 1024
+INFO: Instrumented org.apache.commons.beanutils.ConvertUtilsBean (took 29 ms, size +19%)
+INFO: Instrumented org.apache.commons.beanutils.ConvertUtilsBean2 (took 2 ms, size +9%)
+INFO: Instrumented org.apache.commons.beanutils.Converter (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.beanutils.WeakFastHashMap (took 18 ms, size +30%)
+INFO: Instrumented org.apache.commons.beanutils.ConvertUtils (took 12 ms, size +8%)
+INFO: New number of coverage counters: 2048
+INFO: Instrumented org.apache.commons.logging.LogFactory (took 19 ms, size +24%)
+INFO: Instrumented org.apache.commons.logging.LogConfigurationException (took 2 ms, size +10%)
+INFO: Instrumented org.apache.commons.logging.LogFactory$6 (took 0 ms, size +13%)
+INFO: Instrumented org.apache.commons.logging.impl.WeakHashtable (took 6 ms, size +25%)
+INFO: Instrumented org.apache.commons.logging.LogFactory$1 (took 0 ms, size +17%)
+INFO: Instrumented org.apache.commons.logging.impl.WeakHashtable$Referenced (took 3 ms, size +31%)
+INFO: Instrumented org.apache.commons.logging.impl.WeakHashtable$WeakKey (took 1 ms, size +7%)
+INFO: Instrumented org.apache.commons.logging.LogFactory$4 (took 1 ms, size +20%)
+INFO: Instrumented org.apache.commons.logging.LogFactory$3 (took 0 ms, size +13%)
+INFO: Instrumented org.apache.commons.logging.LogFactory$2 (took 1 ms, size +12%)
+INFO: Instrumented org.apache.commons.logging.impl.LogFactoryImpl (took 20 ms, size +25%)
+INFO: Instrumented org.apache.commons.logging.impl.LogFactoryImpl$2 (took 1 ms, size +13%)
+INFO: Instrumented org.apache.commons.logging.impl.LogFactoryImpl$1 (took 0 ms, size +16%)
+INFO: Instrumented org.apache.commons.logging.impl.Log4JLogger (took 7 ms, size +15%)
+INFO: Instrumented org.apache.commons.logging.Log (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.logging.impl.Jdk14Logger (took 7 ms, size +12%)
+INFO: Instrumented org.apache.commons.beanutils.converters.BooleanConverter (took 4 ms, size +37%)
+INFO: Instrumented org.apache.commons.beanutils.converters.AbstractConverter (took 9 ms, size +30%)
+INFO: Instrumented org.apache.commons.beanutils.ConversionException (took 1 ms, size +12%)
+INFO: Instrumented org.apache.commons.beanutils.converters.ConverterFacade (took 1 ms, size +9%)
+INFO: Instrumented org.apache.commons.beanutils.converters.ByteConverter (took 1 ms, size +14%)
+INFO: New number of coverage counters: 4096
+INFO: Instrumented org.apache.commons.beanutils.converters.NumberConverter (took 12 ms, size +40%)
+INFO: Instrumented org.apache.commons.beanutils.converters.CharacterConverter (took 2 ms, size +38%)
+INFO: Instrumented org.apache.commons.beanutils.converters.DoubleConverter (took 1 ms, size +14%)
+INFO: Instrumented org.apache.commons.beanutils.converters.FloatConverter (took 1 ms, size +14%)
+INFO: Instrumented org.apache.commons.beanutils.converters.IntegerConverter (took 1 ms, size +14%)
+INFO: Instrumented org.apache.commons.beanutils.converters.LongConverter (took 0 ms, size +14%)
+INFO: Instrumented org.apache.commons.beanutils.converters.ShortConverter (took 9 ms, size +14%)
+INFO: Instrumented org.apache.commons.beanutils.converters.BigDecimalConverter (took 1 ms, size +14%)
+INFO: Instrumented org.apache.commons.beanutils.converters.BigIntegerConverter (took 0 ms, size +14%)
+INFO: Instrumented org.apache.commons.beanutils.converters.StringConverter (took 1 ms, size +45%)
+INFO: Instrumented org.apache.commons.beanutils.converters.ClassConverter (took 2 ms, size +45%)
+INFO: Instrumented org.apache.commons.beanutils.converters.DateConverter (took 0 ms, size +15%)
+INFO: Instrumented org.apache.commons.beanutils.converters.DateTimeConverter (took 9 ms, size +28%)
+INFO: Instrumented org.apache.commons.beanutils.converters.CalendarConverter (took 1 ms, size +15%)
+INFO: Instrumented org.apache.commons.beanutils.converters.FileConverter (took 1 ms, size +39%)
+INFO: Instrumented org.apache.commons.beanutils.converters.SqlDateConverter (took 1 ms, size +15%)
+INFO: Instrumented org.apache.commons.beanutils.converters.SqlTimeConverter (took 1 ms, size +12%)
+INFO: Instrumented org.apache.commons.beanutils.converters.SqlTimestampConverter (took 1 ms, size +12%)
+INFO: Instrumented org.apache.commons.beanutils.converters.URLConverter (took 1 ms, size +39%)
+INFO: Instrumented org.apache.commons.beanutils.converters.ArrayConverter (took 5 ms, size +24%)
+INFO: Instrumented org.apache.commons.beanutils.PropertyUtilsBean (took 22 ms, size +22%)
+INFO: Instrumented org.apache.commons.beanutils.expression.Resolver (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.beanutils.NestedNullException (took 0 ms, size +19%)
+INFO: Instrumented org.apache.commons.beanutils.BeanAccessLanguageException (took 0 ms, size +19%)
+INFO: Instrumented org.apache.commons.beanutils.MappedPropertyDescriptor (took 5 ms, size +21%)
+INFO: Instrumented org.apache.commons.beanutils.IntrospectionContext (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.beanutils.expression.DefaultResolver (took 4 ms, size +52%)
+INFO: Instrumented org.apache.commons.beanutils.PropertyUtils (took 8 ms, size +5%)
+INFO: Instrumented org.apache.commons.beanutils.DefaultBeanIntrospector (took 2 ms, size +25%)
+INFO: Instrumented org.apache.commons.beanutils.BeanIntrospector (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.beanutils.BeanUtils (took 5 ms, size +9%)
+INFO: Instrumented org.apache.commons.beanutils.DynaBean (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.beanutils.DefaultIntrospectionContext (took 3 ms, size +27%)
+INFO: Instrumented org.apache.commons.collections.FastHashMap (took 7 ms, size +43%)
+INFO: Instrumented org.apache.commons.beanutils.BeanIntrospectionData (took 2 ms, size +35%)
+INFO: Instrumented org.apache.commons.beanutils.MethodUtils (took 13 ms, size +34%)
+
+== Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueCritical: File path traversal: /jazzer-traversal
+	at com.code_intelligence.jazzer.sanitizers.FilePathTraversal.check(FilePathTraversal.java:346)
+	at com.code_intelligence.jazzer.sanitizers.FilePathTraversal.checkFile(FilePathTraversal.java:304)
+	at com.code_intelligence.jazzer.sanitizers.FilePathTraversal.checkObj(FilePathTraversal.java:288)
+	at com.code_intelligence.jazzer.sanitizers.FilePathTraversal.scannerHook(FilePathTraversal.java:267)
+	at com.aixcc.beanutils.harnesses.one.BeanUtilsOne.fuzz(BeanUtilsOne.java:80)
+	at com.aixcc.beanutils.harnesses.one.BeanUtilsOne.fuzzerTestOneInput(BeanUtilsOne.java:42)
+DEDUP_TOKEN: e800467a23434e73
+== libFuzzer crashing input ==
+reproducer_path='.'; Java reproducer written to ./Crash_cc646f79b32d35baf6043fbc226781f4367a93e6.java
+

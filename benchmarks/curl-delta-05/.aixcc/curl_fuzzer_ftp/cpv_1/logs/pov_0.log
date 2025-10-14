@@ -1,0 +1,77 @@
++ FUZZER=curl_fuzzer_ftp
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer curl_fuzzer_ftp -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/curl_fuzzer_ftp -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -timeout_exitcode=0 < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 719253501
+INFO: Loaded 1 modules   (28114 inline 8-bit counters): 28114 [0x556de5f071d8, 0x556de5f0dfaa), 
+INFO: Loaded 1 PC tables (28114 PCs): 28114 [0x556de5f0dfb0,0x556de5f7bcd0), 
+/out/curl_fuzzer_ftp: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+==18==ERROR: AddressSanitizer: global-buffer-overflow on address 0x556de5ef5240 at pc 0x556de5ca7409 bp 0x7ffc15131650 sp 0x7ffc15131648
+READ of size 8 at 0x556de5ef5240 thread T0
+SCARINESS: 23 (8-byte-read-global-buffer-overflow)
+    #0 0x556de5ca7408 in ftp_state_mdtm_resp /src/curl/lib/ftp.c:2107:21
+    #1 0x556de5ca43e6 in ftp_statemachine /src/curl/lib/ftp.c:3044:16
+    #2 0x556de5d706ec in Curl_pp_statemach /src/curl/lib/pingpong.c:137:14
+    #3 0x556de5c9c187 in ftp_multi_statemach /src/curl/lib/ftp.c:3109:21
+    #4 0x556de5c9c2a7 in ftp_doing /src/curl/lib/ftp.c:4292:21
+    #5 0x556de5b36d75 in protocol_doing /src/curl/lib/multi.c:1755:14
+    #6 0x556de5b24124 in multi_runsingle /src/curl/lib/multi.c:2774:16
+    #7 0x556de5b21fd5 in curl_multi_perform /src/curl/lib/multi.c:3016:16
+    #8 0x556de5ad0a6e in fuzz_handle_transfer(fuzz_data*) /src/curl_fuzzer/curl_fuzzer.cc:419:5
+    #9 0x556de5ace08d in LLVMFuzzerTestOneInput /src/curl_fuzzer/curl_fuzzer.cc:97:3
+    #10 0x556de5982640 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #11 0x556de596d8b5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #12 0x556de597334f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #13 0x556de599e5f2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #14 0x7fd50e0a4082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #15 0x556de5965a9d in _start (/out/curl_fuzzer_ftp+0x137a9d)
+
+DEDUP_TOKEN: ftp_state_mdtm_resp--ftp_statemachine--Curl_pp_statemach
+0x556de5ef5240 is located 0 bytes after global variable 'Curl_seconds' defined in '/src/curl/lib/parsedate.c:113' (0x556de5ef5060) of size 480
+SUMMARY: AddressSanitizer: global-buffer-overflow /src/curl/lib/ftp.c:2107:21 in ftp_state_mdtm_resp
+Shadow bytes around the buggy address:
+  0x556de5ef4f80: 00 00 00 00 00 00 00 f9 f9 f9 f9 f9 00 00 00 00
+  0x556de5ef5000: 00 00 00 00 00 00 00 00 f9 f9 f9 f9 00 00 00 00
+  0x556de5ef5080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x556de5ef5100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x556de5ef5180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x556de5ef5200: 00 00 00 00 00 00 00 00[f9]f9 f9 f9 f9 f9 f9 f9
+  0x556de5ef5280: f9 f9 f9 f9 00 00 00 00 00 00 00 f9 f9 f9 f9 f9
+  0x556de5ef5300: 00 00 00 00 00 00 00 00 00 00 00 00 f9 f9 f9 f9
+  0x556de5ef5380: 00 00 00 00 00 00 00 00 00 00 00 00 f9 f9 f9 f9
+  0x556de5ef5400: 00 00 00 00 00 00 00 00 00 00 00 00 f9 f9 f9 f9
+  0x556de5ef5480: 00 00 00 00 00 00 f9 f9 f9 f9 f9 f9 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==18==ABORTING
+subprocess command returned a non-zero exit status: 1

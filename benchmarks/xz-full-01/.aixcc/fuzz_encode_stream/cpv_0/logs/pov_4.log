@@ -1,0 +1,117 @@
++ FUZZER=fuzz_encode_stream
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer fuzz_encode_stream -runs=100 -detect_leaks=0 /testcase
+vm.mmap_rnd_bits = 28
+/out/fuzz_encode_stream -rss_limit_mb=2560 -timeout=25 -runs=100 -detect_leaks=0 /testcase -max_len=4096 -timeout_exitcode=0 < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1314843616
+INFO: Loaded 1 modules   (2399 inline 8-bit counters): 2399 [0x5643a4f293e8, 0x5643a4f29d47), 
+INFO: Loaded 1 PC tables (2399 PCs): 2399 [0x5643a4f29d48,0x5643a4f33338), 
+/out/fuzz_encode_stream: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+[1m[31m==18==ERROR: AddressSanitizer: heap-use-after-free on address 0x506000000220 at pc 0x5643a4e913cc bp 0x7ffef4ff64d0 sp 0x7ffef4ff64c8
+[1m[0m[1m[34mREAD of size 8 at 0x506000000220 thread T0[1m[0m
+SCARINESS: 51 (8-byte-read-heap-use-after-free)
+    #0 0x5643a4e913cb in compute_tree_checksum /src/xz/src/liblzma/check/treeck.c:79:34
+    #1 0x5643a4e912a4 in compute_tree_checksum /src/xz/src/liblzma/check/treeck.c:82:16
+    #2 0x5643a4e90ca6 in lzma_tree /src/xz/src/liblzma/check/treeck.c:100:15
+    #3 0x5643a4e909ea in lzma_check_update /src/xz/src/liblzma/check/check.c:143:23
+    #4 0x5643a4e8ca9e in block_encode /src/xz/src/liblzma/common/block_encoder.c:82:4
+    #5 0x5643a4e82094 in stream_encode /src/xz/src/liblzma/common/stream_encoder.c:158:24
+    #6 0x5643a4e8039c in lzma_code /src/xz/src/liblzma/common/common.c:293:17
+    #7 0x5643a4e7eb32 in fuzz_code /src/xz/tests/ossfuzz/./fuzz_common.h:63:18
+    #8 0x5643a4e7eb32 in LLVMFuzzerTestOneInput /src/xz/tests/ossfuzz/fuzz_encode_stream.c:81:2
+    #9 0x5643a4d332e0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #10 0x5643a4d1e555 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #11 0x5643a4d23fef in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #12 0x5643a4d4f292 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #13 0x7ff0b5f9f082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #14 0x5643a4d1673d in _start (/out/fuzz_encode_stream+0x4c73d)
+
+DEDUP_TOKEN: compute_tree_checksum--compute_tree_checksum--lzma_tree
+[1m[32m0x506000000220 is located 32 bytes inside of 56-byte region [0x506000000200,0x506000000238)
+[1m[0m[1m[35mfreed by thread T0 here:[1m[0m
+    #0 0x5643a4e3ee16 in free /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:52:3
+    #1 0x5643a4e9134c in compute_tree_checksum /src/xz/src/liblzma/check/treeck.c:90:3
+    #2 0x5643a4e912a4 in compute_tree_checksum /src/xz/src/liblzma/check/treeck.c:82:16
+    #3 0x5643a4e912a4 in compute_tree_checksum /src/xz/src/liblzma/check/treeck.c:82:16
+    #4 0x5643a4e912a4 in compute_tree_checksum /src/xz/src/liblzma/check/treeck.c:82:16
+    #5 0x5643a4e90ca6 in lzma_tree /src/xz/src/liblzma/check/treeck.c:100:15
+    #6 0x5643a4e909ea in lzma_check_update /src/xz/src/liblzma/check/check.c:143:23
+    #7 0x5643a4e8ca9e in block_encode /src/xz/src/liblzma/common/block_encoder.c:82:4
+    #8 0x5643a4e82094 in stream_encode /src/xz/src/liblzma/common/stream_encoder.c:158:24
+    #9 0x5643a4e8039c in lzma_code /src/xz/src/liblzma/common/common.c:293:17
+    #10 0x5643a4e7eb32 in fuzz_code /src/xz/tests/ossfuzz/./fuzz_common.h:63:18
+    #11 0x5643a4e7eb32 in LLVMFuzzerTestOneInput /src/xz/tests/ossfuzz/fuzz_encode_stream.c:81:2
+    #12 0x5643a4d332e0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #13 0x5643a4d1e555 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #14 0x5643a4d23fef in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #15 0x5643a4d4f292 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #16 0x7ff0b5f9f082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_free--compute_tree_checksum--compute_tree_checksum
+[1m[35mpreviously allocated by thread T0 here:[1m[0m
+    #0 0x5643a4e3f0af in malloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:68:3
+    #1 0x5643a4e90d4a in create_tree /src/xz/src/liblzma/check/treeck.c:33:20
+    #2 0x5643a4e90fcc in create_tree /src/xz/src/liblzma/check/treeck.c:58:24
+    #3 0x5643a4e90c9c in lzma_tree /src/xz/src/liblzma/check/treeck.c:99:20
+    #4 0x5643a4e909ea in lzma_check_update /src/xz/src/liblzma/check/check.c:143:23
+    #5 0x5643a4e8ca9e in block_encode /src/xz/src/liblzma/common/block_encoder.c:82:4
+    #6 0x5643a4e82094 in stream_encode /src/xz/src/liblzma/common/stream_encoder.c:158:24
+    #7 0x5643a4e8039c in lzma_code /src/xz/src/liblzma/common/common.c:293:17
+    #8 0x5643a4e7eb32 in fuzz_code /src/xz/tests/ossfuzz/./fuzz_common.h:63:18
+    #9 0x5643a4e7eb32 in LLVMFuzzerTestOneInput /src/xz/tests/ossfuzz/fuzz_encode_stream.c:81:2
+    #10 0x5643a4d332e0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #11 0x5643a4d1e555 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #12 0x5643a4d23fef in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #13 0x5643a4d4f292 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #14 0x7ff0b5f9f082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_malloc--create_tree--create_tree
+SUMMARY: AddressSanitizer: heap-use-after-free /src/xz/src/liblzma/check/treeck.c:79:34 in compute_tree_checksum
+Shadow bytes around the buggy address:
+  0x505fffffff80: [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m
+  0x506000000000: [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m01[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m
+  0x506000000080: [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m
+  0x506000000100: [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m
+  0x506000000180: [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m
+=>0x506000000200: [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m[[1m[35mfd[1m[0m][1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m
+  0x506000000280: [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[35mfd[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[31mfa[1m[0m
+  0x506000000300: [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m
+  0x506000000380: [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m
+  0x506000000400: [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[31mfa[1m[0m
+  0x506000000480: [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[0m00[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m [1m[31mfa[1m[0m
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           [1m[0m00[1m[0m
+  Partially addressable: [1m[0m01[1m[0m [1m[0m02[1m[0m [1m[0m03[1m[0m [1m[0m04[1m[0m [1m[0m05[1m[0m [1m[0m06[1m[0m [1m[0m07[1m[0m 
+  Heap left redzone:       [1m[31mfa[1m[0m
+  Freed heap region:       [1m[35mfd[1m[0m
+  Stack left redzone:      [1m[31mf1[1m[0m
+  Stack mid redzone:       [1m[31mf2[1m[0m
+  Stack right redzone:     [1m[31mf3[1m[0m
+  Stack after return:      [1m[35mf5[1m[0m
+  Stack use after scope:   [1m[35mf8[1m[0m
+  Global redzone:          [1m[31mf9[1m[0m
+  Global init order:       [1m[36mf6[1m[0m
+  Poisoned by user:        [1m[34mf7[1m[0m
+  Container overflow:      [1m[34mfc[1m[0m
+  Array cookie:            [1m[31mac[1m[0m
+  Intra object redzone:    [1m[33mbb[1m[0m
+  ASan internal:           [1m[33mfe[1m[0m
+  Left alloca redzone:     [1m[34mca[1m[0m
+  Right alloca redzone:    [1m[34mcb[1m[0m
+==18==ABORTING
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+0x0,0xb,0x7f,0xff,0xff,0xff,0xff,0xff,0xff,0xbc,0xfb,0xff,0xff,0xff,0xff,0xff,0x7f,0xff,0xff,0xff,0x7f,
+\000\013\177\377\377\377\377\377\377\274\373\377\377\377\377\377\177\377\377\377\177
+subprocess command returned a non-zero exit status: 1

@@ -1,0 +1,26 @@
+diff --git a/core/src/main/java/org/eclipse/angus/mail/handlers/text_xml.java b/core/src/main/java/org/eclipse/angus/mail/handlers/text_xml.java
+index a9ae217..ec26b8e 100644
+--- a/core/src/main/java/org/eclipse/angus/mail/handlers/text_xml.java
++++ b/core/src/main/java/org/eclipse/angus/mail/handlers/text_xml.java
+@@ -27,6 +27,7 @@ import javax.xml.transform.TransformerException;
+ import javax.xml.transform.TransformerFactory;
+ import javax.xml.transform.stream.StreamResult;
+ import javax.xml.transform.stream.StreamSource;
++import javax.xml.XMLConstants;
+ import java.io.IOException;
+ import java.io.OutputStream;
+ 
+@@ -86,8 +87,11 @@ public class text_xml extends text_plain {
+         }
+ 
+         try {
+-            Transformer transformer =
+-                    TransformerFactory.newInstance().newTransformer();
++            TransformerFactory trfactory = TransformerFactory.newInstance();
++            trfactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
++            trfactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
++            trfactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
++            Transformer transformer = trfactory.newTransformer();
+             StreamResult result = new StreamResult(os);
+             if (obj instanceof DataSource) {
+                 // Streaming transform applies only to

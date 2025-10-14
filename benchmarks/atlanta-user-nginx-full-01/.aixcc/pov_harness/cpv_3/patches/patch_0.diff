@@ -1,0 +1,21 @@
+diff --git a/src/http/modules/ngx_http_flv_module.c b/src/http/modules/ngx_http_flv_module.c
+index 5904a75..ef2bff4 100644
+--- a/src/http/modules/ngx_http_flv_module.c
++++ b/src/http/modules/ngx_http_flv_module.c
+@@ -171,15 +171,10 @@ ngx_http_flv_handler(ngx_http_request_t *r)
+ 
+             start = ngx_atoof(value.data, value.len);
+ 
+-            if (start == NGX_ERROR) {
++            if (start == NGX_ERROR || start >= len) {
+                 start = 0;
+             }
+ 
+-            if (start >= len) {
+-                //request is invalid.
+-                r = NULL;
+-            }
+-
+             if (start) {
+                 len = sizeof(ngx_flv_header) - 1 + len - start;
+                 i = 0;

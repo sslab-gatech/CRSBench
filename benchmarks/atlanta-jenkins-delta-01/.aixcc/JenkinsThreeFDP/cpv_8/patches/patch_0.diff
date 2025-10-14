@@ -1,0 +1,25 @@
+diff --git a/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AuthAction.java b/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AuthAction.java
+index 78b630a..03d2c47 100644
+--- a/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AuthAction.java
++++ b/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AuthAction.java
+@@ -212,6 +212,7 @@ public class AuthAction {
+         }
+         String username = request.getParameter("username");
+         String key = request.getParameter("key");
++
+         response.setContentType("application/json");
+         PrintWriter writer = response.getWriter();
+ 
+@@ -225,9 +226,10 @@ public class AuthAction {
+                 writer.print("{\"status\": \"failure\"}");
+                 return;
+             }
+-            String searchFilter = "(&(objectClass=inetOrgPerson)(cn=" + username + ")(userPassword=" + key + "))";
++            String searchFilter = "(&(objectClass=inetOrgPerson)(cn={0})(userPassword={1}))";
++            Object[] filterArgs = new Object[]{username, key};
+             NamingEnumeration<SearchResult> results = dirContext.search("ou=users,dc=example,dc=com", searchFilter,
+-                    controls);
++                filterArgs, controls);
+             if (results.hasMore()) {
+                 writer.print("{\"status\": \"success\"}");
+             } else {

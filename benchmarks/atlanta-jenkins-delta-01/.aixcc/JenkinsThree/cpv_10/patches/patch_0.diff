@@ -1,0 +1,13 @@
+diff --git a/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/SecretMessage.java b/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/SecretMessage.java
+index 04548f7..031612c 100644
+--- a/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/SecretMessage.java
++++ b/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/SecretMessage.java
+@@ -85,7 +85,7 @@ public class SecretMessage implements Action {
+         }
+         boolean freeload = false;
+         boolean admin = getJenkins().hasPermission(Jenkins.ADMINISTER);
+-        if (admin || request.hasParameter("freeload")) {
++        if (admin && request.hasParameter("freeload")) {
+             freeload = Boolean.parseBoolean(request.getParameter("freeload"));
+         }
+         if (Paths.get(lib).isAbsolute() && !freeload) {

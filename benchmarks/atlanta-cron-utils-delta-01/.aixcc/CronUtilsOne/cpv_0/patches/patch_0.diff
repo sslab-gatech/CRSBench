@@ -1,0 +1,13 @@
+diff --git a/src/main/java/com/cronutils/parser/CronParser.java b/src/main/java/com/cronutils/parser/CronParser.java
+index a59de36..e605287 100755
+--- a/src/main/java/com/cronutils/parser/CronParser.java
++++ b/src/main/java/com/cronutils/parser/CronParser.java
+@@ -162,7 +162,7 @@ public class CronParser {
+                 }
+                 return new SingleCron(cronDefinition, results).validate();
+             } catch (final IllegalArgumentException e) {
+-                throw new IllegalArgumentException(String.format("Failed to parse %s. %s", expression, e.getMessage()), e);
++                throw new IllegalArgumentException(String.format("Failed to parse cron expression. %s", e.getMessage()), e);
+             }
+         }
+     }

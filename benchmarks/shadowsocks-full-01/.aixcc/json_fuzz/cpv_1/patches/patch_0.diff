@@ -1,0 +1,13 @@
+diff --git a/src/json.c b/src/json.c
+index 2a91900..4a89646 100644
+--- a/src/json.c
++++ b/src/json.c
+@@ -320,7 +320,7 @@ json_value * json_parse_ex (json_settings * settings,
+                     if ((uchar & 0xF800) == 0xD800) {
+                         json_uchar uchar2;
+                         
+-                        if (end - state.ptr < 6 || (*++ state.ptr) != '\\' || (*++ state.ptr) != 'u' ||
++                        if (end - state.ptr < 7 || (*++ state.ptr) != '\\' || (*++ state.ptr) != 'u' ||
+                             (uc_b1 = hex_value (*++ state.ptr)) == 0xFF ||
+                             (uc_b2 = hex_value (*++ state.ptr)) == 0xFF ||
+                             (uc_b3 = hex_value (*++ state.ptr)) == 0xFF ||

@@ -1,0 +1,46 @@
+INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /home/jhkim/1.AIxCC/oss-fuzz/build/out/aixcc/c/faad2:/out -v /home/jhkim/1.AIxCC/oss-fuzz/projects/aixcc/c/faad2/.aixcc/povs/fuzz_decode_drm_fixed/cpv_1:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.1.0 reproduce fuzz_decode_drm_fixed -runs=100.
++ FUZZER=fuzz_decode_drm_fixed
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer fuzz_decode_drm_fixed -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/fuzz_decode_drm_fixed -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1053536092
+INFO: Loaded 1 modules   (4451 inline 8-bit counters): 4451 [0x562ae1f11a60, 0x562ae1f12bc3),
+INFO: Loaded 1 PC tables (4451 PCs): 4451 [0x562ae1f12bc8,0x562ae1f241f8),
+/out/fuzz_decode_drm_fixed: Running 1 inputs 100 time(s) each.
+Running: /testcase
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==14==ERROR: AddressSanitizer: ILL on unknown address 0x562ae1e8c5b6 (pc 0x562ae1e8c5b6 bp 0x7ffe9c224210 sp 0x7ffe9c2241f0 T0)
+SCARINESS: 10 (signal)
+    #0 0x562ae1e8c5b6 in pow2_fix (/out/fuzz_decode_drm_fixed+0x23e5b6)
+    #1 0x562ae1eb5150 in hf_adjustment (/out/fuzz_decode_drm_fixed+0x267150)
+    #2 0x562ae1e9f7db in sbr_process_channel sbr_dec.c
+    #3 0x562ae1ea04d2 in sbrDecodeSingleFrame (/out/fuzz_decode_drm_fixed+0x2524d2)
+    #4 0x562ae1edcf57 in reconstruct_single_channel (/out/fuzz_decode_drm_fixed+0x28ef57)
+    #5 0x562ae1ecd1f5 in decode_sce_lfe syntax.c
+    #6 0x562ae1ecb4b1 in raw_data_block (/out/fuzz_decode_drm_fixed+0x27d4b1)
+    #7 0x562ae1e890ba in aac_frame_decode decoder.c
+    #8 0x562ae1e86316 in LLVMFuzzerTestOneInput (/out/fuzz_decode_drm_fixed+0x238316)
+    #9 0x562ae1d3ca00 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) cxa_noexception.cpp
+    #10 0x562ae1d27025 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) cxa_noexception.cpp
+    #11 0x562ae1d2cabf in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) cxa_noexception.cpp
+    #12 0x562ae1d589b2 in main (/out/fuzz_decode_drm_fixed+0x10a9b2)
+    #13 0x7f24bf68c082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+    #14 0x562ae1d1f20d in _start (/out/fuzz_decode_drm_fixed+0xd120d)
+
+DEDUP_TOKEN: pow2_fix--hf_adjustment--sbr_process_channel
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: ILL (/out/fuzz_decode_drm_fixed+0x23e5b6) in pow2_fix
+==14==ABORTING
+subprocess command returned a non-zero exit status: 1

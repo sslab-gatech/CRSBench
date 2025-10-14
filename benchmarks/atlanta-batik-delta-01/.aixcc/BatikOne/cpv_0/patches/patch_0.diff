@@ -1,0 +1,41 @@
+From bfbccb6ad213c1c2dea4ce6e9210f057e5ac1229 Mon Sep 17 00:00:00 2001
+From: Simon Steiner <ssteiner@apache.org>
+Date: Tue, 16 Aug 2022 14:17:59 +0000
+Subject: [PATCH] BATIK-1331: Jar url should be blocked by
+ DefaultExternalResourceSecurity
+
+git-svn-id: https://svn.apache.org/repos/asf/xmlgraphics/batik/trunk@1903462 13f79535-47bb-0310-9956-ffa450edef68
+---
+ .../DefaultExternalResourceSecurity.java      | 10 +++++
+ ...faultExternalResourceSecurityTestCase.java | 40 +++++++++++++++++++
+ 2 files changed, 50 insertions(+)
+ create mode 100644 batik-test-old/src/test/java/org/apache/batik/bridge/DefaultExternalResourceSecurityTestCase.java
+
+diff --git a/batik-bridge/src/main/java/org/apache/batik/bridge/DefaultExternalResourceSecurity.java b/batik-bridge/src/main/java/org/apache/batik/bridge/DefaultExternalResourceSecurity.java
+index a9e5d8828..8279a9a98 100644
+--- a/batik-bridge/src/main/java/org/apache/batik/bridge/DefaultExternalResourceSecurity.java
++++ b/batik-bridge/src/main/java/org/apache/batik/bridge/DefaultExternalResourceSecurity.java
+@@ -20,6 +20,9 @@ package org.apache.batik.bridge;
+ 
+ import org.apache.batik.util.ParsedURL;
+ 
++import java.net.URI;
++import java.net.URISyntaxException;
++
+ /**
+  * Default implementation for the <code>ExternalResourceSecurity</code> interface.
+  * It allows all types of external resources to be loaded, but only if they
+@@ -81,6 +84,13 @@ public class DefaultExternalResourceSecurity implements ExternalResourceSecurity
+         } else {
+             String docHost    = docURL.getHost();
+             String externalResourceHost = externalResourceURL.getHost();
++            if (externalResourceHost == null && !DATA_PROTOCOL.equals(externalResourceURL.getProtocol())) {
++                try {
++                    externalResourceHost = new URI(externalResourceURL.getPath()).getHost();
++                } catch (URISyntaxException e) {
++                    throw new RuntimeException(e);
++                }
++            }
+             
+             if ((docHost != externalResourceHost) &&
+                 ((docHost == null) || (!docHost.equals(externalResourceHost)))){

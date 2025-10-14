@@ -1,0 +1,14 @@
+diff --git a/src/bdf/bdflib.c b/src/bdf/bdflib.c
+index 0d7a27773..5e312bbaf 100644
+--- a/src/bdf/bdflib.c
++++ b/src/bdf/bdflib.c
+@@ -1447,6 +1447,9 @@
+     /* Check for the ENDCHAR field. */
+     if ( _bdf_strncmp( line, "ENDCHAR", 7 ) == 0 )
+     {
++      /* Free unused glyph_name */
++      FT_FREE( p->glyph_name );
++
+       p->glyph_enc = 0;
+       p->flags    &= ~BDF_GLYPH_BITS_;
+ 

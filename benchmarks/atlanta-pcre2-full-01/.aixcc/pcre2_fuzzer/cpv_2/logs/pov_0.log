@@ -1,0 +1,42 @@
+INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /home/user/work/team-atlanta/oss-fuzz-origin/build/out/aixcc/c/r3_5-pcre2:/out -v /home/user/work/team-atlanta/oss-fuzz-origin/projects/aixcc/c/r3_5-pcre2/.aixcc/povs/pcre2_fuzzer/cpv_2:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.1.0 reproduce pcre2_fuzzer -runs=100.
++ FUZZER=pcre2_fuzzer
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer pcre2_fuzzer -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/pcre2_fuzzer -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -dict=pcre2_fuzzer.dict -max_len=50000 < /dev/null
+Dictionary: 43 entries
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 2799236679
+INFO: Loaded 1 modules   (33487 inline 8-bit counters): 33487 [0x55a2036faae0, 0x55a203702daf), 
+INFO: Loaded 1 PC tables (33487 PCs): 33487 [0x55a203702db0,0x55a203785aa0), 
+/out/pcre2_fuzzer: Running 1 inputs 100 time(s) each.
+Running: /testcase
+src/pcre2_compile.c:9683:15: runtime error: signed integer overflow: 2147483647 - -1369814186 cannot be represented in type 'int'
+    #0 0x55a20354273e in get_branchlength /src/pcre2/src/pcre2_compile.c:9683:15
+    #1 0x55a20354140d in set_lookbehind_lengths /src/pcre2/src/pcre2_compile.c:9758:18
+    #2 0x55a20353d4e0 in check_lookbehinds /src/pcre2/src/pcre2_compile.c:9958:10
+    #3 0x55a203533efe in pcre2_compile_8 /src/pcre2/src/pcre2_compile.c:10414:15
+    #4 0x55a203530289 in LLVMFuzzerTestOneInput /src/pcre2/src/pcre2_fuzzsupport.c:144:10
+    #5 0x55a203492750 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #6 0x55a20347d9c5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #7 0x55a20348345f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #8 0x55a2034ae702 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #9 0x7f264c643082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+    #10 0x55a203475bad in _start (/out/pcre2_fuzzer+0x103bad)
+
+DEDUP_TOKEN: get_branchlength--set_lookbehind_lengths--check_lookbehinds
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior src/pcre2_compile.c:9683:15 
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+0x28,0x3f,0x3c,0x21,0x28,0x20,0x7b,0x36,0x35,0x30,0x35,0x34,0x7d,0x29,0x7b,0x39,0x2c,0x34,0x34,0x39,0x36,0x35,0x7d,0x29,
+(?<!( {65054}){9,44965})
+exit status 1
+subprocess command returned a non-zero exit status: 1

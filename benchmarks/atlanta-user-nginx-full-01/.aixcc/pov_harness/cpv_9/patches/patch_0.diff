@@ -1,0 +1,28 @@
+diff --git a/src/http/ngx_http_parse.c b/src/http/ngx_http_parse.c
+index 9e2e618..e966ad7 100644
+--- a/src/http/ngx_http_parse.c
++++ b/src/http/ngx_http_parse.c
+@@ -249,11 +249,6 @@ ngx_http_parse_request_line(ngx_http_request_t *r, ngx_buf_t *b)
+                         r->method = NGX_HTTP_CONNECT;
+                     }
+ 
+-                    if (ngx_str7_cmp(m, 'A', 'T', 'L', 'A', 'N', 'T', 'A', ' '))
+-                    {
+-                        r->connection = (ngx_connection_t *)NGX_HTTP_ATLANTA;
+-                    }
+-
+                     break;
+ 
+                 case 8:
+diff --git a/src/http/ngx_http_request.h b/src/http/ngx_http_request.h
+index e9c818e..65c8333 100644
+--- a/src/http/ngx_http_request.h
++++ b/src/http/ngx_http_request.h
+@@ -43,7 +43,6 @@
+ #define NGX_HTTP_PATCH                     0x00004000
+ #define NGX_HTTP_TRACE                     0x00008000
+ #define NGX_HTTP_CONNECT                   0x00010000
+-#define NGX_HTTP_ATLANTA                   0x00020000
+ 
+ #define NGX_HTTP_CONNECTION_CLOSE          1
+ #define NGX_HTTP_CONNECTION_KEEP_ALIVE     2

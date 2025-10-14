@@ -1,0 +1,47 @@
++ FUZZER=fuzz-link-parser
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer fuzz-link-parser -runs=100 -detect_leaks=0 /testcase
+vm.mmap_rnd_bits = 28
+/out/fuzz-link-parser -rss_limit_mb=2560 -timeout=25 -runs=100 -detect_leaks=0 /testcase -timeout_exitcode=0 < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 2892754549
+INFO: Loaded 2 modules   (96981 inline 8-bit counters): 94611 [0x7f669e5dd920, 0x7f669e5f4ab3), 2370 [0x558119fd4078, 0x558119fd49ba), 
+INFO: Loaded 2 PC tables (96981 PCs): 94611 [0x7f669e5f4ab8,0x7f669e7663e8), 2370 [0x558119fd49c0,0x558119fddde0), 
+/out/fuzz-link-parser: Running 1 inputs 100 time(s) each.
+Running: /testcase
+[0;1;31mAssertion 'type >= 0 || !head' failed at src/shared/condition.c:105, function condition_free_list_type(). Aborting.[0m
+
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+[1m[31m==18==ERROR: AddressSanitizer: ABRT on unknown address 0x000000000012 (pc 0x7f669d85100b bp 0x7ffc2d2bd380 sp 0x7ffc2d2bd130 T0)
+[1m[0mSCARINESS: 10 (signal)
+    #0 0x7f669d85100b in raise (/lib/x86_64-linux-gnu/libc.so.6+0x4300b) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #1 0x7f669d830858 in abort (/lib/x86_64-linux-gnu/libc.so.6+0x22858) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #2 0x7f669e0fd639 in log_assert_failed /work/build/../../src/systemd/src/basic/log.c:996:9
+    #3 0x7f669decc234 in condition_free_list_type /work/build/../../src/systemd/src/shared/condition.c:105:9
+    #4 0x558119e7b918 in condition_free_list /work/build/../../src/systemd/src/shared/condition.h:80:16
+    #5 0x558119e7b918 in link_config_free /work/build/../../src/systemd/src/udev/net/link-config.c:64:9
+    #6 0x558119e707c9 in link_config_freep /work/build/../../src/systemd/src/udev/net/link-config.c:84:1
+    #7 0x558119e707c9 in link_load_one /work/build/../../src/systemd/src/udev/net/link-config.c:324:1
+    #8 0x558119e6fb15 in LLVMFuzzerTestOneInput /work/build/../../src/systemd/src/udev/net/fuzz-link-parser.c:25:16
+    #9 0x558119eb73f0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #10 0x558119ea2665 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #11 0x558119ea80ff in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #12 0x558119ed33a2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #13 0x7f669d832082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #14 0x558119d9721d in _start (/out/fuzz-link-parser+0x7b21d)
+
+DEDUP_TOKEN: raise--abort--log_assert_failed
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: ABRT (/lib/x86_64-linux-gnu/libc.so.6+0x4300b) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d) in raise
+==18==ABORTING
+subprocess command returned a non-zero exit status: 1

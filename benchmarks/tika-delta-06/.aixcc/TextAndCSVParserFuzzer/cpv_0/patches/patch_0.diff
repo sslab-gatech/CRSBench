@@ -1,0 +1,165 @@
+diff --git a/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-text-module/src/main/java/org/apache/tika/parser/csv/CellFormatter.java b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-text-module/src/main/java/org/apache/tika/parser/csv/CellFormatter.java
+index 9c3401a63..8991cdb74 100644
+--- a/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-text-module/src/main/java/org/apache/tika/parser/csv/CellFormatter.java
++++ b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-text-module/src/main/java/org/apache/tika/parser/csv/CellFormatter.java
+@@ -16,6 +16,7 @@
+  */
+ package org.apache.tika.parser.csv;
+ 
++import java.io.IOException;
+ import java.text.DecimalFormat;
+ import java.text.DecimalFormatSymbols;
+ import java.text.NumberFormat;
+@@ -34,7 +35,7 @@ public class CellFormatter {
+     //size to limit excessive computation
+     private static final Pattern FRACTION_FORMAT =
+             Pattern.compile("([+-])?(\\d{0,20}(?:\\.\\d{0,20})?) " +
+-            "&fraction_format=\"(?:(#{1,20}) )?(#{1,20})/(#{1,20})\"");
++                    "&fraction_format=\"(?:(#{1,20}) )?(#{1,20})/(#{1,20})\"");
+ 
+     private final Matcher fractionFormatMatcher = FRACTION_FORMAT.matcher("");
+     String format(String cell) {
+@@ -59,20 +60,16 @@ public class CellFormatter {
+ 
+         double wholePart = Math.floor(Math.abs(val));
+         double decPart = Math.abs(val) - wholePart;
+-        int denomLength = denomFormat.length();
+-
+-        double minVal = 1.0;
+-        double currDenom = Math.pow(10, denomLength) - 1d;
+-        double currNum = 0;
+-        for (int i = (int)(Math.pow(10, denomLength) - 1d); i > 0; i--) {
+-            for (int i2 = (int)(Math.pow(10, denomLength) - 1d); i2 >= 0; i2--) {
+-                if (minVal >= Math.abs((double)i2 / (double)i - decPart)) {
+-                    currDenom = i;
+-                    currNum = i2;
+-                    minVal = Math.abs((double) i2 / (double) i - decPart);
+-                }
+-            }
++        SimpleFraction simpleFraction = null;
++        try {
++            simpleFraction = buildFractionMaxDenominator(decPart, 0.000000000001d,
++                    (int)Math.pow(10, denomFormat.length()), 100000);
++        } catch (FractionException e) {
++            return cell;
+         }
++
++        int currNum = simpleFraction.numerator;
++        int currDenom = simpleFraction.denominator;
+         sign = (sign == null) ? "" : sign;
+         wholeFormat = (wholeFormat == null) ? "#" : wholeFormat;
+ 
+@@ -91,4 +88,113 @@ public class CellFormatter {
+         return sign + wholePartString +
+                 numFormatter.format(currNum) + "/" + denomFormatter.format(currDenom);
+     }
++
++    private static SimpleFraction buildFractionMaxDenominator(double value, double epsilon,
++                                                              int maxDenominator,
++                                                              int maxIterations) throws FractionException {
++        long overflow = Integer.MAX_VALUE;
++        double r0 = value;
++        long a0 = (long)Math.floor(r0);
++        if (a0 > overflow) {
++            throw new FractionException("Overflow trying to convert "
++                    + value + " to fraction (" + a0 + "/" + 1L + ")");
++        }
++
++        // check for (almost) integer arguments, which should not go
++        // to iterations.
++        if (Math.abs(a0 - value) < epsilon) {
++            return new SimpleFraction((int)a0, 1);
++        }
++
++        long p0 = 1;
++        long q0 = 0;
++        long p1 = a0;
++        long q1 = 1;
++
++        long p2;
++        long q2;
++
++        int n = 0;
++        boolean stop = false;
++        do {
++            ++n;
++            double r1 = 1.0 / (r0 - a0);
++            long a1 = (long)Math.floor(r1);
++            p2 = (a1 * p1) + p0;
++            q2 = (a1 * q1) + q0;
++            //MATH-996/POI-55419
++            if (epsilon == 0.0f && maxDenominator > 0 && Math.abs(q2) > maxDenominator &&
++                    Math.abs(q1) < maxDenominator) {
++                return new SimpleFraction((int)p1, (int)q1);
++            }
++            if ((p2 > overflow) || (q2 > overflow)) {
++                return new SimpleFraction((int)p1, (int)q1);
++            }
++
++            double convergent = (double)p2 / (double)q2;
++            if (n < maxIterations && Math.abs(convergent - value) > epsilon && q2 < maxDenominator) {
++                p0 = p1;
++                p1 = p2;
++                q0 = q1;
++                q1 = q2;
++                a0 = a1;
++                r0 = r1;
++            } else {
++                stop = true;
++            }
++        } while (!stop);
++
++        if (n >= maxIterations) {
++            throw new FractionException("Unable to convert " + value +
++                    " to fraction after " + maxIterations + " iterations");
++        }
++
++        if (q2 < maxDenominator) {
++            return new SimpleFraction((int) p2, (int)q2);
++        } else {
++            return new SimpleFraction((int)p1, (int)q1);
++        }
++    }
++
++    private static class SimpleFraction {
++
++        private final int numerator;
++        private final int denominator;
++
++        /**
++         * Create a fraction given a numerator and denominator.
++         *
++         * @param numerator
++         * @param denominator maxDenominator The maximum allowed value for denominator
++         */
++        private SimpleFraction(int numerator, int denominator) {
++            this.numerator = numerator;
++            this.denominator = denominator;
++        }
++
++        /**
++         * Access the denominator.
++         *
++         * @return the denominator.
++         */
++        public int getDenominator() {
++            return denominator;
++        }
++
++        /**
++         * Access the numerator.
++         *
++         * @return the numerator.
++         */
++        public int getNumerator() {
++            return numerator;
++        }
++    }
++
++    private static class FractionException extends IOException {
++        FractionException(String msg) {
++            super(msg);
++        }
++    }
++
+ }

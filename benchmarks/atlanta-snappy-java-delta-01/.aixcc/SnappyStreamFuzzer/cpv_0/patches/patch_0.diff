@@ -1,0 +1,21 @@
+diff --git a/src/main/java/org/xerial/snappy/SnappyInputStream.java b/src/main/java/org/xerial/snappy/SnappyInputStream.java
+index 7277e9c..7075967 100755
+--- a/src/main/java/org/xerial/snappy/SnappyInputStream.java
++++ b/src/main/java/org/xerial/snappy/SnappyInputStream.java
+@@ -435,6 +435,16 @@ public class SnappyInputStream
+             }
+         }
+ 
++        // chunkSize is negative
++        if (chunkSize < 0) {
++            throw new IOException("chunkSize is too big or negative : " + chunkSize);
++        }
++
++        // chunkSize is big
++        if (chunkSize > maxChunkSize) {
++            throw new IOException(String.format("Received chunkSize %,d is greater than max configured chunk size %,d", chunkSize, maxChunkSize));
++        }
++
+         // extend the compressed data buffer size
+         if (compressed == null || chunkSize > compressed.length) {
+             // chunkSize exceeds limit

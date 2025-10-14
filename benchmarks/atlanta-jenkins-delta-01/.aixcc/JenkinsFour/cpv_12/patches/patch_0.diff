@@ -1,0 +1,13 @@
+diff --git a/plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/CauseManagement.java b/plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/CauseManagement.java
+index 43f1637..19d25ff 100644
+--- a/plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/CauseManagement.java
++++ b/plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/CauseManagement.java
+@@ -229,7 +229,7 @@ public class CauseManagement implements RootAction {
+             throws IOException {
+         boolean hasPermission = Jenkins.getInstance().hasPermission(PluginImpl.REMOVE_PERMISSION);
+         id = Util.fixEmpty(id);
+-        if (id != null || hasPermission) {
++        if (id != null && hasPermission) {
+             try {
+                 FailureCause cause = PluginImpl.getInstance().getKnowledgeBase().removeCause(id);
+                 if (cause != null) {

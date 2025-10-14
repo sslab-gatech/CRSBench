@@ -1,0 +1,36 @@
+diff --git a/src/reformat.c b/src/reformat.c
+index f261e073..6a304a00 100644
+--- a/src/reformat.c
++++ b/src/reformat.c
+@@ -796,25 +796,14 @@ static avifResult avifImageYUVAnyToRGBAnySlow(const avifImage * image,
+                     total_spill += fabs(spill_Cr);
+                     // if spill too high, dampen
+                     if ((image->height * image->width) >= 0x1000 && total_spill > ((image->height * image->width) * 3.8f)){
+-                        int a, b;
+-                        if (i % 2 == 0){
+-                            a = 1;
+-                        }else{
+-                            a = -1;
+-                        }
+-                        if (j % 2 == 0){
+-                            b = 1;
+-                        }else{
+-                            b = -1;
+-                        }
+                         uspill_image[i][j] -= pSpillCb;
+                         vspill_image[i][j] -= pSpillCb;
+-                        uspill_image[i+a][j] -= pSpillCb;
+-                        vspill_image[i+a][j] -= pSpillCr;
+-                        uspill_image[i][j+b] -= pSpillCb;
+-                        vspill_image[i][j+b] -= pSpillCr;
+-                        uspill_image[i+a][j+b] -= pSpillCb;
+-                        vspill_image[i+a][j+b] -= pSpillCr;
++                        uspill_image[i+adjCol][j] -= pSpillCb;
++                        vspill_image[i+adjCol][j] -= pSpillCr;
++                        uspill_image[i][j+adjRow] -= pSpillCb;
++                        vspill_image[i][j+adjRow] -= pSpillCr;
++                        uspill_image[i+adjCol][j+adjRow] -= pSpillCb;
++                        vspill_image[i+adjCol][j+adjRow] -= pSpillCr;
+                     }   
+                 }
+             }

@@ -1,0 +1,34 @@
+diff --git a/mongoose.c b/mongoose.c
+index 8c31d60f..118aac1b 100644
+--- a/mongoose.c
++++ b/mongoose.c
+@@ -4968,9 +4968,10 @@ void mg_tcpip_rx(struct mg_tcpip_if *ifp, void *buf, size_t len) {
+     }
+     if (pkt.raw.len < sizeof(*pkt.eth) + sizeof(*pkt.ip)) return;  // Truncated
+     if ((pkt.ip->ver >> 4) != 4) return;                           // Not IP
+-    if ((pkt.ip->ver & 0xF) > 5)                                   // Handle IPv4 options
++    if ((pkt.ip->ver & 0xF) > 5) {                                 // Handle IPv4 options
++        if (pkt.raw.len < ((size_t)((pkt.ip->ver & 0xF)*4) + sizeof(*pkt.ip))) return;  // Truncated
+         mkpay(&pkt, (char *)(pkt.ip) + ((pkt.ip->ver & 0xF)*4));
+-    else
++    } else
+         mkpay(&pkt, pkt.ip + 1);
+ 
+     rx_ip(ifp, &pkt);
+diff --git a/src/net_builtin.c b/src/net_builtin.c
+index 793874f4..b7f2738b 100644
+--- a/src/net_builtin.c
++++ b/src/net_builtin.c
+@@ -888,9 +888,10 @@ void mg_tcpip_rx(struct mg_tcpip_if *ifp, void *buf, size_t len) {
+     }
+     if (pkt.raw.len < sizeof(*pkt.eth) + sizeof(*pkt.ip)) return;  // Truncated
+     if ((pkt.ip->ver >> 4) != 4) return;                           // Not IP
+-    if ((pkt.ip->ver & 0xF) > 5)                                   // Handle IPv4 options
++    if ((pkt.ip->ver & 0xF) > 5) {                                 // Handle IPv4 options
++        if (pkt.raw.len < ((size_t)((pkt.ip->ver & 0xF)*4) + sizeof(*pkt.ip))) return;  // Truncated
+         mkpay(&pkt, (char *)(pkt.ip) + ((pkt.ip->ver & 0xF)*4));
+-    else
++    } else
+         mkpay(&pkt, pkt.ip + 1);
+ 
+     rx_ip(ifp, &pkt);

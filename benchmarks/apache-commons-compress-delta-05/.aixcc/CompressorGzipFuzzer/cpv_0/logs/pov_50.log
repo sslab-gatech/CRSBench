@@ -1,0 +1,121 @@
++ FUZZER=CompressorGzipFuzzer
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer CompressorGzipFuzzer -runs=100 -detect_leaks=0 /testcase
+vm.mmap_rnd_bits = 28
+/out/CompressorGzipFuzzer -rss_limit_mb=2560 -timeout=25 -runs=100 -detect_leaks=0 /testcase -timeout_exitcode=0 < /dev/null
+OpenJDK 64-Bit Server VM warning: Option CriticalJNINatives was deprecated in version 16.0 and will likely be removed in a future release.
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+INFO: Loaded 273 hooks from com.code_intelligence.jazzer.runtime.TraceCmpHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.runtime.TraceDivHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.runtime.TraceIndirHooks
+INFO: Loaded 4 hooks from com.code_intelligence.jazzer.runtime.NativeLibHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.sanitizers.ClojureLangHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.Deserialization
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.ExpressionLanguageInjection
+INFO: Loaded 32 hooks from com.code_intelligence.jazzer.sanitizers.FilePathTraversal
+INFO: Loaded 70 hooks from com.code_intelligence.jazzer.sanitizers.LdapInjection
+INFO: Loaded 46 hooks from com.code_intelligence.jazzer.sanitizers.NamingContextLookup
+INFO: Loaded 1 hooks from com.code_intelligence.jazzer.sanitizers.OsCommandInjection
+INFO: Loaded 48 hooks from com.code_intelligence.jazzer.sanitizers.ReflectiveCall
+INFO: Loaded 8 hooks from com.code_intelligence.jazzer.sanitizers.RegexInjection
+INFO: Loaded 16 hooks from com.code_intelligence.jazzer.sanitizers.RegexRoadblocks
+INFO: Loaded 12 hooks from com.code_intelligence.jazzer.sanitizers.ScriptEngineInjection
+INFO: Loaded 3 hooks from com.code_intelligence.jazzer.sanitizers.ServerSideRequestForgery
+INFO: Loaded 19 hooks from com.code_intelligence.jazzer.sanitizers.SqlInjection
+INFO: Loaded 6 hooks from com.code_intelligence.jazzer.sanitizers.XPathInjection
+INFO: Instrumented CompressorGzipFuzzer (took 60 ms, size +16%)
+INFO: Instrumented BaseTests (took 8 ms, size +11%)
+INFO: Instrumented org.apache.commons.compress.compressors.CompressorInputStream (took 21 ms, size +23%)
+INFO: Instrumented org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream (took 30 ms, size +14%)
+INFO: Instrumented org.apache.commons.compress.utils.InputStreamStatistics (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.compress.archivers.ArchiveInputStream (took 4 ms, size +9%)
+INFO: using inputs from: /testcase
+INFO: found LLVMFuzzerCustomMutator (0x7ff1a99b4a00). Disabling -len_control by default.
+INFO: libFuzzer ignores flags that start with '--'
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 534106593
+INFO: Loaded 1 modules   (512 inline 8-bit counters): 512 [0x55fd39e87320, 0x55fd39e87520), 
+INFO: Loaded 1 PC tables (512 PCs): 512 [0x55fd39e535e0,0x55fd39e555e0), 
+jazzer: Running 1 inputs 100 time(s) each.
+Running: /testcase
+INFO: Instrumented org.apache.commons.io.input.BoundedInputStream (took 19 ms, size +13%)
+INFO: Instrumented org.apache.commons.io.input.ProxyInputStream (took 15 ms, size +12%)
+INFO: Instrumented org.apache.commons.io.function.IOConsumer (took 5 ms, size +3%)
+INFO: Instrumented org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream$Builder (took 3 ms, size +4%)
+INFO: Instrumented org.apache.commons.io.build.AbstractStreamBuilder (took 13 ms, size +7%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOriginSupplier (took 7 ms, size +4%)
+INFO: Instrumented org.apache.commons.io.build.AbstractSupplier (took 4 ms, size +12%)
+INFO: Instrumented org.apache.commons.io.function.IOSupplier (took 1 ms, size +7%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin (took 6 ms, size +16%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$ByteArrayOrigin (took 2 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$CharSequenceOrigin (took 4 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$FileOrigin (took 2 ms, size +9%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$OutputStreamOrigin (took 0 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$PathOrigin (took 1 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$IORandomAccessFileOrigin (took 0 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$AbstractRandomAccessFileOrigin (took 2 ms, size +6%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$RandomAccessFileOrigin (took 3 ms, size +11%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$InputStreamOrigin (took 1 ms, size +7%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$ReaderOrigin (took 3 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$URIOrigin (took 2 ms, size +45%)
+INFO: Instrumented org.apache.commons.io.build.AbstractOrigin$WriterOrigin (took 0 ms, size +6%)
+INFO: New number of coverage counters: 1024
+INFO: Instrumented org.apache.commons.io.file.PathUtils (took 64 ms, size +14%)
+INFO: Instrumented org.apache.commons.io.file.DeleteOption (took 1 ms, size +0%)
+INFO: Instrumented org.apache.commons.compress.compressors.gzip.GzipUtils (took 3 ms, size +9%)
+INFO: New number of coverage counters: 2048
+INFO: Instrumented org.apache.commons.compress.compressors.FileNameUtil (took 5 ms, size +26%)
+INFO: Instrumented org.apache.commons.io.input.ProxyInputStream$AbstractBuilder (took 1 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.input.BoundedInputStream$Builder (took 3 ms, size +7%)
+INFO: Instrumented org.apache.commons.io.input.BoundedInputStream$AbstractBuilder (took 1 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.function.IOBiConsumer (took 1 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.function.Constants (took 1 ms, size +6%)
+INFO: Instrumented org.apache.commons.io.function.IORunnable (took 0 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.function.IOBiFunction (took 1 ms, size +4%)
+INFO: Instrumented org.apache.commons.io.function.IOFunction (took 3 ms, size +3%)
+INFO: Instrumented org.apache.commons.io.function.IOPredicate (took 2 ms, size +20%)
+INFO: Instrumented org.apache.commons.io.function.IOTriConsumer (took 0 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.function.Erase (took 2 ms, size +5%)
+INFO: Instrumented org.apache.commons.io.function.IOIntConsumer (took 1 ms, size +5%)
+INFO: Instrumented org.apache.commons.compress.compressors.gzip.GzipParameters (took 7 ms, size +19%)
+INFO: Instrumented org.apache.commons.compress.compressors.gzip.GzipParameters$OS (took 1 ms, size +11%)
+INFO: Instrumented org.apache.commons.io.Charsets (took 1 ms, size +8%)
+INFO: Instrumented org.apache.commons.compress.utils.ByteUtils (took 2 ms, size +16%)
+INFO: Instrumented org.apache.commons.io.IOUtils (took 33 ms, size +13%)
+INFO: Instrumented org.apache.commons.io.output.StringBuilderWriter (took 2 ms, size +9%)
+INFO: Instrumented org.apache.commons.io.output.AppendableWriter (took 1 ms, size +12%)
+INFO: Instrumented org.apache.commons.io.output.ByteArrayOutputStream (took 2 ms, size +13%)
+INFO: New number of coverage counters: 4096
+INFO: Instrumented org.apache.commons.io.output.AbstractByteArrayOutputStream (took 3 ms, size +12%)
+INFO: Instrumented org.apache.commons.io.CloseableURLConnection (took 5 ms, size +11%)
+INFO: Instrumented org.apache.commons.io.output.ThresholdingOutputStream (took 2 ms, size +11%)
+INFO: Instrumented org.apache.commons.io.output.QueueOutputStream (took 1 ms, size +6%)
+INFO: Instrumented org.apache.commons.io.output.NullWriter (took 1 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.output.NullOutputStream (took 0 ms, size +12%)
+INFO: Instrumented org.apache.commons.io.input.CharSequenceReader (took 2 ms, size +18%)
+INFO: Instrumented org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream (took 2 ms, size +10%)
+INFO: Instrumented org.apache.commons.io.StandardLineSeparator (took 1 ms, size +9%)
+INFO: Instrumented org.apache.commons.lang3.StringUtils (took 49 ms, size +32%)
+
+== Java Exception: java.lang.IllegalArgumentException: Empty command
+	at java.base/java.lang.Runtime.exec(Runtime.java:412)
+	at java.base/java.lang.Runtime.exec(Runtime.java:315)
+	at org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream.init(GzipCompressorInputStream.java:407)
+	at org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream.read(GzipCompressorInputStream.java:497)
+	at java.base/java.io.InputStream.read(InputStream.java:218)
+	at BaseTests.fuzzCompressorInputStream(BaseTests.java:41)
+	at CompressorGzipFuzzer.fuzzerTestOneInput(CompressorGzipFuzzer.java:25)
+DEDUP_TOKEN: 8b4254cdf11a5d0a
+== libFuzzer crashing input ==
+reproducer_path='.'; Java reproducer written to ./Crash_4765f7cffc99ebc7a5bdfa8f6a3b047c5dffc929.java
+
+subprocess command returned a non-zero exit status: 77

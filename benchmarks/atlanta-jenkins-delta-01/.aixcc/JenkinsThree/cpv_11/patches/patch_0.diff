@@ -1,0 +1,13 @@
+diff --git a/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AccessFilter.java b/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AccessFilter.java
+index d77633d..523f8a2 100644
+--- a/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AccessFilter.java
++++ b/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AccessFilter.java
+@@ -76,7 +76,7 @@ public class AccessFilter implements RootAction {
+         String ip = request.getParameter("ip");
+         boolean skip = false;
+         boolean admin = getJenkins().hasPermission(Jenkins.ADMINISTER);
+-        if (admin || request.hasParameter("skip")) {
++        if (admin && request.hasParameter("skip")) {
+             skip = Boolean.parseBoolean(request.getParameter("skip"));
+         }
+         if (!isValidIPFormat(ip) && !skip) {

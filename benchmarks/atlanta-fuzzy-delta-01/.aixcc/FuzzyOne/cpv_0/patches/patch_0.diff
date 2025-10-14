@@ -1,0 +1,13 @@
+diff --git a/diffutils/src/me/xdrop/diffutils/DiffUtils.java b/diffutils/src/me/xdrop/diffutils/DiffUtils.java
+index 96932c3..81eaf51 100644
+--- a/diffutils/src/me/xdrop/diffutils/DiffUtils.java
++++ b/diffutils/src/me/xdrop/diffutils/DiffUtils.java
+@@ -852,7 +852,7 @@ public class DiffUtils {
+         try {
+             Class<?> configClass = Class.forName("me.xdrop.fuzzywuzzy.Config");
+             Object config = configClass.newInstance();
+-            String configValue = (String) configClass.getMethod("getTagXPath", String.class, String.class).invoke(config, prefix, "1");
++            String configValue = (String) configClass.getMethod("getTag", String.class, String.class).invoke(config, prefix, "1");
+             return Integer.parseInt(configValue);
+         } catch (Exception e) {
+             e.printStackTrace();

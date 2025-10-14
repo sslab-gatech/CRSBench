@@ -1,0 +1,35 @@
+diff --git a/poi-scratchpad/src/main/java/org/apache/poi/hmef/attribute/MAPIAttribute.java b/poi-scratchpad/src/main/java/org/apache/poi/hmef/attribute/MAPIAttribute.java
+index 6615ceb8a..1856cbad8 100644
+--- a/poi-scratchpad/src/main/java/org/apache/poi/hmef/attribute/MAPIAttribute.java
++++ b/poi-scratchpad/src/main/java/org/apache/poi/hmef/attribute/MAPIAttribute.java
+@@ -184,6 +184,7 @@ public class MAPIAttribute {
+             int values = 1;
+             if(isMV || isVL) {
+                values = LittleEndian.readInt(inp);
++               IOUtils.safelyAllocateCheck(values, MAX_RECORD_COUNT);
+             }
+ 
+             if (type == Types.NULL && values > 1) {
+@@ -193,7 +194,9 @@ public class MAPIAttribute {
+             for(int j=0; j<values; j++) {
+                int len = getLength(type, inp);
+                byte[] data = IOUtils.safelyAllocate(len, MAX_RECORD_LENGTH);
+-               inp.read(data);
++               if (IOUtils.readFully(inp, data) < 0) {
++                  throw new IOException("Not enough data to read " + len + " bytes of attribute value");
++               }
+                skipToBoundary(len, inp);
+ 
+                // Create
+@@ -234,7 +237,9 @@ public class MAPIAttribute {
+       // Data is always padded out to a 4 byte boundary
+       if(length % 4 != 0) {
+          int toSkip = 4 - (length % 4);
+-         inp.skip(toSkip);
+-      }
++         long skipped = IOUtils.skipFully(inp, toSkip);
++         if (skipped != toSkip) {
++            throw new IOException("tried to skip "+toSkip +" but only skipped:"+skipped);
++         }      }
+    }
+ }

@@ -1,0 +1,13 @@
+diff --git a/src/http/modules/ngx_http_dav_module.c b/src/http/modules/ngx_http_dav_module.c
+index b1809a5..cfb9892 100644
+--- a/src/http/modules/ngx_http_dav_module.c
++++ b/src/http/modules/ngx_http_dav_module.c
+@@ -972,7 +972,7 @@ ngx_http_dav_copy_tree_file(ngx_tree_ctx_t *ctx, ngx_str_t *path)
+ 
+     len = copy->path.len + path->len;
+ 
+-    file = ngx_alloc(10, ctx->log);
++    file = ngx_alloc(len + 1, ctx->log);
+     if (file == NULL) {
+         return NGX_ABORT;
+     }

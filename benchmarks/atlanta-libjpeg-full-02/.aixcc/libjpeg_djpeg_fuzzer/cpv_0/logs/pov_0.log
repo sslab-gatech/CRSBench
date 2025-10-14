@@ -1,0 +1,66 @@
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1369475255
+INFO: Loaded 1 modules   (4353 inline 8-bit counters): 4353 [0x5559c1a99798, 0x5559c1a9a899), 
+INFO: Loaded 1 PC tables (4353 PCs): 4353 [0x5559c1a9a8a0,0x5559c1aab8b0), 
+./libjpeg_djpeg_fuzzer: Running 1 inputs 1 time(s) each.
+Running: 1.jpg
+Corrupt JPEG data: 117 extraneous bytes before marker 0xdb
+=================================================================
+==3391174==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x5100000000f7 at pc 0x5559c19c00b8 bp 0x7ffcaab9e660 sp 0x7ffcaab9e658
+READ of size 8 at 0x5100000000f7 thread T0
+    #0 0x5559c19c00b7 in put_pixel_rows /src/libjpeg-turbo/wrbmp.c:145:19
+    #1 0x5559c18d21a2 in LLVMFuzzerTestOneInput /src/libjpeg_djpeg_fuzzer.cc:62:9
+    #2 0x5559c18eedf0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #3 0x5559c18da065 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #4 0x5559c18dfaff in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #5 0x5559c190ada2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #6 0x7f0b1b229d8f in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+    #7 0x7f0b1b229e3f in __libc_start_main csu/../csu/libc-start.c:392:3
+    #8 0x5559c17f977d in _start (/home/h31md4llr/aixcc/oss-fuzz/build/out/aixcc/c/libjpeg-vulnloc-cve-2018-19664/libjpeg_djpeg_fuzzer+0x5b77d)
+
+0x5100000000f7 is located 0 bytes after 183-byte region [0x510000000040,0x5100000000f7)
+allocated by thread T0 here:
+    #0 0x5559c189278f in malloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:68:3
+    #1 0x5559c19b003f in alloc_large /src/libjpeg-turbo/jmemmgr.c:391:29
+    #2 0x5559c19b056d in alloc_sarray /src/libjpeg-turbo/jmemmgr.c:475:27
+    #3 0x5559c19bdd95 in jinit_write_bmp /src/libjpeg-turbo/wrbmp.c:550:22
+    #4 0x5559c18d20ab in LLVMFuzzerTestOneInput /src/libjpeg_djpeg_fuzzer.cc:48:27
+    #5 0x5559c18eedf0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #6 0x5559c18da065 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #7 0x5559c18dfaff in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #8 0x5559c190ada2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #9 0x7f0b1b229d8f in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow /src/libjpeg-turbo/wrbmp.c:145:19 in put_pixel_rows
+Shadow bytes around the buggy address:
+  0x50fffffffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x50fffffffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x50ffffffff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x50ffffffff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x510000000000: fa fa fa fa fa fa fa fa 00 00 00 00 00 00 00 00
+=>0x510000000080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00[07]fa
+  0x510000000100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x510000000180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x510000000200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x510000000280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x510000000300: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==3391174==ABORTING

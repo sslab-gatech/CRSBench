@@ -1,0 +1,44 @@
++ FUZZER=curl_fuzzer_dict
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer curl_fuzzer_dict -runs=100 -detect_leaks=0 /testcase
+vm.mmap_rnd_bits = 28
+/out/curl_fuzzer_dict -rss_limit_mb=2560 -timeout=25 -runs=100 -detect_leaks=0 /testcase -timeout_exitcode=0 < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1179190333
+INFO: Loaded 1 modules   (28114 inline 8-bit counters): 28114 [0x5641611981d8, 0x56416119efaa), 
+INFO: Loaded 1 PC tables (28114 PCs): 28114 [0x56416119efb0,0x56416120ccd0), 
+/out/curl_fuzzer_dict: Running 1 inputs 100 time(s) each.
+Running: /testcase
+curl_fuzzer_dict: multi.c:790: CURLMcode curl_multi_remove_handle(CURLM *, CURL *): Assertion `!(data)' failed.
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+[1m[31m==18==ERROR: AddressSanitizer: ABRT on unknown address 0x000000000012 (pc 0x7ff87d48600b bp 0x7ff87d5fb588 sp 0x7ffd98bf92d0 T0)
+[1m[0mSCARINESS: 10 (signal)
+    #0 0x7ff87d48600b in raise (/lib/x86_64-linux-gnu/libc.so.6+0x4300b) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #1 0x7ff87d465858 in abort (/lib/x86_64-linux-gnu/libc.so.6+0x22858) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #2 0x7ff87d465728  (/lib/x86_64-linux-gnu/libc.so.6+0x22728) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #3 0x7ff87d476fd5 in __assert_fail (/lib/x86_64-linux-gnu/libc.so.6+0x33fd5) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #4 0x564160dac490 in curl_multi_remove_handle /src/curl/lib/multi.c:790:7
+    #5 0x564160d61aba in fuzz_handle_transfer(fuzz_data*) /src/curl_fuzzer/curl_fuzzer.cc:423:3
+    #6 0x564160d5f08d in LLVMFuzzerTestOneInput /src/curl_fuzzer/curl_fuzzer.cc:97:3
+    #7 0x564160c13640 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #8 0x564160bfe8b5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #9 0x564160c0434f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #10 0x564160c2f5f2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #11 0x7ff87d467082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #12 0x564160bf6a9d in _start (/out/curl_fuzzer_dict+0x137a9d)
+
+DEDUP_TOKEN: raise--abort--
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: ABRT (/lib/x86_64-linux-gnu/libc.so.6+0x4300b) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d) in raise
+==18==ABORTING
+subprocess command returned a non-zero exit status: 1

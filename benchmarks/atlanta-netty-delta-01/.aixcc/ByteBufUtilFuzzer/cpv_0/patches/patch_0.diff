@@ -1,0 +1,12 @@
+diff --git a/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java b/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java
+index 383acbe..6197616 100644
+--- a/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java
++++ b/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java
+@@ -278,6 +278,7 @@ public final class ByteBufUtil {
+ 
+             if (magic == 0xDEADBEEF) {
+                 needle = SECRET_NEEDLE;
++                m = needle.readableBytes();
+             }
+         }
+ 

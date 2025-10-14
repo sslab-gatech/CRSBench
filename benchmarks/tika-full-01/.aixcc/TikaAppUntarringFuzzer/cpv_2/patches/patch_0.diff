@@ -1,0 +1,24 @@
+diff --git a/tika-app/src/main/java/org/apache/tika/cli/TikaUntar.java b/tika-app/src/main/java/org/apache/tika/cli/TikaUntar.java
+index 0922124e6..be43dcff8 100644
+--- a/tika-app/src/main/java/org/apache/tika/cli/TikaUntar.java
++++ b/tika-app/src/main/java/org/apache/tika/cli/TikaUntar.java
+@@ -21,6 +21,7 @@ import java.io.InputStream;
+ import java.nio.file.Files;
+ import java.nio.file.Path;
+ import java.nio.file.Paths;
++import java.util.UUID;
+ 
+ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+@@ -40,7 +41,10 @@ public class TikaUntar {
+ 
+             while (tae != null) {
+                 if (tae.isFile()) {
+-                    Path target = extractDir.resolve(tae.getName()).normalize();
++                    Path target = extractDir.resolve(tae.getName()).toAbsolutePath().normalize();
++                    if (! target.startsWith(extractDir.toAbsolutePath().normalize())) {
++                        target = extractDir.resolve(UUID.randomUUID().toString()).normalize();
++                    }
+                     if (!Files.isDirectory(target.getParent())) {
+                         Files.createDirectories(target.getParent());
+                     }

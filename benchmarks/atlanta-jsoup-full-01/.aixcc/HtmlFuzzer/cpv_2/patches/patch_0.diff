@@ -1,0 +1,13 @@
+diff --git a/src/main/java/org/jsoup/parser/HtmlTreeBuilderState.java b/src/main/java/org/jsoup/parser/HtmlTreeBuilderState.java
+index e81f08b9..35732a2a 100644
+--- a/src/main/java/org/jsoup/parser/HtmlTreeBuilderState.java
++++ b/src/main/java/org/jsoup/parser/HtmlTreeBuilderState.java
+@@ -1553,7 +1553,7 @@ enum HtmlTreeBuilderState {
+                     tb.resetInsertionMode();
+                     // spec deviation - if we did not break out of Template, stop processing, and don't worry about cleaning up ultra-deep template stacks
+                     // limited depth because this can recurse and will blow stack if too deep
+-                    if (tb.state() != InTemplate)
++                    if (tb.state() != InTemplate && tb.templateModeSize() < 12)
+                         return tb.process(t);
+                     else return true;
+             }

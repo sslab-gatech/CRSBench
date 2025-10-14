@@ -1,0 +1,46 @@
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java
+index eb3dcc5e..49c8af1b 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java
+@@ -22,7 +22,6 @@
+ import java.io.IOException;
+ import java.io.PrintWriter;
+ import java.util.ArrayList;
+-import java.util.BitSet;
+ import java.util.Collection;
+ import java.util.Collections;
+ import java.util.HashMap;
+@@ -157,7 +156,7 @@ public class DataTree {
+     /**
+      * Maintains ordered set of unique cxids within this DataTree
+      */
+-    private final BitSet cxids = new BitSet();
++    private final HashSet<Integer> cxids = new HashSet<>();
+     /**
+      * This set contains the paths of all container nodes
+      */
+@@ -865,7 +864,7 @@ public ProcessTxnResult processTxn(TxnHeader header, Record txn) {
+     public ProcessTxnResult processTxn(TxnHeader header, Record txn, boolean isSubTxn) {
+         ProcessTxnResult rc = new ProcessTxnResult();
+         //cxids can only be positive; let's ensure that
+-        cxids.set(Math.abs(header.getCxid()));
++        cxids.add(Math.abs(header.getCxid()));
+ 
+         try {
+             rc.clientId = header.getClientId();
+@@ -1812,13 +1811,8 @@ public void compareSnapshotDigests(long zxid) {
+     }
+ 
+     public List<Integer> getCxids() {
+-        List<Integer> cxidList = new ArrayList<>();
+-        for (int i = cxids.nextSetBit(0); i >= 0; i = cxids.nextSetBit(i+1)) {
+-            cxidList.add(i);
+-            if (i == Integer. MAX_VALUE) {
+-                break; // or (i+1) would overflow
+-            }
+-        }
++        List<Integer> cxidList = new ArrayList<>(cxids);
++        Collections.sort(cxidList);
+         return cxidList;
+     }
+ 

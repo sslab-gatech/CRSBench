@@ -1,0 +1,17 @@
+diff --git a/epan/dissectors/packet-ber.c b/epan/dissectors/packet-ber.c
+index ce979681ee..634afb4f2e 100644
+--- a/epan/dissectors/packet-ber.c
++++ b/epan/dissectors/packet-ber.c
+@@ -3188,10 +3188,11 @@ dissect_ber_GeneralString(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int
+             tvb_len = tvb_get_uint8(tvb, offset);
+             if ((unsigned)tvb_len >= name_len) {
+                 tvb_memcpy(out_tvb, (uint8_t*)name_string, 0, name_len-1);
++                name_string[name_len-1] = '\0';
+             } else {
+                 tvb_memcpy(out_tvb, (uint8_t*)name_string, 0, tvb_len);
++                name_string[tvb_len] = '\0';
+             }
+-            name_string[tvb_len] = '\0';
+         }
+     }
+ 

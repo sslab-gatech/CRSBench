@@ -1,0 +1,69 @@
+diff --git a/tika-core/src/main/java/org/apache/tika/detect/ShellCodeDetector.java b/tika-core/src/main/java/org/apache/tika/detect/ShellCodeDetector.java
+index 402fef32a..b197d9083 100644
+--- a/tika-core/src/main/java/org/apache/tika/detect/ShellCodeDetector.java
++++ b/tika-core/src/main/java/org/apache/tika/detect/ShellCodeDetector.java
+@@ -20,25 +20,14 @@ import java.io.EOFException;
+ import java.io.IOException;
+ import java.io.InputStream;
+ import java.nio.charset.StandardCharsets;
+-import java.nio.file.Files;
+-import java.nio.file.Path;
+-import java.nio.file.Paths;
+-import java.nio.file.StandardCopyOption;
+ import java.util.Locale;
+ 
+-import org.apache.commons.io.FileUtils;
+-import org.apache.commons.io.FilenameUtils;
+ import org.apache.commons.io.IOUtils;
+-import org.apache.commons.io.input.CloseShieldInputStream;
+ 
+-import org.apache.tika.io.TikaInputStream;
+ import org.apache.tika.metadata.Metadata;
+ import org.apache.tika.metadata.Property;
+ import org.apache.tika.metadata.TikaCoreProperties;
+ import org.apache.tika.mime.MediaType;
+-import org.apache.tika.utils.FileProcessResult;
+-import org.apache.tika.utils.ProcessUtils;
+-import org.apache.tika.utils.StringUtils;
+ 
+ /**
+  * Simple detector to determine if a shell script is no-arg shell script.
+@@ -77,37 +66,7 @@ public class ShellCodeDetector implements Detector {
+         } finally {
+             input.reset();
+         }
+-        if (! isShell) {
+-            return MediaType.OCTET_STREAM;
+-        }
+-        String fileName = metadata.get(TikaCoreProperties.RESOURCE_NAME_KEY);
+-        if (StringUtils.isBlank(fileName)) {
+-            return isShell(isShell);
+-        }
+-        //now test for no-arg shell script
+-        TikaInputStream tis = TikaInputStream.get(CloseShieldInputStream.wrap(input));
+-        fileName = FilenameUtils.getName(fileName);
+-        fileName = fileName.replaceAll("[^-_0-9A-Za-z.]+", "");
+-        fileName = fileName.replaceAll("\\.\\.", "");
+-
+-        if (fileName.length() > MAX_LENGTH) {
+-            fileName = fileName.substring(fileName.length() - MAX_LENGTH);
+-        }
+-        Path cwd = Paths.get(".").toAbsolutePath().normalize();
+-        Path tmpDir = Files.createTempDirectory(cwd, "tika-shell-detect-");
+-        Path tmpFile = tmpDir.resolve(fileName);
+-        Files.copy(tis.getPath(), tmpFile, StandardCopyOption.REPLACE_EXISTING);
+-        ProcessBuilder pb = new ProcessBuilder(fileName);
+-        pb.directory(tmpDir.toFile());
+-        try {
+-            FileProcessResult result = ProcessUtils.execute(pb, 20000, 100000, 100000);
+-            if (result.getExitValue() == 0) {
+-                metadata.set(SHELL_NO_ARGS, true);
+-            }
+-        } finally {
+-            FileUtils.deleteDirectory(tmpDir.toFile());
+-        }
+-        return SHELL_SCRIPT;
++        return isShell(isShell);
+     }
+ 
+     private MediaType isShell(boolean isShell) {

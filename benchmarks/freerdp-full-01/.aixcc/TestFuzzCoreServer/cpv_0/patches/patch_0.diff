@@ -1,0 +1,27 @@
+diff --git a/libfreerdp/core/gcc.c b/libfreerdp/core/gcc.c
+index d135d8353..5b221a156 100644
+--- a/libfreerdp/core/gcc.c
++++ b/libfreerdp/core/gcc.c
+@@ -1856,6 +1856,9 @@ BOOL gcc_read_client_network_data(wStream* s, rdpMcs* mcs)
+ 
+ 	Stream_Read_UINT8(s, mcs->channelCount); /* channelCount */
+ 
++	if ((UINT8)mcs->channelCount > CHANNEL_MAX_COUNT)
++		return FALSE;
++
+ 	if (blockLength < 4 + (UINT8)mcs->channelCount * 12)
+ 		return FALSE;
+ 
+diff --git a/libfreerdp/core/mcs.h b/libfreerdp/core/mcs.h
+index 2cce0e4b2..1e7a93a0b 100644
+--- a/libfreerdp/core/mcs.h
++++ b/libfreerdp/core/mcs.h
+@@ -144,7 +144,7 @@ struct rdp_mcs
+ 	BOOL globalChannelJoined;
+ 	BOOL messageChannelJoined;
+ 
+-	INT8 channelCount;
++	UINT8 channelCount;
+ 	rdpMcsChannel* channels;
+ };
+ 

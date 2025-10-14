@@ -1,0 +1,13 @@
+diff --git a/src/cmsps2.c b/src/cmsps2.c
+index cb2db85..e3f5362 100644
+--- a/src/cmsps2.c
++++ b/src/cmsps2.c
+@@ -792,7 +792,7 @@ int EmitCIEBasedDEF(cmsIOHANDLER* m, cmsPipeline* Pipeline, cmsUInt32Number Inte
+         mpe = mpe ->Next;
+     }
+ 
+-    if (cmsStageType(mpe) == cmsSigCLutElemType) {
++    if (mpe && cmsStageType(mpe) == cmsSigCLutElemType) {
+ 
+             _cmsIOPrintf(m, "/Table ");
+             WriteCLUT(m, mpe, PreMaj, PostMaj, PreMin, PostMin, FALSE, (cmsColorSpaceSignature) 0);

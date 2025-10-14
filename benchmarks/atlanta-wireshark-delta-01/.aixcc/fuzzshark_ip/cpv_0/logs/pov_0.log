@@ -1,0 +1,127 @@
++ FUZZER=fuzzshark_ip
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer fuzzshark_ip -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/fuzzshark_ip -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -max_len=1024 < /dev/null
+oss-fuzzshark: disabling: udp
+oss-fuzzshark: disabling: udplite
+oss-fuzzshark: disabling: ospf
+oss-fuzzshark: disabling: bgp
+oss-fuzzshark: disabling: dhcp
+oss-fuzzshark: disabling: json
+oss-fuzzshark: disabling: snort
+oss-fuzzshark: configured for dissector: ip
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 4238228391
+INFO: Loaded 1 modules   (402129 inline 8-bit counters): 402129 [0xa210830, 0xa272b01), 
+INFO: Loaded 1 PC tables (402129 PCs): 402129 [0xa272b08,0xa895818), 
+/out/fuzzshark_ip: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+==18==ERROR: AddressSanitizer: global-buffer-overflow on address 0x0000107b1400 at pc 0x0000016faced bp 0x7ffff29a3ff0 sp 0x7ffff29a3fe8
+READ of size 4 at 0x0000107b1400 thread T0
+SCARINESS: 17 (4-byte-read-global-buffer-overflow)
+    #0 0x16facec in dissect_osi_options /src/cp-c-wireshark/epan/dissectors/packet-osi-options.c:519:16
+    #1 0xf02334 in esis_dissect_esh_pdu /src/cp-c-wireshark/epan/dissectors/packet-esis.c:149:5
+    #2 0xf02334 in dissect_esis /src/cp-c-wireshark/epan/dissectors/packet-esis.c:300:5
+    #3 0x71546f in call_dissector_through_handle /src/cp-c-wireshark/epan/packet.c:858:9
+    #4 0x71546f in call_dissector_work /src/cp-c-wireshark/epan/packet.c:944:9
+    #5 0x715a61 in dissector_try_uint_new /src/cp-c-wireshark/epan/packet.c:1612:8
+    #6 0x715a61 in dissector_try_uint /src/cp-c-wireshark/epan/packet.c:1636:9
+    #7 0x16fce86 in dissect_osi /src/cp-c-wireshark/epan/dissectors/packet-osi.c:460:7
+    #8 0x71546f in call_dissector_through_handle /src/cp-c-wireshark/epan/packet.c:858:9
+    #9 0x71546f in call_dissector_work /src/cp-c-wireshark/epan/packet.c:944:9
+    #10 0x715a61 in dissector_try_uint_new /src/cp-c-wireshark/epan/packet.c:1612:8
+    #11 0x715a61 in dissector_try_uint /src/cp-c-wireshark/epan/packet.c:1636:9
+    #12 0x13ccdcc in dissect_llc /src/cp-c-wireshark/epan/dissectors/packet-llc.c:448:10
+    #13 0x71546f in call_dissector_through_handle /src/cp-c-wireshark/epan/packet.c:858:9
+    #14 0x71546f in call_dissector_work /src/cp-c-wireshark/epan/packet.c:944:9
+    #15 0x711f5a in call_dissector_only /src/cp-c-wireshark/epan/packet.c:3546:8
+    #16 0x711f5a in call_dissector_with_data /src/cp-c-wireshark/epan/packet.c:3559:8
+    #17 0x120f9cc in dissect_802_3 /src/cp-c-wireshark/epan/dissectors/packet-ieee8023.c
+    #18 0xf077ae in dissect_eth_common /src/cp-c-wireshark/epan/dissectors/packet-eth.c:539:5
+    #19 0xf05b99 in dissect_eth_withoutfcs /src/cp-c-wireshark/epan/dissectors/packet-eth.c:985:3
+    #20 0x71546f in call_dissector_through_handle /src/cp-c-wireshark/epan/packet.c:858:9
+    #21 0x71546f in call_dissector_work /src/cp-c-wireshark/epan/packet.c:944:9
+    #22 0x711f5a in call_dissector_only /src/cp-c-wireshark/epan/packet.c:3546:8
+    #23 0x711f5a in call_dissector_with_data /src/cp-c-wireshark/epan/packet.c:3559:8
+    #24 0xf08d27 in dissect_etherip /src/cp-c-wireshark/epan/dissectors/packet-etherip.c:76:3
+    #25 0x71546f in call_dissector_through_handle /src/cp-c-wireshark/epan/packet.c:858:9
+    #26 0x71546f in call_dissector_work /src/cp-c-wireshark/epan/packet.c:944:9
+    #27 0x714ee8 in dissector_try_uint_new /src/cp-c-wireshark/epan/packet.c:1612:8
+    #28 0x122da00 in ip_try_dissect /src/cp-c-wireshark/epan/dissectors/packet-ip.c:1832:7
+    #29 0x12712d0 in ipv6_dissect_next /src/cp-c-wireshark/epan/dissectors/packet-ipv6.c:3757:9
+    #30 0x1273f8e in dissect_ipv6 /src/cp-c-wireshark/epan/dissectors/packet-ipv6.c:3683:9
+    #31 0x71546f in call_dissector_through_handle /src/cp-c-wireshark/epan/packet.c:858:9
+    #32 0x71546f in call_dissector_work /src/cp-c-wireshark/epan/packet.c:944:9
+    #33 0x711f5a in call_dissector_only /src/cp-c-wireshark/epan/packet.c:3546:8
+    #34 0x711f5a in call_dissector_with_data /src/cp-c-wireshark/epan/packet.c:3559:8
+    #35 0x71546f in call_dissector_through_handle /src/cp-c-wireshark/epan/packet.c:858:9
+    #36 0x71546f in call_dissector_work /src/cp-c-wireshark/epan/packet.c:944:9
+    #37 0x71f540 in call_dissector_only /src/cp-c-wireshark/epan/packet.c:3546:8
+    #38 0x71f540 in call_all_postdissectors /src/cp-c-wireshark/epan/packet.c:4009:3
+    #39 0xf89761 in dissect_frame /src/cp-c-wireshark/epan/dissectors/packet-frame.c:1436:5
+    #40 0x71546f in call_dissector_through_handle /src/cp-c-wireshark/epan/packet.c:858:9
+    #41 0x71546f in call_dissector_work /src/cp-c-wireshark/epan/packet.c:944:9
+    #42 0x711f5a in call_dissector_only /src/cp-c-wireshark/epan/packet.c:3546:8
+    #43 0x711f5a in call_dissector_with_data /src/cp-c-wireshark/epan/packet.c:3559:8
+    #44 0x711928 in dissect_record /src/cp-c-wireshark/epan/packet.c:662:3
+    #45 0x704224 in epan_dissect_run /src/cp-c-wireshark/epan/epan.c:635:2
+    #46 0x5971c6 in LLVMFuzzerTestOneInput /src/cp-c-wireshark/fuzz/fuzzshark.c:382:2
+    #47 0x44bb70 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #48 0x436de5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #49 0x43c87f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #50 0x467b22 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #51 0x7f36d1bce082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+    #52 0x42efcd in _start (/out/fuzzshark_ip+0x42efcd)
+
+DEDUP_TOKEN: dissect_osi_options--esis_dissect_esh_pdu--dissect_esis
+0x0000107b1400 is located 32 bytes before global variable 'hf_clnp_id' defined in '/src/cp-c-wireshark/epan/dissectors/packet-clnp.c:37' (0x107b1420) of size 4
+0x0000107b1401 is located 0 bytes after global variable 'clnp_decode_atn_options' defined in '/src/cp-c-wireshark/epan/dissectors/packet-clnp.c:188' (0x107b1400) of size 1
+  'clnp_decode_atn_options' is ascii string ''
+SUMMARY: AddressSanitizer: global-buffer-overflow /src/cp-c-wireshark/epan/dissectors/packet-osi-options.c:519:16 in dissect_osi_options
+Shadow bytes around the buggy address:
+  0x0000107b1180: 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9
+  0x0000107b1200: 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9
+  0x0000107b1280: 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9
+  0x0000107b1300: 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9
+  0x0000107b1380: 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9
+=>0x0000107b1400:[01]f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9
+  0x0000107b1480: 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9
+  0x0000107b1500: 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9
+  0x0000107b1580: 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9
+  0x0000107b1600: 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9
+  0x0000107b1680: 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9 04 f9 f9 f9
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==18==ABORTING
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+0x61,0x20,0x20,0x20,0x20,0x20,0x61,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x2,0x20,0x20,0x20,0x20,0x20,0x82,0x20,0x20,0x20,0x2,0x20,0x20,0x20,0x20,0x0,0xc5,0x20,0x20,
+a     a                                               \002     \202   \002    \000\305  
+subprocess command returned a non-zero exit status: 1

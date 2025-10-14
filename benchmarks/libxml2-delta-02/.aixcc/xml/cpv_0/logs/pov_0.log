@@ -1,0 +1,79 @@
+INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /home/jhkim/1.AIxCC/oss-fuzz/build/out/aixcc/c/r3-libxml2-delta-02:/out -v /home/jhkim/1.AIxCC/oss-fuzz/projects/aixcc/c/r3-libxml2-delta-02/.aixcc/povs/xml/cpv_0:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.2.1 reproduce xml -runs=100.
++ FUZZER=xml
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer xml -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/xml -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -timeout_exitcode=0 -dict=xml.dict < /dev/null
+Dictionary: 104 entries
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 2612719931
+INFO: Loaded 1 modules   (49711 inline 8-bit counters): 49711 [0x556ab38537f8, 0x556ab385fa27), 
+INFO: Loaded 1 PC tables (49711 PCs): 49711 [0x556ab385fa28,0x556ab3921d18), 
+/out/xml: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+[1m[31m==18==ERROR: AddressSanitizer: attempting double-free on 0x5020000008b0 in thread T0:
+[1m[0mSCARINESS: 42 (double-free)
+    #0 0x556ab342ef46 in free /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:52:3
+    #1 0x556ab34d5a1f in xmlParseAttribute2 /src/libxml2/parser.c:9028:13
+    #2 0x556ab34d5a1f in xmlParseStartTag2 /src/libxml2/parser.c:9233:13
+    #3 0x556ab34b88bc in xmlParseElementStart /src/libxml2/parser.c:10136:16
+    #4 0x556ab34b7b3c in xmlParseElement /src/libxml2/parser.c:10071:9
+    #5 0x556ab34bf62a in xmlParseDocument /src/libxml2/parser.c:10902:2
+    #6 0x556ab34cf9f0 in xmlCtxtParseDocument /src/libxml2/parser.c:13988:5
+    #7 0x556ab346ea4f in LLVMFuzzerTestOneInput /src/libxml2/fuzz/xml.c:68:15
+    #8 0x556ab3323410 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #9 0x556ab330e685 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #10 0x556ab331411f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #11 0x556ab333f3c2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #12 0x7ff62a100082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #13 0x556ab330686d in _start (/out/xml+0x1aa86d)
+
+DEDUP_TOKEN: __interceptor_free--xmlParseAttribute2--xmlParseStartTag2
+[1m[32m0x5020000008b0 is located 0 bytes inside of 9-byte region [0x5020000008b0,0x5020000008b9)
+[1m[0m[1m[35mfreed by thread T0 here:[1m[0m
+    #0 0x556ab342ef46 in free /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:52:3
+    #1 0x556ab34d71c4 in xmlParseAttribute2 /src/libxml2/parser.c:9024:17
+    #2 0x556ab34d71c4 in xmlParseStartTag2 /src/libxml2/parser.c:9233:13
+    #3 0x556ab34b88bc in xmlParseElementStart /src/libxml2/parser.c:10136:16
+    #4 0x556ab34b7b3c in xmlParseElement /src/libxml2/parser.c:10071:9
+    #5 0x556ab34bf62a in xmlParseDocument /src/libxml2/parser.c:10902:2
+    #6 0x556ab34cf9f0 in xmlCtxtParseDocument /src/libxml2/parser.c:13988:5
+    #7 0x556ab346ea4f in LLVMFuzzerTestOneInput /src/libxml2/fuzz/xml.c:68:15
+    #8 0x556ab3323410 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #9 0x556ab330e685 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #10 0x556ab331411f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #11 0x556ab333f3c2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #12 0x7ff62a100082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_free--xmlParseAttribute2--xmlParseStartTag2
+[1m[35mpreviously allocated by thread T0 here:[1m[0m
+    #0 0x556ab342f1df in malloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:68:3
+    #1 0x556ab346f018 in xmlFuzzMalloc /src/libxml2/fuzz/fuzz.c:127:11
+    #2 0x556ab35601ce in xmlStrndup /src/libxml2/xmlstring.c:57:11
+    #3 0x556ab34d5970 in xmlParseAttribute2 /src/libxml2/parser.c:9009:28
+    #4 0x556ab34d5970 in xmlParseStartTag2 /src/libxml2/parser.c:9233:13
+    #5 0x556ab34b88bc in xmlParseElementStart /src/libxml2/parser.c:10136:16
+    #6 0x556ab34b7b3c in xmlParseElement /src/libxml2/parser.c:10071:9
+    #7 0x556ab34bf62a in xmlParseDocument /src/libxml2/parser.c:10902:2
+    #8 0x556ab34cf9f0 in xmlCtxtParseDocument /src/libxml2/parser.c:13988:5
+    #9 0x556ab346ea4f in LLVMFuzzerTestOneInput /src/libxml2/fuzz/xml.c:68:15
+    #10 0x556ab3323410 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #11 0x556ab330e685 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #12 0x556ab331411f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #13 0x556ab333f3c2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #14 0x7ff62a100082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_malloc--xmlFuzzMalloc--xmlStrndup
+SUMMARY: AddressSanitizer: double-free /src/libxml2/parser.c:9028:13 in xmlParseAttribute2
+==18==ABORTING
+subprocess command returned a non-zero exit status: 1

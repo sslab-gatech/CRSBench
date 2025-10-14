@@ -1,0 +1,13 @@
+diff --git a/epan/dissectors/packet-irc.c b/epan/dissectors/packet-irc.c
+index 481a619eca..6af84ba581 100644
+--- a/epan/dissectors/packet-irc.c
++++ b/epan/dissectors/packet-irc.c
+@@ -560,7 +560,7 @@
+          }
+  
+          memset(channel_name, 0, CHANNELLEN+1);
+-         tvb_memcpy(tvb, channel_name, start_offset, length);
++         tvb_memcpy(tvb, channel_name, start_offset, (end_offset-start_offset < CHANNELLEN) ? end_offset-start_offset : CHANNELLEN);
+          proto_item_append_text(tree, "Channel: %s", channel_name);
+  
+          proto_tree_add_item(tree, hf_irc_request_command_names_channel, tvb, start_offset, end_offset-start_offset, ENC_ASCII);

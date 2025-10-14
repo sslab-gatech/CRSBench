@@ -1,0 +1,14 @@
+diff --git a/src/main/java/org/htmlunit/javascript/host/xml/XSLTProcessor.java b/src/main/java/org/htmlunit/javascript/host/xml/XSLTProcessor.java
+index 0eb0ce596c..2abdf8eee8 100644
+--- a/src/main/java/org/htmlunit/javascript/host/xml/XSLTProcessor.java
++++ b/src/main/java/org/htmlunit/javascript/host/xml/XSLTProcessor.java
+@@ -128,6 +128,8 @@ public class XSLTProcessor extends HtmlUnitScriptable {
+      */
+     private void configureTransformerFactory(TransformerFactory factory)
+         throws TransformerConfigurationException {
++        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
++
+         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "file");
+         factory.setURIResolver(new AllowlistURIResolver());
+ 
+

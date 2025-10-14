@@ -1,0 +1,13 @@
+diff --git a/src/json.c b/src/json.c
+index 2a91900..8221d25 100644
+--- a/src/json.c
++++ b/src/json.c
+@@ -615,7 +615,7 @@ json_value * json_parse_ex (json_settings * settings,
+ 
+                      case 'f':
+ 
+-                        if ((end - state.ptr) < 4 || *(++ state.ptr) != 'a' ||
++                        if ((end - state.ptr) < 5 || *(++ state.ptr) != 'a' ||
+                             *(++ state.ptr) != 'l' || *(++ state.ptr) != 's' ||
+                             *(++ state.ptr) != 'e')
+                         {

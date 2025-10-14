@@ -1,0 +1,237 @@
++ FUZZER=MailApiHarnessOne
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer MailApiHarnessOne -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/MailApiHarnessOne -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase < /dev/null
+OpenJDK 64-Bit Server VM warning: Option CriticalJNINatives was deprecated in version 16.0 and will likely be removed in a future release.
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+INFO: Loaded 265 hooks from com.code_intelligence.jazzer.runtime.TraceCmpHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.runtime.TraceDivHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.runtime.TraceIndirHooks
+INFO: Loaded 4 hooks from com.code_intelligence.jazzer.runtime.NativeLibHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.sanitizers.ClojureLangHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.Deserialization
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.ExpressionLanguageInjection
+INFO: Loaded 32 hooks from com.code_intelligence.jazzer.sanitizers.FilePathTraversal
+INFO: Loaded 70 hooks from com.code_intelligence.jazzer.sanitizers.LdapInjection
+INFO: Loaded 46 hooks from com.code_intelligence.jazzer.sanitizers.NamingContextLookup
+INFO: Loaded 1 hooks from com.code_intelligence.jazzer.sanitizers.OsCommandInjection
+INFO: Loaded 48 hooks from com.code_intelligence.jazzer.sanitizers.ReflectiveCall
+INFO: Loaded 8 hooks from com.code_intelligence.jazzer.sanitizers.RegexInjection
+INFO: Loaded 16 hooks from com.code_intelligence.jazzer.sanitizers.RegexRoadblocks
+INFO: Loaded 12 hooks from com.code_intelligence.jazzer.sanitizers.ScriptEngineInjection
+INFO: Loaded 3 hooks from com.code_intelligence.jazzer.sanitizers.ServerSideRequestForgery
+INFO: Loaded 19 hooks from com.code_intelligence.jazzer.sanitizers.SqlInjection
+INFO: Loaded 6 hooks from com.code_intelligence.jazzer.sanitizers.XPathInjection
+INFO: Instrumented com.aixcc.mailapi.harnesses.one.MailApiHarnessOne (took 61 ms, size +7%)
+INFO: using inputs from: /testcase
+INFO: found LLVMFuzzerCustomMutator (0x7ff89f769a00). Disabling -len_control by default.
+INFO: libFuzzer ignores flags that start with '--'
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 2419119394
+INFO: Loaded 1 modules   (512 inline 8-bit counters): 512 [0x5575129256c0, 0x5575129258c0), 
+INFO: Loaded 1 PC tables (512 PCs): 512 [0x557512902900,0x557512904900), 
+jazzer: Running 1 inputs 100 time(s) each.
+Running: /testcase
+INFO: Instrumented jakarta.mail.internet.MimeMessage (took 64 ms, size +16%)
+INFO: Instrumented jakarta.mail.internet.MimePart (took 0 ms, size +0%)
+INFO: Instrumented jakarta.mail.Part (took 1 ms, size +0%)
+INFO: Instrumented jakarta.mail.Message (took 7 ms, size +8%)
+INFO: Instrumented jakarta.mail.MethodNotSupportedException (took 1 ms, size +15%)
+INFO: Instrumented jakarta.mail.MessagingException (took 3 ms, size +20%)
+INFO: Instrumented jakarta.mail.FolderClosedException (took 2 ms, size +11%)
+INFO: Instrumented jakarta.mail.MessageRemovedException (took 1 ms, size +15%)
+INFO: New number of coverage counters: 1024
+INFO: Instrumented jakarta.activation.DataHandler (took 13 ms, size +11%)
+INFO: Instrumented jakarta.mail.internet.MimeBodyPart$MimePartDataHandler (took 1 ms, size +22%)
+INFO: Instrumented jakarta.mail.Address (took 0 ms, size +20%)
+INFO: New number of coverage counters: 2048
+INFO: Instrumented jakarta.mail.internet.InternetAddress (took 35 ms, size +52%)
+INFO: Instrumented jakarta.mail.Message$RecipientType (took 4 ms, size +64%)
+INFO: Instrumented jakarta.mail.internet.MimeMessage$RecipientType (took 1 ms, size +70%)
+INFO: Instrumented jakarta.mail.internet.NewsAddress (took 6 ms, size +44%)
+INFO: Instrumented jakarta.mail.internet.MailDateFormat (took 6 ms, size +10%)
+INFO: Instrumented jakarta.mail.Flags (took 9 ms, size +36%)
+INFO: Instrumented jakarta.mail.Flags$Flag (took 1 ms, size +16%)
+INFO: Instrumented jakarta.mail.internet.InternetHeaders (took 8 ms, size +36%)
+INFO: New number of coverage counters: 4096
+INFO: Instrumented jakarta.mail.internet.MimeUtility (took 25 ms, size +47%)
+INFO: Instrumented jakarta.mail.internet.AsciiOutputStream (took 2 ms, size +38%)
+INFO: Instrumented jakarta.mail.internet.ParseException (took 0 ms, size +19%)
+INFO: Instrumented jakarta.mail.util.StreamProvider (took 0 ms, size +7%)
+INFO: Instrumented jakarta.mail.util.FactoryFinder (took 4 ms, size +31%)
+INFO: Instrumented org.eclipse.angus.mail.util.MailStreamProvider (took 12 ms, size +6%)
+INFO: Instrumented jakarta.mail.util.LineOutputStream (took 0 ms, size +0%)
+INFO: Instrumented jakarta.mail.util.SharedByteArrayInputStream (took 1 ms, size +25%)
+INFO: Instrumented jakarta.mail.internet.SharedInputStream (took 0 ms, size +0%)
+INFO: Instrumented org.eclipse.angus.mail.util.BEncoderStream (took 0 ms, size +15%)
+INFO: Instrumented org.eclipse.angus.mail.util.BASE64EncoderStream (took 4 ms, size +24%)
+INFO: Instrumented org.eclipse.angus.mail.util.QEncoderStream (took 1 ms, size +61%)
+INFO: Instrumented org.eclipse.angus.mail.util.QPEncoderStream (took 3 ms, size +30%)
+INFO: Instrumented org.eclipse.angus.mail.util.QDecoderStream (took 1 ms, size +22%)
+INFO: Instrumented org.eclipse.angus.mail.util.QPDecoderStream (took 2 ms, size +35%)
+INFO: Instrumented jakarta.mail.util.LineInputStream (took 0 ms, size +0%)
+INFO: Instrumented org.eclipse.angus.mail.util.BASE64DecoderStream (took 4 ms, size +27%)
+INFO: Instrumented org.eclipse.angus.mail.util.UUDecoderStream (took 3 ms, size +46%)
+INFO: Instrumented org.eclipse.angus.mail.util.UUEncoderStream (took 3 ms, size +16%)
+INFO: Instrumented org.eclipse.angus.mail.util.LineInputStream (took 1 ms, size +26%)
+INFO: Instrumented org.eclipse.angus.mail.util.PropUtil (took 3 ms, size +38%)
+INFO: Instrumented jakarta.mail.internet.InternetHeaders$InternetHeader (took 1 ms, size +57%)
+INFO: Instrumented jakarta.mail.Header (took 1 ms, size +65%)
+INFO: Instrumented jakarta.mail.internet.InternetHeaders$MatchStringEnum (took 1 ms, size +8%)
+INFO: Instrumented jakarta.mail.internet.InternetHeaders$MatchEnum (took 1 ms, size +33%)
+INFO: Instrumented jakarta.mail.Session (took 17 ms, size +26%)
+INFO: Instrumented jakarta.mail.NoSuchProviderException (took 0 ms, size +15%)
+INFO: Instrumented jakarta.mail.StreamLoader (took 0 ms, size +0%)
+INFO: Instrumented jakarta.mail.Session$1 (took 0 ms, size +20%)
+INFO: Instrumented jakarta.mail.MailLogger (took 5 ms, size +22%)
+INFO: Instrumented jakarta.mail.Session$2 (took 0 ms, size +13%)
+INFO: Instrumented jakarta.mail.Session$5 (took 1 ms, size +19%)
+INFO: Instrumented jakarta.mail.Provider (took 1 ms, size +10%)
+INFO: Instrumented org.eclipse.angus.mail.imap.IMAPProvider (took 0 ms, size +12%)
+INFO: Instrumented jakarta.mail.Provider$Type (took 0 ms, size +16%)
+INFO: New number of coverage counters: 8192
+INFO: Instrumented org.eclipse.angus.mail.imap.IMAPStore (took 22 ms, size +25%)
+INFO: Instrumented jakarta.mail.QuotaAwareStore (took 0 ms, size +0%)
+INFO: Instrumented org.eclipse.angus.mail.iap.ResponseHandler (took 0 ms, size +0%)
+INFO: Instrumented jakarta.mail.Store (took 2 ms, size +9%)
+INFO: Instrumented jakarta.mail.Service (took 6 ms, size +29%)
+INFO: Instrumented org.eclipse.angus.mail.util.DefaultProvider (took 0 ms, size +0%)
+INFO: Instrumented org.eclipse.angus.mail.imap.IMAPSSLProvider (took 0 ms, size +12%)
+INFO: Instrumented org.eclipse.angus.mail.imap.IMAPSSLStore (took 0 ms, size +17%)
+INFO: Instrumented org.eclipse.angus.mail.smtp.SMTPProvider (took 0 ms, size +12%)
+INFO: Instrumented org.eclipse.angus.mail.smtp.SMTPTransport (took 33 ms, size +28%)
+INFO: Instrumented jakarta.mail.Transport (took 3 ms, size +25%)
+INFO: Instrumented org.eclipse.angus.mail.smtp.SMTPSSLProvider (took 0 ms, size +13%)
+INFO: Instrumented org.eclipse.angus.mail.smtp.SMTPSSLTransport (took 0 ms, size +16%)
+INFO: Instrumented org.eclipse.angus.mail.pop3.POP3Provider (took 0 ms, size +12%)
+INFO: Instrumented org.eclipse.angus.mail.pop3.POP3Store (took 6 ms, size +21%)
+INFO: Instrumented org.eclipse.angus.mail.pop3.POP3SSLProvider (took 0 ms, size +12%)
+INFO: Instrumented org.eclipse.angus.mail.pop3.POP3SSLStore (took 0 ms, size +17%)
+INFO: Instrumented jakarta.mail.Session$4 (took 0 ms, size +13%)
+INFO: Instrumented jakarta.mail.Session$7 (took 0 ms, size +20%)
+INFO: Instrumented jakarta.mail.Session$9 (took 0 ms, size +11%)
+INFO: Instrumented jakarta.mail.Session$6 (took 0 ms, size +9%)
+INFO: Instrumented jakarta.mail.Session$3 (took 0 ms, size +12%)
+INFO: Instrumented jakarta.mail.EventQueue (took 1 ms, size +21%)
+INFO: Instrumented jakarta.mail.event.MailEvent (took 0 ms, size +21%)
+INFO: Instrumented jakarta.mail.EventQueue$TerminatorEvent (took 0 ms, size +13%)
+INFO: Instrumented org.eclipse.angus.mail.util.LineOutputStream (took 1 ms, size +19%)
+INFO: Instrumented org.eclipse.angus.mail.util.ASCIIUtility (took 3 ms, size +25%)
+INFO: Instrumented jakarta.activation.DataSource (took 0 ms, size +0%)
+INFO: Instrumented jakarta.activation.UnsupportedDataTypeException (took 0 ms, size +18%)
+INFO: Instrumented jakarta.activation.DataContentHandler (took 0 ms, size +0%)
+INFO: Instrumented jakarta.activation.MimeTypeParseException (took 0 ms, size +19%)
+INFO: Instrumented jakarta.activation.ActivationDataFlavor (took 3 ms, size +29%)
+INFO: Instrumented jakarta.mail.internet.MimePartDataSource (took 1 ms, size +15%)
+INFO: Instrumented jakarta.mail.MessageAware (took 0 ms, size +0%)
+INFO: Instrumented jakarta.mail.internet.MimeUtil (took 1 ms, size +41%)
+INFO: Instrumented jakarta.mail.Multipart (took 2 ms, size +14%)
+INFO: Instrumented jakarta.mail.internet.MimeBodyPart (took 15 ms, size +23%)
+INFO: Instrumented jakarta.mail.BodyPart (took 0 ms, size +15%)
+INFO: Instrumented jakarta.mail.internet.ContentType (took 3 ms, size +34%)
+INFO: Instrumented jakarta.mail.internet.HeaderTokenizer (took 5 ms, size +38%)
+INFO: Instrumented jakarta.mail.internet.HeaderTokenizer$Token (took 0 ms, size +12%)
+INFO: Instrumented jakarta.activation.MimeType (took 4 ms, size +45%)
+INFO: Instrumented jakarta.activation.MimeTypeParameterList (took 4 ms, size +37%)
+INFO: Instrumented jakarta.activation.CommandMap (took 1 ms, size +16%)
+INFO: Instrumented jakarta.activation.MailcapCommandMap (took 8 ms, size +33%)
+INFO: Instrumented jakarta.activation.SecuritySupport (took 1 ms, size +7%)
+INFO: Instrumented jakarta.activation.SecuritySupport$1 (took 0 ms, size +12%)
+INFO: Instrumented jakarta.activation.MailcapCommandMap$1 (took 1 ms, size +19%)
+INFO: Instrumented jakarta.activation.LogSupport (took 1 ms, size +22%)
+INFO: Instrumented jakarta.activation.spi.MailcapRegistryProvider (took 0 ms, size +0%)
+INFO: Instrumented jakarta.activation.FactoryFinder (took 2 ms, size +21%)
+INFO: Instrumented jakarta.activation.ServiceLoaderUtil$ExceptionHandler (took 0 ms, size +12%)
+INFO: Instrumented jakarta.activation.FactoryFinder$1 (took 1 ms, size +10%)
+INFO: Instrumented jakarta.activation.FactoryFinder$3 (took 1 ms, size +19%)
+INFO: Instrumented jakarta.activation.FactoryFinder$2 (took 0 ms, size +12%)
+INFO: Instrumented jakarta.activation.ServiceLoaderUtil (took 1 ms, size +28%)
+INFO: Instrumented org.eclipse.angus.activation.MailcapRegistryProviderImpl (took 0 ms, size +10%)
+INFO: Instrumented jakarta.activation.MailcapRegistry (took 0 ms, size +0%)
+INFO: Instrumented org.eclipse.angus.activation.MailcapFile (took 6 ms, size +40%)
+INFO: Instrumented org.eclipse.angus.activation.MailcapParseException (took 1 ms, size +18%)
+INFO: Instrumented org.eclipse.angus.activation.LogSupport (took 1 ms, size +21%)
+INFO: Instrumented jakarta.activation.SecuritySupport$3 (took 1 ms, size +20%)
+INFO: Instrumented jakarta.activation.SecuritySupport$5 (took 2 ms, size +11%)
+INFO: Instrumented org.eclipse.angus.activation.MailcapTokenizer (took 4 ms, size +24%)
+INFO: Instrumented jakarta.activation.SecuritySupport$2 (took 0 ms, size +9%)
+INFO: Instrumented org.eclipse.angus.mail.handlers.text_xml (took 1 ms, size +29%)
+INFO: Instrumented org.eclipse.angus.mail.handlers.text_plain (took 1 ms, size +11%)
+INFO: Instrumented org.eclipse.angus.mail.handlers.handler_base (took 0 ms, size +21%)
+INFO: Instrumented org.eclipse.angus.mail.handlers.text_plain$NoCloseOutputStream (took 0 ms, size +16%)
+INFO: Instrumented jakarta.activation.ObjectDataContentHandler (took 1 ms, size +13%)
+INFO: Instrumented org.xml.sax.ContentHandler (took 0 ms, size +9%)
+INFO: Instrumented org.xml.sax.ext.LexicalHandler (took 0 ms, size +0%)
+INFO: Instrumented org.xml.sax.ext.DeclHandler (took 0 ms, size +0%)
+INFO: Instrumented org.xml.sax.DTDHandler (took 0 ms, size +0%)
+INFO: Instrumented org.xml.sax.ErrorHandler (took 0 ms, size +0%)
+INFO: Instrumented org.xml.sax.helpers.AttributesImpl (took 7 ms, size +47%)
+INFO: Instrumented org.xml.sax.Attributes (took 0 ms, size +0%)
+INFO: Instrumented org.xml.sax.Parser (took 0 ms, size +0%)
+INFO: Instrumented org.xml.sax.XMLReader (took 0 ms, size +0%)
+INFO: Instrumented org.xml.sax.AttributeList (took 0 ms, size +0%)
+INFO: Instrumented org.xml.sax.ext.Attributes2 (took 0 ms, size +0%)
+INFO: Instrumented org.xml.sax.InputSource (took 3 ms, size +22%)
+INFO: Instrumented org.xml.sax.ext.Locator2 (took 0 ms, size +0%)
+INFO: Instrumented org.xml.sax.Locator (took 0 ms, size +0%)
+INFO: Instrumented org.xml.sax.SAXException (took 2 ms, size +11%)
+
+== Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF)
+Attempted connection to: jazzer.example.com:80
+Requests to destinations based on untrusted data could lead to exfiltration of sensitive data or exposure of internal services.
+
+If the fuzz test is expected to perform network connections, call com.code_intelligence.jazzer.api.BugDetectors#allowNetworkConnections at the beginning of your fuzz test and optionally provide a predicate matching the expected hosts.
+	at com.code_intelligence.jazzer.sanitizers.ServerSideRequestForgery.checkSsrf(ServerSideRequestForgery.java:127)
+	at com.code_intelligence.jazzer.sanitizers.ServerSideRequestForgery.checkSsrfSocket(ServerSideRequestForgery.java:71)
+	at java.base/java.net.Socket.connect(Socket.java:633)
+	at java.base/java.net.Socket.connect(Socket.java:583)
+	at java.base/sun.net.NetworkClient.doConnect(NetworkClient.java:183)
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:498)
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:603)
+	at java.base/sun.net.www.http.HttpClient.<init>(HttpClient.java:246)
+	at java.base/sun.net.www.http.HttpClient.New(HttpClient.java:351)
+	at java.base/sun.net.www.http.HttpClient.New(HttpClient.java:373)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1309)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1242)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1128)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:1057)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1665)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1589)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLEntityManager.setupCurrentEntity(XMLEntityManager.java:677)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLEntityManager.startEntity(XMLEntityManager.java:1397)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLEntityManager.startEntity(XMLEntityManager.java:1333)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanEntityReference(XMLDocumentFragmentScannerImpl.java:1859)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:3001)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:605)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:112)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:542)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:889)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:825)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:141)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1224)
+	at java.xml/com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:637)
+	at java.xml/com.sun.org.apache.xalan.internal.xsltc.trax.TransformerImpl.transformIdentity(TransformerImpl.java:668)
+	at java.xml/com.sun.org.apache.xalan.internal.xsltc.trax.TransformerImpl.transform(TransformerImpl.java:782)
+	at java.xml/com.sun.org.apache.xalan.internal.xsltc.trax.TransformerImpl.transform(TransformerImpl.java:397)
+	at org.eclipse.angus.mail.handlers.text_xml.writeTo(text_xml.java:95)
+	at jakarta.activation.ObjectDataContentHandler.writeTo(DataHandler.java:864)
+	at jakarta.activation.DataHandler.writeTo(DataHandler.java:291)
+	at jakarta.mail.internet.MimeUtility.getEncoding(MimeUtility.java:318)
+	at jakarta.mail.internet.MimeBodyPart.updateHeaders(MimeBodyPart.java:1562)
+	at jakarta.mail.internet.MimeMessage.updateHeaders(MimeMessage.java:2272)
+	at jakarta.mail.internet.MimeMessage.saveChanges(MimeMessage.java:2232)
+	at com.aixcc.mailapi.harnesses.one.MailApiHarnessOne.fuzzerTestOneInput(MailApiHarnessOne.java:27)
+DEDUP_TOKEN: 487003d450c0fad2
+== libFuzzer crashing input ==
+reproducer_path='.'; Java reproducer written to ./Crash_b788bde8dfefea63ddf7b985239e5cf56db7c9e9.java
+

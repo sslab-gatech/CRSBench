@@ -1,0 +1,13 @@
+diff --git a/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java b/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
+index e9cc0ff..54764e9 100644
+--- a/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
++++ b/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
+@@ -46,7 +46,7 @@ public class StateMonitor implements RootAction {
+         String name = request.getParameter("name");
+         String password = request.getParameter("password");
+         String pattern = "^[a-zA-Z]+$";
+-        if (!name.matches(pattern) &&
++        if (!name.matches(pattern) ||
+                 !password.matches(pattern)) {
+             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+             return;

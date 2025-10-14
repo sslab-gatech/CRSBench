@@ -1,0 +1,43 @@
+INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /home/jhkim/1.AIxCC/oss-fuzz/build/out/aixcc/c/faad2:/out -v /home/jhkim/1.AIxCC/oss-fuzz/projects/aixcc/c/faad2/.aixcc/povs/fuzz_decode_fixed/cpv_0:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.1.0 reproduce fuzz_decode_fixed -runs=100.
++ FUZZER=fuzz_decode_fixed
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer fuzz_decode_fixed -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/fuzz_decode_fixed -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 3612750998
+INFO: Loaded 1 modules   (6756 inline 8-bit counters): 6756 [0x56539b300730, 0x56539b302194),
+INFO: Loaded 1 PC tables (6756 PCs): 6756 [0x56539b302198,0x56539b31c7d8),
+/out/fuzz_decode_fixed: Running 1 inputs 100 time(s) each.
+Running: /testcase
+order: 6, coef_compress: 0, coef_res_bits: 3, table_index: 3
+order: 7, coef_compress: 1, coef_res_bits: 4, table_index: 0
+order: 7, coef_compress: 1, coef_res_bits: 4, table_index: 0
+libfaad/sbr_dct.c:816:17: runtime error: signed integer overflow: 232566383 + 2055740917 cannot be represented in type 'real_t' (aka 'int')
+    #0 0x56539b2bdcc5 in DST4_32 (/out/fuzz_decode_fixed+0x1c6cc5)
+    #1 0x56539b2b735d in sbr_qmf_synthesis_32 (/out/fuzz_decode_fixed+0x1c035d)
+    #2 0x56539b2a4f78 in sbrDecodeCoupleFrame (/out/fuzz_decode_fixed+0x1adf78)
+    #3 0x56539b2cbe80 in reconstruct_channel_pair (/out/fuzz_decode_fixed+0x1d4e80)
+    #4 0x56539b2c2b91 in decode_cpe syntax.c
+    #5 0x56539b2c1575 in raw_data_block (/out/fuzz_decode_fixed+0x1ca575)
+    #6 0x56539b296456 in aac_frame_decode decoder.c
+    #7 0x56539b2954de in LLVMFuzzerTestOneInput (/out/fuzz_decode_fixed+0x19e4de)
+    #8 0x56539b1d6680 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) cxa_noexception.cpp
+    #9 0x56539b1c0ca5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) cxa_noexception.cpp
+    #10 0x56539b1c673f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) cxa_noexception.cpp
+    #11 0x56539b1f2632 in main (/out/fuzz_decode_fixed+0xfb632)
+    #12 0x7fa35e5fe082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+    #13 0x56539b1b8e8d in _start (/out/fuzz_decode_fixed+0xc1e8d)
+
+DEDUP_TOKEN: DST4_32--sbr_qmf_synthesis_32--sbrDecodeCoupleFrame
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior libfaad/sbr_dct.c:816:17
+subprocess command returned a non-zero exit status: 1

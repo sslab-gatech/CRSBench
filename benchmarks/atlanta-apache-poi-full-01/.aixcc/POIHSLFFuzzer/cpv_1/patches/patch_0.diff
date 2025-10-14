@@ -1,0 +1,90 @@
+diff --git a/poi/src/main/java/org/apache/poi/ddf/EscherContainerRecord.java b/poi/src/main/java/org/apache/poi/ddf/EscherContainerRecord.java
+index 5d59a09..e343bd8 100644
+--- a/poi/src/main/java/org/apache/poi/ddf/EscherContainerRecord.java
++++ b/poi/src/main/java/org/apache/poi/ddf/EscherContainerRecord.java
+@@ -209,6 +209,11 @@ public final class EscherContainerRecord extends EscherRecord implements Iterabl
+             throw new IllegalStateException("Child records private data member has escaped");
+         }
+ 
++        if (childRecords.size() > MAX_NUMBER_OF_CHILDREN) {
++            throw new IllegalStateException("Cannot add more than " + MAX_NUMBER_OF_CHILDREN +
++                    " child records, you can use 'EscherRecord.setMaxNumberOfChildren()' to increase the allow size");
++        }
++
+         _childRecords.clear();
+         _childRecords.addAll(childRecords);
+     }
+@@ -262,6 +267,11 @@ public final class EscherContainerRecord extends EscherRecord implements Iterabl
+      * @param record the record to be added
+      */
+     public void addChildRecord(EscherRecord record) {
++        if (_childRecords.size() >= MAX_NUMBER_OF_CHILDREN) {
++            throw new IllegalStateException("Cannot add more than " + MAX_NUMBER_OF_CHILDREN +
++                    " child records, you can use 'EscherRecord.setMaxNumberOfChildren()' to increase the allow size");
++        }
++
+         _childRecords.add(record);
+     }
+ 
+diff --git a/poi/src/main/java/org/apache/poi/ddf/EscherRecord.java b/poi/src/main/java/org/apache/poi/ddf/EscherRecord.java
+index d1d7b0f..de5b95b 100644
+--- a/poi/src/main/java/org/apache/poi/ddf/EscherRecord.java
++++ b/poi/src/main/java/org/apache/poi/ddf/EscherRecord.java
+@@ -46,6 +46,8 @@ public abstract class EscherRecord implements Duplicatable, GenericRecord {
+     private short _recordId;
+ 
+     // arbitrarily selected; may need to increase
++    private static final int DEFAULT_MAX_NUMBER_OF_CHILDREN = 100_000;
++    protected static int MAX_NUMBER_OF_CHILDREN = DEFAULT_MAX_NUMBER_OF_CHILDREN;
+ 
+     /**
+      * Create a new instance
+@@ -369,4 +371,18 @@ public abstract class EscherRecord implements Duplicatable, GenericRecord {
+ 
+     @Override
+     public abstract EscherRecord copy();
+-}
++
++    /**
++     * @param length the max number of children allowed for EscherRecords which support nesting
++     */
++    public static void setMaxNumberOfChildren(int length) {
++        MAX_NUMBER_OF_CHILDREN = length;
++    }
++
++    /**
++     * @return the max number of children allowed for EscherRecords which support nesting
++     */
++    public static int getMaxNumberOfChildren() {
++        return MAX_NUMBER_OF_CHILDREN;
++    }
++}
+\ No newline at end of file
+diff --git a/poi/src/main/java/org/apache/poi/ddf/UnknownEscherRecord.java b/poi/src/main/java/org/apache/poi/ddf/UnknownEscherRecord.java
+index d555b8a..67b6bc6 100644
+--- a/poi/src/main/java/org/apache/poi/ddf/UnknownEscherRecord.java
++++ b/poi/src/main/java/org/apache/poi/ddf/UnknownEscherRecord.java
+@@ -161,6 +161,11 @@ public final class UnknownEscherRecord extends EscherRecord {
+             return;
+         }
+ 
++        if (childRecords.size() > MAX_NUMBER_OF_CHILDREN) {
++            throw new IllegalStateException("Cannot add more than " + MAX_NUMBER_OF_CHILDREN +
++                    " child records, you can use 'EscherRecord.setMaxNumberOfChildren()' to increase the allow size");
++        }
++
+         _childRecords.clear();
+         _childRecords.addAll(childRecords);
+     }
+@@ -171,6 +176,11 @@ public final class UnknownEscherRecord extends EscherRecord {
+     }
+ 
+     public void addChildRecord(EscherRecord childRecord) {
++        if (_childRecords.size() >= MAX_NUMBER_OF_CHILDREN) {
++            throw new IllegalStateException("Cannot add more than " + MAX_NUMBER_OF_CHILDREN +
++                    " child records, you can use 'EscherRecord.setMaxNumberOfChildren()' to increase the allow size");
++        }
++
+         getChildRecords().add( childRecord );
+     }
+ 

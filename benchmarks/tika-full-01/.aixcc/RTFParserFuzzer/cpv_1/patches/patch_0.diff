@@ -1,0 +1,27 @@
+diff --git a/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-microsoft-module/src/main/java/org/apache/tika/parser/microsoft/rtf/RTFEmbObjHandler.java b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-microsoft-module/src/main/java/org/apache/tika/parser/microsoft/rtf/RTFEmbObjHandler.java
+index b80c8727b..d482348fb 100644
+--- a/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-microsoft-module/src/main/java/org/apache/tika/parser/microsoft/rtf/RTFEmbObjHandler.java
++++ b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-microsoft-module/src/main/java/org/apache/tika/parser/microsoft/rtf/RTFEmbObjHandler.java
+@@ -26,6 +26,7 @@ import org.apache.commons.io.FilenameUtils;
+ import org.apache.commons.io.IOUtils;
+ import org.apache.commons.io.input.UnsynchronizedByteArrayInputStream;
+ import org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream;
++import org.apache.commons.io.serialization.ValidatingObjectInputStream;
+ import org.xml.sax.ContentHandler;
+ import org.xml.sax.SAXException;
+ 
+@@ -211,10 +212,11 @@ class RTFEmbObjHandler {
+             extractObj(bytes, handler, metadata);
+ 
+         } else if (state == EMB_STATE.JAVA_OBJDATA) {
+-            try {
+-                Object obj = new ObjectInputStream(
++            try (ValidatingObjectInputStream ois = new ValidatingObjectInputStream(
+                         UnsynchronizedByteArrayInputStream.builder().setByteArray(bytes)
+-                                .get()).readObject();
++                                .get())) {
++                ois.accept(String.class);
++                Object obj = ois.readObject();
+                 metadata.set(RTFMetadata.EMB_CLASS, obj.getClass().getName());
+                 metadata.set(TikaCoreProperties.CONTENT_TYPE_PARSER_OVERRIDE,
+                         MediaType.text("plain").toString());

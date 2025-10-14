@@ -1,0 +1,392 @@
++ FUZZER=PDFExtractTextFuzzer
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer PDFExtractTextFuzzer -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/PDFExtractTextFuzzer -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -max_len=131072 < /dev/null
+OpenJDK 64-Bit Server VM warning: Option CriticalJNINatives was deprecated in version 16.0 and will likely be removed in a future release.
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+INFO: Loaded 273 hooks from com.code_intelligence.jazzer.runtime.TraceCmpHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.runtime.TraceDivHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.runtime.TraceIndirHooks
+INFO: Loaded 4 hooks from com.code_intelligence.jazzer.runtime.NativeLibHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.sanitizers.ClojureLangHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.Deserialization
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.ExpressionLanguageInjection
+INFO: Loaded 70 hooks from com.code_intelligence.jazzer.sanitizers.LdapInjection
+INFO: Loaded 46 hooks from com.code_intelligence.jazzer.sanitizers.NamingContextLookup
+INFO: Loaded 1 hooks from com.code_intelligence.jazzer.sanitizers.OsCommandInjection
+INFO: Loaded 68 hooks from com.code_intelligence.jazzer.sanitizers.ReflectiveCall
+INFO: Loaded 8 hooks from com.code_intelligence.jazzer.sanitizers.RegexInjection
+INFO: Loaded 16 hooks from com.code_intelligence.jazzer.sanitizers.RegexRoadblocks
+INFO: Loaded 12 hooks from com.code_intelligence.jazzer.sanitizers.ScriptEngineInjection
+INFO: Loaded 3 hooks from com.code_intelligence.jazzer.sanitizers.ServerSideRequestForgery
+INFO: Loaded 19 hooks from com.code_intelligence.jazzer.sanitizers.SqlInjection
+INFO: Loaded 6 hooks from com.code_intelligence.jazzer.sanitizers.XPathInjection
+INFO: Instrumented com.sun.tools.attach.VirtualMachine (took 33 ms, size +20%)
+INFO: Instrumented com.sun.tools.attach.AttachNotSupportedException (took 1 ms, size +18%)
+WARN: Failed to load bytecode of class com.sun.proxy.jdk.proxy1.$Proxy5
+WARN: Failed to load bytecode of class com.sun.proxy.jdk.proxy1.$Proxy1
+INFO: Instrumented com.example.PDFExtractTextFuzzer (took 12 ms, size +9%)
+INFO: Instrumented org.apache.pdfbox.io.RandomAccessRead (took 3 ms, size +17%)
+INFO: using inputs from: /testcase
+INFO: found LLVMFuzzerCustomMutator (0x7f6197e4ca00). Disabling -len_control by default.
+INFO: libFuzzer ignores flags that start with '--'
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 3419865472
+INFO: Loaded 1 modules   (512 inline 8-bit counters): 512 [0x55c34ea31ab0, 0x55c34ea31cb0), 
+INFO: Loaded 1 PC tables (512 PCs): 512 [0x55c34ea0bf00,0x55c34ea0df00), 
+jazzer: Running 1 inputs 100 time(s) each.
+Running: /testcase
+INFO: Instrumented org.apache.pdfbox.io.RandomAccessReadBuffer (took 14 ms, size +18%)
+INFO: Instrumented org.apache.pdfbox.Loader (took 6 ms, size +5%)
+INFO: Instrumented org.apache.pdfbox.io.IOUtils (took 7 ms, size +14%)
+INFO: Instrumented org.apache.logging.log4j.LogManager (took 8 ms, size +8%)
+INFO: Instrumented org.apache.logging.log4j.Logger (took 6 ms, size +1%)
+INFO: Instrumented org.apache.logging.log4j.message.MessageFactory (took 0 ms, size +0%)
+INFO: New number of coverage counters: 1024
+INFO: Instrumented org.apache.logging.log4j.status.StatusLogger (took 10 ms, size +10%)
+INFO: New number of coverage counters: 2048
+INFO: Instrumented org.apache.logging.log4j.spi.AbstractLogger (took 71 ms, size +6%)
+INFO: Instrumented org.apache.logging.log4j.spi.ExtendedLogger (took 0 ms, size +0%)
+INFO: Instrumented org.apache.logging.log4j.spi.LocationAwareLogger (took 0 ms, size +0%)
+INFO: Instrumented org.apache.logging.log4j.message.MessageFactory2 (took 0 ms, size +0%)
+INFO: Instrumented org.apache.logging.log4j.message.Message (took 0 ms, size +17%)
+INFO: Instrumented org.apache.logging.log4j.LoggingException (took 0 ms, size +13%)
+INFO: Instrumented org.apache.logging.log4j.LogBuilder (took 2 ms, size +4%)
+INFO: Instrumented org.apache.logging.log4j.status.StatusListener (took 0 ms, size +0%)
+INFO: Instrumented org.apache.logging.log4j.MarkerManager (took 1 ms, size +20%)
+INFO: Instrumented org.apache.logging.log4j.MarkerManager$Log4jMarker (took 4 ms, size +37%)
+INFO: Instrumented org.apache.logging.log4j.Marker (took 0 ms, size +0%)
+INFO: Instrumented org.apache.logging.log4j.util.StringBuilderFormattable (took 0 ms, size +0%)
+INFO: Instrumented org.apache.logging.log4j.message.ParameterizedMessageFactory (took 1 ms, size +4%)
+INFO: Instrumented org.apache.logging.log4j.message.AbstractMessageFactory (took 2 ms, size +3%)
+INFO: Instrumented org.apache.logging.log4j.message.DefaultFlowMessageFactory (took 2 ms, size +11%)
+INFO: Instrumented org.apache.logging.log4j.message.FlowMessageFactory (took 0 ms, size +0%)
+INFO: Instrumented org.apache.logging.log4j.internal.DefaultLogBuilder (took 7 ms, size +10%)
+INFO: Instrumented org.apache.logging.log4j.BridgeAware (took 0 ms, size +0%)
+INFO: Instrumented org.apache.logging.log4j.Level (took 11 ms, size +19%)
+INFO: Instrumented org.apache.logging.log4j.spi.StandardLevel (took 1 ms, size +15%)
+INFO: Instrumented org.apache.logging.log4j.util.Strings (took 3 ms, size +14%)
+INFO: Instrumented org.apache.logging.log4j.status.StatusLogger$InstanceHolder (took 1 ms, size +13%)
+INFO: Instrumented org.apache.logging.log4j.message.ParameterizedNoReferenceMessageFactory (took 0 ms, size +8%)
+INFO: Instrumented org.apache.logging.log4j.status.StatusLogger$Config (took 2 ms, size +14%)
+INFO: Instrumented org.apache.logging.log4j.status.StatusLogger$PropertiesUtilsDouble (took 2 ms, size +21%)
+INFO: Instrumented org.apache.logging.log4j.status.StatusConsoleListener (took 1 ms, size +15%)
+INFO: Instrumented org.apache.logging.log4j.message.EntryMessage (took 0 ms, size +0%)
+INFO: Instrumented org.apache.logging.log4j.message.FlowMessage (took 0 ms, size +0%)
+INFO: Instrumented org.apache.logging.log4j.message.ExitMessage (took 0 ms, size +0%)
+INFO: New number of coverage counters: 4096
+INFO: Instrumented org.apache.logging.log4j.util.ProviderUtil (took 3 ms, size +14%)
+INFO: Instrumented org.apache.logging.log4j.spi.Provider (took 4 ms, size +22%)
+INFO: Instrumented org.apache.logging.log4j.simple.internal.SimpleProvider (took 0 ms, size +17%)
+INFO: Instrumented org.apache.logging.log4j.util.ServiceLoaderUtil (took 1 ms, size +11%)
+INFO: Instrumented org.apache.logging.log4j.util.ServiceLoaderUtil$ServiceLoaderSpliterator (took 1 ms, size +8%)
+INFO: Instrumented org.apache.logging.log4j.util.StackLocatorUtil (took 1 ms, size +8%)
+INFO: Instrumented org.apache.logging.log4j.util.StackLocator (took 4 ms, size +18%)
+INFO: Instrumented org.apache.logging.log4j.util.OsgiServiceLocator (took 1 ms, size +16%)
+INFO: Instrumented org.apache.logging.log4j.util.LoaderUtil (took 4 ms, size +15%)
+INFO: Instrumented org.apache.logging.log4j.util.InternalException (took 0 ms, size +13%)
+INFO: Instrumented org.apache.logging.log4j.util.LazyBoolean (took 0 ms, size +27%)
+INFO: Instrumented org.apache.logging.log4j.util.LoaderUtil$ThreadContextClassLoaderGetter (took 0 ms, size +17%)
+INFO: Instrumented org.apache.logging.log4j.util.PropertiesUtil (took 7 ms, size +17%)
+INFO: Instrumented org.apache.logging.log4j.util.PropertySource (took 0 ms, size +7%)
+INFO: Instrumented org.apache.logging.log4j.util.Lazy (took 1 ms, size +4%)
+INFO: Instrumented org.apache.logging.log4j.util.LazyUtil$SafeLazy (took 0 ms, size +15%)
+INFO: Instrumented org.apache.logging.log4j.util.PropertyFilePropertySource (took 0 ms, size +11%)
+INFO: Instrumented org.apache.logging.log4j.util.PropertiesPropertySource (took 1 ms, size +10%)
+INFO: Instrumented org.apache.logging.log4j.util.PropertiesUtil$Environment (took 2 ms, size +8%)
+INFO: Instrumented org.apache.logging.log4j.util.BiConsumer (took 0 ms, size +0%)
+INFO: Instrumented org.apache.logging.log4j.util.EnvironmentPropertySource (took 1 ms, size +20%)
+INFO: Instrumented org.apache.logging.log4j.util.SystemPropertiesPropertySource (took 1 ms, size +8%)
+INFO: Instrumented org.apache.logging.log4j.util.LazyUtil (took 0 ms, size +11%)
+INFO: Instrumented org.apache.logging.log4j.util.LazyUtil$1 (took 0 ms, size +19%)
+INFO: Instrumented org.apache.logging.log4j.util.Cast (took 0 ms, size +15%)
+INFO: Instrumented org.apache.logging.log4j.util.PropertySource$Util (took 1 ms, size +35%)
+INFO: Instrumented org.apache.logging.log4j.util.PropertySource$Comparator (took 0 ms, size +30%)
+INFO: Instrumented org.apache.logging.log4j.spi.LoggerContextFactory (took 0 ms, size +22%)
+INFO: Instrumented org.apache.logging.log4j.spi.ThreadContextMap (took 0 ms, size +0%)
+INFO: Instrumented org.apache.logging.log4j.message.SimpleMessage (took 2 ms, size +26%)
+INFO: Instrumented org.apache.logging.log4j.status.StatusData (took 1 ms, size +9%)
+2025-09-25T00:50:09.382897828Z main ERROR Log4j API could not find a logging provider.
+INFO: Instrumented org.apache.logging.log4j.message.ReusableMessageFactory (took 2 ms, size +5%)
+INFO: Instrumented org.apache.logging.log4j.message.Clearable (took 0 ms, size +0%)
+INFO: Instrumented org.apache.logging.log4j.simple.internal.SimpleProvider$Config (took 0 ms, size +26%)
+INFO: Instrumented org.apache.logging.log4j.spi.NoOpThreadContextMap (took 1 ms, size +9%)
+INFO: Instrumented org.apache.logging.log4j.simple.SimpleLoggerContextFactory (took 1 ms, size +8%)
+INFO: Instrumented org.apache.logging.log4j.spi.LoggerContext (took 1 ms, size +6%)
+INFO: Instrumented org.apache.logging.log4j.internal.LogManagerStatus (took 0 ms, size +18%)
+INFO: Instrumented org.apache.logging.log4j.simple.SimpleLoggerContext (took 1 ms, size +4%)
+INFO: Instrumented org.apache.logging.log4j.spi.LoggerRegistry (took 2 ms, size +18%)
+INFO: Instrumented org.apache.logging.log4j.simple.SimpleLogger (took 3 ms, size +14%)
+INFO: Instrumented org.apache.pdfbox.io.RandomAccessStreamCache$StreamCacheCreateFunction (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.io.RandomAccessStreamCache (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.io.RandomAccessStreamCacheImpl (took 0 ms, size +15%)
+INFO: Instrumented org.apache.pdfbox.io.RandomAccess (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.io.RandomAccessWrite (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.pdfparser.PDFParser (took 1 ms, size +12%)
+INFO: Instrumented org.apache.pdfbox.pdfparser.COSParser (took 8 ms, size +21%)
+INFO: Instrumented org.apache.pdfbox.cos.ICOSParser (took 0 ms, size +0%)
+INFO: New number of coverage counters: 8192
+INFO: Instrumented org.apache.pdfbox.pdfparser.BaseParser (took 10 ms, size +31%)
+INFO: Instrumented org.apache.pdfbox.cos.COSBase (took 0 ms, size +12%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.common.COSObjectable (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.cos.COSObject (took 1 ms, size +10%)
+INFO: Instrumented org.apache.pdfbox.cos.COSUpdateInfo (took 0 ms, size +14%)
+INFO: Instrumented org.apache.pdfbox.cos.COSDictionary (took 11 ms, size +17%)
+INFO: Instrumented org.apache.pdfbox.cos.COSString (took 2 ms, size +25%)
+INFO: Instrumented org.apache.pdfbox.cos.COSArray (took 8 ms, size +20%)
+INFO: Instrumented org.apache.pdfbox.cos.COSName (took 6 ms, size +15%)
+INFO: Instrumented org.apache.pdfbox.cos.COSNull (took 0 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.cos.COSBoolean (took 1 ms, size +18%)
+INFO: Instrumented org.apache.pdfbox.cos.COSNumber (took 0 ms, size +57%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.encryption.DecryptionMaterial (took 0 ms, size +27%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.encryption.PublicKeyDecryptionMaterial (took 0 ms, size +16%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.encryption.StandardDecryptionMaterial (took 0 ms, size +16%)
+INFO: Instrumented org.apache.pdfbox.cos.COSStream (took 3 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.cos.COSDocument (took 4 ms, size +9%)
+INFO: Instrumented org.apache.pdfbox.cos.COSDocumentState (took 0 ms, size +42%)
+INFO: Instrumented org.apache.pdfbox.pdfparser.XrefParser (took 4 ms, size +24%)
+INFO: Instrumented org.apache.pdfbox.pdfparser.XrefTrailerResolver (took 2 ms, size +21%)
+INFO: Instrumented org.apache.pdfbox.cos.COSInteger (took 1 ms, size +16%)
+INFO: Instrumented org.apache.pdfbox.cos.COSFloat (took 2 ms, size +39%)
+INFO: Instrumented org.apache.pdfbox.cos.UnmodifiableCOSDictionary (took 0 ms, size +14%)
+INFO: Instrumented org.apache.pdfbox.cos.COSUpdateState (took 1 ms, size +23%)
+INFO: Instrumented org.apache.pdfbox.cos.COSObjectKey (took 1 ms, size +25%)
+INFO: Instrumented org.apache.pdfbox.io.RandomAccessInputStream (took 1 ms, size +19%)
+INFO: Instrumented org.apache.pdfbox.io.RandomAccessOutputStream (took 0 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.cos.COSOutputStream (took 1 ms, size +14%)
+INFO: Instrumented org.apache.pdfbox.cos.COSStream$1 (took 0 ms, size +8%)
+INFO: Instrumented org.apache.pdfbox.cos.COSStream$2 (took 0 ms, size +8%)
+INFO: Instrumented org.apache.pdfbox.cos.COSInputStream (took 0 ms, size +10%)
+INFO: Instrumented org.apache.pdfbox.io.RandomAccessReadView (took 1 ms, size +17%)
+INFO: Instrumented org.apache.pdfbox.pdfparser.XrefTrailerResolver$XRefType (took 0 ms, size +10%)
+INFO: Instrumented org.apache.pdfbox.pdfparser.XrefTrailerResolver$XrefTrailerObj (took 0 ms, size +10%)
+INFO: Instrumented org.apache.pdfbox.pdfparser.PDFXrefStreamParser (took 1 ms, size +16%)
+INFO: Instrumented org.apache.pdfbox.filter.FilterFactory (took 1 ms, size +14%)
+INFO: Instrumented org.apache.pdfbox.filter.FlateFilter (took 0 ms, size +8%)
+INFO: Instrumented org.apache.pdfbox.filter.Filter (took 1 ms, size +14%)
+INFO: Instrumented org.apache.pdfbox.filter.MissingImageReaderException (took 0 ms, size +19%)
+INFO: Instrumented org.apache.pdfbox.filter.DCTFilter (took 3 ms, size +17%)
+INFO: Instrumented org.apache.pdfbox.filter.CCITTFaxFilter (took 1 ms, size +17%)
+INFO: Instrumented org.apache.pdfbox.filter.CCITTFaxEncoderStream (took 2 ms, size +30%)
+INFO: Instrumented org.apache.pdfbox.filter.LZWFilter (took 2 ms, size +20%)
+INFO: Instrumented org.apache.pdfbox.filter.ASCIIHexFilter (took 1 ms, size +12%)
+INFO: Instrumented org.apache.pdfbox.filter.ASCII85Filter (took 0 ms, size +10%)
+INFO: Instrumented org.apache.pdfbox.filter.ASCII85OutputStream (took 1 ms, size +30%)
+INFO: Instrumented org.apache.pdfbox.filter.RunLengthDecodeFilter (took 0 ms, size +28%)
+INFO: Instrumented org.apache.pdfbox.filter.CryptFilter (took 0 ms, size +14%)
+INFO: Instrumented org.apache.pdfbox.filter.IdentityFilter (took 0 ms, size +10%)
+INFO: Instrumented org.apache.pdfbox.filter.JPXFilter (took 1 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.filter.JBIG2Filter (took 1 ms, size +15%)
+INFO: Instrumented org.apache.pdfbox.filter.DecodeOptions (took 1 ms, size +7%)
+INFO: Instrumented org.apache.pdfbox.filter.DecodeOptions$FinalDecodeOptions (took 0 ms, size +10%)
+INFO: Instrumented org.apache.pdfbox.io.RandomAccessReadWriteBuffer (took 0 ms, size +26%)
+INFO: Instrumented org.apache.pdfbox.filter.FlateFilterDecoderStream (took 1 ms, size +21%)
+INFO: Instrumented org.apache.pdfbox.filter.Predictor (took 1 ms, size +25%)
+INFO: Instrumented org.apache.pdfbox.filter.Predictor$PredictorOutputStream (took 1 ms, size +18%)
+INFO: Instrumented org.apache.pdfbox.filter.DecodeResult (took 0 ms, size +8%)
+INFO: Instrumented org.apache.pdfbox.pdfparser.PDFXrefStreamParser$ObjectNumbers (took 0 ms, size +25%)
+INFO: Instrumented org.apache.pdfbox.pdfparser.PDFObjectStreamParser (took 2 ms, size +21%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.PDDocument (took 9 ms, size +12%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.interactive.digitalsignature.ExternalSigningSupport (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDDeviceRGB (took 1 ms, size +8%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDDeviceColorSpace (took 0 ms, size +14%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace (took 1 ms, size +14%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDDeviceCMYK (took 1 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDDeviceGray (took 1 ms, size +13%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDPattern (took 1 ms, size +5%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDSpecialColorSpace (took 0 ms, size +23%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.MissingResourceException (took 0 ms, size +23%)
+INFO: New number of coverage counters: 16384
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDCalGray (took 1 ms, size +21%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDCIEDictionaryBasedColorSpace (took 1 ms, size +16%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDCIEBasedColorSpace (took 0 ms, size +18%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDCalRGB (took 1 ms, size +12%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDDeviceN (took 4 ms, size +15%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDIndexed (took 3 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDSeparation (took 2 ms, size +15%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDICCBased (took 4 ms, size +14%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDLab (took 2 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.color.PDColor (took 1 ms, size +14%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.ResourceCacheFactory (took 0 ms, size +12%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.ResourceCacheCreateFunction (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.DefaultResourceCacheCreateImpl (took 0 ms, size +14%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.ResourceCache (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.DefaultResourceCache (took 4 ms, size +18%)
+INFO: Instrumented org.apache.pdfbox.text.PDFTextStripper (took 18 ms, size +20%)
+INFO: Instrumented org.apache.pdfbox.text.LegacyPDFStreamEngine (took 2 ms, size +15%)
+INFO: Instrumented org.apache.pdfbox.contentstream.PDFStreamEngine (took 7 ms, size +13%)
+INFO: Instrumented org.apache.pdfbox.contentstream.PDContentStream (took 0 ms, size +13%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDFont (took 4 ms, size +20%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDFontLike (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDType1Font (took 5 ms, size +22%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDVectorFont (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDSimpleFont (took 3 ms, size +25%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.OperatorProcessor (took 0 ms, size +5%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.BeginText (took 0 ms, size +4%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.state.Concatenate (took 0 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.DrawObject (took 0 ms, size +12%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.EndText (took 0 ms, size +4%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.state.SetGraphicsStateParameters (took 0 ms, size +8%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.state.Save (took 0 ms, size +4%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.state.Restore (took 0 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.NextLine (took 0 ms, size +3%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.SetCharSpacing (took 0 ms, size +10%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.MoveText (took 0 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.MoveTextSetLeading (took 0 ms, size +12%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.SetFontAndSize (took 0 ms, size +9%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.ShowText (took 0 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.ShowTextAdjusted (took 0 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.SetTextLeading (took 0 ms, size +10%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.state.SetMatrix (took 0 ms, size +13%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.SetTextRenderingMode (took 0 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.SetTextRise (took 0 ms, size +10%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.SetWordSpacing (took 0 ms, size +10%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.SetTextHorizontalScaling (took 0 ms, size +9%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.ShowTextLine (took 0 ms, size +4%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.text.ShowTextLineAndSpace (took 0 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.markedcontent.BeginMarkedContentSequenceWithProperties (took 0 ms, size +12%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.markedcontent.BeginMarkedContentSequence (took 0 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.markedcontent.EndMarkedContentSequence (took 0 ms, size +3%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.encoding.GlyphList (took 2 ms, size +32%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.encoding.WinAnsiEncoding (took 3 ms, size +20%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.encoding.Encoding (took 1 ms, size +34%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.encoding.StandardEncoding (took 2 ms, size +17%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.encoding.MacRomanEncoding (took 2 ms, size +16%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.encoding.MacExpertEncoding (took 2 ms, size +15%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.encoding.SymbolEncoding (took 2 ms, size +16%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.encoding.ZapfDingbatsEncoding (took 2 ms, size +17%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.MissingOperandException (took 0 ms, size +7%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.state.EmptyGraphicsStackException (took 0 ms, size +17%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.PDDocumentCatalog (took 5 ms, size +7%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.fixup.PDDocumentFixup (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.common.PDDestinationOrAction (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.PDPageTree (took 3 ms, size +15%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.PDPageTree$PageIterator (took 1 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.PDPage (took 7 ms, size +10%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.common.COSArrayList (took 4 ms, size +17%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.common.PDRectangle (took 2 ms, size +13%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.common.PDImmutableRectangle (took 0 ms, size +13%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState (took 6 ms, size +7%)
+INFO: Instrumented org.apache.pdfbox.util.Matrix (took 4 ms, size +12%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.state.PDTextState (took 2 ms, size +7%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.state.RenderingMode (took 1 ms, size +15%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.PDLineDashPattern (took 0 ms, size +17%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.blend.BlendMode (took 4 ms, size +16%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.blend.BlendMode$BlendChannelFunction (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.blend.BlendMode$BlendFunction (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.PDResources (took 6 ms, size +14%)
+INFO: Instrumented org.apache.pdfbox.pdfparser.PDFStreamParser (took 3 ms, size +42%)
+INFO: Instrumented org.apache.pdfbox.io.NonSeekableRandomAccessReadInputStream (took 2 ms, size +15%)
+INFO: Instrumented org.apache.pdfbox.contentstream.operator.Operator (took 1 ms, size +40%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.pattern.PDTilingPattern (took 2 ms, size +8%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.graphics.pattern.PDAbstractPattern (took 1 ms, size +7%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDType3CharProc (took 1 ms, size +23%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDFontFactory (took 3 ms, size +28%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDType1CFont (took 4 ms, size +24%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDMMType1Font (took 0 ms, size +18%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDTrueTypeFont (took 5 ms, size +19%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDType3Font (took 3 ms, size +12%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDType0Font (took 5 ms, size +17%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDCIDFont (took 3 ms, size +21%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDCIDFontType0 (took 3 ms, size +17%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDCIDFontType2 (took 3 ms, size +21%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.encoding.DictionaryEncoding (took 1 ms, size +12%)
+INFO: Instrumented org.apache.fontbox.type1.DamagedFontException (took 0 ms, size +23%)
+INFO: Instrumented org.apache.fontbox.FontBoxFont (took 0 ms, size +0%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.encoding.Type1Encoding (took 0 ms, size +10%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.Standard14Fonts (took 2 ms, size +31%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.Standard14Fonts$FontName (took 0 ms, size +8%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.font.PDFontDescriptor (took 6 ms, size +11%)
+INFO: Instrumented org.apache.pdfbox.pdmodel.common.PDStream (took 3 ms, size +9%)
+INFO: Instrumented org.apache.fontbox.type1.Type1Font (took 4 ms, size +12%)
+INFO: Instrumented org.apache.fontbox.type1.Type1CharStringReader (took 0 ms, size +0%)
+INFO: Instrumented org.apache.fontbox.EncodedFont (took 0 ms, size +0%)
+INFO: Instrumented org.apache.fontbox.pfb.PfbParser (took 1 ms, size +25%)
+INFO: New number of coverage counters: 32768
+INFO: Instrumented org.apache.fontbox.type1.Type1Parser (took 7 ms, size +81%)
+INFO: Instrumented org.apache.fontbox.encoding.Encoding (took 0 ms, size +25%)
+INFO: Instrumented org.apache.fontbox.encoding.StandardEncoding (took 2 ms, size +18%)
+INFO: Instrumented org.apache.fontbox.encoding.BuiltInEncoding (took 0 ms, size +7%)
+INFO: Instrumented org.apache.fontbox.type1.Type1Lexer (took 2 ms, size +35%)
+INFO: Instrumented org.apache.fontbox.type1.Token (took 1 ms, size +20%)
+INFO: Instrumented org.apache.fontbox.type1.Token$Kind (took 0 ms, size +8%)
+ALARM: working on the last Unit for 25 seconds
+       and the timeout value is 25 (use -timeout=N to change)
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+==20== ERROR: libFuzzer: timeout after 25 seconds
+
+Stack traces of all JVM threads:
+Thread[Cleaner-0,5,InnocuousThreadGroup]
+	at java.base@17.0.2/java.lang.Object.wait(Native Method)
+	at java.base@17.0.2/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:155)
+	at java.base@17.0.2/jdk.internal.ref.CleanerImpl.run(CleanerImpl.java:140)
+	at java.base@17.0.2/java.lang.Thread.run(Thread.java:833)
+	at java.base@17.0.2/jdk.internal.misc.InnocuousThread.run(InnocuousThread.java:162)
+
+Thread[Attach Listener,9,system]
+
+Thread[Signal Dispatcher,9,system]
+
+Thread[main,5,main]
+	at app//com.code_intelligence.jazzer.driver.FuzzTargetRunner.dumpAllStackTraces(FuzzTargetRunner.java:534)
+
+Thread[Finalizer,8,system]
+	at java.base@17.0.2/java.lang.Object.wait(Native Method)
+	at java.base@17.0.2/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:155)
+	at java.base@17.0.2/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:176)
+	at java.base@17.0.2/java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:172)
+
+Thread[Notification Thread,9,system]
+
+Thread[process reaper,10,system]
+	at java.base@17.0.2/jdk.internal.misc.Unsafe.park(Native Method)
+	at java.base@17.0.2/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:252)
+	at java.base@17.0.2/java.util.concurrent.SynchronousQueue$TransferStack.transfer(SynchronousQueue.java:401)
+	at java.base@17.0.2/java.util.concurrent.SynchronousQueue.poll(SynchronousQueue.java:903)
+	at java.base@17.0.2/java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1061)
+	at java.base@17.0.2/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1122)
+	at java.base@17.0.2/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base@17.0.2/java.lang.Thread.run(Thread.java:833)
+
+Thread[Reference Handler,10,system]
+	at java.base@17.0.2/java.lang.ref.Reference.waitForReferencePendingList(Native Method)
+	at java.base@17.0.2/java.lang.ref.Reference.processPendingReferences(Reference.java:253)
+	at java.base@17.0.2/java.lang.ref.Reference$ReferenceHandler.run(Reference.java:215)
+
+Thread[Common-Cleaner,8,InnocuousThreadGroup]
+	at java.base@17.0.2/java.lang.Object.wait(Native Method)
+	at java.base@17.0.2/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:155)
+	at java.base@17.0.2/jdk.internal.ref.CleanerImpl.run(CleanerImpl.java:140)
+	at java.base@17.0.2/java.lang.Thread.run(Thread.java:833)
+	at java.base@17.0.2/jdk.internal.misc.InnocuousThread.run(InnocuousThread.java:162)
+
+Garbage collector stats:
+INFO: Instrumented com.sun.management.internal.PlatformMBeanProviderImpl (took 4 ms, size +14%)
+INFO: detected a native library load, enabling interception for libc functions
+INFO: Instrumented com.sun.management.internal.PlatformMBeanProviderImpl$1 (took 1 ms, size +8%)
+INFO: Instrumented com.sun.management.internal.PlatformMBeanProviderImpl$2 (took 1 ms, size +4%)
+INFO: Instrumented com.sun.management.internal.PlatformMBeanProviderImpl$3 (took 1 ms, size +4%)
+INFO: Instrumented com.sun.management.internal.PlatformMBeanProviderImpl$4 (took 4 ms, size +6%)
+INFO: Instrumented com.sun.management.internal.DiagnosticCommandImpl (took 6 ms, size +16%)
+INFO: Instrumented com.sun.management.DiagnosticCommandMBean (took 0 ms, size +0%)
+INFO: Instrumented com.sun.management.internal.PlatformMBeanProviderImpl$5 (took 1 ms, size +6%)
+INFO: Instrumented com.sun.management.internal.GarbageCollectorExtImpl (took 3 ms, size +13%)
+INFO: Instrumented com.sun.management.GarbageCollectorMXBean (took 0 ms, size +0%)
+INFO: Instrumented com.sun.jmx.mbeanserver.GetPropertyAction (took 0 ms, size +13%)
+INFO: Instrumented com.sun.jmx.mbeanserver.Util (took 4 ms, size +13%)
+
+PS MarkSweep: 0 collections took 0ms
+PS Scavenge: 9 collections took 88ms
+
+SUMMARY: libFuzzer: timeout
+subprocess command returned a non-zero exit status: 70

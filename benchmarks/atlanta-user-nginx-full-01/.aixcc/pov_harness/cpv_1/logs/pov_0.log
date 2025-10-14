@@ -1,0 +1,72 @@
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 2577801362
+INFO: Loaded 1 modules   (26672 inline 8-bit counters): 26672 [0x559fe9809698, 0x559fe980fec8),
+INFO: Loaded 1 PC tables (26672 PCs): 26672 [0x559fe980fec8,0x559fe98781c8),
+/out/pov_harness: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+==14==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x50c000001c80 at pc 0x559fe95b0cca bp 0x7ffe82e54cb0 sp 0x7ffe82e54ca8
+WRITE of size 1 at 0x50c000001c80 thread T0
+SCARINESS: 31 (1-byte-write-heap-buffer-overflow)
+    #0 0x559fe95b0cc9 in ngx_http_parse_complex_uri /src/nginx/src/http/ngx_http_parse.c:1298:22
+    #1 0x559fe959d3e5 in ngx_http_process_request_uri /src/nginx/src/http/ngx_http_request.c:1268:13
+    #2 0x559fe95a3aca in ngx_http_process_request_line /src/nginx/src/http/ngx_http_request.c:1136:17
+    #3 0x559fe952a689 in ngx_event_process_posted /src/nginx/src/event/ngx_event_posted.c:34:9
+    #4 0x559fe94b16a4 in LLVMFuzzerTestOneInput /src/nginx/src/fuzz/pov_harness.cc:295:5
+    #5 0x559fe93655f0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #6 0x559fe9350865 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #7 0x559fe93562ff in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #8 0x559fe93815a2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #9 0x7fce32cac082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+    #10 0x559fe9348a4d in _start (/out/pov_harness+0x151a4d)
+
+DEDUP_TOKEN: ngx_http_parse_complex_uri--ngx_http_process_request_uri--ngx_http_process_request_line
+0x50c000001c80 is located 0 bytes after 128-byte region [0x50c000001c00,0x50c000001c80)
+allocated by thread T0 here:
+    #0 0x559fe94713bf in malloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:68:3
+    #1 0x559fe953883f in ngx_alloc /src/nginx/src/os/unix/ngx_alloc.c:22:9
+    #2 0x559fe94bad21 in ngx_palloc_large /src/nginx/src/core/ngx_palloc.c:220:9
+    #3 0x559fe959d30c in ngx_http_process_request_uri /src/nginx/src/http/ngx_http_request.c:1259:27
+    #4 0x559fe95a3aca in ngx_http_process_request_line /src/nginx/src/http/ngx_http_request.c:1136:17
+    #5 0x559fe952a689 in ngx_event_process_posted /src/nginx/src/event/ngx_event_posted.c:34:9
+    #6 0x559fe94b16a4 in LLVMFuzzerTestOneInput /src/nginx/src/fuzz/pov_harness.cc:295:5
+    #7 0x559fe93655f0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #8 0x559fe9350865 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #9 0x559fe93562ff in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #10 0x559fe93815a2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #11 0x7fce32cac082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+
+DEDUP_TOKEN: __interceptor_malloc--ngx_alloc--ngx_palloc_large
+SUMMARY: AddressSanitizer: heap-buffer-overflow /src/nginx/src/http/ngx_http_parse.c:1298:22 in ngx_http_parse_complex_uri
+Shadow bytes around the buggy address:
+  0x50c000001a00: 00 00 00 00 00 00 00 00 fa fa fa fa fa fa fa fa
+  0x50c000001a80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 fa
+  0x50c000001b00: fa fa fa fa fa fa fa fa 00 00 00 00 00 00 00 00
+  0x50c000001b80: 00 00 00 00 00 00 00 00 fa fa fa fa fa fa fa fa
+  0x50c000001c00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x50c000001c80:[fa]fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x50c000001d00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x50c000001d80: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x50c000001e00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x50c000001e80: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x50c000001f00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==14==ABORTING

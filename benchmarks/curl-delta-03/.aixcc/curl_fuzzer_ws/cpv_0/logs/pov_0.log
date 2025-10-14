@@ -1,0 +1,46 @@
++ FUZZER=curl_fuzzer_ws
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer curl_fuzzer_ws -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/curl_fuzzer_ws -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -timeout_exitcode=0 < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 399145804
+INFO: Loaded 1 modules   (28133 inline 8-bit counters): 28133 [0x55ab955ec1f8, 0x55ab955f2fdd), 
+INFO: Loaded 1 PC tables (28133 PCs): 28133 [0x55ab955f2fe0,0x55ab95660e30), 
+/out/curl_fuzzer_ws: Running 1 inputs 100 time(s) each.
+Running: /testcase
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==18==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000000 (pc 0x55ab952b09dc bp 0x7fffa1433090 sp 0x7fffa1432dc0 T0)
+==18==The signal is caused by a WRITE memory access.
+==18==Hint: address points to the zero page.
+SCARINESS: 10 (null-deref)
+    #0 0x55ab952b09dc in alliswellprotocoll_sm /src/curl/lib/alliswellprotocoll.c:253:33
+    #1 0x55ab95455a5c in Curl_pp_statemach /src/curl/lib/pingpong.c:137:14
+    #2 0x55ab952af54b in alliswellprotocoll_doing /src/curl/lib/alliswellprotocoll.c:280:21
+    #3 0x55ab95219ac5 in protocol_connecting /src/curl/lib/multi.c:1735:14
+    #4 0x55ab95207f55 in multi_runsingle /src/curl/lib/multi.c:2753:16
+    #5 0x55ab95205fd5 in curl_multi_perform /src/curl/lib/multi.c:3016:16
+    #6 0x55ab951b4a6e in fuzz_handle_transfer(fuzz_data*) /src/curl_fuzzer/curl_fuzzer.cc:419:5
+    #7 0x55ab951b208d in LLVMFuzzerTestOneInput /src/curl_fuzzer/curl_fuzzer.cc:97:3
+    #8 0x55ab95066640 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #9 0x55ab950518b5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #10 0x55ab9505734f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #11 0x55ab950825f2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #12 0x7f1300b27082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #13 0x55ab95049a9d in _start (/out/curl_fuzzer_ws+0x136a9d)
+
+DEDUP_TOKEN: alliswellprotocoll_sm--Curl_pp_statemach--alliswellprotocoll_doing
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV /src/curl/lib/alliswellprotocoll.c:253:33 in alliswellprotocoll_sm
+==18==ABORTING
+subprocess command returned a non-zero exit status: 1

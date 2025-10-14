@@ -1,0 +1,18 @@
+diff --git a/src/main/java/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.java b/src/main/java/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.java
+index 00a38af48..df59b7540 100644
+--- a/src/main/java/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.java
++++ b/src/main/java/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.java
+@@ -1462,11 +1462,11 @@ protected void setStreamContiguous(final boolean isStreamContiguous) {
+     @Override
+     public Path resolveIn(final Path parentPath) throws IOException {
+         final String name = getName();
+-        final Path outputFile = parentPath.resolve(name).normalize();
++        final Path outputFile = parentPath.resolve(Normalizer.normalize(name, Normalizer.Form.NFKD)).normalize();
+         if (!outputFile.startsWith(parentPath)) {
+             throw new IOException(String.format("Zip slip '%s' + '%s' -> '%s'", parentPath, name, outputFile));
+         }
+-        return parentPath.resolve(Normalizer.normalize(name, Normalizer.Form.NFKD)).normalize();
++        return outputFile;
+     }
+ 
+     /**

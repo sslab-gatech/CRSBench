@@ -1,0 +1,96 @@
++ FUZZER=WidocoOne
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer WidocoOne -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/WidocoOne -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase < /dev/null
+OpenJDK 64-Bit Server VM warning: Option CriticalJNINatives was deprecated in version 16.0 and will likely be removed in a future release.
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+INFO: Loaded 598 hooks from com.code_intelligence.jazzer.runtime.TraceCmpHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.runtime.TraceDivHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.runtime.TraceIndirHooks
+INFO: Loaded 4 hooks from com.code_intelligence.jazzer.runtime.NativeLibHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.sanitizers.ClojureLangHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.Deserialization
+INFO: Loaded 9 hooks from com.code_intelligence.jazzer.sanitizers.ExpressionLanguageInjection
+INFO: Loaded 32 hooks from com.code_intelligence.jazzer.sanitizers.FilePathTraversal
+INFO: Loaded 70 hooks from com.code_intelligence.jazzer.sanitizers.LdapInjection
+INFO: Loaded 50 hooks from com.code_intelligence.jazzer.sanitizers.NamingContextLookup
+INFO: Loaded 1 hooks from com.code_intelligence.jazzer.sanitizers.OsCommandInjection
+INFO: Loaded 96 hooks from com.code_intelligence.jazzer.sanitizers.ReflectiveCall
+INFO: Loaded 8 hooks from com.code_intelligence.jazzer.sanitizers.RegexInjection
+INFO: Loaded 16 hooks from com.code_intelligence.jazzer.sanitizers.RegexRoadblocks
+INFO: Loaded 12 hooks from com.code_intelligence.jazzer.sanitizers.ScriptEngineInjection
+INFO: Loaded 3 hooks from com.code_intelligence.jazzer.sanitizers.ServerSideRequestForgery
+INFO: Loaded 19 hooks from com.code_intelligence.jazzer.sanitizers.SqlInjection
+INFO: Loaded 12 hooks from com.code_intelligence.jazzer.sanitizers.XPathInjection
+INFO: Instrumented com.aixcc.widoco.harnesses.one.WidocoOne (took 65 ms, size +41%)
+INFO: using inputs from: /testcase
+INFO: found LLVMFuzzerCustomMutator (0x7fb86c20da00). Disabling -len_control by default.
+INFO: libFuzzer ignores flags that start with '--'
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 155635023
+INFO: Loaded 1 modules   (512 inline 8-bit counters): 512 [0x5628b0874a90, 0x5628b0874c90), 
+INFO: Loaded 1 PC tables (512 PCs): 512 [0x5628b082cd60,0x5628b082ed60), 
+jazzer: Running 1 inputs 100 time(s) each.
+Running: /testcase
+INFO: Instrumented widoco.WidocoUtils (took 26 ms, size +22%)
+INFO: Instrumented org.semanticweb.owlapi.io.OWLOntologyDocumentSource (took 4 ms, size +9%)
+INFO: Instrumented org.slf4j.LoggerFactory (took 22 ms, size +17%)
+INFO: Instrumented org.slf4j.ILoggerFactory (took 0 ms, size +0%)
+INFO: Instrumented org.slf4j.event.LoggingEvent (took 0 ms, size +0%)
+INFO: Instrumented org.slf4j.helpers.SubstituteLoggerFactory (took 4 ms, size +18%)
+INFO: Instrumented org.slf4j.Logger (took 1 ms, size +0%)
+INFO: Instrumented org.slf4j.helpers.NOPLoggerFactory (took 2 ms, size +17%)
+INFO: Instrumented org.slf4j.helpers.Util (took 6 ms, size +33%)
+INFO: Instrumented org.slf4j.impl.StaticLoggerBinder (took 3 ms, size +12%)
+INFO: Instrumented org.slf4j.spi.LoggerFactoryBinder (took 0 ms, size +0%)
+INFO: Instrumented org.slf4j.impl.SimpleLoggerFactory (took 2 ms, size +28%)
+INFO: Instrumented org.slf4j.impl.SimpleLogger (took 27 ms, size +14%)
+INFO: New number of coverage counters: 1024
+INFO: Instrumented org.slf4j.helpers.MarkerIgnoringBase (took 18 ms, size +6%)
+INFO: Instrumented org.slf4j.helpers.NamedLoggerBase (took 2 ms, size +13%)
+INFO: Instrumented org.slf4j.impl.SimpleLoggerConfiguration (took 7 ms, size +31%)
+INFO: Instrumented org.slf4j.impl.SimpleLoggerConfiguration$1 (took 2 ms, size +9%)
+INFO: Instrumented org.slf4j.impl.OutputChoice (took 1 ms, size +12%)
+INFO: Instrumented org.slf4j.impl.OutputChoice$OutputChoiceType (took 2 ms, size +8%)
+
+== Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueCritical: File path traversal: /tmp/WidocoOne2583771890460405158/../jazzer-traversal
+	at com.code_intelligence.jazzer.sanitizers.FilePathTraversal.check(FilePathTraversal.java:346)
+	at com.code_intelligence.jazzer.sanitizers.FilePathTraversal.checkFile(FilePathTraversal.java:304)
+	at com.code_intelligence.jazzer.sanitizers.FilePathTraversal.checkObj(FilePathTraversal.java:288)
+	at com.code_intelligence.jazzer.sanitizers.FilePathTraversal.processFileOutputStartHook(FilePathTraversal.java:256)
+	at widoco.WidocoUtils.unZipIt(WidocoUtils.java:269)
+	at com.aixcc.widoco.harnesses.one.WidocoOne.fuzz(WidocoOne.java:27)
+	at com.aixcc.widoco.harnesses.one.WidocoOne.fuzzerTestOneInput(WidocoOne.java:18)
+DEDUP_TOKEN: 9edcd163dc417f0e
+== libFuzzer crashing input ==
+ERROR: Failed to write Java reproducer to ./Crash_9c201416477c58c7c352ec722bcfb8d809467eca.java
+
+java.nio.file.NoSuchFileException: ./Crash_9c201416477c58c7c352ec722bcfb8d809467eca.java
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.newByteChannel(UnixFileSystemProvider.java:218)
+	at java.base/java.nio.file.spi.FileSystemProvider.newOutputStream(FileSystemProvider.java:484)
+	at java.base/java.nio.file.Files.newOutputStream(Files.java:228)
+	at java.base/java.nio.file.Files.write(Files.java:3512)
+	at com.code_intelligence.jazzer.driver.ReproducerTemplate.dumpReproducer(ReproducerTemplate.java:68)
+	at com.code_intelligence.jazzer.driver.FuzzTargetRunner.dumpReproducer(FuzzTargetRunner.java:514)
+	at com.code_intelligence.jazzer.driver.FuzzTargetRunner.runOne(FuzzTargetRunner.java:326)
+	at com.code_intelligence.jazzer.runtime.FuzzTargetRunnerNatives.startLibFuzzer(Native Method)
+	at com.code_intelligence.jazzer.driver.FuzzTargetRunner.startLibFuzzer(FuzzTargetRunner.java:551)
+	at com.code_intelligence.jazzer.driver.FuzzTargetRunner.startLibFuzzer(FuzzTargetRunner.java:441)
+	at com.code_intelligence.jazzer.driver.Driver.start(Driver.java:166)
+	at com.code_intelligence.jazzer.Jazzer.start(Jazzer.java:118)
+	at com.code_intelligence.jazzer.Jazzer.main(Jazzer.java:77)
+reproducer_path='.'; Java reproducer written to ./Crash_9c201416477c58c7c352ec722bcfb8d809467eca.java
+

@@ -1,0 +1,116 @@
++ FUZZER=handler_netbios
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer handler_netbios -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/handler_netbios -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -max_len=1024 -timeout_exitcode=0 < /dev/null
+oss-fuzzshark: disabling: ip
+oss-fuzzshark: disabling: udp
+oss-fuzzshark: disabling: udplite
+oss-fuzzshark: disabling: ospf
+oss-fuzzshark: disabling: bgp
+oss-fuzzshark: disabling: dhcp
+oss-fuzzshark: disabling: json
+oss-fuzzshark: disabling: snort
+oss-fuzzshark: configured for dissector: netbios
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 2265093876
+INFO: Loaded 1 modules   (420518 inline 8-bit counters): 420518 [0xa9f6a00, 0xaa5d4a6), 
+INFO: Loaded 1 PC tables (420518 PCs): 420518 [0xaa5d4a8,0xb0c7f08), 
+/out/handler_netbios: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+==18==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x50300012edb1 at pc 0x0000063c2fe9 bp 0x7fffe5bb27e0 sp 0x7fffe5bb27d8
+WRITE of size 1 at 0x50300012edb1 thread T0
+SCARINESS: 31 (1-byte-write-heap-buffer-overflow)
+    #0 0x63c2fe8 in dissect_netb_terminate_trace /src/wireshark/epan/dissectors/packet-netbios.c:726:22
+    #1 0x63c23e2 in dissect_netbios /src/wireshark/epan/dissectors/packet-netbios.c:1213:16
+    #2 0x5b8573d in call_dissector_through_handle /src/wireshark/epan/packet.c:887:9
+    #3 0x5b8573d in call_dissector_work /src/wireshark/epan/packet.c:975:9
+    #4 0x5b90394 in call_dissector_only /src/wireshark/epan/packet.c:3621:8
+    #5 0x5b90394 in call_all_postdissectors /src/wireshark/epan/packet.c:4166:3
+    #6 0x544b347 in dissect_frame /src/wireshark/epan/dissectors/packet-frame.c:1438:5
+    #7 0x5b8573d in call_dissector_through_handle /src/wireshark/epan/packet.c:887:9
+    #8 0x5b8573d in call_dissector_work /src/wireshark/epan/packet.c:975:9
+    #9 0x5b81237 in call_dissector_only /src/wireshark/epan/packet.c:3621:8
+    #10 0x5b81237 in call_dissector_with_data /src/wireshark/epan/packet.c:3634:8
+    #11 0x5b81237 in dissect_record /src/wireshark/epan/packet.c:687:3
+    #12 0x52bddb0 in epan_dissect_run /src/wireshark/epan/epan.c:666:2
+    #13 0x50b47c8 in LLVMFuzzerTestOneInput /src/wireshark/fuzz/fuzzshark.c:359:2
+    #14 0x4f674a0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #15 0x4f51ac5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #16 0x4f5755f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #17 0x4f83452 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #18 0x7fa32e2fe082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #19 0x4f49cad in _start (/out/handler_netbios+0x4f49cad)
+
+DEDUP_TOKEN: dissect_netb_terminate_trace--dissect_netbios--call_dissector_through_handle
+0x50300012edb1 is located 0 bytes after 17-byte region [0x50300012eda0,0x50300012edb1)
+allocated by thread T0 here:
+    #0 0x507345f in malloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:68:3
+    #1 0x7b083d8 in g_malloc (/out/handler_netbios+0x7b083d8)
+    #2 0x63c23e2 in dissect_netbios /src/wireshark/epan/dissectors/packet-netbios.c:1213:16
+    #3 0x5b8573d in call_dissector_through_handle /src/wireshark/epan/packet.c:887:9
+    #4 0x5b8573d in call_dissector_work /src/wireshark/epan/packet.c:975:9
+    #5 0x5b90394 in call_dissector_only /src/wireshark/epan/packet.c:3621:8
+    #6 0x5b90394 in call_all_postdissectors /src/wireshark/epan/packet.c:4166:3
+    #7 0x544b347 in dissect_frame /src/wireshark/epan/dissectors/packet-frame.c:1438:5
+    #8 0x5b8573d in call_dissector_through_handle /src/wireshark/epan/packet.c:887:9
+    #9 0x5b8573d in call_dissector_work /src/wireshark/epan/packet.c:975:9
+    #10 0x5b81237 in call_dissector_only /src/wireshark/epan/packet.c:3621:8
+    #11 0x5b81237 in call_dissector_with_data /src/wireshark/epan/packet.c:3634:8
+    #12 0x5b81237 in dissect_record /src/wireshark/epan/packet.c:687:3
+    #13 0x52bddb0 in epan_dissect_run /src/wireshark/epan/epan.c:666:2
+    #14 0x50b47c8 in LLVMFuzzerTestOneInput /src/wireshark/fuzz/fuzzshark.c:359:2
+    #15 0x4f674a0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #16 0x4f51ac5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #17 0x4f5755f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #18 0x4f83452 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #19 0x7fa32e2fe082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_malloc--g_malloc--dissect_netbios
+SUMMARY: AddressSanitizer: heap-buffer-overflow /src/wireshark/epan/dissectors/packet-netbios.c:726:22 in dissect_netb_terminate_trace
+Shadow bytes around the buggy address:
+  0x50300012eb00: 00 00 00 00 fa fa 00 00 00 00 fa fa 00 00 00 00
+  0x50300012eb80: fa fa 00 00 00 fa fa fa 00 00 00 fa fa fa 00 00
+  0x50300012ec00: 00 fa fa fa 00 00 00 00 fa fa 00 00 00 00 fa fa
+  0x50300012ec80: 00 00 00 fa fa fa 00 00 00 fa fa fa 00 00 00 fa
+  0x50300012ed00: fa fa 00 00 00 fa fa fa 00 00 00 fa fa fa 00 00
+=>0x50300012ed80: 00 fa fa fa 00 00[01]fa fa fa fa fa fa fa fa fa
+  0x50300012ee00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x50300012ee80: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x50300012ef00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x50300012ef80: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x50300012f000: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==18==ABORTING
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+0x28,0x0,0xff,0xef,0x7,0x20,0xab,0xcd,0xde,0xad,0xbe,0xef,0x40,0x0,0x0,0x0,0xf,0xe,0xd,0xc,0xb,0xa,0x9,0x8,0x7,0x6,0x5,0x4,0x3,0x2,0x1,0x0,0xca,0xfe,0xba,0xbe,0xd0,0xd,0xd0,0xc,0xb0,0xb0,0xab,0xde,0x12,0x34,
+(\000\377\357\007 \253\315\336\255\276\357@\000\000\000\017\016\015\014\013\012\011\010\007\006\005\004\003\002\001\000\312\376\272\276\320\015\320\014\260\260\253\336\0224
+subprocess command returned a non-zero exit status: 1

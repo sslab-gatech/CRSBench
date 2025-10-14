@@ -1,0 +1,60 @@
+OpenJDK 64-Bit Server VM warning: Option CriticalJNINatives was deprecated in version 16.0 and will likely be removed in a future release.
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+INFO: Loaded 790 hooks from com.code_intelligence.jazzer.runtime.TraceCmpHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.runtime.TraceDivHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.runtime.TraceIndirHooks
+INFO: Loaded 4 hooks from com.code_intelligence.jazzer.runtime.NativeLibHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.sanitizers.ClojureLangHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.Deserialization
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.ExpressionLanguageInjection
+INFO: Loaded 32 hooks from com.code_intelligence.jazzer.sanitizers.FilePathTraversal
+INFO: Loaded 70 hooks from com.code_intelligence.jazzer.sanitizers.LdapInjection
+INFO: Loaded 48 hooks from com.code_intelligence.jazzer.sanitizers.NamingContextLookup
+INFO: Loaded 1 hooks from com.code_intelligence.jazzer.sanitizers.OsCommandInjection
+INFO: Loaded 144 hooks from com.code_intelligence.jazzer.sanitizers.ReflectiveCall
+INFO: Loaded 8 hooks from com.code_intelligence.jazzer.sanitizers.RegexInjection
+INFO: Loaded 16 hooks from com.code_intelligence.jazzer.sanitizers.RegexRoadblocks
+INFO: Loaded 12 hooks from com.code_intelligence.jazzer.sanitizers.ScriptEngineInjection
+INFO: Loaded 3 hooks from com.code_intelligence.jazzer.sanitizers.ServerSideRequestForgery
+INFO: Loaded 19 hooks from com.code_intelligence.jazzer.sanitizers.SqlInjection
+INFO: Loaded 6 hooks from com.code_intelligence.jazzer.sanitizers.XPathInjection
+INFO: Instrumented BodyTemplateFuzzer (took 24 ms, size +14%)
+INFO: using inputs from: blob
+INFO: found LLVMFuzzerCustomMutator (0x7f61b5e3fa00). Disabling -len_control by default.
+INFO: libFuzzer ignores flags that start with '--'
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 490083220
+INFO: Loaded 1 modules   (512 inline 8-bit counters): 512 [0x5607444c6460, 0x5607444c6660), 
+INFO: Loaded 1 PC tables (512 PCs): 512 [0x56074449c9e0,0x56074449e9e0), 
+jazzer: Running 1 inputs 1 time(s) each.
+Running: blob
+INFO: Instrumented feign.template.BodyTemplate (took 4 ms, size +46%)
+INFO: Instrumented feign.template.Template (took 9 ms, size +19%)
+INFO: Instrumented feign.Util (took 13 ms, size +16%)
+INFO: Instrumented feign.Types$ParameterizedTypeImpl (took 3 ms, size +20%)
+INFO: Instrumented feign.Types$WildcardTypeImpl (took 2 ms, size +23%)
+INFO: Instrumented feign.Types (took 9 ms, size +29%)
+INFO: Instrumented feign.template.Template$ExpansionOptions (took 1 ms, size +10%)
+INFO: Instrumented feign.template.Template$EncodingOptions (took 2 ms, size +9%)
+INFO: Instrumented feign.template.Template$ChunkTokenizer (took 1 ms, size +34%)
+INFO: Instrumented feign.template.Literal (took 1 ms, size +31%)
+INFO: Instrumented feign.template.TemplateChunk (took 0 ms, size +0%)
+INFO: New number of coverage counters: 1024
+INFO: Instrumented feign.template.Expressions (took 2 ms, size +53%)
+INFO: Instrumented feign.template.Expression (took 2 ms, size +15%)
+INFO: Instrumented feign.template.Expressions$PathStyleExpression (took 2 ms, size +8%)
+INFO: Instrumented feign.Param$Expander (took 0 ms, size +0%)
+INFO: Instrumented feign.template.Expressions$SimpleExpression (took 3 ms, size +26%)
+
+== Java Exception: java.lang.ArrayIndexOutOfBoundsException: Index 0 out of bounds for length 0
+	at feign.template.Expressions.create(Expressions.java:85)
+	at feign.template.Template.parseFragment(Template.java:218)
+	at feign.template.Template.parseTemplate(Template.java:202)
+	at feign.template.Template.<init>(Template.java:61)
+	at feign.template.BodyTemplate.<init>(BodyTemplate.java:54)
+	at feign.template.BodyTemplate.create(BodyTemplate.java:39)
+	at BodyTemplateFuzzer.fuzzerTestOneInput(BodyTemplateFuzzer.java:26)
+DEDUP_TOKEN: 859edccddead18d3
+== libFuzzer crashing input ==
+reproducer_path='.'; Java reproducer written to ./Crash_705f118bba17c07248dd1fe7a4f5eaffdee27acb.java
+

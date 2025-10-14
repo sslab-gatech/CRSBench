@@ -1,0 +1,44 @@
+INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /home/jhkim/1.AIxCC/oss-fuzz/build/out/aixcc/c/libxml2:/out -v /home/jhkim/1.AIxCC/oss-fuzz/projects/aixcc/c/libxml2/.aixcc/povs/api/cpv_0:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.1.0 reproduce api -runs=100.
++ FUZZER=api
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer api -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/api -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -timeout_exitcode=0 < /dev/null
+INFO: found LLVMFuzzerCustomMutator (0x55f6046156f0). Disabling -len_control by default.
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 3976594704
+INFO: Loaded 1 modules   (50731 inline 8-bit counters): 50731 [0x55f604ac5df8, 0x55f604ad2423),
+INFO: Loaded 1 PC tables (50731 PCs): 50731 [0x55f604ad2428,0x55f604b986d8),
+/out/api: Running 1 inputs 100 time(s) each.
+Running: /testcase
+==18==WARNING: MemorySanitizer: use-of-uninitialized-value
+    #0 0x55f604710698 in xmlSearchNsByHref /src/libxml2/tree.c:6056:5
+    #1 0x55f6046032c7 in LLVMFuzzerTestOneInput /src/libxml2/fuzz/api.c:2178:22
+    #2 0x55f6044e5200 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #3 0x55f6044d0475 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #4 0x55f6044d5f0f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #5 0x55f6045011b2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #6 0x7fa763a44082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0323ab4806bee6f846d9ad4bccfc29afdca49a58)
+    #7 0x55f6044c865d in _start (/out/api+0x17765d)
+
+DEDUP_TOKEN: xmlSearchNsByHref--LLVMFuzzerTestOneInput--fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long)
+  Uninitialized value was created by an allocation of 'cur' in the stack frame
+    #0 0x55f60471065f in xmlSearchNsByHref /src/libxml2/tree.c:6053:5
+
+DEDUP_TOKEN: xmlSearchNsByHref
+SUMMARY: MemorySanitizer: use-of-uninitialized-value /src/libxml2/tree.c:6056:5 in xmlSearchNsByHref
+Unique heap origins: 28
+Stack depot allocated bytes: 9764880
+Unique origin histories: 2
+History depot allocated bytes: 196608
+Exiting
+subprocess command returned a non-zero exit status: 1

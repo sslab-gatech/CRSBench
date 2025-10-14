@@ -1,0 +1,25 @@
+diff --git a/core/src/main/java/feign/template/Expressions.java b/core/src/main/java/feign/template/Expressions.java
+index 11b5002c..faa3dffa 100644
+--- a/core/src/main/java/feign/template/Expressions.java
++++ b/core/src/main/java/feign/template/Expressions.java
+@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
+ 
+ public final class Expressions {
+ 
++  private static final int MAX_EXPRESSION_LENGTH = 10000;
++
+   private static final String PATH_STYLE_OPERATOR = ";";
+   /**
+    * Literals may be present and preceded the expression.
+@@ -68,6 +70,11 @@ public final class Expressions {
+       throw new IllegalArgumentException("an expression is required.");
+     }
+ 
++    if (expression.length() > MAX_EXPRESSION_LENGTH) {
++      throw new IllegalArgumentException(
++          "expression is too long. Max length: " + MAX_EXPRESSION_LENGTH);
++    }
++
+     /* create a new regular expression matcher for the expression */
+     String variableName = null;
+     String variablePattern = null;

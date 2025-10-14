@@ -1,0 +1,68 @@
++ FUZZER=exif_from_data_fuzzer
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer exif_from_data_fuzzer -runs=100 -detect_leaks=0 /testcase
+vm.mmap_rnd_bits = 28
+/out/exif_from_data_fuzzer -rss_limit_mb=2560 -timeout=25 -runs=100 -detect_leaks=0 /testcase -timeout_exitcode=0 < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1536349278
+INFO: Loaded 1 modules   (2866 inline 8-bit counters): 2866 [0x564b87a02738, 0x564b87a0326a), 
+INFO: Loaded 1 PC tables (2866 PCs): 2866 [0x564b87a03270,0x564b87a0e590), 
+/out/exif_from_data_fuzzer: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+[1m[31m==17==ERROR: AddressSanitizer: memcpy-param-overlap: memory ranges [0x51d000001480,0x51d000001c0c) and [0x51d000000d76, 0x51d000001502) overlap
+[1m[0mSCARINESS: 10 (memcpy-param-overlap)
+    #0 0x564b878dce70 in __asan_memcpy /src/llvm-project/compiler-rt/lib/asan/asan_interceptors_memintrinsics.cpp:63:3
+    #1 0x564b87923219 in exif_data_load_data_entry /src/libexif/libexif/exif-data.c:213:3
+    #2 0x564b87923219 in exif_data_load_data_content /src/libexif/libexif/exif-data.c:531:8
+    #3 0x564b87922f09 in exif_data_load_data_content /src/libexif/libexif/exif-data.c
+    #4 0x564b87921d45 in exif_data_load_data /src/libexif/libexif/exif-data.c:984:2
+    #5 0x564b8792136e in exif_data_new_from_data /src/libexif/libexif/exif-data.c:159:2
+    #6 0x564b8791e8af in LLVMFuzzerTestOneInput /src/exif_from_data_fuzzer.cc:51:16
+    #7 0x564b877d3330 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #8 0x564b877be5a5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #9 0x564b877c403f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #10 0x564b877ef2e2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #11 0x7fe89b99b082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #12 0x564b877b678d in _start (/out/exif_from_data_fuzzer+0x8678d)
+
+DEDUP_TOKEN: __asan_memcpy--exif_data_load_data_entry--exif_data_load_data_content
+[1m[32m0x51d000001480 is located 0 bytes inside of 1932-byte region [0x51d000001480,0x51d000001c0c)
+[1m[0m[1m[35mallocated by thread T0 here:[1m[0m
+    #0 0x564b878df2c9 in calloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:75:3
+    #1 0x564b8792313f in exif_data_alloc /src/libexif/libexif/exif-data.c:81:6
+    #2 0x564b8792313f in exif_data_load_data_entry /src/libexif/libexif/exif-data.c:210:16
+    #3 0x564b8792313f in exif_data_load_data_content /src/libexif/libexif/exif-data.c:531:8
+    #4 0x564b87922f09 in exif_data_load_data_content /src/libexif/libexif/exif-data.c
+    #5 0x564b87921d45 in exif_data_load_data /src/libexif/libexif/exif-data.c:984:2
+    #6 0x564b8792136e in exif_data_new_from_data /src/libexif/libexif/exif-data.c:159:2
+    #7 0x564b8791e8af in LLVMFuzzerTestOneInput /src/exif_from_data_fuzzer.cc:51:16
+    #8 0x564b877d3330 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #9 0x564b877be5a5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #10 0x564b877c403f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #11 0x564b877ef2e2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #12 0x7fe89b99b082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_calloc--exif_data_alloc--exif_data_load_data_entry
+[1m[32m0x51d00000135a is located 0 bytes after 2266-byte region [0x51d000000a80,0x51d00000135a)
+[1m[0m[1m[35mallocated by thread T0 here:[1m[0m
+    #0 0x564b878df0ff in malloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:68:3
+    #1 0x564b8795c093 in operator new(unsigned long) cxa_noexception.cpp
+    #2 0x564b877be5a5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #3 0x564b877c403f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #4 0x564b877ef2e2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #5 0x7fe89b99b082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_malloc--operator new(unsigned long)--fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long)
+SUMMARY: AddressSanitizer: memcpy-param-overlap /src/libexif/libexif/exif-data.c:213:3 in exif_data_load_data_entry
+==17==ABORTING
+subprocess command returned a non-zero exit status: 1

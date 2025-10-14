@@ -1,0 +1,16 @@
+diff --git a/tree.c b/tree.c
+index eb58dcad..ea4f2bd8 100644
+--- a/tree.c
++++ b/tree.c
+@@ -5621,7 +5621,10 @@ xmlNodeGetContent(const xmlNode *cur)
+             else
+                 return(xmlStrdup(BAD_CAST ""));
+         case XML_COMMENT_NODE:
+-            return (cur->content);
++            if (cur->content != NULL)
++                return(xmlStrdup(cur->content));
++            else
++                return(xmlStrdup(BAD_CAST ""));
+         case XML_PI_NODE:
+             if (cur->content != NULL)
+                 return(xmlStrdup(cur->content));

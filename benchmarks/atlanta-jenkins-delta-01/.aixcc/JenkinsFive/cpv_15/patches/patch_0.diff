@@ -1,0 +1,14 @@
+diff --git a/plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java b/plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
+index 550c8ba..0df78b1 100644
+--- a/plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
++++ b/plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
+@@ -93,6 +93,9 @@ public class EmailConfig {
+     public String constructor(){
+         try{
+             Class<?> stagedEmailSetupClass = this.getClass();
++            if (emailAddress.equals("debugEnable") || emailAddress.equals("debugOnlyAndPrivate")) {
++                return "bad email!!";
++            }
+             Method getEmailMethod = stagedEmailSetupClass.getDeclaredMethod(emailAddress);
+ 
+             if (publishReady){

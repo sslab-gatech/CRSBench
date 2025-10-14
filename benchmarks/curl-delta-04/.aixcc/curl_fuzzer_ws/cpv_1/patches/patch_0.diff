@@ -1,0 +1,14 @@
+diff --git a/lib/extremelygoodprtcl.c b/lib/extremelygoodprtcl.c
+index 69534ce4f..0715e4534 100644
+--- a/lib/extremelygoodprtcl.c
++++ b/lib/extremelygoodprtcl.c
+@@ -302,9 +302,6 @@ static CURLcode extremelygoodprtcl_sm
+         result = CURLE_OK;
+         vnstate(data, EXTREMELYGOODPRTCL_STOP);
+       }
+-      else if(strcasecmp(response, "crashycrashy\r\n") == 0) {
+-        *(unsigned int *)result = CURLE_OK;
+-      }
+       else {
+         result = CURLE_WEIRD_SERVER_REPLY;
+       }

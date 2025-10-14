@@ -1,0 +1,53 @@
+diff --git a/poi-scratchpad/src/main/java/org/apache/poi/hwpf/converter/AbstractWordUtils.java b/poi-scratchpad/src/main/java/org/apache/poi/hwpf/converter/AbstractWordUtils.java
+index e29cbd9..b2bd30f 100644
+--- a/poi-scratchpad/src/main/java/org/apache/poi/hwpf/converter/AbstractWordUtils.java
++++ b/poi-scratchpad/src/main/java/org/apache/poi/hwpf/converter/AbstractWordUtils.java
+@@ -40,6 +40,7 @@ import org.apache.poi.hwpf.usermodel.TableRow;
+ import org.apache.poi.poifs.filesystem.DirectoryNode;
+ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+ import org.apache.poi.util.Beta;
++import org.apache.poi.util.IOUtils;
+ import org.w3c.dom.Attr;
+ import org.w3c.dom.Element;
+ import org.w3c.dom.NamedNodeMap;
+@@ -57,6 +58,17 @@ public class AbstractWordUtils {
+     public static final float TWIPS_PER_INCH = 1440.0f;
+     public static final int TWIPS_PER_PT = 20;
+ 
++    /**
++     * Limit the amount of main memory which can be used for bullet-information
++     *
++     * if this is too small it can be raised via IOUtils.setByteArrayMaxOverride()
++     *
++     * the chosen limit is fairly arbitrarily, but should allow almost all valid
++     * documents to be processed, but should prevent from causing unexpected high
++     * memory allocation with malicious files.
++     */
++    private static final int MAX_BULLET_BUFFER_SIZE = 1_000_000;
++
+     /**
+      * Creates array of all possible cell edges. In HTML (and FO) cells from
+      * different rows and same column should have same width, otherwise spanning
+@@ -227,11 +239,22 @@ public class AbstractWordUtils {
+                         numberingState.levels.remove( childKey );
+                     }
+                 }
++
++                // ensure the format does not grow too large, number-format
++                // can be roman-numbers, where very large numbers would have
++                // very many "M" and thus may cause memory to overload
++                IOUtils.safelyAllocateCheck(num, MAX_BULLET_BUFFER_SIZE/10);
++
+                 bulletBuffer.append( NumberFormatter.getNumber( num,
+                         list.getNumberFormat( level ) ) );
+             } else {
+                 bulletBuffer.append( element );
+             }
++
++            // ensure this buffer does not grow to much, this should avoid cases where
++            // this can "explode", i.e. small input file consumes huge amounts of
++            // main memory
++            IOUtils.safelyAllocateCheck(bulletBuffer.length(), MAX_BULLET_BUFFER_SIZE);
+         }
+ 
+         byte follow = list.getTypeOfCharFollowingTheNumber( level );

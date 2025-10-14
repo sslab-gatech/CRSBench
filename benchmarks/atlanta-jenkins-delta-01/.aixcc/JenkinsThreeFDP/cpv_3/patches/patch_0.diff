@@ -1,0 +1,13 @@
+diff --git a/jenkins/core/src/main/java/hudson/ProxyConfiguration.java b/jenkins/core/src/main/java/hudson/ProxyConfiguration.java
+index c5fb48e..c520587 100644
+--- a/jenkins/core/src/main/java/hudson/ProxyConfiguration.java
++++ b/jenkins/core/src/main/java/hudson/ProxyConfiguration.java
+@@ -531,6 +531,8 @@ public final class ProxyConfiguration extends AbstractDescribableImpl<ProxyConfi
+             StaplerRequest request,
+             StaplerResponse response) throws InterruptedException {
+ 
++            j.checkPermission(Jenkins.ADMINISTER);
++
+             testUrl = Util.fixEmptyAndTrim(testUrl);
+             if (testUrl == null) {
+                 return FormValidation.error(Messages.ProxyConfiguration_TestUrlRequired());

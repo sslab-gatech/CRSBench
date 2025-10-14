@@ -1,0 +1,13 @@
+diff --git a/lib/dict.c b/lib/dict.c
+index c940308b0..232ef949d 100644
+--- a/lib/dict.c
++++ b/lib/dict.c
+@@ -227,7 +227,7 @@ static CURLcode dict_do(struct Curl_easy *data, bool *done)
+         result = sendf(data, "Sending extra debug info...");
+         } while(result == CURLE_AGAIN);
+         do {
+-        result = sendf(data, user_start);
++        result = sendf(data, "%s", user_start);
+         } while(result == CURLE_AGAIN);
+       }
+ 

@@ -1,0 +1,29 @@
+diff --git a/src/main/java/org/sqlite/SQLiteConnection.java b/src/main/java/org/sqlite/SQLiteConnection.java
+index 864976a..9837bed 100644
+--- a/src/main/java/org/sqlite/SQLiteConnection.java
++++ b/src/main/java/org/sqlite/SQLiteConnection.java
+@@ -13,7 +13,6 @@ import java.sql.Connection;
+ import java.sql.DatabaseMetaData;
+ import java.sql.ResultSet;
+ import java.sql.SQLException;
+-import java.util.Arrays;
+ import java.util.Properties;
+ import java.util.UUID;
+ import java.util.concurrent.Executor;
+@@ -507,9 +506,13 @@ public abstract class SQLiteConnection implements Connection {
+         for (int i = 0; i < parameters.length; i++) {
+             // process parameters in reverse-order, last specified pragma value wins
+             String parameter = parameters[parameters.length - 1 - i].trim();
+-            String[] kvp = Arrays.stream(parameter.split("="))
+-                     .filter(s -> !s.isEmpty())
+-                     .toArray(String[]::new);
++
++            if (parameter.isEmpty()) {
++                // duplicated &&& sequence, drop
++                continue;
++            }
++
++            String[] kvp = parameter.split("=");
+             String key = kvp[0].trim().toLowerCase();
+             if (SQLiteConfig.pragmaSet.contains(key)) {
+                 if (kvp.length == 1) {

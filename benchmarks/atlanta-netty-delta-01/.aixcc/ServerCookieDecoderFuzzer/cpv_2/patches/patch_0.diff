@@ -1,0 +1,12 @@
+diff --git a/codec-http/src/main/java/io/netty/handler/codec/http/cookie/ServerCookieDecoder.java b/codec-http/src/main/java/io/netty/handler/codec/http/cookie/ServerCookieDecoder.java
+index b1d66e8..2052a01 100644
+--- a/codec-http/src/main/java/io/netty/handler/codec/http/cookie/ServerCookieDecoder.java
++++ b/codec-http/src/main/java/io/netty/handler/codec/http/cookie/ServerCookieDecoder.java
+@@ -169,6 +169,7 @@ public final class ServerCookieDecoder extends CookieDecoder {
+                             if (value.charAt(len + prefix_len) == ';') {
+                                 break;
+                             }
++                            len++;
+                         }
+                         valueEnd = valueBegin + prefix_len + len;
+                     }

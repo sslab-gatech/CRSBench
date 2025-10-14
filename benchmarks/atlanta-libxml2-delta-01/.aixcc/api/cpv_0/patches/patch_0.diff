@@ -1,0 +1,18 @@
+diff --git a/tree.c b/tree.c
+index e57a6fa3..09c82336 100644
+--- a/tree.c
++++ b/tree.c
+@@ -5966,10 +5966,11 @@ xmlSearchNsByHrefSafe(xmlNodePtr node, const xmlChar *href,
+     xmlNodePtr parent;
+     int is_attr;
+ 
+-    if ((out == NULL) ||
+-        (node == NULL) || (node->type == XML_NAMESPACE_DECL))
++    if (out == NULL)
+         return(1);
+     *out = NULL;
++    if ((node == NULL) || (node->type == XML_NAMESPACE_DECL))
++        return(1);
+ 
+     doc = node->doc;
+ 

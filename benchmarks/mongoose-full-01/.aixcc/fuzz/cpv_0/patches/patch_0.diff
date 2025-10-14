@@ -1,0 +1,62 @@
+diff --git a/mongoose.c b/mongoose.c
+index 3508b21e..6f91a5a2 100644
+--- a/mongoose.c
++++ b/mongoose.c
+@@ -2723,7 +2723,7 @@ int mg_json_get(struct mg_str json, const char *path, int *toklen) {
+   const char *s = json.buf;
+   int len = (int) json.len;
+   enum { S_VALUE, S_KEY, S_COLON, S_COMMA_OR_EOO } expecting = S_VALUE;
+-  unsigned char nesting[MG_JSON_MAX_DEPTH];
++  unsigned char nesting[MG_JSON_MAX_NESTING];
+   int i = 0;             // Current offset in `s`
+   int j = 0;             // Offset in `s` we're looking for (return value)
+   int depth = 0;         // Current depth (nesting level)
+@@ -2760,7 +2760,7 @@ int mg_json_get(struct mg_str json, const char *path, int *toklen) {
+         // p("V %s [%.*s] %d %d %d %d\n", path, pos, path, depth, ed, ci, ei);
+         if (depth == ed) j = i;
+         if (c == '{') {
+-          if (depth > MG_JSON_MAX_NESTING) return MG_JSON_TOO_DEEP;
++          if (depth >= MG_JSON_MAX_NESTING) return MG_JSON_TOO_DEEP;
+           if (depth == ed && path[pos] == '.' && ci == ei) {
+             // If we start the object, reset array indices
+             ed++, pos++, ci = ei = -1;
+@@ -2769,7 +2769,7 @@ int mg_json_get(struct mg_str json, const char *path, int *toklen) {
+           expecting = S_KEY;
+           break;
+         } else if (c == '[') {
+-          if (depth > MG_JSON_MAX_NESTING) return MG_JSON_TOO_DEEP;
++          if (depth >= MG_JSON_MAX_NESTING) return MG_JSON_TOO_DEEP;
+           if (depth == ed && path[pos] == '[' && ei == ci) {
+             ed++, pos++, ci = 0;
+             for (ei = 0; path[pos] != ']' && path[pos] != '\0'; pos++) {
+diff --git a/src/json.c b/src/json.c
+index cf6bc57b..5e2f0512 100644
+--- a/src/json.c
++++ b/src/json.c
+@@ -127,7 +127,7 @@ int mg_json_get(struct mg_str json, const char *path, int *toklen) {
+   const char *s = json.buf;
+   int len = (int) json.len;
+   enum { S_VALUE, S_KEY, S_COLON, S_COMMA_OR_EOO } expecting = S_VALUE;
+-  unsigned char nesting[MG_JSON_MAX_DEPTH];
++  unsigned char nesting[MG_JSON_MAX_NESTING];
+   int i = 0;             // Current offset in `s`
+   int j = 0;             // Offset in `s` we're looking for (return value)
+   int depth = 0;         // Current depth (nesting level)
+@@ -164,7 +164,7 @@ int mg_json_get(struct mg_str json, const char *path, int *toklen) {
+         // p("V %s [%.*s] %d %d %d %d\n", path, pos, path, depth, ed, ci, ei);
+         if (depth == ed) j = i;
+         if (c == '{') {
+-          if (depth > MG_JSON_MAX_NESTING) return MG_JSON_TOO_DEEP;
++          if (depth >= MG_JSON_MAX_NESTING) return MG_JSON_TOO_DEEP;
+           if (depth == ed && path[pos] == '.' && ci == ei) {
+             // If we start the object, reset array indices
+             ed++, pos++, ci = ei = -1;
+@@ -173,7 +173,7 @@ int mg_json_get(struct mg_str json, const char *path, int *toklen) {
+           expecting = S_KEY;
+           break;
+         } else if (c == '[') {
+-          if (depth > MG_JSON_MAX_NESTING) return MG_JSON_TOO_DEEP;
++          if (depth >= MG_JSON_MAX_NESTING) return MG_JSON_TOO_DEEP;
+           if (depth == ed && path[pos] == '[' && ei == ci) {
+             ed++, pos++, ci = 0;
+             for (ei = 0; path[pos] != ']' && path[pos] != '\0'; pos++) {

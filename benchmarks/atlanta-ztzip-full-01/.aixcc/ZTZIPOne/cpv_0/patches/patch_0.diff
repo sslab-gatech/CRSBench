@@ -1,0 +1,38 @@
+diff --git a/src/main/java/org/zeroturnaround/zip/ZipUtil.java b/src/main/java/org/zeroturnaround/zip/ZipUtil.java
+index fa2622a..80e39f3 100644
+--- a/src/main/java/org/zeroturnaround/zip/ZipUtil.java
++++ b/src/main/java/org/zeroturnaround/zip/ZipUtil.java
+@@ -1150,6 +1150,11 @@ public final class ZipUtil {
+       String name = mapper.map(zipEntry.getName());
+       if (name != null) {
+         File file = new File(outputDir, name);
++
++        if (name.indexOf("..") != -1 && !file.getCanonicalPath().startsWith(outputDir.getCanonicalPath())) {
++          throw new ZipException("The file "+name+" is trying to leave the target output directory of "+outputDir+". Ignoring this file.");
++        }
++
+         if (zipEntry.isDirectory()) {
+           FileUtils.forceMkdir(file);
+         }
+@@ -1218,11 +1223,21 @@ public final class ZipUtil {
+             parentDirectory = file;
+           }
+           File destFile = new File(parentDirectory, dirs[dirs.length - 1]);
++
++          if (name.indexOf("..") != -1 && !destFile.getCanonicalPath().startsWith(outputDir.getCanonicalPath())) {
++            throw new ZipException("The file "+name+" is trying to leave the target output directory of "+outputDir+". Ignoring this file.");
++          }
++
+           FileUtils.copy(in, destFile);
+         }
+         // it could be that there are just top level files that the unpacker is used for
+         else {
+           File destFile = new File(outputDir, name);
++
++          if (name.indexOf("..") != -1 && !destFile.getCanonicalPath().startsWith(outputDir.getCanonicalPath())) {
++            throw new ZipException("The file "+name+" is trying to leave the target output directory of "+outputDir+". Ignoring this file.");
++          }
++
+           FileUtils.copy(in, destFile);
+         }
+       }

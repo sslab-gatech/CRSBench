@@ -1,0 +1,18 @@
+diff --git a/xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java b/xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java
+index e614b7f99..bb177263f 100644
+--- a/xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java
++++ b/xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java
+@@ -79,6 +79,13 @@ public class DomXmpParser
+         try
+         {
+             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
++            dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
++            dbFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
++            dbFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
++            dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
++            dbFactory.setXIncludeAware(false);
++            dbFactory.setExpandEntityReferences(false);
++            dbFactory.setIgnoringComments(true);
+             dbFactory.setNamespaceAware(true);
+             dBuilder = dbFactory.newDocumentBuilder();
+             nsFinder = new NamespaceFinder();

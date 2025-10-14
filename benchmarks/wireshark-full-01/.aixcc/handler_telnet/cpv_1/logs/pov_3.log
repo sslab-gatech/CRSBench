@@ -1,0 +1,67 @@
++ FUZZER=handler_telnet
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer handler_telnet -runs=100 -detect_leaks=0 /testcase
+vm.mmap_rnd_bits = 28
+/out/handler_telnet -rss_limit_mb=2560 -timeout=25 -runs=100 -detect_leaks=0 /testcase -max_len=1024 -timeout_exitcode=0 < /dev/null
+oss-fuzzshark: disabling: ip
+oss-fuzzshark: disabling: udp
+oss-fuzzshark: disabling: udplite
+oss-fuzzshark: disabling: ospf
+oss-fuzzshark: disabling: bgp
+oss-fuzzshark: disabling: dhcp
+oss-fuzzshark: disabling: json
+oss-fuzzshark: disabling: snort
+oss-fuzzshark: configured for dissector: telnet
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 3077108811
+INFO: Loaded 1 modules   (420518 inline 8-bit counters): 420518 [0xa9f6a00, 0xaa5d4a6), 
+INFO: Loaded 1 PC tables (420518 PCs): 420518 [0xaa5d4a8,0xb0c7f08), 
+/out/handler_telnet: Running 1 inputs 100 time(s) each.
+Running: /testcase
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+[1m[31m==18==ERROR: AddressSanitizer: SEGV on unknown address 0x7fc34b5097f0 (pc 0x000004fdc7a2 bp 0x000000000000 sp 0x7ffdbf8c6f50 T0)
+[1m[0m==18==The signal is caused by a WRITE memory access.
+SCARINESS: 30 (wild-addr-write)
+    #0 0x4fdc7a2 in atomic_compare_exchange_strong<__sanitizer::atomic_uint8_t> /src/llvm-project/compiler-rt/lib/asan/../sanitizer_common/sanitizer_atomic_clang.h:81:10
+    #1 0x4fdc7a2 in AtomicallySetQuarantineFlagIfAllocated /src/llvm-project/compiler-rt/lib/asan/asan_allocator.cpp:668:10
+    #2 0x4fdc7a2 in __asan::Allocator::Deallocate(void*, unsigned long, unsigned long, __sanitizer::BufferedStackTrace*, __asan::AllocType) /src/llvm-project/compiler-rt/lib/asan/asan_allocator.cpp:724:10
+    #3 0x507322b in free /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:53:3
+    #4 0x7a1cb28 in wmem_simple_free /src/wireshark/wsutil/wmem/wmem_allocator_simple.c:54:5
+    #5 0x7636b8f in telnet_sub_option /src/wireshark/epan/dissectors/packet-telnet.c:2097:9
+    #6 0x7636b8f in telnet_command /src/wireshark/epan/dissectors/packet-telnet.c:2182:14
+    #7 0x7636b8f in dissect_telnet /src/wireshark/epan/dissectors/packet-telnet.c:2322:16
+    #8 0x5b8573d in call_dissector_through_handle /src/wireshark/epan/packet.c:887:9
+    #9 0x5b8573d in call_dissector_work /src/wireshark/epan/packet.c:975:9
+    #10 0x5b90394 in call_dissector_only /src/wireshark/epan/packet.c:3621:8
+    #11 0x5b90394 in call_all_postdissectors /src/wireshark/epan/packet.c:4166:3
+    #12 0x544b347 in dissect_frame /src/wireshark/epan/dissectors/packet-frame.c:1438:5
+    #13 0x5b8573d in call_dissector_through_handle /src/wireshark/epan/packet.c:887:9
+    #14 0x5b8573d in call_dissector_work /src/wireshark/epan/packet.c:975:9
+    #15 0x5b81237 in call_dissector_only /src/wireshark/epan/packet.c:3621:8
+    #16 0x5b81237 in call_dissector_with_data /src/wireshark/epan/packet.c:3634:8
+    #17 0x5b81237 in dissect_record /src/wireshark/epan/packet.c:687:3
+    #18 0x52bddb0 in epan_dissect_run /src/wireshark/epan/epan.c:666:2
+    #19 0x50b47c8 in LLVMFuzzerTestOneInput /src/wireshark/fuzz/fuzzshark.c:359:2
+    #20 0x4f674a0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #21 0x4f51ac5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #22 0x4f5755f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #23 0x4f83452 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #24 0x7fc3555f4082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #25 0x4f49cad in _start (/out/handler_telnet+0x4f49cad)
+
+DEDUP_TOKEN: atomic_compare_exchange_strong<__sanitizer::atomic_uint8_t>--AtomicallySetQuarantineFlagIfAllocated--__asan::Allocator::Deallocate(void*, unsigned long, unsigned long, __sanitizer::BufferedStackTrace*, __asan::AllocType)
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV /src/wireshark/wsutil/wmem/wmem_allocator_simple.c:54:5 in wmem_simple_free
+==18==ABORTING
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+subprocess command returned a non-zero exit status: 1

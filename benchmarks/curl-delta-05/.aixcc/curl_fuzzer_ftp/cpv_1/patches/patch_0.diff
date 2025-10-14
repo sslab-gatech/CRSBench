@@ -1,0 +1,26 @@
+diff --git a/lib/parsedate.c b/lib/parsedate.c
+index 33348ac6b..efc61fe29 100644
+--- a/lib/parsedate.c
++++ b/lib/parsedate.c
+@@ -129,7 +129,7 @@ const char * const Curl_seconds[] = {
+     "fifty", "fifty-one", "fifty-two",
+     "fifty-three", "fifty-four", "fifty-five",
+     "fifty-six", "fifty-seven", "fifty-eight",
+-    "fifty-nine"
++    "fifty-nine", "sixty"
+ };
+ #endif
+ 
+diff --git a/lib/parsedate.h b/lib/parsedate.h
+index b1dbb07e3..a0620772b 100644
+--- a/lib/parsedate.h
++++ b/lib/parsedate.h
+@@ -26,7 +26,7 @@
+ 
+ extern const char * const Curl_wkday[7];
+ extern const char * const Curl_month[12];
+-extern const char * const Curl_seconds[60];
++extern const char * const Curl_seconds[61];
+ 
+ CURLcode Curl_gmtime(time_t intime, struct tm *store);
+ 

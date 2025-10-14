@@ -1,0 +1,54 @@
+diff --git a/pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java b/pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java
+index e8b53efc4..97bc49a2a 100644
+--- a/pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java
++++ b/pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java
+@@ -23,6 +23,7 @@ import java.util.HashSet;
+ import java.util.Map;
+ import java.util.Optional;
+ import java.util.Map.Entry;
++import java.util.Set;
+ 
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
+@@ -98,17 +99,19 @@ public class XrefParser
+         }
+         document.setStartXref(startXrefOffset);
+         long prev = startXrefOffset;
+-        //lastPrev prevents potential infinite loops in crafted files
+-        long lastPrev = -1;
+         // ---- parse whole chain of xref tables/object streams using PREV reference
++        Set<Long> prevSet = new HashSet<>();
+         COSDictionary trailer = null;
+-        while (prev > 0 && prev != lastPrev)
++        while (prev > 0)
+         {
+-            lastPrev = prev;
++            // save expected position for loop detection
++            prevSet.add(prev);
+             // seek to xref table
+             source.seek(prev);
+             // skip white spaces
+             parser.skipSpaces();
++            // save current position as well due to skipped spaces
++            prevSet.add(source.getPosition());
+             // -- parse xref
+             if (source.peek() == X)
+             {
+@@ -120,7 +123,7 @@ public class XrefParser
+                             + source.getPosition());
+                 }
+                 trailer = xrefTrailerResolver.getCurrentTrailer();
+-                // check for a XRef stream, it may contain some object ids of compressed objects 
++                // check for a XRef stream, it may contain some object ids of compressed objects
+                 if(trailer.containsKey(COSName.XREF_STM))
+                 {
+                     int streamOffset = trailer.getInt(COSName.XREF_STM);
+@@ -170,7 +173,7 @@ public class XrefParser
+                     trailer.setLong(COSName.PREV, prev);
+                 }
+             }
+-            if (prev == lastPrev)
++            if (prevSet.contains(prev))
+             {
+                 throw new IOException("/Prev loop at offset " + prev);
+             }
