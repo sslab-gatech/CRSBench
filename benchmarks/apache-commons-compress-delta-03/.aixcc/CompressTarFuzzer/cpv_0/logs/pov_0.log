@@ -1,0 +1,164 @@
+INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /home/acorn421/work/team-atlanta/filter-oss-fuzz/oss-fuzz-crs-bench/build/out/aixcc/jvm/apache-commons-compress-delta-03:/out -v /home/acorn421/work/team-atlanta/filter-oss-fuzz/oss-fuzz-crs-bench/projects/aixcc/jvm/apache-commons-compress-delta-03/.aixcc/povs/CompressTarFuzzer/cpv_0:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.3.0 reproduce CompressTarFuzzer -runs=100.
++ FUZZER=CompressTarFuzzer
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer CompressTarFuzzer -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/CompressTarFuzzer -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -timeout_exitcode=0 < /dev/null
+OpenJDK 64-Bit Server VM warning: Option CriticalJNINatives was deprecated in version 16.0 and will likely be removed in a future release.
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+INFO: Loaded 273 hooks from com.code_intelligence.jazzer.runtime.TraceCmpHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.runtime.TraceDivHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.runtime.TraceIndirHooks
+INFO: Loaded 4 hooks from com.code_intelligence.jazzer.runtime.NativeLibHooks
+INFO: Loaded 2 hooks from com.code_intelligence.jazzer.sanitizers.ClojureLangHooks
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.Deserialization
+INFO: Loaded 5 hooks from com.code_intelligence.jazzer.sanitizers.ExpressionLanguageInjection
+INFO: Loaded 32 hooks from com.code_intelligence.jazzer.sanitizers.FilePathTraversal
+INFO: Loaded 70 hooks from com.code_intelligence.jazzer.sanitizers.LdapInjection
+INFO: Loaded 46 hooks from com.code_intelligence.jazzer.sanitizers.NamingContextLookup
+INFO: Loaded 1 hooks from com.code_intelligence.jazzer.sanitizers.OsCommandInjection
+INFO: Loaded 48 hooks from com.code_intelligence.jazzer.sanitizers.ReflectiveCall
+INFO: Loaded 8 hooks from com.code_intelligence.jazzer.sanitizers.RegexInjection
+INFO: Loaded 16 hooks from com.code_intelligence.jazzer.sanitizers.RegexRoadblocks
+INFO: Loaded 12 hooks from com.code_intelligence.jazzer.sanitizers.ScriptEngineInjection
+INFO: Loaded 3 hooks from com.code_intelligence.jazzer.sanitizers.ServerSideRequestForgery
+INFO: Loaded 19 hooks from com.code_intelligence.jazzer.sanitizers.SqlInjection
+INFO: Loaded 6 hooks from com.code_intelligence.jazzer.sanitizers.XPathInjection
+INFO: Instrumented CompressTarFuzzer (took 79 ms, size +26%)
+INFO: Instrumented BaseTests (took 33 ms, size +11%)
+INFO: Instrumented org.apache.commons.compress.archivers.ArchiveInputStream (took 12 ms, size +9%)
+INFO: Instrumented org.apache.commons.compress.compressors.CompressorInputStream (took 4 ms, size +23%)
+INFO: using inputs from: /testcase
+INFO: found LLVMFuzzerCustomMutator (0x7fe3044cfa00). Disabling -len_control by default.
+INFO: libFuzzer ignores flags that start with '--'
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 3453185783
+INFO: Loaded 1 modules   (512 inline 8-bit counters): 512 [0x559c7752a040, 0x559c7752a240), 
+INFO: Loaded 1 PC tables (512 PCs): 512 [0x559c774f5950,0x559c774f7950), 
+jazzer: Running 1 inputs 100 time(s) each.
+Running: /testcase
+INFO: Instrumented org.apache.commons.compress.archivers.tar.TarFile (took 27 ms, size +20%)
+INFO: Instrumented org.apache.commons.compress.archivers.tar.TarFile$BoundedTarEntryInputStream (took 4 ms, size +25%)
+INFO: Instrumented org.apache.commons.compress.utils.BoundedArchiveInputStream (took 3 ms, size +25%)
+INFO: Instrumented org.apache.commons.compress.archivers.tar.TarArchiveSparseZeroInputStream (took 1 ms, size +19%)
+INFO: Instrumented org.apache.commons.compress.utils.SeekableInMemoryByteChannel (took 5 ms, size +23%)
+INFO: Instrumented org.apache.commons.compress.archivers.zip.ZipEncodingHelper (took 4 ms, size +21%)
+INFO: Instrumented org.apache.commons.compress.archivers.zip.ZipEncoding (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.compress.archivers.zip.NioZipEncoding (took 5 ms, size +15%)
+INFO: Instrumented org.apache.commons.compress.archivers.zip.CharsetAccessor (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.io.Charsets (took 3 ms, size +8%)
+INFO: New number of coverage counters: 1024
+INFO: Instrumented org.apache.commons.compress.utils.ArchiveUtils (took 6 ms, size +26%)
+INFO: New number of coverage counters: 2048
+INFO: Instrumented org.apache.commons.compress.archivers.tar.TarArchiveEntry (took 41 ms, size +32%)
+INFO: Instrumented org.apache.commons.compress.archivers.ArchiveEntry (took 1 ms, size +20%)
+INFO: Instrumented org.apache.commons.compress.archivers.tar.TarConstants (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.compress.archivers.EntryStreamOffsets (took 0 ms, size +0%)
+INFO: Instrumented org.apache.commons.compress.utils.IOUtils (took 4 ms, size +18%)
+INFO: Instrumented org.apache.commons.compress.archivers.tar.TarUtils (took 10 ms, size +21%)
+INFO: Instrumented org.apache.commons.compress.archivers.tar.TarUtils$1 (took 1 ms, size +21%)
+INFO: Instrumented org.apache.commons.io.file.attribute.FileTimes (took 4 ms, size +13%)
+INFO: Instrumented org.apache.commons.io.output.ByteArrayOutputStream (took 2 ms, size +14%)
+INFO: Instrumented org.apache.commons.io.output.AbstractByteArrayOutputStream (took 3 ms, size +15%)
+INFO: Instrumented org.apache.commons.io.input.ClosedInputStream (took 1 ms, size +9%)
+INFO: New number of coverage counters: 4096
+INFO: Instrumented org.apache.commons.io.IOUtils (took 34 ms, size +13%)
+INFO: Instrumented org.apache.commons.io.output.StringBuilderWriter (took 2 ms, size +9%)
+INFO: Instrumented org.apache.commons.io.output.AppendableWriter (took 2 ms, size +12%)
+INFO: Instrumented org.apache.commons.io.output.ThresholdingOutputStream (took 3 ms, size +11%)
+INFO: Instrumented org.apache.commons.io.CloseableURLConnection (took 7 ms, size +11%)
+INFO: Instrumented org.apache.commons.io.output.QueueOutputStream (took 1 ms, size +6%)
+INFO: Instrumented org.apache.commons.io.output.NullWriter (took 2 ms, size +8%)
+INFO: Instrumented org.apache.commons.io.output.NullOutputStream (took 1 ms, size +12%)
+INFO: Instrumented org.apache.commons.io.input.CharSequenceReader (took 3 ms, size +18%)
+INFO: Instrumented org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream (took 3 ms, size +10%)
+INFO: Instrumented org.apache.commons.io.StandardLineSeparator (took 1 ms, size +9%)
+ALARM: working on the last Unit for 25 seconds
+       and the timeout value is 25 (use -timeout=N to change)
+==20== ERROR: libFuzzer: timeout after 25 seconds
+
+Stack traces of all JVM threads:
+Thread[Reference Handler,10,system]
+	at java.base@17.0.2/java.lang.ref.Reference.waitForReferencePendingList(Native Method)
+	at java.base@17.0.2/java.lang.ref.Reference.processPendingReferences(Reference.java:253)
+	at java.base@17.0.2/java.lang.ref.Reference$ReferenceHandler.run(Reference.java:215)
+
+Thread[Notification Thread,9,system]
+
+Thread[Finalizer,8,system]
+	at java.base@17.0.2/java.lang.Object.wait(Native Method)
+	at java.base@17.0.2/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:155)
+	at java.base@17.0.2/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:176)
+	at java.base@17.0.2/java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:172)
+
+Thread[process reaper,10,system]
+	at java.base@17.0.2/jdk.internal.misc.Unsafe.park(Native Method)
+	at java.base@17.0.2/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:252)
+	at java.base@17.0.2/java.util.concurrent.SynchronousQueue$TransferStack.transfer(SynchronousQueue.java:401)
+	at java.base@17.0.2/java.util.concurrent.SynchronousQueue.poll(SynchronousQueue.java:903)
+	at java.base@17.0.2/java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1061)
+	at java.base@17.0.2/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1122)
+	at java.base@17.0.2/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base@17.0.2/java.lang.Thread.run(Thread.java:833)
+
+Thread[Attach Listener,9,system]
+
+Thread[Common-Cleaner,8,InnocuousThreadGroup]
+	at java.base@17.0.2/java.lang.Object.wait(Native Method)
+	at java.base@17.0.2/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:155)
+	at java.base@17.0.2/jdk.internal.ref.CleanerImpl.run(CleanerImpl.java:140)
+	at java.base@17.0.2/java.lang.Thread.run(Thread.java:833)
+	at java.base@17.0.2/jdk.internal.misc.InnocuousThread.run(InnocuousThread.java:162)
+
+Thread[main,5,main]
+	at app//com.code_intelligence.jazzer.driver.FuzzTargetRunner.dumpAllStackTraces(FuzzTargetRunner.java:534)
+	at java.base@17.0.2/java.math.MutableBigInteger.divideOneWord(MutableBigInteger.java:1105)
+	at java.base@17.0.2/java.math.MutableBigInteger.divideKnuth(MutableBigInteger.java:1208)
+	at java.base@17.0.2/java.math.MutableBigInteger.divideKnuth(MutableBigInteger.java:1168)
+	at java.base@17.0.2/java.math.BigInteger.divideAndRemainderKnuth(BigInteger.java:2346)
+	at java.base@17.0.2/java.math.BigInteger.divideAndRemainder(BigInteger.java:2334)
+	at java.base@17.0.2/java.math.BigDecimal.createAndStripZerosToMatchScale(BigDecimal.java:4904)
+	at java.base@17.0.2/java.math.BigDecimal.divideAndRound(BigDecimal.java:4793)
+	at java.base@17.0.2/java.math.BigDecimal.divide(BigDecimal.java:5206)
+	at java.base@17.0.2/java.math.BigDecimal.divide(BigDecimal.java:1832)
+	at java.base@17.0.2/java.math.BigDecimal.divideToIntegralValue(BigDecimal.java:1868)
+	at java.base@17.0.2/java.math.BigDecimal.divideAndRemainder(BigDecimal.java:2024)
+	at java.base@17.0.2/java.math.BigDecimal.remainder(BigDecimal.java:1966)
+	at app//org.apache.commons.compress.archivers.tar.TarArchiveEntry.parseInstantFromDecimalSeconds(TarArchiveEntry.java:277)
+	at app//org.apache.commons.compress.archivers.tar.TarArchiveEntry.processPaxHeader(TarArchiveEntry.java:1603)
+	at app//org.apache.commons.compress.archivers.tar.TarArchiveEntry.updateEntryFromPaxHeaders(TarArchiveEntry.java:1946)
+	at app//org.apache.commons.compress.archivers.tar.TarFile.applyPaxHeadersToCurrentEntry(TarFile.java:326)
+	at app//org.apache.commons.compress.archivers.tar.TarFile.paxHeaders(TarFile.java:605)
+	at app//org.apache.commons.compress.archivers.tar.TarFile.getNextTarEntry(TarFile.java:510)
+	at app//org.apache.commons.compress.archivers.tar.TarFile.<init>(TarFile.java:314)
+	at app//org.apache.commons.compress.archivers.tar.TarFile.<init>(TarFile.java:290)
+	at app//org.apache.commons.compress.archivers.tar.TarFile.<init>(TarFile.java:191)
+	at app//CompressTarFuzzer.fuzzerTestOneInput(CompressTarFuzzer.java:28)
+	at java.base@17.0.2/java.lang.invoke.LambdaForm$DMH/0x0000000800cb8800.invokeStaticInit(LambdaForm$DMH)
+	at java.base@17.0.2/java.lang.invoke.LambdaForm$MH/0x0000000800cb9800.invoke(LambdaForm$MH)
+	at java.base@17.0.2/java.lang.invoke.LambdaForm$MH/0x0000000800cb9000.invoke_MT(LambdaForm$MH)
+	at app//com.code_intelligence.jazzer.driver.FuzzTargetRunner.runOne(FuzzTargetRunner.java:234)
+	at com.code_intelligence.jazzer.runtime.FuzzTargetRunnerNatives.startLibFuzzer(Native Method)
+	at app//com.code_intelligence.jazzer.driver.FuzzTargetRunner.startLibFuzzer(FuzzTargetRunner.java:551)
+	at app//com.code_intelligence.jazzer.driver.FuzzTargetRunner.startLibFuzzer(FuzzTargetRunner.java:441)
+	at app//com.code_intelligence.jazzer.driver.Driver.start(Driver.java:166)
+	at app//com.code_intelligence.jazzer.Jazzer.start(Jazzer.java:118)
+	at app//com.code_intelligence.jazzer.Jazzer.main(Jazzer.java:77)
+
+Thread[Signal Dispatcher,9,system]
+
+Garbage collector stats:
+
+PS MarkSweep: 0 collections took 0ms
+PS Scavenge: 25 collections took 144ms
+
+SUMMARY: libFuzzer: timeout

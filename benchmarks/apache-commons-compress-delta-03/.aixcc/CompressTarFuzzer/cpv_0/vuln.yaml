@@ -1,0 +1,20 @@
+id: cpv_0
+
+name: BigDecimal DoS in a tar file
+
+cwes:
+- CWE-400
+- CWE-770
+- CWE-20
+
+description: This reintroduces a variant of CVE-2023-42503. Java's BigDecimal is vulnerable to a DoS on very high precision
+  numbers. This  modifies the regex that was put in place to defend against CVE-2023-42503 so that the BigDecimal DoS attack
+  is available.
+
+locations:
+- path_from_root: src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java
+  function_name: waitForReferencePendingList
+  startLine: 221
+  startColumn: 5
+  endLine: 222
+  endColumn: 56
