@@ -1,20 +1,36 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in sleuthkit_fls_ntfs_fuzzer'
+name: NTFS File Loading Buffer Overlap and Invalid Pointer Dereference
 
-cwes: []
+cwes:
+- CWE-823
+- CWE-119
+- CWE-787
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness sleuthkit_fls_ntfs_fuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: AddressSanitizer: memcpy-param-overlap''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A memcpy parameter overlap and invalid pointer dereference vulnerability exists in
+  The Sleuth Kit's file loading functionality within the tsk_fs_load_file_action callback
+  function. The vulnerability occurs when processing NTFS file system images during
+  attribute traversal. The function fails to validate that the destination buffer pointer
+  (buf1->cur) is valid before performing a memcpy operation, and lacks proper bounds
+  checking to ensure the operation stays within allocated buffer limits.
+  
+  When processing a maliciously crafted NTFS file system image, the vulnerability can
+  be triggered through the directory traversal code path (ntfs_dir_open_meta), causing
+  the attribute walk function to invoke the callback with an invalid buffer state. This
+  results in memcpy being called with a NULL destination pointer and corrupted size
+  parameter (0xffffffffffffff00), leading to invalid memory access.
+  
+  The security impact includes immediate crash (denial of service), potential memory
+  corruption that could lead to arbitrary code execution, and possible information
+  disclosure through invalid memory reads. The vulnerability was fixed by adding NULL
+  pointer validation, comprehensive bounds checking, and validation that pointer
+  arithmetic stays within allocated buffer bounds.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: __asan_memcpy
-  startLine: 0
+- path_from_root: tsk/fs/fs_load.c
+  function_name: tsk_fs_load_file_action
+  startLine: 35
   startColumn: 0
-  endLine: 0
+  endLine: 35
   endColumn: 0

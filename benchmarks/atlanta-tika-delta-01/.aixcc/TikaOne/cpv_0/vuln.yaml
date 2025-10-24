@@ -1,16 +1,31 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+name: Path Traversal via URL-Encoded Filenames in Archive Extraction
 
 cwes:
 - CWE-22
+- CWE-23
+- CWE-706
 
-description: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+description: |
+  A path traversal vulnerability exists in Apache Tika's TikaCLI.java file extraction
+  functionality. The vulnerability occurs because URLDecoder.decode() is called AFTER
+  FilenameUtils.normalize() when processing embedded document filenames during archive
+  extraction. This incorrect order of operations allows attackers to bypass path
+  normalization by using URL-encoded path separators (e.g., %2F for /). 
+  
+  When processing a malicious archive containing a filename like 
+  "..%2F..%2F..%2F..%2F..%2Fjazzer-traversal", the normalize() function does not
+  recognize the encoded %2F as path separators and treats it as a safe filename. 
+  Subsequently, URLDecoder.decode() converts %2F to /, resulting in 
+  "./../../../../../jazzer-traversal", which enables writing files outside the intended
+  extraction directory. This can lead to arbitrary file write, code execution, data
+  corruption, and potential privilege escalation if Tika runs with elevated permissions.
 
 locations:
 - path_from_root: tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
-  function_name: check
-  startLine: 1103
-  startColumn: 1
-  endLine: 1103
-  endColumn: 1
+  function_name: getOutputFile
+  startLine: 1147
+  startColumn: 0
+  endLine: 1147
+  endColumn: 0

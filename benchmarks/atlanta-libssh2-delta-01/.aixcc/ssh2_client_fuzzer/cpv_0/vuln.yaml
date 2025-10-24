@@ -1,20 +1,29 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in ssh2_client_fuzzer'
+name: libssh2 Double-Free in Diffie-Hellman Key Exchange
 
-cwes: []
+cwes:
+- CWE-415
+- CWE-416
+- CWE-672
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness ssh2_client_fuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: AddressSanitizer: attempting double-free''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A double-free vulnerability exists in libssh2's Diffie-Hellman key exchange
+  implementation. The vulnerability occurs in the diffie_hellman_sha_algo function
+  in src/kex.c at line 473. When processing SSH key exchange, the function frees
+  the existing session->server_hostkey pointer before copying a new host key, but
+  fails to set the pointer to NULL after freeing. If the function is called again
+  during the same session (e.g., when burning an optimistic KEX packet or during
+  key exchange retries), the check if(session->server_hostkey) evaluates to true
+  with the dangling pointer, causing the code to attempt freeing the already-freed
+  memory. This results in a double-free condition that can lead to memory corruption,
+  denial of service, or potential arbitrary code execution. A malicious SSH server
+  can trigger this by crafting packets that cause multiple key exchange attempts.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: free
-  startLine: 0
+- path_from_root: src/kex.c
+  function_name: diffie_hellman_sha_algo
+  startLine: 473
   startColumn: 0
-  endLine: 0
+  endLine: 473
   endColumn: 0

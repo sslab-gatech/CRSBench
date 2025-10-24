@@ -1,16 +1,26 @@
 id: cpv_5
 
-name: 'FuzzerSecurityIssueHigh: SQL Injection (TBD)'
+name: SQL Injection in Jenkins Toy Plugin UserNameAction.doGetName Method
 
 cwes:
 - CWE-89
+- CWE-943
 
-description: 'FuzzerSecurityIssueHigh: SQL Injection (TBD)'
+description: |
+  A SQL injection vulnerability exists in the doGetName method of the UserNameAction class
+  in the Jenkins toy-plugin. The method accepts user-controlled parameters (ID and PW) from
+  HTTP request parameters and directly concatenates them into a SQL query without sanitization
+  or parameterization. This allows attackers to inject malicious SQL commands by supplying
+  special characters like single quotes in the ID parameter, breaking out of the SQL string
+  literal context. The vulnerability can be exploited to bypass authentication, extract
+  sensitive data including user credentials, modify or delete database records, and potentially
+  execute arbitrary SQL commands depending on database permissions. The vulnerability is fixed
+  by replacing string concatenation with parameterized queries using PreparedStatement.
 
 locations:
 - path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java
-  function_name: checkSqlExecute
-  startLine: 74
-  startColumn: 1
-  endLine: 74
-  endColumn: 1
+  function_name: doGetName
+  startLine: 71
+  endLine: 71
+  startColumn: 0
+  endColumn: 0

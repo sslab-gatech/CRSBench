@@ -1,20 +1,29 @@
 id: cpv_4
 
-name: 'MOCK: cpv_4 vulnerability in POIHWPFFuzzer'
+name: Apache POI HWPF Uncontrolled Memory Consumption in Bullet Text Processing
 
-cwes: []
+cwes:
+- CWE-400
+- CWE-770
+- CWE-789
 
-description: 'MOCK: Vulnerability cpv_4 detected in harness POIHWPFFuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An uncontrolled resource consumption vulnerability exists in Apache POI's HWPF 
+  document processing when handling bullet text with large numbering values. The 
+  getBulletText() method in AbstractWordUtils does not validate the size of 
+  numbering values before processing them, and the NumberFormatter.getNumber() 
+  method can generate extremely large strings when converting large numbers to 
+  Roman numerals (e.g., 999,999 becomes 999 'M' characters). A specially-crafted 
+  .doc file with extremely large numbering start values and Roman numeral 
+  formatting can cause the bulletBuffer StringBuilder to grow without bounds, 
+  consuming gigabytes of memory and triggering an OutOfMemoryError. This allows 
+  an attacker to cause a denial of service with a relatively small malicious 
+  document (56 KB POV triggers 1843 MB heap exhaustion).
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: copyOf
-  startLine: 0
+- path_from_root: poi-scratchpad/src/main/java/org/apache/poi/hwpf/converter/AbstractWordUtils.java
+  function_name: getBulletText
+  startLine: 230
   startColumn: 0
-  endLine: 0
+  endLine: 234
   endColumn: 0

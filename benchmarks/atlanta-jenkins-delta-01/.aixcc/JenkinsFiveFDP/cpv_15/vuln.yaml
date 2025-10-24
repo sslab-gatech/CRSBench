@@ -1,20 +1,35 @@
 id: cpv_15
 
-name: 'MOCK: cpv_15 vulnerability in JenkinsFiveFDP'
+name: Unsafe Reflection Leading to OS Command Injection in Jenkins EmailConfig
 
-cwes: []
+cwes:
+- CWE-78
+- CWE-470
+- CWE-77
 
-description: 'MOCK: Vulnerability cpv_15 detected in harness JenkinsFiveFDP. This vulnerability is detected by address sanitizer.
-  The error signature is: ''FuzzerSecurityIssueCritical: OS Command Injection''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  This is a critical OS command injection vulnerability in the Jenkins email-ext-plugin's
+  EmailConfig class. The vulnerability occurs through a chain of two security weaknesses:
+  
+  1. Unsafe Reflection (CWE-470): The constructor() method uses attacker-controlled input
+  (emailAddress field) to select and invoke methods via Java reflection without proper
+  validation. When publishReady is set to true, it uses setAccessible(true) to bypass
+  Java's access controls and invoke private methods.
+  
+  2. OS Command Injection (CWE-78): The private method debugOnlyAndPrivate() takes
+  user-controlled input from the optCache field and passes it directly to
+  Runtime.getRuntime().exec() without any sanitization or validation.
+  
+  An attacker can exploit this by setting emailAddress to "debugEnable" to enable debug
+  mode, then to "debugOnlyAndPrivate", providing malicious command input in optCache,
+  and calling constructor() with publishReady=true. This results in arbitrary OS command
+  execution on the Jenkins server with the privileges of the Jenkins process, potentially
+  leading to full system compromise, data exfiltration, and supply chain attacks.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: processImplStartHook
-  startLine: 0
+- path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
+  function_name: debugOnlyAndPrivate
+  startLine: 37
   startColumn: 0
-  endLine: 0
+  endLine: 37
   endColumn: 0

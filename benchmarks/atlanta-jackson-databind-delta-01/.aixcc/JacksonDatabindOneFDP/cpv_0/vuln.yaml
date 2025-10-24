@@ -1,16 +1,29 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: Jackson Databind polymorphic deserialization RCE via Spring context
 
 cwes:
+- CWE-502
 - CWE-78
+- CWE-917
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  Critical insecure deserialization vulnerability in Jackson Databind that allows
+  remote code execution through polymorphic type handling with default typing enabled.
+  An attacker crafts a malicious JSON payload specifying 
+  org.springframework.context.support.FileSystemXmlApplicationContext as the type
+  to deserialize, which triggers Spring Framework's bean initialization process.
+  The malicious XML configuration contains Spring Expression Language (SpEL) 
+  expressions that invoke ProcessBuilder.start() to execute arbitrary OS commands.
+  The vulnerability occurs in BeanDeserializerFactory during bean deserialization
+  without proper subtype validation, allowing arbitrary classes to be instantiated
+  from untrusted JSON input. This leads to complete system compromise through
+  remote code execution.
 
 locations:
-- path_from_root: src/main/java/com/fasterxml/jackson/databind/introspect/AnnotatedConstructor.java
-  function_name: processImplStartHook
-  startLine: 129
-  startColumn: 1
-  endLine: 129
-  endColumn: 1
+- path_from_root: src/main/java/com/fasterxml/jackson/databind/deser/BeanDeserializerFactory.java
+  function_name: deserialize
+  startLine: 133
+  startColumn: 0
+  endLine: 133
+  endColumn: 0

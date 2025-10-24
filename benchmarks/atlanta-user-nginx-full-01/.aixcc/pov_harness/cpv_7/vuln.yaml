@@ -1,20 +1,31 @@
 id: cpv_7
 
-name: 'MOCK: cpv_7 vulnerability in pov_harness'
+name: NULL Pointer Dereference in nginx HTTP URI Parsing with Empty Path
 
-cwes: []
+cwes:
+- CWE-476
+- CWE-690
 
-description: 'MOCK: Vulnerability cpv_7 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: SEGV''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A NULL pointer dereference vulnerability exists in nginx's HTTP URI parsing logic.
+  When processing HTTP requests with empty path URIs (e.g., "http://localhost?"),
+  the server sets r->empty_path_in_uri but fails to allocate memory for r->uri.data
+  due to an inverted logic condition in ngx_http_process_request_uri().
+  
+  The vulnerable code in ngx_http_request.c only allocates memory when
+  r->empty_path_in_uri is false, but ngx_http_parse_complex_uri() unconditionally
+  writes to r->uri.data when r->empty_path_in_uri is true, resulting in a write
+  to a NULL pointer at line 1277 of ngx_http_parse.c.
+  
+  This vulnerability allows remote unauthenticated attackers to crash the nginx
+  server through specially crafted HTTP requests, resulting in denial of service.
+  The crash occurs during request processing and can be triggered repeatedly,
+  severely impacting service availability.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/http/ngx_http_parse.c
   function_name: ngx_http_parse_complex_uri
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 1277
+  startColumn: 14
+  endLine: 1277
+  endColumn: 14

@@ -1,20 +1,30 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in libjpeg_cjpeg_fuzzer'
+name: Heap buffer overflow in BMP color index validation
 
-cwes: []
+cwes:
+- CWE-125
+- CWE-129
+- CWE-122
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness libjpeg_cjpeg_fuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap buffer overflow vulnerability exists in libjpeg-turbo's BMP file reader
+  in the get_8bit_row() function in rdbmp.c. When processing 8-bit color-indexed
+  BMP files, the function reads pixel values that serve as indices into a color
+  palette (colormap) without validating that these indices are within the bounds
+  of the allocated colormap array. A specially-crafted BMP file can declare a
+  small color table but include pixel data with color indices that exceed the
+  table size, causing out-of-bounds heap reads when accessing colormap[0][t],
+  colormap[1][t], and colormap[2][t]. This can lead to information disclosure
+  through leaked heap memory contents and denial of service through crashes.
+  The vulnerability affects multiple code paths in get_8bit_row() including
+  grayscale conversion, CMYK conversion, and RGB processing with or without
+  alpha channels.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: rdbmp.c
   function_name: get_8bit_row
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 209
+  startColumn: 26
+  endLine: 211
+  endColumn: 38

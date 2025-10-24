@@ -1,16 +1,34 @@
 id: cpv_11
 
-name: 'FuzzerSecurityIssueLow: Regular Expression Injection (TBD)'
+name: Regular Expression Injection with Authorization Bypass in AccessFilter
 
 cwes:
-- CWE-777
+- CWE-1333
+- CWE-862
+- CWE-20
 
-description: 'FuzzerSecurityIssueLow: Regular Expression Injection (TBD)'
+description: |
+  This vulnerability involves a Regular Expression Injection (ReDoS) flaw combined with 
+  an authorization bypass in the AccessFilter.doGet() method. At line 87 of AccessFilter.java, 
+  user-controlled input from the 'ip' parameter is directly concatenated into a regex pattern 
+  without sanitization: Pattern.compile(".*(" + ip + ").*"). This allows attackers to inject 
+  regex metacharacters that cause PatternSyntaxException crashes or ReDoS attacks through 
+  catastrophic backtracking.
+  
+  The vulnerability is exploitable due to an authorization flaw at line 79, where the condition 
+  "if (admin || request.hasParameter("skip"))" uses OR logic instead of AND logic. This allows 
+  non-admin users to bypass IP validation by simply including a 'skip' parameter, enabling them 
+  to supply arbitrary malicious regex patterns without validation.
+  
+  The proof-of-vulnerability demonstrates this with input "ip=*&skip=True", which creates the 
+  invalid regex pattern ".*(*).*", triggering a PatternSyntaxException due to a dangling meta 
+  character. The patch fixes only the authorization bypass by changing the condition to use AND 
+  logic, but does not address the underlying regex injection vulnerability.
 
 locations:
 - path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AccessFilter.java
-  function_name: hookInternal
+  function_name: doGet
   startLine: 87
-  startColumn: 1
+  endColumn: 0
   endLine: 87
-  endColumn: 1
+  startColumn: 0

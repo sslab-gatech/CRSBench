@@ -1,20 +1,26 @@
 id: cpv_2
 
-name: 'MOCK: cpv_2 vulnerability in BitShuffleFuzzer'
+name: Heap Buffer Overflow in BitShuffle Eight-Byte Repetition Check
 
-cwes: []
+cwes:
+- CWE-125
+- CWE-122
+- CWE-129
 
-description: 'MOCK: Vulnerability cpv_2 detected in harness BitShuffleFuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap buffer overflow vulnerability exists in the _is_eight_byte_repetition function
+  in third-party/bitshuffle/src/bitshuffle_core.c. The function iterates through a memory
+  buffer in 8-byte chunks without validating that the buffer length is a multiple of 8.
+  When the length is not divisible by 8, the final loop iteration reads beyond the buffer
+  boundary, accessing up to 7 bytes past the allocated region. This can lead to information
+  disclosure by leaking sensitive heap memory contents or denial of service through crashes.
+  The vulnerability is triggered when processing integer arrays larger than 4096 elements
+  whose byte length is not a multiple of 8 through the BitShuffle.shuffle() API.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: park
-  startLine: 0
+- path_from_root: third-party/bitshuffle/src/bitshuffle_core.c
+  function_name: _is_eight_byte_repetition
+  startLine: 1309
   startColumn: 0
-  endLine: 0
+  endLine: 1320
   endColumn: 0

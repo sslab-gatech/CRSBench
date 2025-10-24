@@ -1,16 +1,40 @@
 id: cpv_9
 
-name: 'FuzzerSecurityIssueHigh: XPath Injection (TBD)'
+name: XPath Injection in Jenkins API XML Endpoint
 
 cwes:
 - CWE-643
+- CWE-91
+- CWE-74
 
-description: 'FuzzerSecurityIssueHigh: XPath Injection (TBD)'
+description: |
+  XPath Injection vulnerability in the Jenkins toy-plugin's API endpoint. The vulnerability
+  exists in the Api.doXml() method which exposes XML data through a REST API endpoint at
+  .../api/xml. The method accepts user-controlled input through two HTTP query parameters
+  (xpath and exclude) and passes them directly to XMLUtils.getValue() without validation
+  or sanitization. The XMLUtils.getValue() method then compiles and executes these
+  user-provided XPath expressions using XPathFactory. An attacker can inject malicious
+  XPath expressions such as document() functions to extract sensitive information from
+  XML documents, bypass access controls, or cause denial of service through resource-intensive
+  queries. The Jazzer XPath Injection sanitizer detected the malicious payload at runtime
+  with the injected query "document(2)", confirming the vulnerability.
 
 locations:
-- path_from_root: jenkins/core/src/main/java/jenkins/util/xml/XMLUtils.java
-  function_name: checkXpathExecute
+- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/Api.java
+  function_name: doXml
+  startLine: 129
+  endLine: 129
+  startColumn: 0
+  endColumn: 0
+- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/Api.java
+  function_name: doXml
+  startLine: 137
+  endLine: 137
+  startColumn: 0
+  endColumn: 0
+- path_from_root: core/src/main/java/jenkins/util/xml/XMLUtils.java
+  function_name: getValue
   startLine: 236
-  startColumn: 1
   endLine: 236
-  endColumn: 1
+  startColumn: 0
+  endColumn: 0

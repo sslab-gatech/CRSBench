@@ -1,20 +1,31 @@
 id: cpv_10
 
-name: 'MOCK: cpv_10 vulnerability in ActivemqVariantOneFDP'
+name: Apache ActiveMQ OpenWire Unsafe Deserialization Remote Code Execution
 
-cwes: []
+cwes:
+- CWE-502
+- CWE-470
+- CWE-913
 
-description: 'MOCK: Vulnerability cpv_10 detected in harness ActivemqVariantOneFDP. This vulnerability is detected by address
-  sanitizer. The error signature is: ''FuzzerSecurityIssueHigh: Remote Code Execution''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An unsafe deserialization vulnerability exists in the Apache ActiveMQ OpenWire protocol 
+  implementation that allows remote code execution. The vulnerability is located in the 
+  createThrowable method of BaseDataStreamMarshaller, which accepts a className parameter 
+  from untrusted input during OpenWire message deserialization. The method dynamically 
+  loads and instantiates classes via reflection using Class.forName() and 
+  constructor.newInstance() with only a weak validation check (verifying the class name 
+  starts with "j"). An attacker can craft a malicious OpenWire ExceptionResponse message 
+  containing a carefully chosen class name and constructor parameters to instantiate 
+  arbitrary classes on the classpath, enabling gadget chain exploitation and full remote 
+  code execution. The vulnerability is triggered when ExceptionResponseMarshaller 
+  unmarshals malicious messages, calling looseUnmarsalThrowable which invokes the 
+  vulnerable createThrowable method without validating that the loaded class actually 
+  extends Throwable before instantiation.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: reportFinding
-  startLine: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
   startColumn: 0
-  endLine: 0
+  endLine: 239
   endColumn: 0

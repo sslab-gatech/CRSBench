@@ -1,20 +1,33 @@
 id: cpv_5
 
-name: 'MOCK: cpv_5 vulnerability in ActivemqOneFDP'
+name: Apache ActiveMQ OpenWire Unsafe Reflection in Exception Deserialization
 
-cwes: []
+cwes:
+- CWE-502
+- CWE-470
+- CWE-913
 
-description: 'MOCK: Vulnerability cpv_5 detected in harness ActivemqOneFDP. This vulnerability is detected by address sanitizer.
-  The error signature is: ''FuzzerSecurityIssueHigh: Remote Code Execution''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  This vulnerability exists in Apache ActiveMQ's OpenWire protocol implementation during
+  deserialization of exception responses. The createThrowable method in BaseDataStreamMarshaller
+  uses reflection to dynamically instantiate classes based on externally-provided class names
+  from the OpenWire protocol stream without proper validation.
+  
+  The vulnerable code calls Class.forName() with an attacker-controlled className parameter,
+  then uses reflection to instantiate the class with a String constructor. An attacker can
+  craft a malicious OpenWire ExceptionResponse message specifying an arbitrary class name.
+  When the server deserializes this message through ExceptionResponseMarshaller.looseUnmarshal(),
+  it triggers createThrowable() which instantiates the attacker-specified class.
+  
+  This enables Remote Code Execution (RCE) by instantiating classes with side effects in their
+  constructors, information disclosure through instantiation of specific classes, or Denial of
+  Service by creating resource-intensive objects. The vulnerability affects multiple OpenWire
+  protocol versions (v1-v8 in openwire-legacy, v1, v9-v12 in activemq-client).
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: reportFinding
-  startLine: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v6/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 229
   startColumn: 0
-  endLine: 0
+  endLine: 233
   endColumn: 0

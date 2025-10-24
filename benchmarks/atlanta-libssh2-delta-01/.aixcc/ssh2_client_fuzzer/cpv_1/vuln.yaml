@@ -1,20 +1,33 @@
 id: cpv_1
 
-name: 'MOCK: cpv_1 vulnerability in ssh2_client_fuzzer'
+name: Heap buffer overflow in packet_authagent_open
 
-cwes: []
+cwes:
+- CWE-122
+- CWE-125
+- CWE-20
 
-description: 'MOCK: Vulnerability cpv_1 detected in harness ssh2_client_fuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-based buffer overflow vulnerability exists in libssh2's handling of SSH 
+  "auth-agent@openssh.com" channel open requests. The packet_authagent_open function 
+  in src/packet.c performs unsafe pointer arithmetic and reads data without validating 
+  that sufficient bytes are available in the input buffer.
+  
+  The vulnerability occurs because the function explicitly ignores the datalen parameter 
+  and assumes the packet contains at least 39 bytes of data after a calculated offset. 
+  It calls _libssh2_ntohu32() three times to read 32-bit integers without any bounds 
+  checking. When a malformed or truncated packet is received, these reads extend beyond 
+  the allocated buffer, causing out-of-bounds reads at offset 0 bytes after a 31-byte 
+  allocated region.
+  
+  An attacker can send a specially crafted SSH packet with an "auth-agent@openssh.com" 
+  channel type that is shorter than expected, leading to information disclosure through 
+  heap memory leakage and denial of service through crashes.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: _libssh2_ntohu32
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+- path_from_root: src/packet.c
+  function_name: packet_authagent_open
+  startLine: 478
+  startColumn: 48
+  endLine: 478
+  endColumn: 48

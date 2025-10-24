@@ -1,16 +1,31 @@
 id: cpv_9
 
-name: 'FuzzerSecurityIssueHigh: XPath Injection (TBD)'
+name: XPath Injection in XMLUtils.getValue()
 
 cwes:
 - CWE-643
+- CWE-91
+- CWE-74
 
-description: 'FuzzerSecurityIssueHigh: XPath Injection (TBD)'
+description: |
+  XPath Injection vulnerability in the Jenkins XMLUtils utility class. The vulnerability
+  exists in the getValue(String xpath, Document document) method which accepts an XPath
+  expression as a string parameter and directly compiles and evaluates it against an XML
+  document without any input validation or sanitization.
+  
+  The method calls xPathProcessor.compile(xpath).evaluate(document) with user-controlled
+  input, allowing an attacker to inject malicious XPath expressions such as document()
+  functions. This can lead to information disclosure through extraction of sensitive data
+  from XML documents, access control bypass through malicious queries, denial of service
+  through expensive queries, and potential XML External Entity (XXE) attacks.
+  
+  The vulnerability is triggered through the call chain: JenkinsThree.fuzzerTestOneInput()
+  → JenkinsThree.fuzz() → JenkinsThree.testApi() → Api.doXml() → XMLUtils.getValue().
 
 locations:
 - path_from_root: jenkins/core/src/main/java/jenkins/util/xml/XMLUtils.java
-  function_name: checkXpathExecute
+  function_name: getValue
   startLine: 236
-  startColumn: 1
+  startColumn: 0
   endLine: 236
-  endColumn: 1
+  endColumn: 0

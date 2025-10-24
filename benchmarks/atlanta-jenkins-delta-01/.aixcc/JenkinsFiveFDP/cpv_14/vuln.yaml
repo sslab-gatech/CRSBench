@@ -1,16 +1,36 @@
 id: cpv_14
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: Reflection-based OS Command Injection in Email Extension Plugin
 
 cwes:
 - CWE-78
+- CWE-470
+- CWE-77
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  A critical OS command injection vulnerability that allows remote code execution through
+  unsafe reflection and unvalidated user input. The vulnerability exists due to three
+  combined flaws: (1) The constructor() method uses user-controlled input (emailAddress
+  field) to dynamically invoke methods via reflection, (2) setAccessible(true) bypasses
+  Java's access control mechanisms allowing private method invocation, and (3) the
+  debugOnlyAndPrivate() method executes OS commands using Runtime.exec() with
+  user-controlled input (optCache) without any validation or sanitization.
+  
+  An attacker can set publishReady=true to enable reflection access, call debugEnable()
+  to enable debug mode, set optCache to a malicious command, and then call
+  debugOnlyAndPrivate() via reflection to execute arbitrary OS commands. This leads to
+  complete system compromise, data exfiltration, and potential lateral movement.
 
 locations:
 - path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
-  function_name: processImplStartHook
-  startLine: 102
-  startColumn: 1
+  function_name: debugOnlyAndPrivate
+  startLine: 37
+  startColumn: 0
+  endLine: 37
+  endColumn: 0
+- path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
+  function_name: constructor
+  startLine: 93
+  startColumn: 0
   endLine: 102
-  endColumn: 1
+  endColumn: 0

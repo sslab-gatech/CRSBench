@@ -1,20 +1,44 @@
 id: cpv_1
 
-name: 'MOCK: cpv_1 vulnerability in POIHSLFFuzzer'
+name: Uncontrolled Resource Consumption in EscherContainerRecord Parsing
 
-cwes: []
+cwes:
+- CWE-770
+- CWE-400
+- CWE-789
 
-description: 'MOCK: Vulnerability cpv_1 detected in harness POIHSLFFuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A Denial of Service vulnerability exists in Apache POI's HSLF (PowerPoint Slide Show Format) 
+  parser when processing maliciously crafted Escher drawing records. The EscherContainerRecord.fillFields() 
+  method parses child records in a loop without limiting the total number of sibling child records 
+  at each nesting level. While the code checks for excessive nesting depth (MAX_NESTED_CHILD_NODES = 1000), 
+  it does not limit the number of children at a single level. A malicious PowerPoint file can specify 
+  an extremely large number of child records, causing unbounded ArrayList growth in _childRecords, 
+  excessive object allocation (EscherMetafileBlip and other record types), memory exhaustion, and 
+  GC thrashing leading to OutOfMemoryError. This results in application crash or unresponsiveness.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: get
-  startLine: 0
+- path_from_root: poi/src/main/java/org/apache/poi/ddf/EscherContainerRecord.java
+  function_name: fillFields
+  startLine: 103
+  endLine: 117
   startColumn: 0
-  endLine: 0
+  endColumn: 0
+- path_from_root: poi/src/main/java/org/apache/poi/ddf/EscherContainerRecord.java
+  function_name: addChildRecord
+  startLine: 264
+  endLine: 264
+  startColumn: 0
+  endColumn: 0
+- path_from_root: poi/src/main/java/org/apache/poi/ddf/UnknownEscherRecord.java
+  function_name: addChildRecord
+  startLine: 82
+  endLine: 82
+  startColumn: 0
+  endColumn: 0
+- path_from_root: poi/src/main/java/org/apache/poi/ddf/UnknownEscherRecord.java
+  function_name: setChildRecords
+  startLine: 161
+  endLine: 161
+  startColumn: 0
   endColumn: 0

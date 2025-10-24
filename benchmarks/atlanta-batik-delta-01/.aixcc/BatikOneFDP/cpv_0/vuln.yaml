@@ -1,16 +1,27 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+name: JAR Protocol SSRF Bypass in DefaultExternalResourceSecurity
 
 cwes:
 - CWE-918
+- CWE-610
+- CWE-441
 
-description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+description: |
+  Server-Side Request Forgery (SSRF) vulnerability in Apache Batik's DefaultExternalResourceSecurity class.
+  The security check fails to properly handle JAR protocol URLs (format: jar:http://host/file.jar!/resource).
+  When a JAR protocol URL is parsed, the getHost() method returns null because the host information is embedded 
+  within the path component. The security validation at lines 85-96 only makes exceptions for the data: protocol,
+  allowing JAR URLs to bypass same-origin checks. An attacker can craft a malicious SVG file with an image element 
+  using a JAR protocol URL pointing to an attacker-controlled server. This allows SSRF attacks that can expose 
+  internal services, enable port scanning, or exfiltrate sensitive data. The vulnerability occurs because the 
+  code does not extract and validate the embedded host information from JAR protocol URLs before making network 
+  connections.
 
 locations:
-- path_from_root: batik-util/src/main/java/org/apache/batik/util/ParsedURLData.java
-  function_name: checkSsrf
-  startLine: 554
-  startColumn: 1
-  endLine: 554
-  endColumn: 1
+- path_from_root: batik-bridge/src/main/java/org/apache/batik/bridge/DefaultExternalResourceSecurity.java
+  function_name: DefaultExternalResourceSecurity
+  startLine: 82
+  startColumn: 0
+  endLine: 96
+  endColumn: 0

@@ -1,20 +1,39 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in jq_fuzz_fixed'
+name: Stack Buffer Overflow via NaN Payload in Decimal Number Comparison
 
-cwes: []
+cwes:
+- CWE-121
+- CWE-787
+- CWE-131
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness jq_fuzz_fixed. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: stack-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A stack-based buffer overflow vulnerability exists in jq's decimal number handling code.
+  When jq parses a NaN (Not-a-Number) value with a large payload (e.g., "nan6000000005"),
+  it stores the payload digits in a decimal number structure. During number comparison
+  operations such as array grouping, the jvp_number_cmp function allocates a local structure
+  'res' with minimal capacity (DECNUMDIGITS=1, approximately 2 units). When handling NaN
+  values with payloads exceeding this capacity, the decNumberCopy function writes beyond
+  the allocated buffer while copying the NaN payload, corrupting the stack.
+  
+  The vulnerability occurs because the stack-allocated buffer size calculation does not
+  account for NaN values with large payloads. A NaN with a 10-digit payload requires
+  approximately 4 units (with DECDPUN=3), but the local 'res' structure only provides
+  space for about 2 units, causing an out-of-bounds write during the copy operation.
+  
+  Impact: Memory corruption, denial of service (crash), and potential arbitrary code
+  execution through stack corruption.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: decNumberCopy
-  startLine: 0
+- path_from_root: src/jv.c
+  function_name: jvp_number_cmp
+  startLine: 743
   startColumn: 0
-  endLine: 0
+  endLine: 746
   endColumn: 0
+- path_from_root: src/decNumber/decNumber.c
+  function_name: decNumberCopy
+  startLine: 3375
+  startColumn: 45
+  endLine: 3375
+  endColumn: 45

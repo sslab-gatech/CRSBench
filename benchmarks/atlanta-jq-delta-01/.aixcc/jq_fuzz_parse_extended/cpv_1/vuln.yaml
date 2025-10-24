@@ -1,20 +1,26 @@
 id: cpv_1
 
-name: 'MOCK: cpv_1 vulnerability in jq_fuzz_parse_extended'
+name: Heap buffer overflow in decimal number string conversion
 
-cwes: []
+cwes:
+- CWE-122
+- CWE-787
+- CWE-131
 
-description: 'MOCK: Vulnerability cpv_1 detected in harness jq_fuzz_parse_extended. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An off-by-one heap buffer overflow vulnerability exists in the jvp_literal_number_literal
+  function in src/jv.c. The function allocates a buffer of size 'digits + 14' bytes to hold
+  the string representation of a decimal number, but this calculation does not account for
+  the null terminator byte required by the decNumberToString function. When converting
+  decimal numbers with large exponents, the decToString function writes the null terminator
+  one byte beyond the allocated buffer boundary at line 3764 of src/decNumber/decNumber.c,
+  resulting in a heap buffer overflow. This can lead to memory corruption, program crashes,
+  and potentially arbitrary code execution in sophisticated exploitation scenarios.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: decToString
-  startLine: 0
+- path_from_root: src/jv.c
+  function_name: jvp_literal_number_literal
+  startLine: 638
   startColumn: 0
-  endLine: 0
+  endLine: 638
   endColumn: 0

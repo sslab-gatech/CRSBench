@@ -1,20 +1,101 @@
 id: cpv_11
 
-name: 'MOCK: cpv_11 vulnerability in ActivemqOneFDP'
+name: Apache ActiveMQ OpenWire Unsafe Deserialization Remote Code Execution
 
-cwes: []
+cwes:
+- CWE-502
+- CWE-470
+- CWE-94
 
-description: 'MOCK: Vulnerability cpv_11 detected in harness ActivemqOneFDP. This vulnerability is detected by address sanitizer.
-  The error signature is: ''FuzzerSecurityIssueHigh: Remote Code Execution''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  This is a critical unsafe deserialization vulnerability in Apache ActiveMQ's OpenWire 
+  protocol marshallers that allows remote code execution. The vulnerability exists in the 
+  createThrowable() method of BaseDataStreamMarshaller classes across all OpenWire protocol 
+  versions (v1-v12).
+  
+  The root cause is that the code uses reflection to instantiate arbitrary classes based on 
+  untrusted data from the wire protocol without validating that the loaded class actually 
+  extends Throwable. An attacker can craft a malicious OpenWire message containing an 
+  ExceptionResponse with an arbitrary class name. During deserialization, the code uses 
+  Class.forName() to load the attacker-specified class and instantiates it via reflection 
+  without any validation.
+  
+  This allows an unauthenticated attacker to instantiate arbitrary classes on the classpath 
+  that have a single-String constructor, leading to potential remote code execution depending 
+  on available gadget chains. The vulnerability was triggered by instantiating the jaz.Zer 
+  class (a Jazzer security probe) which is not a Throwable, demonstrating that arbitrary 
+  non-exception classes can be instantiated through this deserialization pathway.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: reportFinding
-  startLine: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  endLine: 241
   startColumn: 0
-  endLine: 0
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v1/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  endLine: 241
+  startColumn: 0
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v2/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  endLine: 241
+  startColumn: 0
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v3/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  endLine: 241
+  startColumn: 0
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  endLine: 241
+  startColumn: 0
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v5/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  endLine: 241
+  startColumn: 0
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v6/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  endLine: 241
+  startColumn: 0
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  endLine: 241
+  startColumn: 0
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  endLine: 241
+  startColumn: 0
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  endLine: 241
+  startColumn: 0
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v10/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  endLine: 241
+  startColumn: 0
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  endLine: 241
+  startColumn: 0
   endColumn: 0

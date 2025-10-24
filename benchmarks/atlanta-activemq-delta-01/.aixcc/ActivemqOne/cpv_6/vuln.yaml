@@ -1,20 +1,93 @@
 id: cpv_6
 
-name: 'MOCK: cpv_6 vulnerability in ActivemqOne'
+name: Apache ActiveMQ OpenWire Arbitrary Class Instantiation via Deserialization
 
-cwes: []
+cwes:
+- CWE-502
+- CWE-470
+- CWE-94
 
-description: 'MOCK: Vulnerability cpv_6 detected in harness ActivemqOne. This vulnerability is detected by address sanitizer.
-  The error signature is: ''FuzzerSecurityIssueHigh: Remote Code Execution''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  Critical remote code execution vulnerability in Apache ActiveMQ's OpenWire protocol 
+  deserialization. The createThrowable() method in BaseDataStreamMarshaller uses 
+  Class.forName() to dynamically instantiate exception classes based on untrusted 
+  network input without validation. When processing ExceptionResponse messages during 
+  deserialization, an attacker can specify an arbitrary class name that will be loaded 
+  and instantiated via reflection. This allows instantiation of any class with a String 
+  constructor available on the classpath, enabling gadget chain attacks and remote code 
+  execution. The vulnerability affects all OpenWire protocol versions (v1-v12) and was 
+  introduced when implementing adaptive throwable creation per the OpenWire specification.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: reportFinding
-  startLine: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 232
   startColumn: 0
-  endLine: 0
+  endLine: 232
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v1/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  startColumn: 0
+  endLine: 239
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  startColumn: 0
+  endLine: 239
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v10/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  startColumn: 0
+  endLine: 239
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  startColumn: 0
+  endLine: 239
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  startColumn: 0
+  endLine: 239
+  endColumn: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v2/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  startColumn: 0
+  endLine: 239
+  endColumn: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v3/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  startColumn: 0
+  endLine: 239
+  endColumn: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  startColumn: 0
+  endLine: 239
+  endColumn: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v5/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  startColumn: 0
+  endLine: 239
+  endColumn: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v6/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  startColumn: 0
+  endLine: 239
+  endColumn: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  startColumn: 0
+  endLine: 239
   endColumn: 0

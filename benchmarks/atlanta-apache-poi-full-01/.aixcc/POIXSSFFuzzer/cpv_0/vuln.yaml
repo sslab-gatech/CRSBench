@@ -1,20 +1,27 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in POIXSSFFuzzer'
+name: Uncontrolled Memory Allocation in XSSF Shared Strings Table Parser
 
-cwes: []
+cwes:
+- CWE-770
+- CWE-789
+- CWE-400
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness POIXSSFFuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An uncontrolled memory allocation vulnerability exists in the ReadOnlySharedStringsTable
+  class of Apache POI's XSSF event-based parser. When parsing Excel XLSX files, the code
+  reads the uniqueCount attribute from the sharedStrings.xml file and directly uses this
+  value to pre-allocate an ArrayList without validation. A maliciously crafted XLSX file
+  can specify an extremely large uniqueCount value (e.g., Integer.MAX_VALUE), causing the
+  ArrayList constructor to attempt allocating massive amounts of memory, resulting in an
+  OutOfMemoryError. This leads to application crashes and denial of service. The vulnerability
+  can be exploited by attackers who can supply crafted XLSX files to applications that process
+  untrusted documents, causing resource exhaustion and service disruption.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: poi-ooxml/src/main/java/org/apache/poi/xssf/eventusermodel/ReadOnlySharedStringsTable.java
   function_name: startElement
-  startLine: 0
+  startLine: 251
   startColumn: 0
-  endLine: 0
+  endLine: 251
   endColumn: 0

@@ -1,22 +1,25 @@
 id: cpv_8
 
-name: 'FuzzerSecurityIssueCritical: LDAP Injection (TBD)'
+name: LDAP Injection in Jenkins AuthAction authenticateAsAdmin Method
 
 cwes:
 - CWE-90
+- CWE-943
 
-description: 'FuzzerSecurityIssueCritical: LDAP Injection (TBD)'
+description: |
+  Critical LDAP Injection vulnerability in the Jenkins toy-plugin's AuthAction.authenticateAsAdmin method.
+  User-supplied input from 'username' and 'key' parameters is directly concatenated into an LDAP search
+  filter without proper sanitization or escaping, violating RFC 4515 requirements. The vulnerable code
+  constructs the filter using string concatenation instead of parameterized queries, allowing attackers
+  to inject malicious LDAP query syntax using metacharacters such as *, (, ), &, |, and =. This can lead
+  to authentication bypass, information disclosure from the LDAP directory, privilege escalation to admin
+  access, and enumeration of directory entries. The vulnerability was detected by Jazzer's LDAP injection
+  sanitizer at runtime when processing crafted input containing LDAP special characters.
 
 locations:
 - path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AuthAction.java
-  function_name: searchLdapContext
+  function_name: authenticateAsAdmin
   startLine: 228
-  startColumn: 1
-  endLine: 228
-  endColumn: 1
-- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AuthAction.java
-  function_name: searchLdapContext
-  startLine: 229
-  startColumn: 1
+  startColumn: 0
   endLine: 229
-  endColumn: 1
+  endColumn: 0

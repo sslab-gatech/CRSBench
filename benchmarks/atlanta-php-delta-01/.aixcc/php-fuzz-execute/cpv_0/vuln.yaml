@@ -1,20 +1,30 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in php-fuzz-execute'
+name: PHP PCRE Delimiter Mapping Global Buffer Overflow
 
-cwes: []
+cwes:
+- CWE-125
+- CWE-787
+- CWE-120
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness php-fuzz-execute. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: global-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A global buffer overflow vulnerability exists in the PHP PCRE extension's 
+  pcre_get_compiled_regex_cache_ex() function when parsing regex pattern delimiters.
+  The function attempts to map opening delimiters (like '(', '[', '{', '<') to their 
+  corresponding closing delimiters (')', ']', '}', '>') by searching a hardcoded string 
+  and then indexing 5 positions forward. However, the string literal "([{< )]}>)" is 
+  malformed and too short (only 10 characters), causing an out-of-bounds read when 
+  certain delimiters (particularly ')') are encountered. When ')' is found at index 5, 
+  accessing pp[5] reads 5 bytes beyond that position, extending past the string's end 
+  into adjacent global variable memory. This can lead to information disclosure through 
+  memory leakage, crashes, or unexpected behavior. The vulnerability can be triggered 
+  by providing crafted regex patterns to preg_replace() or preg_replace_callback() 
+  functions using ')' as a delimiter.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: ext/pcre/php_pcre.c
   function_name: pcre_get_compiled_regex_cache_ex
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 649
+  startColumn: 15
+  endLine: 649
+  endColumn: 15

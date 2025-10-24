@@ -1,16 +1,37 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+name: Expression Language Injection in Apache Struts Tiles Attribute Handling
 
 cwes:
-- CWE-502
+- CWE-917
+- CWE-95
+- CWE-94
 
-description: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+description: |
+  An Expression Language (EL) Injection vulnerability exists in the Apache Struts Tiles plugin
+  that allows Remote Code Execution (RCE). The vulnerability is located in the Attribute.setValue()
+  method, which automatically converts user-controlled string values into Expression objects.
+  
+  The vulnerable code attempts to sanitize EL expressions by replacing "${" with "\\${", but this
+  sanitization is insufficient because:
+  1. Alternative EL syntax like "#{" completely bypasses the sanitization
+  2. The Expression object is still created and evaluated later in the execution flow
+  3. User-controlled strings are automatically interpreted as executable code
+  
+  When an attacker provides malicious input containing EL expressions (e.g., through the 'name'
+  parameter), the code creates an Expression object, sets the original value to null, and stores
+  the expression in expressionObject. During evaluation by ELAttributeEvaluator, the malicious
+  expression is executed with full Java reflection capabilities, allowing arbitrary code execution.
+  
+  The patch removes the automatic conversion logic entirely, ensuring that user input remains as
+  plain String values and only explicitly set Expression objects are evaluated. This separates
+  trusted expression sources from untrusted user input, following the security principle of never
+  automatically interpreting user input as code.
 
 locations:
-- path_from_root: plugins/tiles/src/main/java/org/apache/tiles/el/ELAttributeEvaluator.java
-  function_name: reportFinding
-  startLine: 90
-  startColumn: 1
-  endLine: 90
-  endColumn: 1
+- path_from_root: plugins/tiles/src/main/java/org/apache/tiles/api/Attribute.java
+  function_name: setValue
+  startLine: 259
+  startColumn: 0
+  endLine: 268
+  endColumn: 0

@@ -1,20 +1,34 @@
 id: cpv_2
 
-name: 'MOCK: cpv_2 vulnerability in fuzz_disassemble'
+name: KVX Disassembler NULL Pointer Dereference due to Incomplete Initialization
 
-cwes: []
+cwes:
+- CWE-476
+- CWE-665
+- CWE-754
 
-description: 'MOCK: Vulnerability cpv_2 detected in harness fuzz_disassemble. This vulnerability is detected by address sanitizer.
-  The error signature is: ''AddressSanitizer: SEGV on unknown address''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A NULL pointer dereference vulnerability exists in the KVX disassembler's decode_insn() 
+  function. The vulnerability occurs when kvx_dis_init() encounters an unsupported 
+  architecture or machine type and returns early with an error, leaving the global 
+  env.opc_table pointer as NULL. Despite this initialization failure, subsequent calls 
+  to decode_insn() proceed to dereference the NULL opc_table pointer when accessing 
+  op->codewords[i].flags at line 566.
+  
+  The root cause is missing validation in decode_insn() to ensure the disassembler 
+  environment was properly initialized before use. The function assumes env.opc_table 
+  is always valid and attempts to iterate over it, resulting in a NULL pointer 
+  dereference when initialization failed.
+  
+  This can be triggered by providing input with a valid KVX architecture (bfd_arch_kvx) 
+  but an unsupported machine type (e.g., mach=0), or an unsupported architecture type. 
+  The vulnerability allows for denial of service through segmentation fault in 
+  security-critical disassembly functionality.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: opcodes/kvx-dis.c
   function_name: decode_insn
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 566
+  startColumn: 12
+  endLine: 566
+  endColumn: 12

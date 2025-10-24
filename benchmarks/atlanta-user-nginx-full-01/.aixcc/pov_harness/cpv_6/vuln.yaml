@@ -1,20 +1,31 @@
 id: cpv_6
 
-name: 'MOCK: cpv_6 vulnerability in pov_harness'
+name: nginx HTTP Chunked Transfer Encoding NULL Pointer Dereference
 
-cwes: []
+cwes:
+- CWE-476
+- CWE-252
 
-description: 'MOCK: Vulnerability cpv_6 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: SEGV''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A NULL pointer dereference vulnerability in nginx's HTTP chunked transfer encoding parser.
+  When processing HTTP requests with Transfer-Encoding: chunked headers, the
+  ngx_http_discard_request_body_filter function allocates a new request body structure but
+  explicitly sets rb->chunked to NULL instead of properly initializing it. This NULL pointer
+  is then passed to ngx_http_parse_chunked, which immediately dereferences it by accessing
+  ctx->state, causing a segmentation fault. An attacker can trigger this vulnerability by
+  sending specially crafted HTTP requests with chunked transfer encoding, leading to denial
+  of service by crashing nginx worker processes.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/http/ngx_http_parse.c
   function_name: ngx_http_parse_chunked
-  startLine: 0
+  startLine: 2171
+  startColumn: 18
+  endLine: 2171
+  endColumn: 18
+- path_from_root: src/http/ngx_http_request_body.c
+  function_name: ngx_http_discard_request_body_filter
+  startLine: 863
   startColumn: 0
-  endLine: 0
+  endLine: 870
   endColumn: 0

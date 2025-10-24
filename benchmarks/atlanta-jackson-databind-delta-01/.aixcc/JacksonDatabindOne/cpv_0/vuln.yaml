@@ -1,16 +1,47 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: Jackson Databind Polymorphic Deserialization Remote Code Execution
 
 cwes:
+- CWE-502
 - CWE-78
+- CWE-913
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  A critical deserialization vulnerability in Jackson Databind that allows remote code execution
+  through OS command injection. When default typing is enabled on ObjectMapper, the polymorphic
+  type handling allows JSON input to specify arbitrary Java classes for instantiation during
+  deserialization. Without proper validation, attackers can specify dangerous "gadget" classes
+  such as org.springframework.context.support.FileSystemXmlApplicationContext that, when
+  instantiated with attacker-controlled parameters, lead to arbitrary code execution.
+  
+  The vulnerability occurs in the bean deserialization process when user-controlled JSON input
+  specifies a type through polymorphic type handling, and no validation is performed on the
+  specified class type before instantiation. The attack chain involves crafting malicious JSON
+  with type information, which Jackson deserializes and instantiates. Spring's
+  FileSystemXmlApplicationContext constructor loads a malicious XML configuration file containing
+  bean definitions with Spring Expression Language (SpEL) that executes arbitrary OS commands
+  via ProcessBuilder.start().
+  
+  This allows complete system compromise with the ability to execute arbitrary commands,
+  access sensitive data, and potentially perform lateral movement to other systems.
 
 locations:
-- path_from_root: src/main/java/com/fasterxml/jackson/databind/introspect/AnnotatedConstructor.java
-  function_name: processImplStartHook
-  startLine: 129
-  startColumn: 1
-  endLine: 129
-  endColumn: 1
+- path_from_root: src/main/java/com/fasterxml/jackson/databind/deser/BeanDeserializerFactory.java
+  function_name: createBeanDeserializer
+  startLine: 134
+  startColumn: 0
+  endLine: 134
+  endColumn: 0
+- path_from_root: src/main/java/com/fasterxml/jackson/databind/deser/std/StdValueInstantiator.java
+  function_name: createFromString
+  startLine: 326
+  startColumn: 0
+  endLine: 326
+  endColumn: 0
+- path_from_root: src/main/java/com/fasterxml/jackson/databind/deser/BeanDeserializerBase.java
+  function_name: deserializeFromString
+  startLine: 1353
+  startColumn: 0
+  endLine: 1353
+  endColumn: 0

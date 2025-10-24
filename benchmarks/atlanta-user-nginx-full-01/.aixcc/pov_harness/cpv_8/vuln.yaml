@@ -1,20 +1,27 @@
 id: cpv_8
 
-name: 'MOCK: cpv_8 vulnerability in pov_harness'
+name: nginx HTTP Version Parser Stack Buffer Overflow
 
-cwes: []
+cwes:
+- CWE-121
+- CWE-787
+- CWE-131
 
-description: 'MOCK: Vulnerability cpv_8 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: stack-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A stack-based buffer overflow vulnerability exists in nginx's HTTP request parser
+  within the ngx_http_parse_request_line function. When processing HTTP requests with
+  invalid minor version numbers greater than 99, the parser allocates a 3-byte buffer
+  to store the string representation of the version number but fails to account for
+  multi-digit numbers. An attacker can send a malformed HTTP request (e.g., "HTTP/1.1110")
+  causing sprintf() to write beyond the buffer boundary. This vulnerability can lead to
+  memory corruption, denial of service through crashes, and potentially arbitrary code
+  execution in non-hardened builds. The vulnerability is remotely triggerable without
+  authentication and affects core HTTP parsing functionality.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: vsprintf
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+- path_from_root: src/http/ngx_http_parse.c
+  function_name: ngx_http_parse_request_line
+  startLine: 765
+  startColumn: 17
+  endLine: 765
+  endColumn: 17

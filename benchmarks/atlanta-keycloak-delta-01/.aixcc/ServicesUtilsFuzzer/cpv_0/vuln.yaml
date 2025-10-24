@@ -1,20 +1,35 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in ServicesUtilsFuzzer'
+name: Regular Expression Denial of Service in SearchQueryUtils
 
-cwes: []
+cwes:
+- CWE-1333
+- CWE-400
+- CWE-770
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness ServicesUtilsFuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''== Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Stack overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A Regular Expression Denial of Service (ReDoS) vulnerability exists in the 
+  SearchQueryUtils.getFields() method. The vulnerable code uses a complex regular 
+  expression pattern with nested quantifiers and overlapping alternations to parse 
+  search query strings. When processing specially crafted input consisting of 
+  repeated backslash characters, the regex engine attempts exponentially many 
+  matching combinations, leading to catastrophic backtracking. This excessive 
+  backtracking consumes stack space recursively until a StackOverflowError occurs.
+  
+  The problematic regex pattern contains nested quantifiers in expressions like 
+  [^"][^: ]+|. combined with greedy quantifiers, causing the regex engine to try 
+  exponentially many ways to match the input. An attacker can exploit this by 
+  providing approximately 1000 bytes of carefully crafted input to any Keycloak 
+  endpoint using SearchQueryUtils.getFields() for parsing search queries.
+  
+  Impact includes denial of service through application crashes, CPU resource 
+  exhaustion during backtracking, and service unavailability. This vulnerability 
+  is tracked as CVE-2024-10270.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: match
-  startLine: 0
+- path_from_root: services/src/main/java/org/keycloak/utils/SearchQueryUtils.java
+  function_name: getFields
+  startLine: 29
   startColumn: 0
-  endLine: 0
+  endLine: 29
   endColumn: 0

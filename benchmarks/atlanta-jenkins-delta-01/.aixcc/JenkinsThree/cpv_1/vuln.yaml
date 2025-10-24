@@ -1,16 +1,29 @@
 id: cpv_1
 
-name: 'FuzzerSecurityIssueCritical: Script Engine Injection (TBD)'
+name: Script Engine Injection in Jenkins Toy-Plugin Script Compilation Endpoint
 
 cwes:
 - CWE-94
+- CWE-95
+- CWE-20
 
-description: 'FuzzerSecurityIssueCritical: Script Engine Injection (TBD)'
+description: |
+  A critical script engine injection vulnerability exists in the Jenkins toy-plugin's Script class.
+  The vulnerability occurs in the doCheckScriptCompile method which accepts user-controlled input
+  via a QueryParameter and passes it directly to a Groovy script engine for evaluation without
+  proper sanitization. At line 84 in the secureEval method, user-supplied script content is
+  executed via groovyEngine.eval(script). While the code attempts to implement security through
+  a custom GroovySecurityManager that blacklists certain instructions, this approach is
+  fundamentally flawed and can be easily bypassed. An attacker can craft malicious Groovy
+  scripts to execute arbitrary code on the Jenkins server, escape the intended sandbox
+  environment, and achieve Remote Code Execution (RCE). This vulnerability allows complete
+  system compromise, including access to credentials, modification of build configurations,
+  and compromise of the entire CI/CD pipeline.
 
 locations:
 - path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/Script.java
-  function_name: checkScriptContent
+  function_name: secureEval
   startLine: 84
-  startColumn: 1
   endLine: 84
-  endColumn: 1
+  startColumn: 0
+  endColumn: 0

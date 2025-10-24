@@ -1,20 +1,26 @@
 id: cpv_6
 
-name: 'MOCK: cpv_6 vulnerability in pov_harness'
+name: Double-Free in nginx HTTP Prefer Header Processing
 
-cwes: []
+cwes:
+- CWE-415
+- CWE-672
 
-description: 'MOCK: Vulnerability cpv_6 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: attempting double-free''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A double-free vulnerability exists in the ngx_http_process_prefer() function
+  when processing HTTP Prefer headers. When multiple Prefer headers are sent in
+  a single HTTP request, the function frees the memory allocated for the first
+  header but fails to set the pointer to NULL. On subsequent duplicate headers,
+  the function attempts to free the same memory region again, causing a
+  double-free condition. This vulnerability can be triggered remotely by sending
+  an HTTP request with three or more Prefer headers, leading to a crash and
+  potential memory corruption. The impact includes denial of service and
+  potential remote code execution through heap metadata manipulation.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: free
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+- path_from_root: src/http/ngx_http_request.c
+  function_name: ngx_http_process_prefer
+  startLine: 4018
+  startColumn: 9
+  endLine: 4018
+  endColumn: 9

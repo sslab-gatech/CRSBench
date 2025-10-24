@@ -1,20 +1,26 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in SnappyStreamFuzzer'
+name: Snappy Java Stream DoS via Unvalidated Chunk Size Allocation
 
-cwes: []
+cwes:
+- CWE-789
+- CWE-770
+- CWE-400
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness SnappyStreamFuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''Requested array size exceeds VM limit''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A Denial of Service vulnerability exists in the Snappy compression library's SnappyInputStream class.
+  The hasNextChunk() method reads a chunk size value from untrusted input without proper validation,
+  allowing attackers to specify arbitrary memory allocation sizes. Specifically, the code fails to:
+  (1) validate that the chunk size is non-negative, and (2) enforce the maximum chunk size limit.
+  An attacker can craft a malicious Snappy stream with a chunk size of Integer.MAX_VALUE (0x7fffffff),
+  causing the application to attempt allocating ~2GB of memory, which exceeds JVM array limits and
+  triggers an OutOfMemoryError. This leads to application crash and resource exhaustion. The vulnerability
+  was introduced by removing critical input validation checks that prevent excessive memory allocation.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/main/java/org/xerial/snappy/SnappyInputStream.java
   function_name: hasNextChunk
-  startLine: 0
+  startLine: 445
   startColumn: 0
-  endLine: 0
+  endLine: 445
   endColumn: 0

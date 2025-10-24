@@ -1,22 +1,33 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: OS Command Injection in PNG zTXt Chunk Keyword Processing
 
 cwes:
 - CWE-78
+- CWE-77
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  A critical OS command injection vulnerability exists in the PngChunkZtxt class constructor
+  when processing compressed text (zTXt) chunks from PNG image files. The vulnerability occurs
+  when the constructor extracts a keyword field from the PNG chunk data and directly concatenates
+  it into a shell command string without any sanitization or validation. The unsanitized keyword
+  is then executed via ProcessBuilder after splitting by semicolons, allowing an attacker to inject
+  arbitrary shell commands through specially-crafted PNG files.
+  
+  An attacker can craft a malicious PNG file with a zTXt chunk containing shell metacharacters
+  (such as semicolons, pipes, or backticks) in the keyword field. When the PNG is parsed, these
+  metacharacters are interpreted by the shell, enabling remote code execution with the privileges
+  of the application. This vulnerability can be exploited through common attack vectors including
+  image upload features, email attachments, or any application that processes user-supplied PNG images.
+  
+  The impact includes remote code execution, data exfiltration, system compromise, and denial of
+  service. The vulnerability is triggered during normal PNG parsing operations, making it highly
+  exploitable with low attack complexity and no authentication required.
 
 locations:
 - path_from_root: src/main/java/org/apache/commons/imaging/formats/png/chunks/PngChunkZtxt.java
-  function_name: processImplStartHook
-  startLine: 61
-  startColumn: 1
-  endLine: 61
-  endColumn: 1
-- path_from_root: src/main/java/org/apache/commons/imaging/formats/png/chunks/PngChunkZtxt.java
-  function_name: processImplStartHook
+  function_name: PngChunkZtxt
   startLine: 62
-  startColumn: 1
+  startColumn: 0
   endLine: 62
-  endColumn: 1
+  endColumn: 0

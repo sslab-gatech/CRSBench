@@ -1,20 +1,28 @@
 id: cpv_3
 
-name: 'MOCK: cpv_3 vulnerability in POIHDGFFuzzer'
+name: Apache POI HDGF Parser Uncontrolled Recursion Leading to Out-of-Memory
 
-cwes: []
+cwes:
+- CWE-674
+- CWE-770
+- CWE-400
 
-description: 'MOCK: Vulnerability cpv_3 detected in harness POIHDGFFuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  Uncontrolled recursion vulnerability in Apache POI's HDGF (Visio) document parser 
+  that leads to resource exhaustion. The vulnerability exists in the 
+  PointerContainingStream.findChildren() method, which recursively processes nested 
+  pointer structures within Visio document streams. While the code implements a 
+  MAX_CHILDREN_NESTING limit of 500 levels, when this limit is exceeded, it only 
+  logs a warning and returns silently instead of throwing an exception. A maliciously 
+  crafted Visio document with deeply nested or circular pointer structures can trigger 
+  excessive memory allocation through recursive descent, causing the parser to allocate 
+  thousands of Stream and Pointer objects until the JVM heap is exhausted, resulting 
+  in an OutOfMemoryError and denial of service.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: createPointer
-  startLine: 0
+- path_from_root: poi-scratchpad/src/main/java/org/apache/poi/hdgf/streams/PointerContainingStream.java
+  function_name: findChildren
+  startLine: 70
   startColumn: 0
-  endLine: 0
+  endLine: 98
   endColumn: 0

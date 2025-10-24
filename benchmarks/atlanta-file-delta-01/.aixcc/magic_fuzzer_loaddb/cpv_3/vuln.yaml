@@ -1,20 +1,26 @@
 id: cpv_3
 
-name: 'MOCK: cpv_3 vulnerability in magic_fuzzer_loaddb'
+name: NULL Pointer Dereference in file_magwarn via FILE_DEFAULT Magic Entry
 
-cwes: []
+cwes:
+- CWE-476
+- CWE-690
 
-description: 'MOCK: Vulnerability cpv_3 detected in harness magic_fuzzer_loaddb. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: AddressSanitizer: SEGV''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A NULL pointer dereference vulnerability exists in the file_magwarn function in src/print.c.
+  The vulnerability occurs when apprentice_magic_strength_1 in src/apprentice.c calls file_magwarn
+  with a NULL pointer as the first argument (ms parameter) when processing a FILE_DEFAULT magic
+  entry with an unsupported factor_op value. The file_magwarn function attempts to dereference
+  this NULL pointer without validation when checking ++ms->magwarn == ms->magwarn_max at line 250,
+  causing a segmentation fault. An attacker can craft a malicious magic database file containing
+  a FILE_DEFAULT entry with a non-zero factor_op field to trigger the crash. This results in a
+  denial of service and could potentially allow malicious files to bypass detection if the file
+  utility is used in security-critical contexts.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/print.c
   function_name: file_magwarn
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 250
+  startColumn: 6
+  endLine: 250
+  endColumn: 6

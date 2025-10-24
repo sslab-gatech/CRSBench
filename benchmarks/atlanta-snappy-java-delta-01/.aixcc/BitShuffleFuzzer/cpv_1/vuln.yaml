@@ -1,20 +1,39 @@
 id: cpv_1
 
-name: 'MOCK: cpv_1 vulnerability in BitShuffleFuzzer'
+name: Integer Overflow in BitShuffle Buffer Size Calculation
 
-cwes: []
+cwes:
+- CWE-190
+- CWE-131
+- CWE-787
 
-description: 'MOCK: Vulnerability cpv_1 detected in harness BitShuffleFuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''IllegalStateException: Original and uncompressed data are different''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An integer overflow vulnerability exists in the BitShuffle implementation's buffer size
+  calculation. The vulnerable sizeCheck() and getSize() methods use incorrect overflow
+  detection logic by masking values to 16 bits (& 0xFFFF) before comparison. This causes
+  the overflow check to fail when length * typeSize exceeds 65535, while getSize() returns
+  a truncated size value. For example, with length=21846 and typeSize=4, the required size
+  is 87384 bytes but only 21848 bytes are allocated due to truncation. This buffer
+  underallocation leads to out-of-bounds writes when the native shuffle implementation
+  writes the full expected amount of data, causing memory corruption and data integrity
+  failures. The vulnerability was introduced as an incomplete fix for CVE-2023-34453.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: fuzz_bitshuffle_ints
-  startLine: 0
+- path_from_root: src/main/java/org/xerial/snappy/BitShuffle.java
+  function_name: sizeCheck
+  startLine: 86
   startColumn: 0
-  endLine: 0
+  endLine: 90
+  endColumn: 0
+- path_from_root: src/main/java/org/xerial/snappy/BitShuffle.java
+  function_name: getSize
+  startLine: 92
+  startColumn: 0
+  endLine: 94
+  endColumn: 0
+- path_from_root: src/main/java/org/xerial/snappy/BitShuffle.java
+  function_name: shuffle
+  startLine: 110
+  startColumn: 0
+  endLine: 120
   endColumn: 0

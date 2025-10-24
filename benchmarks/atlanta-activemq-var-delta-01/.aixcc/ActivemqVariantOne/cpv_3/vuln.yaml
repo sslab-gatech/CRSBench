@@ -1,20 +1,33 @@
 id: cpv_3
 
-name: 'MOCK: cpv_3 vulnerability in ActivemqVariantOne'
+name: Apache ActiveMQ OpenWire Arbitrary Class Instantiation via Reflection
 
-cwes: []
+cwes:
+- CWE-502
+- CWE-470
+- CWE-94
 
-description: 'MOCK: Vulnerability cpv_3 detected in harness ActivemqVariantOne. This vulnerability is detected by address
-  sanitizer. The error signature is: ''FuzzerSecurityIssueHigh: Remote Code Execution''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  Critical arbitrary class instantiation vulnerability in Apache ActiveMQ's OpenWire 
+  protocol implementation that can lead to Remote Code Execution (RCE). The vulnerability 
+  exists in the BaseDataStreamMarshaller.createThrowable() method which accepts an 
+  externally-controlled className parameter from network data during deserialization 
+  and uses Java reflection to dynamically instantiate classes without proper validation.
+  
+  The method uses Class.forName() to load any class whose name starts with "j" and then 
+  calls constructor.newInstance() to create an instance. This weak validation allows 
+  attackers to instantiate arbitrary classes including malicious classes, dangerous JDK 
+  classes, and classpath gadget classes that can lead to remote code execution.
+  
+  An attacker can craft a malicious OpenWire ExceptionResponse message containing a 
+  carefully chosen class name (e.g., "jaz.Zer") which gets instantiated during message 
+  unmarshaling, potentially executing arbitrary code through constructor side effects 
+  or enabling RCE chains through available classpath gadgets.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: reportFinding
-  startLine: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 229
+  endLine: 240
   startColumn: 0
-  endLine: 0
   endColumn: 0

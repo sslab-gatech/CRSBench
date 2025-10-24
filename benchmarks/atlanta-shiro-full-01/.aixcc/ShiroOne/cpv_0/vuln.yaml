@@ -1,22 +1,26 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: Apache Shiro RememberMe Insecure Deserialization RCE
 
 cwes:
+- CWE-502
 - CWE-78
+- CWE-321
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  Critical insecure deserialization vulnerability in Apache Shiro's "Remember Me" functionality.
+  The DefaultSerializer.deserialize() method uses Java's native ObjectInputStream.readObject() to
+  deserialize untrusted data from HTTP cookies without validation or filtering. An attacker can
+  craft a malicious serialized Java object containing a gadget chain (e.g., using commons-beanutils
+  and TemplatesImpl), encrypt it using Shiro's hardcoded default AES key, and send it in the
+  "rememberMe" cookie. When Shiro decrypts and deserializes the payload, the gadget chain executes,
+  triggering arbitrary OS commands via Runtime.exec(). This allows remote, unauthenticated attackers
+  to achieve complete server compromise. The vulnerability is also known as CVE-2016-4437 (SHIRO-550).
 
 locations:
-- path_from_root: core/src/main/java/org/apache/shiro/io/ClassResolvingObjectInputStream.java
-  function_name: deserialize
-  startLine: 38
-  startColumn: 1
-  endLine: 38
-  endColumn: 1
 - path_from_root: core/src/main/java/org/apache/shiro/io/DefaultSerializer.java
   function_name: deserialize
   startLine: 77
-  startColumn: 1
+  startColumn: 0
   endLine: 77
-  endColumn: 1
+  endColumn: 0

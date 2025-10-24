@@ -1,20 +1,27 @@
 id: cpv_3
 
-name: 'MOCK: cpv_3 vulnerability in pov_harness'
+name: nginx HTTP TRACE Handler Heap Buffer Overflow via Excessive Headers
 
-cwes: []
+cwes:
+- CWE-122
+- CWE-787
+- CWE-119
 
-description: 'MOCK: Vulnerability cpv_3 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-based buffer overflow vulnerability exists in nginx's HTTP TRACE request handler
+  (ngx_http_trace_handler function in src/http/ngx_http_request.c). The function allocates
+  a fixed 200-byte heap buffer but fails to validate that the total size of HTTP headers
+  fits within this buffer before copying them via ngx_copy/memcpy operations. When processing
+  an HTTP TRACE request containing multiple headers with large values that collectively exceed
+  200 bytes, the function writes beyond the allocated buffer boundary, causing heap memory
+  corruption. An attacker can trigger this vulnerability by sending a crafted TRACE request
+  with excessive header data, potentially leading to arbitrary code execution, denial of
+  service through crashes, or information disclosure through heap metadata corruption.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: __asan_memcpy
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+- path_from_root: src/http/ngx_http_request.c
+  function_name: ngx_http_trace_handler
+  startLine: 4217
+  startColumn: 19
+  endLine: 4217
+  endColumn: 19

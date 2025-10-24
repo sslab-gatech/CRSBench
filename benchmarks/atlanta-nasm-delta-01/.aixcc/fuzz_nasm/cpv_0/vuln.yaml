@@ -1,20 +1,44 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in fuzz_nasm'
+name: Stack-use-after-return in NASM preprocessor token list duplication
 
-cwes: []
+cwes:
+- CWE-562
+- CWE-825
+- CWE-416
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness fuzz_nasm. This vulnerability is detected by address sanitizer.
-  The error signature is: ''AddressSanitizer: stack-use-after-return''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A stack-use-after-return vulnerability exists in NASM's preprocessor macro expansion code.
+  The vulnerability occurs in the expand_mmac_params function when processing TOKEN_INDIRECT tokens.
+  
+  The root cause is in the dup_tlist function (lines 891-908), which returns a pointer to a local
+  stack variable through an output parameter. When dup_tlist sets *tailp = tailpp at line 904,
+  tailpp points to the address of the local stack variable newlist. When the function returns,
+  newlist goes out of scope, but the caller retains a pointer to this invalid stack location
+  through the tail variable.
+  
+  The vulnerability is triggered when:
+  1. expand_mmac_params processes a TOKEN_INDIRECT token
+  2. tokenize() creates a malformed token list (specifically zero-length tokens)
+  3. dup_tlist(tt, &tail) is called, updating tail to point to freed stack memory
+  4. Later code attempts to write through the dangling tail pointer (line 5373)
+  
+  The patch fixes this by preventing tokenize from creating zero-length tokens, ensuring
+  well-formed token lists that don't expose the stack-use-after-return issue.
+  
+  Impact: Memory corruption, potential arbitrary code execution, denial of service, and
+  possible information disclosure through stack memory access.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: asm/preproc.c
   function_name: expand_mmac_params
-  startLine: 0
+  startLine: 5373
+  startColumn: 11
+  endLine: 5373
+  endColumn: 11
+- path_from_root: asm/preproc.c
+  function_name: dup_tlist
+  startLine: 904
   startColumn: 0
-  endLine: 0
+  endLine: 904
   endColumn: 0

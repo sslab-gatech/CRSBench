@@ -1,20 +1,29 @@
 id: cpv_4
 
-name: 'MOCK: cpv_4 vulnerability in ActivemqVariantOne'
+name: Apache ActiveMQ OpenWire Unsafe Deserialization Remote Code Execution
 
-cwes: []
+cwes:
+- CWE-502
+- CWE-470
+- CWE-94
 
-description: 'MOCK: Vulnerability cpv_4 detected in harness ActivemqVariantOne. This vulnerability is detected by address
-  sanitizer. The error signature is: ''FuzzerSecurityIssueHigh: Remote Code Execution''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  Critical remote code execution vulnerability in Apache ActiveMQ's OpenWire protocol 
+  deserialization logic. The createThrowable() method in BaseDataStreamMarshaller.java 
+  allows attackers to instantiate arbitrary classes through reflection without proper 
+  type validation. The method accepts attacker-controlled class names from deserialized 
+  wire data, loads classes dynamically using Class.forName(), and instantiates them via 
+  reflection before validating they are Throwable types. The weak filter checking only 
+  if the class name starts with 'j' is insufficient. Attackers can craft malicious 
+  OpenWire ExceptionResponse messages containing class names that bypass this check and 
+  execute arbitrary code in constructors or class initializers. This can lead to complete 
+  system compromise through gadget chain exploitation, with no authentication required 
+  as the vulnerability is exploitable during protocol unmarshaling.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: reportFinding
-  startLine: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v5/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
   startColumn: 0
-  endLine: 0
+  endLine: 234
   endColumn: 0

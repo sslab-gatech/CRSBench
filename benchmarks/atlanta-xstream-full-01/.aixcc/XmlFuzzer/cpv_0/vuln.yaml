@@ -1,20 +1,28 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in XmlFuzzer'
+name: XStream XML Deserialization Stack Overflow via Circular References
 
-cwes: []
+cwes:
+- CWE-674
+- CWE-400
+- CWE-502
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness XmlFuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Stack overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A stack overflow denial of service vulnerability occurs in XStream's XML deserialization
+  when processing specially crafted XML documents containing circular references in HashSet
+  collections. When malicious XML creates a cyclic data structure where a HashSet contains
+  nested sets that reference back to parent sets (e.g., <set reference='../../../set/set[2]'/>),
+  the Java runtime enters infinite recursion during hashCode() computation. The
+  AbstractSet.hashCode() method iterates through elements and recursively calls hashCode()
+  on nested sets, causing unbounded recursion until stack exhaustion. This uncontrolled
+  recursion results in a StackOverflowError, crashing the application and causing a denial
+  of service. The vulnerability is triggered through the XStream.unmarshal() method during
+  XML-to-object deserialization, affecting applications that process untrusted XML input.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: hashCode
-  startLine: 0
+- path_from_root: xstream/src/java/com/thoughtworks/xstream/XStream.java
+  function_name: unmarshal
+  startLine: 1469
   startColumn: 0
-  endLine: 0
+  endLine: 1469
   endColumn: 0

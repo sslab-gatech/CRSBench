@@ -1,20 +1,32 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in UrlValidator2Fuzzer'
+name: Regular Expression Denial of Service in URL Domain Validator
 
-cwes: []
+cwes:
+- CWE-1333
+- CWE-400
+- CWE-674
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness UrlValidator2Fuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''== Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Stack overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A Regular Expression Denial of Service (ReDoS) vulnerability exists in the Apache Commons 
+  Validator's URL validation logic. The DOMAIN_PATTERN regex used in the isValidAuthority 
+  method contains nested quantifiers that cause catastrophic backtracking when processing 
+  specially crafted domain strings.
+  
+  The vulnerable pattern ^[^\s;/@&=,.?:+$]+(\.[^\s;/@&=,.?:+$]+)*$ uses both an inner 
+  greedy quantifier (+) and an outer greedy quantifier (*) on a capturing group. When given 
+  input with many alternating valid characters and dots (e.g., "0.0.0A.00.0A.0.A00..."), 
+  the regex engine attempts exponentially many backtracking combinations, leading to stack 
+  overflow and application crash.
+  
+  An attacker can trigger this vulnerability by submitting URLs with crafted domain parts 
+  containing repetitive patterns, causing denial of service through resource exhaustion and 
+  stack overflow errors.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: match
-  startLine: 0
+- path_from_root: src/main/java/org/apache/commons/validator/UrlValidator.java
+  function_name: isValidAuthority
+  startLine: 313
   startColumn: 0
-  endLine: 0
+  endLine: 313
   endColumn: 0

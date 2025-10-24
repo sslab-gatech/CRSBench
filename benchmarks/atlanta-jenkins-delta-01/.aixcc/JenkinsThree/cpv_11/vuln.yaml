@@ -1,16 +1,32 @@
 id: cpv_11
 
-name: 'FuzzerSecurityIssueLow: Regular Expression Injection (TBD)'
+name: Regular Expression Injection in Jenkins AccessFilter Plugin
 
 cwes:
-- CWE-777
+- CWE-1333
+- CWE-94
+- CWE-400
 
-description: 'FuzzerSecurityIssueLow: Regular Expression Injection (TBD)'
+description: |
+  A Regular Expression Injection vulnerability exists in the AccessFilter plugin's doGet() method.
+  The vulnerability occurs when user-controlled input from the 'ip' parameter is directly concatenated
+  into a regular expression pattern without proper sanitization or escaping using Pattern.quote().
+  
+  At line 87 of AccessFilter.java, the code constructs a pattern as: Pattern.compile(".*(" + ip + ").*")
+  
+  An attacker can inject regex metacharacters that cause:
+  1. ReDoS (Regular Expression Denial of Service) through catastrophic backtracking
+  2. PatternSyntaxException crashes from malformed patterns (e.g., dangling metacharacters like '*')
+  3. Information disclosure by crafting patterns that match unintended log entries
+  
+  The vulnerability can be exploited to consume excessive CPU resources or crash the application.
+  A secondary authorization bypass vulnerability (fixed in the provided patch) allowed non-admin users
+  to bypass IP validation, making the regex injection more easily exploitable.
 
 locations:
 - path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AccessFilter.java
-  function_name: hookInternal
+  function_name: doGet
   startLine: 87
-  startColumn: 1
+  startColumn: 0
   endLine: 87
-  endColumn: 1
+  endColumn: 0

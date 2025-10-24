@@ -1,20 +1,36 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in pov_harness'
+name: Heap Use-After-Free in Black List Removal via HTTP Header Processing
 
-cwes: []
+cwes:
+- CWE-416
+- CWE-672
+- CWE-825
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-use-after-free''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-use-after-free vulnerability exists in nginx's custom black list implementation
+  within the ngx_black_list_remove function (src/core/ngx_cycle.c). When removing the head
+  node of the black list doubly-linked list, the function frees the memory via
+  ngx_destroy_black_list_link but fails to update the list head pointer (*black_list) to
+  point to the next node. Subsequently, when ngx_black_list_remove is called again, it
+  dereferences the stale pointer to read freed memory at reader->IP->data, resulting in
+  a heap-use-after-free condition.
+  
+  The vulnerability can be remotely triggered by sending specially crafted HTTP requests
+  with Black-List and White-List headers. The Black-List header populates the list, and
+  the White-List header triggers removal operations. When the first IP in the White-List
+  matches the head of the black list, the head node is freed but the list pointer remains
+  unchanged. The next removal attempt then accesses the freed memory, causing an 8-byte
+  read from freed heap memory.
+  
+  This vulnerability could lead to information disclosure through reading freed heap memory,
+  potential heap corruption, and denial of service through crashes. The attack vector is
+  network-based with low complexity, requiring only malicious HTTP headers.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/core/ngx_cycle.c
   function_name: ngx_black_list_remove
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 1663
+  startColumn: 20
+  endLine: 1663
+  endColumn: 20

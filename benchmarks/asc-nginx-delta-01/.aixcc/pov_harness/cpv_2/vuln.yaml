@@ -1,20 +1,33 @@
 id: cpv_2
 
-name: 'MOCK: cpv_2 vulnerability in pov_harness'
+name: Heap buffer overflow in nginx HTTP Basic Authentication base64 decoding
 
-cwes: []
+cwes:
+- CWE-122
+- CWE-787
+- CWE-131
 
-description: 'MOCK: Vulnerability cpv_2 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-based buffer overflow vulnerability exists in nginx's HTTP Basic Authentication
+  handler when processing Authorization headers. The ngx_http_auth_basic_user() function
+  in src/http/ngx_http_core_module.c allocates a fixed-size buffer of only 16 bytes
+  (NGX_HTTP_AUTH_MAX) to store decoded base64 credentials. When a client sends an
+  Authorization header with base64-encoded credentials that decode to more than 16 bytes,
+  the ngx_decode_base64_internal() function writes beyond the allocated buffer boundary,
+  causing heap memory corruption. This can be remotely triggered by crafting an HTTP
+  request with a sufficiently long base64-encoded Authorization header, potentially
+  leading to arbitrary code execution, denial of service, or authentication bypass.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/core/ngx_string.c
   function_name: ngx_decode_base64_internal
-  startLine: 0
+  startLine: 1330
+  startColumn: 14
+  endLine: 1330
+  endColumn: 14
+- path_from_root: src/http/ngx_http_core_module.c
+  function_name: ngx_http_auth_basic_user
+  startLine: 1988
   startColumn: 0
-  endLine: 0
+  endLine: 1994
   endColumn: 0

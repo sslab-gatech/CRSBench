@@ -1,20 +1,31 @@
 id: cpv_1
 
-name: 'MOCK: cpv_1 vulnerability in BodyTemplateFuzzer'
+name: Array Index Out of Bounds in Template Expression Parser
 
-cwes: []
+cwes:
+- CWE-129
+- CWE-20
 
-description: 'MOCK: Vulnerability cpv_1 detected in harness BodyTemplateFuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''Java Exception: java.lang.ArrayIndexOutOfBoundsException''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An ArrayIndexOutOfBoundsException occurs in the Feign template expression parser when
+  processing variable names containing a colon character. The vulnerability is triggered
+  when input contains a template expression with an empty variable name but includes a
+  colon delimiter (e.g., "{:}" or "{:pattern}"). 
+  
+  The root cause is in Expressions.create() where the code splits variable names on the
+  colon character to separate variable names from patterns. When split(":") is called on
+  a string that is just ":", Java's split() method produces an empty array. The subsequent
+  attempt to access parts[0] throws an ArrayIndexOutOfBoundsException.
+  
+  This vulnerability causes a denial-of-service condition where any API endpoint or
+  functionality accepting user-controlled template strings can be crashed with specially
+  crafted input like "{:}". The crash is 100% reproducible and allows attackers to
+  reliably disrupt application availability.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: core/src/main/java/feign/template/Expressions.java
   function_name: create
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 85
+  startColumn: 5
+  endLine: 85
+  endColumn: 5

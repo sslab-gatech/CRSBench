@@ -1,20 +1,23 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in ByteBufUtilFuzzer'
+name: ByteBuf Array Index Validation Error
 
-cwes: []
+cwes:
+- CWE-129
+- CWE-20
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness ByteBufUtilFuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''java.lang.ArrayIndexOutOfBoundsException''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  The vulnerability is an ArrayIndexOutOfBoundsException due to improper
+  validation of array index within the 'getByte' function in 'HeapByteBufUtil.java'.
+  It occurs when an invalid index is accessed, leading to crashes or unexpected behavior.
+  The issue stems from a lack of boundary checks on array indices, which allows
+  potential out-of-bounds access. The security impact includes application instability
+  and potential exposure to further exploits.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: buffer/src/main/java/io/netty/buffer/HeapByteBufUtil.java
   function_name: getByte
-  startLine: 0
+  startLine: 20
   startColumn: 0
-  endLine: 0
+  endLine: 30
   endColumn: 0

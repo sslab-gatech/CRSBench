@@ -1,20 +1,29 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in fuzz_probe_analyze'
+name: Out-of-bounds read in MP3 bitrate parser via invalid bitrate index
 
-cwes: []
+cwes:
+- CWE-129
+- CWE-125
+- CWE-787
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness fuzz_probe_analyze. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: AddressSanitizer: global-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A global buffer overflow vulnerability exists in the gf_mp3_bit_rate() function
+  in src/media_tools/av_parsers.c. The function extracts a bitRateIndex value from
+  an MP3 header by masking 4 bits (range 0-15) but fails to validate this index
+  before using it to access the bitrate_table array, which only has 15 elements
+  (valid indices 0-14). When bitRateIndex equals 15, the array access
+  bitrate_table[lidx][15] results in an out-of-bounds read.
+  
+  An attacker can craft a malicious MP3 or MPEG-2 PS file with a bitrate index
+  field set to 15 (0xF) to trigger this vulnerability during audio stream parsing.
+  This can lead to information disclosure through memory leakage, denial of service
+  via crashes, and potentially aid in bypassing memory protection mechanisms.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/media_tools/av_parsers.c
   function_name: gf_mp3_bit_rate
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 4527
+  startColumn: 9
+  endLine: 4527
+  endColumn: 9

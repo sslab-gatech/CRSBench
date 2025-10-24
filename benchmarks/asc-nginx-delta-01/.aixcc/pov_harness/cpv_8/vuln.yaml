@@ -1,20 +1,26 @@
 id: cpv_8
 
-name: 'MOCK: cpv_8 vulnerability in pov_harness'
+name: Heap buffer overflow in ngx_sendfile_r due to fixed buffer size
 
-cwes: []
+cwes:
+- CWE-122
+- CWE-787
+- CWE-131
 
-description: 'MOCK: Vulnerability cpv_8 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-based buffer overflow vulnerability exists in the ngx_sendfile_r function
+  in nginx's Linux sendfile implementation. The function allocates a fixed-size buffer
+  of 100 bytes (NGX_SENDFILE_R_MAXSIZE) but writes a variable amount of data
+  controlled by the 'size' parameter. When the size parameter exceeds 100 bytes,
+  the write loop overflows the allocated heap buffer. This can be triggered via
+  HTTP Range requests that cause nginx to process responses larger than 100 bytes.
+  The vulnerability can lead to memory corruption, potential arbitrary code execution,
+  denial of service, and corruption of adjacent heap data structures.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/os/unix/ngx_linux_sendfile_chain.c
   function_name: ngx_sendfile_r
-  startLine: 0
+  startLine: 73
   startColumn: 0
-  endLine: 0
+  endLine: 80
   endColumn: 0

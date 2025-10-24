@@ -1,20 +1,30 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in SpelExpressionFuzzer'
+name: Spring Expression Language (SpEL) String Multiplication Resource Exhaustion
 
-cwes: []
+cwes:
+- CWE-400
+- CWE-789
+- CWE-770
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness SpelExpressionFuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A Denial of Service vulnerability exists in the Spring Framework's Spring Expression Language (SpEL) 
+  parser, specifically in the OpMultiply operator implementation. The vulnerability allows an attacker 
+  to cause resource exhaustion through excessive memory allocation when evaluating malicious SpEL expressions.
+  
+  The OpMultiply.getValueInternal() method supports string multiplication operations (e.g., 'abc' * 2 
+  produces 'abcabc'). However, the vulnerable code does not validate the size of the resulting string 
+  before calling String.repeat(count). This allows an attacker to craft a SpEL expression that attempts 
+  to create an extremely large string by repeating a string a very large number of times (e.g., 'xyz' * 941859717).
+  
+  This results in attempting to allocate memory exceeding Java's implementation limits for string length, 
+  causing an OutOfMemoryError and application crash. Applications using Spring Expression Language for 
+  evaluating user-supplied or untrusted input are at risk of Denial of Service attacks.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: repeat
-  startLine: 0
+- path_from_root: spring-expression/src/main/java/org/springframework/expression/spel/ast/OpMultiply.java
+  function_name: getValueInternal
+  startLine: 108
   startColumn: 0
-  endLine: 0
+  endLine: 110
   endColumn: 0

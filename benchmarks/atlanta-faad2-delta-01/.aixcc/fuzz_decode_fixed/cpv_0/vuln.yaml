@@ -1,20 +1,37 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in fuzz_decode_fixed'
+name: TNS Coefficient Table Index Logic Error Leading to Integer Overflow
 
-cwes: []
+cwes:
+- CWE-682
+- CWE-190
+- CWE-697
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness fuzz_decode_fixed. This vulnerability is detected by undefined
-  sanitizer. The error signature is: ''runtime error: signed integer overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A logic error in the TNS (Temporal Noise Shaping) coefficient decoding function
+  causes incorrect selection of coefficient tables, leading to a signed integer overflow
+  in fixed-point arithmetic operations. The vulnerability occurs in tns_decode_coef()
+  where inverted boolean logic (using == instead of !=) calculates the wrong table_index
+  value when selecting from the all_tns_coefs[] array.
+  
+  When processing specific combinations of coef_compress and coef_res_bits parameters
+  (e.g., coef_compress=1, coef_res_bits=4), the incorrect coefficient table is selected.
+  These wrong coefficients propagate through the decoding pipeline and eventually cause
+  a signed 32-bit integer overflow in the DST4_32 function during SBR QMF synthesis,
+  where the calculation "232566383 + 2055740917" exceeds INT32_MAX.
+  
+  The bug was introduced in commit 2ea4a35 by changing the condition from
+  "2 * (coef_compress != 0) + (coef_res_bits != 3)" to
+  "2 * (coef_compress == 0) + (coef_res_bits == 3)".
+  
+  This vulnerability can be triggered by specially crafted AAC audio streams and may
+  lead to undefined behavior, crashes, or potential code execution in fixed-point
+  builds of FAAD2.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: DST4_32
-  startLine: 0
+- path_from_root: libfaad/tns.c
+  function_name: tns_decode_coef
+  startLine: 199
   startColumn: 0
-  endLine: 0
+  endLine: 199
   endColumn: 0

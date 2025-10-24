@@ -1,16 +1,28 @@
 id: cpv_2
 
-name: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+name: Zip Slip Path Traversal in ZipUtil.writeEntry()
 
 cwes:
 - CWE-22
+- CWE-23
 
-description: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+description: |
+  A Zip Slip vulnerability exists in the ZipUtil.writeEntry() method where zip entry names
+  are used directly to construct file paths without validation. At line 97, the code creates
+  a File object using the entry name without verifying that the resolved path stays within
+  the intended destination directory: `File outFile = new File(destDir, entry.getName())`.
+  
+  An attacker can craft a malicious zip file with entries containing path traversal sequences
+  (e.g., "../../../../evil.txt"). When extracted, these entries resolve to paths outside the
+  destination directory, allowing arbitrary file writes to any location writable by the
+  application. This can lead to code execution by overwriting executable files, configuration
+  files, or system files, as well as data exfiltration by writing files to web-accessible
+  directories.
 
 locations:
-- path_from_root: util/src/main/java/org/eclipse/rdf4j/common/io/IOUtil.java
-  function_name: check
-  startLine: 387
-  startColumn: 1
-  endLine: 387
-  endColumn: 1
+- path_from_root: util/src/main/java/org/eclipse/rdf4j/common/io/ZipUtil.java
+  function_name: writeEntry
+  startLine: 97
+  startColumn: 0
+  endLine: 97
+  endColumn: 0

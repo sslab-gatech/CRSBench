@@ -1,20 +1,30 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in libjpeg_djpeg_fuzzer'
+name: Heap buffer overflow in BMP writer with quantized CMYK color space
 
-cwes: []
+cwes:
+- CWE-787
+- CWE-122
+- CWE-680
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness libjpeg_djpeg_fuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap buffer overflow vulnerability occurs in libjpeg-turbo's BMP writer when
+  processing JPEG images with CMYK color space and color quantization enabled.
+  
+  The root cause is in the jinit_write_bmp function (wrbmp.c:509-511), which
+  incorrectly assigns the put_pixel_rows function for CMYK color space without
+  checking if quantize_colors is enabled. When quantization is active, the buffer
+  is allocated for 1 byte per pixel, but put_pixel_rows expects 4 bytes per pixel
+  for CMYK (C, M, Y, K components), causing it to read beyond the allocated buffer.
+  
+  This vulnerability can lead to memory corruption, application crashes (denial of
+  service), information disclosure through heap memory leaks, and potentially
+  arbitrary code execution in certain scenarios.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: wrbmp.c
   function_name: put_pixel_rows
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 145
+  startColumn: 19
+  endLine: 145
+  endColumn: 19

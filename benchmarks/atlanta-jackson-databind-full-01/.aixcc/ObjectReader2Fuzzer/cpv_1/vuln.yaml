@@ -1,20 +1,24 @@
 id: cpv_1
 
-name: 'MOCK: cpv_1 vulnerability in ObjectReader2Fuzzer'
+name: Stack Overflow via Uncontrolled Recursion in Boolean Array Deserialization
 
-cwes: []
+cwes:
+- CWE-674
+- CWE-770
+- CWE-400
 
-description: 'MOCK: Vulnerability cpv_1 detected in harness ObjectReader2Fuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Stack overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An uncontrolled recursion vulnerability exists in Jackson Databind's StdDeserializer._parseBooleanPrimitive() method.
+  When the UNWRAP_SINGLE_VALUE_ARRAYS deserialization feature is enabled, the method recursively processes nested arrays
+  without checking if the next token is another START_ARRAY. This allows an attacker to provide deeply nested array
+  structures (e.g., [[[[[[...]]]]]] ) in JSON input, causing unbounded recursion that exhausts the call stack and
+  results in a StackOverflowError. The vulnerability leads to Denial of Service (DoS) by crashing the application
+  and consuming memory resources until the stack limit is reached.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/main/java/com/fasterxml/jackson/databind/deser/std/StdDeserializer.java
   function_name: _parseBooleanPrimitive
-  startLine: 0
+  startLine: 416
   startColumn: 0
-  endLine: 0
+  endLine: 416
   endColumn: 0
