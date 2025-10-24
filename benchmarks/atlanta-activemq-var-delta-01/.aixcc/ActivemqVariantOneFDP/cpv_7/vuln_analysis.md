@@ -1,0 +1,1 @@
+I'll analyze the vulnerability for cpv_7 in the ActivemqVariantOneFDP harness. Let me start by examining the crash logs from the specified CPV directory.Now let me check for POV files and patches:
