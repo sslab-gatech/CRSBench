@@ -1,16 +1,27 @@
 id: cpv_1
 
-name: 'FuzzerSecurityIssueLow: Regular Expression Injection (TBD)'
+name: GIF Application Extension Regular Expression Injection
 
 cwes:
-- CWE-777
+- CWE-1333
+- CWE-94
+- CWE-20
 
-description: 'FuzzerSecurityIssueLow: Regular Expression Injection (TBD)'
+description: |
+  Regular Expression Injection vulnerability in Apache Commons Imaging GIF parser.
+  The ApplicationExtension constructor directly concatenates untrusted byte data from
+  GIF file Application Extension blocks into a regex pattern without proper escaping.
+  When parsing GIF files, the label parameter (coming from the GIF file) is converted
+  to a string and concatenated into Pattern.compile("^app-ext " + new String(label) + ": ")
+  at line 34. This allows attackers to inject regex metacharacters that can cause
+  PatternSyntaxException crashes or create catastrophic backtracking patterns leading
+  to CPU exhaustion (ReDoS). Maliciously crafted GIF files can cause denial of service
+  by crashing the application or making it unresponsive through excessive CPU consumption.
 
 locations:
 - path_from_root: src/main/java/org/apache/commons/imaging/formats/gif/ApplicationExtension.java
-  function_name: hookInternal
+  function_name: ApplicationExtension
   startLine: 34
-  startColumn: 1
+  startColumn: 0
   endLine: 34
-  endColumn: 1
+  endColumn: 0

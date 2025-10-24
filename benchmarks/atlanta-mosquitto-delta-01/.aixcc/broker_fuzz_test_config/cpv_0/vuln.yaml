@@ -1,20 +1,34 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in broker_fuzz_test_config'
+name: Heap buffer overflow in config__add_listener via off-by-one indexing error
 
-cwes: []
+cwes:
+- CWE-122
+- CWE-787
+- CWE-131
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness broker_fuzz_test_config. This vulnerability is detected by address
-  sanitizer. The error signature is: ''AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-based buffer overflow vulnerability exists in the Mosquitto MQTT broker's configuration
+  parser within the config__add_listener() function in src/conf.c. The vulnerability is caused by
+  an off-by-one indexing error when adding a new listener to the configuration.
+  
+  After reallocating the listeners array to accommodate listener_count+1 elements, the code
+  incorrectly accesses the new slot using index (listener_count-1) instead of the correct index
+  (listener_count). When listener_count is 0 (adding the first listener), this results in accessing
+  index -1, which wraps to a large unsigned value or accesses memory before the allocated buffer.
+  
+  The subsequent memset() call then writes 224 bytes (sizeof struct mosquitto__listener) to this
+  incorrect memory location, causing a heap buffer overflow that writes past the bounds of the
+  allocated region. This can corrupt adjacent heap structures, crash the broker during configuration
+  parsing, and potentially be exploited for arbitrary code execution.
+  
+  The vulnerability is triggered when configuration options like psk_hint appear before any explicit
+  listener definition, causing automatic default listener creation with listener_count at 0.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: __asan_memset
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+- path_from_root: src/conf.c
+  function_name: config__add_listener
+  startLine: 166
+  startColumn: 2
+  endLine: 166
+  endColumn: 2

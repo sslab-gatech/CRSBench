@@ -1,20 +1,29 @@
 id: cpv_2
 
-name: 'MOCK: cpv_2 vulnerability in ServerCookieDecoderFuzzer'
+name: Infinite Loop in ServerCookieDecoder AIxCC Cookie Processing
 
-cwes: []
+cwes:
+- CWE-835
+- CWE-400
+- CWE-834
 
-description: 'MOCK: Vulnerability cpv_2 detected in harness ServerCookieDecoderFuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: libFuzzer: timeout''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An infinite loop vulnerability exists in the ServerCookieDecoder class when parsing
+  cookies with the name "AIxCC" and values starting with "Team-". The vulnerable code
+  attempts to find a semicolon character in the cookie value but fails to increment
+  the loop counter variable 'len', causing the loop to check the same character
+  indefinitely. This occurs in the decode() method at line 168, where the while loop
+  condition checks 'len + prefix_len < value.length()' but the loop body never
+  increments 'len'. An attacker can trigger this vulnerability by sending a specially
+  crafted HTTP Cookie header (e.g., "AIxCC=Team-Atlanta;"), causing the application
+  to hang indefinitely, consuming 100% CPU and resulting in a Denial of Service (DoS)
+  condition. The vulnerability is easily exploitable, requires no authentication, and
+  can completely disrupt service availability.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: dumpAllStackTraces
-  startLine: 0
+- path_from_root: codec-http/src/main/java/io/netty/handler/codec/http/cookie/ServerCookieDecoder.java
+  function_name: decode
+  startLine: 168
   startColumn: 0
-  endLine: 0
+  endLine: 168
   endColumn: 0

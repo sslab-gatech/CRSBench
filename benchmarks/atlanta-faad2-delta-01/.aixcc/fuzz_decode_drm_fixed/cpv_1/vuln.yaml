@@ -1,20 +1,34 @@
 id: cpv_1
 
-name: 'MOCK: cpv_1 vulnerability in fuzz_decode_drm_fixed'
+name: Integer Overflow in Fixed-Point Power-of-Two Calculation
 
-cwes: []
+cwes:
+- CWE-190
+- CWE-681
+- CWE-704
 
-description: 'MOCK: Vulnerability cpv_1 detected in harness fuzz_decode_drm_fixed. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: AddressSanitizer: ILL''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  This vulnerability occurs in the pow2_fix function in libfaad/common.c when processing
+  fixed-point arithmetic in the FAAD2 AAC decoder with DRM support. The function computes
+  2^val using fixed-point arithmetic and extracts the integer part by right-shifting by
+  REAL_BITS (14 bits). When the whole number part is greater than or equal to 17, the
+  subsequent left shift operation (retval = 1 << whole) causes undefined behavior on
+  32-bit integers. For 32-bit signed integers, shifting left by 17 or more positions can
+  result in overflow beyond the sign bit or undefined behavior per the C standard.
+  
+  The vulnerability is triggered through the AAC/DRM audio decoding path when malformed
+  AAC audio data with DRM encoding is processed. The SBR (Spectral Band Replication)
+  decoder's hf_adjustment function computes gain values (G_lim, G_boost) that are passed
+  to pow2_fix without proper bounds checking. An attacker can craft audio data that
+  produces gain values resulting in whole >= 17, causing an illegal instruction and
+  immediate program termination (denial of service). In builds without the fuzzing trap
+  instruction, the underlying integer overflow could potentially be exploited to cause
+  memory corruption.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: libfaad/common.c
   function_name: pow2_fix
-  startLine: 0
-  startColumn: 0
-  endLine: 0
+  startLine: 367
   endColumn: 0
+  endLine: 367
+  startColumn: 0

@@ -1,16 +1,28 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+name: Apache BCEL Pass2Verifier SourceFile Attribute Path Traversal
 
 cwes:
 - CWE-22
+- CWE-73
+- CWE-706
 
-description: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+description: |
+  A file path traversal vulnerability in the Apache BCEL (Byte Code Engineering Library) 
+  verifier. The vulnerability occurs in the Pass2Verifier class during static verification 
+  of Java class files. The visitSourceFile() method extracts the source file name from a 
+  Java class file's SourceFile attribute and directly attempts to open and read that file 
+  from the filesystem without any validation or sanitization. An attacker can craft a 
+  malicious Java class file with a SourceFile attribute containing an arbitrary file path 
+  (e.g., /jazzer-traversal, /etc/passwd, ../../../../etc/shadow) which is then passed 
+  directly to FileReader, allowing unauthorized reading of arbitrary files from the 
+  filesystem that the application has access to. This enables information disclosure and 
+  security bypass during what should be a safe class verification operation.
 
 locations:
 - path_from_root: src/main/java/org/apache/bcel/verifier/statics/Pass2Verifier.java
-  function_name: check
-  startLine: 973
-  startColumn: 1
-  endLine: 973
-  endColumn: 1
+  function_name: visitSourceFile
+  startLine: 1015
+  startColumn: 0
+  endLine: 1029
+  endColumn: 0

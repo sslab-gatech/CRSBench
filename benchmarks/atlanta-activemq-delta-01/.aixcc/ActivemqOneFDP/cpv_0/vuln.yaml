@@ -1,154 +1,32 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+name: ActiveMQ OpenWire Arbitrary Class Instantiation via Exception Deserialization
 
 cwes:
 - CWE-502
+- CWE-470
+- CWE-94
 
-description: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+description: |
+  Remote Code Execution vulnerability in Apache ActiveMQ's OpenWire protocol implementation.
+  The vulnerability exists in the createThrowable method of BaseDataStreamMarshaller, which
+  deserializes exception objects from the wire format without proper validation.
+  
+  When processing an ExceptionResponse message, the OpenWire unmarshaller reads a class name
+  from untrusted network data and uses Java reflection to instantiate that class via
+  Class.forName() and Constructor.newInstance() without validating that the class is actually
+  a Throwable subclass. An attacker can craft a malicious OpenWire message with an arbitrary
+  class name in the ExceptionResponse, causing the server to instantiate any class on the
+  classpath that has a String constructor.
+  
+  This leads to arbitrary class instantiation which can result in remote code execution
+  depending on available gadget classes on the classpath, full server compromise, data breach,
+  and potential lateral movement to other systems.
 
 locations:
 - path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v1/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 232
-  startColumn: 1
-  endLine: 232
-  endColumn: 1
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v1/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 234
-  startColumn: 1
+  function_name: createThrowable
+  startLine: 230
+  startColumn: 0
   endLine: 234
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v2/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 231
-  startColumn: 1
-  endLine: 231
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v2/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 233
-  startColumn: 1
-  endLine: 233
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v3/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 231
-  startColumn: 1
-  endLine: 231
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v3/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 233
-  startColumn: 1
-  endLine: 233
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 231
-  startColumn: 1
-  endLine: 231
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 233
-  startColumn: 1
-  endLine: 233
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v5/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 231
-  startColumn: 1
-  endLine: 231
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v5/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 233
-  startColumn: 1
-  endLine: 233
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v6/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 231
-  startColumn: 1
-  endLine: 231
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v6/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 233
-  startColumn: 1
-  endLine: 233
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 230
-  startColumn: 1
-  endLine: 230
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 232
-  startColumn: 1
-  endLine: 232
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 230
-  startColumn: 1
-  endLine: 230
-  endColumn: 1
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 232
-  startColumn: 1
-  endLine: 232
-  endColumn: 1
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 230
-  startColumn: 1
-  endLine: 230
-  endColumn: 1
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 232
-  startColumn: 1
-  endLine: 232
-  endColumn: 1
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v10/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 231
-  startColumn: 1
-  endLine: 231
-  endColumn: 1
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v10/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 233
-  startColumn: 1
-  endLine: 233
-  endColumn: 1
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 230
-  startColumn: 1
-  endLine: 230
-  endColumn: 1
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 232
-  startColumn: 1
-  endLine: 232
-  endColumn: 1
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 232
-  startColumn: 1
-  endLine: 232
-  endColumn: 1
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
-  function_name: reportFinding
-  startLine: 234
-  startColumn: 1
-  endLine: 234
-  endColumn: 1
+  endColumn: 0

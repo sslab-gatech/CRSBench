@@ -1,22 +1,34 @@
 id: cpv_4
 
-name: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+name: Insecure Deserialization in Jenkins Code Coverage API Plugin - Missing Class Allowlist Enforcement
 
 cwes:
 - CWE-502
+- CWE-470
+- CWE-94
 
-description: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+description: |
+  A critical insecure deserialization vulnerability exists in the Jenkins Code Coverage API Plugin that allows remote code execution.
+  The CompatibleObjectInputStream class defines an allowList of permitted classes for deserialization but fails to enforce it.
+  The class is missing the resolveClass() method override that would validate each class being deserialized against the allowlist.
+  
+  When recoverCoverageResult() reads and deserializes coverage report files, an attacker can craft a malicious serialized payload
+  containing arbitrary Java objects. Because the allowlist is not enforced, any serializable class on the classpath can be instantiated,
+  enabling gadget chain attacks that lead to remote code execution.
+  
+  The vulnerability allows attackers to execute arbitrary code on the Jenkins server, exfiltrate sensitive data, and potentially
+  achieve complete system compromise with lateral movement to connected systems.
 
 locations:
+- path_from_root: plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CompatibleObjectInputStream.java
+  function_name: CompatibleObjectInputStream
+  startLine: 12
+  startColumn: 0
+  endLine: 25
+  endColumn: 0
 - path_from_root: plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CoverageProcessor.java
-  function_name: reportFinding
-  startLine: 732
-  startColumn: 1
-  endLine: 732
-  endColumn: 1
-- path_from_root: plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CoverageProcessor.java
-  function_name: reportFinding
+  function_name: recoverCoverageResult
   startLine: 733
-  startColumn: 1
+  startColumn: 0
   endLine: 733
-  endColumn: 1
+  endColumn: 0

@@ -1,22 +1,40 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: Jenkins UtilPlug Backdoor Authentication Bypass with Command Injection
 
 cwes:
 - CWE-78
+- CWE-306
+- CWE-798
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  A critical authentication bypass backdoor exists in the Jenkins UtilPlug plugin that enables
+  remote OS command injection. The vulnerability consists of two components:
+  
+  1. Authentication Bypass: The doexecCommandUtils() function contains a hidden backdoor that
+  allows attackers to bypass administrator permission checks by sending a request with the
+  'x-evil-backdoor' header containing the hardcoded password 'breakin the law' (verified via
+  SHA-256 hash comparison).
+  
+  2. OS Command Injection: Once the backdoor is activated, the createUtils() function receives
+  attacker-controlled input via the cmdSeq2 parameter and passes it directly to ProcessBuilder
+  without any validation or sanitization, resulting in arbitrary command execution on the
+  Jenkins server.
+  
+  The attack flow allows an unauthenticated attacker to execute arbitrary OS commands with
+  Jenkins server privileges, leading to complete system compromise, data exfiltration, and
+  potential supply chain attacks through malicious build injection.
 
 locations:
 - path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
-  function_name: processImplStartHook
-  startLine: 191
-  startColumn: 1
-  endLine: 191
-  endColumn: 1
+  function_name: doexecCommandUtils
+  startLine: 142
+  startColumn: 0
+  endLine: 162
+  endColumn: 0
 - path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
-  function_name: processImplStartHook
+  function_name: createUtils
   startLine: 194
-  startColumn: 1
+  startColumn: 0
   endLine: 194
-  endColumn: 1
+  endColumn: 0

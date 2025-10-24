@@ -1,16 +1,34 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueHigh: XPath Injection (TBD)'
+name: XPath Injection in Config.getTagXPath() via Unsanitized Tag Parameter
 
 cwes:
 - CWE-643
+- CWE-91
+- CWE-74
 
-description: 'FuzzerSecurityIssueHigh: XPath Injection (TBD)'
+description: |
+  An XPath Injection vulnerability exists in the Config.getTagXPath() method where
+  user-controlled input is directly concatenated into an XPath expression without
+  proper sanitization or validation. At line 63 of Config.java, the tag parameter
+  is concatenated directly into an XPath query as "//" + tag, allowing attackers
+  to inject XPath metacharacters such as single quotes to break the query syntax.
+  
+  This vulnerability can be triggered through the fuzzing harness when input containing
+  XPath special characters (e.g., "xcost-'") is processed and passed as a configuration
+  tag name. The resulting malformed XPath expression causes the XPath parser to throw
+  an exception, which is detected as a security issue by Jazzer's XPathInjection sanitizer.
+  
+  The vulnerability allows potential information disclosure through unauthorized XML
+  data extraction, authentication bypass in certain contexts, denial of service through
+  parser crashes, and manipulation of query logic to retrieve unintended configuration
+  values. The issue is fixed by replacing the XPath-based lookup with DOM-based methods
+  that treat tag names as literal strings rather than expressions.
 
 locations:
 - path_from_root: src/me/xdrop/fuzzywuzzy/Config.java
-  function_name: invoke0
-  startLine: 84
-  startColumn: 1
-  endLine: 84
-  endColumn: 1
+  function_name: getTagXPath
+  startLine: 63
+  startColumn: 0
+  endLine: 63
+  endColumn: 0

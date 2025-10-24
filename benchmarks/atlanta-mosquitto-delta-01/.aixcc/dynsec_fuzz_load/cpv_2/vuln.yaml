@@ -1,20 +1,39 @@
 id: cpv_2
 
-name: 'MOCK: cpv_2 vulnerability in dynsec_fuzz_load'
+name: Heap Use-After-Free in Dynamic Security Duplicate Client Processing
 
-cwes: []
+cwes:
+- CWE-416
+- CWE-672
 
-description: 'MOCK: Vulnerability cpv_2 detected in harness dynsec_fuzz_load. This vulnerability is detected by address sanitizer.
-  The error signature is: ''AddressSanitizer: heap-use-after-free''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap use-after-free vulnerability exists in the Mosquitto dynamic security plugin's
+  client management code. The vulnerability occurs in the dynsec_clients__config_load
+  function which fails to validate whether a client with a given username already exists
+  before adding it to the internal hash table.
+  
+  When a malicious JSON configuration file contains duplicate client entries with the
+  same username, the loading process creates multiple client structures with identical
+  usernames and adds them all to the hash table. During cleanup, when dynsec_clients__cleanup
+  iterates through and frees these duplicate entries, the client__free_item function
+  attempts to look up each client in the hash table before deletion. After the first
+  duplicate is freed, subsequent lookups access the freed memory through the HASH_FIND
+  macro in dynsec_clients__find, resulting in an 8-byte read from freed heap memory.
+  
+  This vulnerability could allow an attacker who can control the dynamic security
+  configuration file to trigger a use-after-free condition, potentially leading to
+  information disclosure, denial of service, or in specific circumstances, code execution.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: dynsec_clients__find
-  startLine: 0
+- path_from_root: plugins/dynamic-security/clients.c
+  function_name: dynsec_clients__config_load
+  startLine: 132
   startColumn: 0
-  endLine: 0
+  endLine: 140
   endColumn: 0
+- path_from_root: plugins/dynamic-security/clients.c
+  function_name: dynsec_clients__find
+  startLine: 67
+  startColumn: 3
+  endLine: 67
+  endColumn: 3

@@ -1,20 +1,28 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in BodyTemplateFuzzer'
+name: Regular Expression Denial of Service in Template Expression Parser
 
-cwes: []
+cwes:
+- CWE-1333
+- CWE-400
+- CWE-674
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness BodyTemplateFuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Stack overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A Regular Expression Denial of Service (ReDoS) vulnerability exists in the Feign HTTP client
+  library's template expression parser. The vulnerability is in the VARIABLE_LIST_PATTERN regex
+  used to validate URI template variable names according to RFC 6570. The pattern contains nested
+  quantifiers and overlapping character classes that create exponential backtracking behavior when
+  processing malicious input. When an attacker provides an extremely long input string (e.g., 65,539
+  characters) consisting of characters that match the pattern, the regex engine enters catastrophic
+  backtracking, causing excessive CPU consumption and ultimately a StackOverflowError due to deep
+  recursion in the regex matching algorithm. This results in a denial of service as the application
+  becomes unresponsive or crashes. The vulnerability is triggered through the BodyTemplate.create()
+  API when parsing user-controlled template strings.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: match
-  startLine: 0
+- path_from_root: core/src/main/java/feign/template/Expressions.java
+  function_name: isSimpleExpression
+  startLine: 220
+  endLine: 225
   startColumn: 0
-  endLine: 0
   endColumn: 0

@@ -1,16 +1,33 @@
 id: cpv_2
 
-name: 'FuzzerSecurityIssueLow: Regular Expression Injection (TBD)'
+name: Regular Expression Injection in Feign Template Variable Pattern Parsing
 
 cwes:
-- CWE-777
+- CWE-1333
+- CWE-400
+- CWE-94
 
-description: 'FuzzerSecurityIssueLow: Regular Expression Injection (TBD)'
+description: |
+  Regular Expression Injection vulnerability in the Feign template parsing library.
+  When parsing template expressions with the format {variable:pattern}, the code in
+  Expressions.create() extracts the pattern portion after the colon and passes it
+  directly to Pattern.compile() without sanitization. This allows attackers to inject
+  malicious or malformed regular expression patterns that can cause catastrophic
+  backtracking (ReDoS), leading to excessive CPU consumption, application crashes via
+  PatternSyntaxException, and potential denial of service. The vulnerability is
+  triggered when user-controlled input containing special regex metacharacters is used
+  as a pattern in template expressions.
 
 locations:
+- path_from_root: core/src/main/java/feign/template/Expressions.java
+  function_name: create
+  startLine: 86
+  startColumn: 0
+  endLine: 86
+  endColumn: 0
 - path_from_root: core/src/main/java/feign/template/Expression.java
-  function_name: hookInternal
+  function_name: Expression
   startLine: 35
-  startColumn: 1
+  startColumn: 0
   endLine: 35
-  endColumn: 1
+  endColumn: 0

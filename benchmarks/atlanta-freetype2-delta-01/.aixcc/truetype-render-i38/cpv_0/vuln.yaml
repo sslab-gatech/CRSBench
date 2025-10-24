@@ -1,20 +1,28 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in truetype-render-i38'
+name: BDF Font Parser Memory Leak in ENDCHAR Handler
 
-cwes: []
+cwes:
+- CWE-401
+- CWE-772
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness truetype-render-i38. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: LeakSanitizer: detected memory leaks''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A memory leak vulnerability exists in the BDF (Bitmap Distribution Format) font
+  parser in FreeType2's bdf_parse_glyphs_ function. When processing malformed BDF
+  font files, memory allocated for the glyph name (p->glyph_name) via FT_DUP() in
+  the STARTCHAR handler is not freed when an ENDCHAR field is encountered without
+  an intervening ENCODING field. This occurs because the ENDCHAR handler resets
+  parsing state but fails to release the allocated glyph name memory. In normal
+  operation, the glyph name is transferred to a glyph structure, but malformed
+  fonts that contain STARTCHAR immediately followed by ENDCHAR cause the memory
+  to leak. Repeated parsing of such malicious BDF files can lead to memory
+  exhaustion and denial of service, particularly in long-running applications
+  like font servers that process untrusted fonts.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: malloc
-  startLine: 0
+- path_from_root: src/bdf/bdflib.c
+  function_name: bdf_parse_glyphs_
+  startLine: 1447
   startColumn: 0
-  endLine: 0
+  endLine: 1454
   endColumn: 0

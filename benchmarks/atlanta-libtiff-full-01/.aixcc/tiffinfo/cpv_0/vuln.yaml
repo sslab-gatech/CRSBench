@@ -1,20 +1,42 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in tiffinfo'
+name: TIFF IFD Loop Infinite Loop Denial of Service
 
-cwes: []
+cwes:
+- CWE-835
+- CWE-400
+- CWE-834
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness tiffinfo. This vulnerability is detected by address sanitizer.
-  The error signature is: ''libFuzzer: timeout''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An infinite loop vulnerability exists in libtiff's IFD (Image File Directory) 
+  traversal mechanism. The TIFFCheckDirOffset() function in tif_dirread.c attempts 
+  to detect circular IFD references by tracking previously visited directory offsets, 
+  but this detection is insufficient. The function only tracks directory offsets 
+  without tracking directory numbers, allowing maliciously crafted TIFF files to 
+  create circular references between main IFDs and sub-IFDs (EXIF/GPS) that bypass 
+  the loop detection. When TIFFReadCustomDirectory() or TIFFReadDirectory() encounters 
+  such circular references, it enters an infinite loop, causing a denial of service 
+  through CPU exhaustion and application timeout. An attacker can exploit this by 
+  crafting a TIFF file with circular IFD pointers (e.g., IFD 0 → IFD 1 → IFD 0) or 
+  custom directories that reference each other in a loop, causing applications 
+  processing the file to hang indefinitely.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: __sanitizer_print_stack_trace
-  startLine: 0
+- path_from_root: libtiff/tif_dirread.c
+  function_name: TIFFCheckDirOffset
+  startLine: 5035
   startColumn: 0
-  endLine: 0
+  endLine: 5075
+  endColumn: 0
+- path_from_root: libtiff/tif_dirread.c
+  function_name: TIFFReadCustomDirectory
+  startLine: 4790
+  startColumn: 0
+  endLine: 4790
+  endColumn: 0
+- path_from_root: libtiff/tif_dirread.c
+  function_name: TIFFFetchDirectory
+  startLine: 5129
+  startColumn: 0
+  endLine: 5129
   endColumn: 0

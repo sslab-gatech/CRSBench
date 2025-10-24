@@ -1,20 +1,27 @@
 id: cpv_3
 
-name: 'MOCK: cpv_3 vulnerability in pov_harness'
+name: Nginx FLV Module NULL Pointer Dereference via Invalid Start Parameter
 
-cwes: []
+cwes:
+- CWE-476
+- CWE-690
+- CWE-703
 
-description: 'MOCK: Vulnerability cpv_3 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: SEGV''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A NULL pointer dereference vulnerability exists in the nginx FLV (Flash Video) module handler.
+  When processing HTTP requests for FLV files with a 'start' query parameter value that is greater
+  than or equal to the file size, the code in ngx_http_flv_handler() sets the request pointer 'r'
+  to NULL at line 180 to mark the request as invalid. However, the function continues executing
+  without returning, and subsequently attempts to access r->headers_out.status at line 192, causing
+  a NULL pointer dereference and segmentation fault. This can be exploited by an attacker sending
+  a malicious HTTP GET request with an oversized start parameter (e.g., GET /videos/sample.flv?start=10000000),
+  resulting in a denial of service by crashing the nginx worker process. The vulnerability has a
+  scariness level of 10 (null-deref) and causes a SEGV signal with write access to address 0x000000000238.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/http/modules/ngx_http_flv_module.c
   function_name: ngx_http_flv_handler
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 180
+  startColumn: 13
+  endLine: 192
+  endColumn: 27

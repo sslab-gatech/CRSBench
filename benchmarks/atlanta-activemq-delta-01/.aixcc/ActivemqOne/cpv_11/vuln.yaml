@@ -1,20 +1,34 @@
 id: cpv_11
 
-name: 'MOCK: cpv_11 vulnerability in ActivemqOne'
+name: Apache ActiveMQ OpenWire Arbitrary Class Instantiation via Exception Unmarshaling
 
-cwes: []
+cwes:
+- CWE-502
+- CWE-470
+- CWE-913
 
-description: 'MOCK: Vulnerability cpv_11 detected in harness ActivemqOne. This vulnerability is detected by address sanitizer.
-  The error signature is: ''FuzzerSecurityIssueHigh: Remote Code Execution''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  Remote Code Execution vulnerability in Apache ActiveMQ's OpenWire protocol implementation.
+  The createThrowable method in BaseDataStreamMarshaller accepts an externally-controlled
+  className parameter from untrusted network data and uses it to instantiate arbitrary classes
+  via reflection without validation. An attacker can craft a malicious OpenWire message
+  containing an ExceptionResponse object with a specially chosen class name. When the ActiveMQ
+  client unmarshals this message, it loads and instantiates the arbitrary class using
+  Class.forName() and constructor.newInstance(), potentially executing malicious code.
+  The vulnerability exists in both v11 and v12 implementations and can lead to remote code
+  execution, denial of service, or information disclosure depending on available classes
+  on the classpath.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: reportFinding
-  startLine: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
   startColumn: 0
-  endLine: 0
+  endLine: 234
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  startColumn: 0
+  endLine: 234
   endColumn: 0

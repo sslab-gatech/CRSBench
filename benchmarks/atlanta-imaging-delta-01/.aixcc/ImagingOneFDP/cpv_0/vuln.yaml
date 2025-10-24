@@ -1,22 +1,36 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: PNG zTXt Chunk OS Command Injection
 
 cwes:
 - CWE-78
+- CWE-77
+- CWE-88
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  A critical OS command injection vulnerability exists in the Apache Commons Imaging
+  library's PNG image parser. The vulnerability occurs in the PngChunkZtxt class
+  constructor when processing PNG files containing compressed text (zTXt) chunks.
+  
+  The root cause is that the 'keyword' field extracted from the PNG zTXt chunk is
+  directly concatenated into a shell command string without any sanitization or
+  validation. This unsanitized keyword is then executed via ProcessBuilder, allowing
+  an attacker to inject arbitrary OS commands.
+  
+  An attacker can craft a malicious PNG file with a zTXt chunk containing shell
+  metacharacters (such as semicolons, pipes, or ampersands) in the keyword field.
+  When the application processes this PNG file, the malicious keyword is injected
+  into the command execution path, enabling remote code execution with the privileges
+  of the application process.
+  
+  The vulnerability allows for arbitrary system command execution, data exfiltration,
+  complete system compromise, and can serve as an entry point for lateral movement
+  within a network.
 
 locations:
 - path_from_root: src/main/java/org/apache/commons/imaging/formats/png/chunks/PngChunkZtxt.java
-  function_name: processImplStartHook
-  startLine: 61
-  startColumn: 1
-  endLine: 61
-  endColumn: 1
-- path_from_root: src/main/java/org/apache/commons/imaging/formats/png/chunks/PngChunkZtxt.java
-  function_name: processImplStartHook
-  startLine: 62
-  startColumn: 1
-  endLine: 62
-  endColumn: 1
+  function_name: PngChunkZtxt
+  startLine: 60
+  startColumn: 0
+  endLine: 60
+  endColumn: 0

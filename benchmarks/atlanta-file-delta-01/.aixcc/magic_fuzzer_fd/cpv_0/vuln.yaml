@@ -1,20 +1,29 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in magic_fuzzer_fd'
+name: Stack Buffer Overflow in ELF PT_INTERP Segment Parser
 
-cwes: []
+cwes:
+- CWE-121
+- CWE-787
+- CWE-805
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness magic_fuzzer_fd. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: stack-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A stack-based buffer overflow vulnerability exists in the dophn_exec function
+  when parsing PT_INTERP segments in ELF files. The interp buffer is allocated
+  with only 128 bytes on the stack, but the code attempts to copy up to 8192
+  bytes (BUFSIZ) into it using memcpy() without proper bounds checking. When
+  processing a malformed ELF file with a large PT_INTERP segment, the code reads
+  up to 8192 bytes into the nbuf buffer and then copies the entire content to
+  the undersized interp buffer at line 1765, causing a stack buffer overflow of
+  up to 8064 bytes. This can lead to memory corruption, arbitrary code execution,
+  or denial of service. The vulnerability is triggered when the file command
+  processes untrusted ELF files, making it exploitable in security-sensitive
+  contexts such as malware scanning or file type detection systems.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: __asan_memcpy
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+- path_from_root: src/readelf.c
+  function_name: dophn_exec
+  startLine: 1765
+  startColumn: 5
+  endLine: 1765
+  endColumn: 5

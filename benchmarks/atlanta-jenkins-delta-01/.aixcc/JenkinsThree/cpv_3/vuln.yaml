@@ -1,22 +1,30 @@
 id: cpv_3
 
-name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+name: Missing Authorization Check in Jenkins Proxy Configuration Validation Leading to SSRF
 
 cwes:
 - CWE-918
+- CWE-862
+- CWE-285
 
-description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+description: |
+  A Server-Side Request Forgery (SSRF) vulnerability exists in the doValidateProxy method 
+  of the ProxyConfiguration.DescriptorImpl2 class. The method accepts a user-controlled 
+  testUrl parameter and makes an HTTP request to that URL without performing authorization 
+  checks to verify the user has administrator privileges. While the method is annotated 
+  with @RequirePOST and @Restricted(NoExternalUse.class), it lacks the critical 
+  j.checkPermission(Jenkins.ADMINISTER) check present in similar methods. This allows 
+  unauthorized users to exploit the Jenkins server as a proxy to make HTTP requests to 
+  arbitrary URLs, including internal services not exposed to the internet. Attackers can 
+  leverage this to scan internal network infrastructure, access internal services, 
+  exfiltrate sensitive data, and bypass firewall restrictions. The vulnerability is 
+  triggered when the method proceeds to execute httpClient.send() with an attacker-controlled 
+  URI without validating the caller's permissions.
 
 locations:
 - path_from_root: jenkins/core/src/main/java/hudson/ProxyConfiguration.java
-  function_name: checkSsrf
-  startLine: 540
-  startColumn: 1
-  endLine: 540
-  endColumn: 1
-- path_from_root: jenkins/core/src/main/java/hudson/ProxyConfiguration.java
-  function_name: checkSsrf
-  startLine: 593
-  startColumn: 1
-  endLine: 593
-  endColumn: 1
+  function_name: doValidateProxy
+  startLine: 527
+  startColumn: 0
+  endLine: 608
+  endColumn: 0

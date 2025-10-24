@@ -1,21 +1,28 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in AdaLObjectReader3Fuzzer'
+name: Jackson Databind JNDI Connection Pool Deserialization SSRF
 
-cwes: []
+cwes:
+- CWE-502
+- CWE-918
+- CWE-074
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness AdaLObjectReader3Fuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueMedium: Server
-  Side Request Forgery (SSRF)''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A deserialization-based Server-Side Request Forgery (SSRF) vulnerability in Jackson Databind's
+  polymorphic type handling mechanism. The vulnerability occurs because the SubTypeValidator class
+  is missing a blocklist entry for org.apache.xalan.lib.sql.JNDIConnectionPool in the
+  DEFAULT_NO_DESER_CLASS_NAMES set. This allows an attacker to trigger arbitrary network connections
+  (specifically LDAP/JNDI lookups) by deserializing untrusted JSON data containing polymorphic type
+  information. When Jackson deserializes this class with a malicious JNDI URL (e.g., ldap://g.co/),
+  it initiates a connection to an attacker-controlled server. The attack is triggered through the
+  JNDIConnectionPool class's jndiPath property, which invokes InitialContext.lookup() during
+  serialization or property access. This can lead to data exfiltration, internal network scanning,
+  remote code execution via JNDI injection techniques, or denial of service.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: checkSsrf
-  startLine: 0
+- path_from_root: src/main/java/com/fasterxml/jackson/databind/jsontype/impl/SubTypeValidator.java
+  function_name: SubTypeValidator
+  startLine: 113
   startColumn: 0
-  endLine: 0
+  endLine: 114
   endColumn: 0

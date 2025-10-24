@@ -1,16 +1,28 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: Expression Language Injection via Unsanitized Cron Expression in Error Messages
 
 cwes:
+- CWE-917
+- CWE-94
 - CWE-78
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  An Expression Language (EL) Injection vulnerability exists in the CronParser.parse() method
+  that allows attackers to execute arbitrary OS commands. When parsing fails at line 165 in
+  CronParser.java, the error message includes the raw, unsanitized user-provided cron expression.
+  This error message is then passed to Hibernate Validator's constraint violation template in
+  CronValidator.isValid(), which processes it through EL interpolation. Attackers can inject
+  EL expressions (e.g., ${...}) that access Java reflection to load ScriptEngineManager, obtain
+  a JavaScript engine, and execute arbitrary commands via Runtime.exec(). The vulnerability was
+  introduced in commit 0c815ec when the error message format was changed to include the raw
+  expression string. This leads to remote code execution, full system compromise, data breaches,
+  and potential lateral movement to other systems.
 
 locations:
-- path_from_root: fuzz/cronutils-harness-one/src/main/java/com/aixcc/cronutils/harnesses/one/CronUtilsOne.java
-  function_name: processImplStartHook
-  startLine: 35
-  startColumn: 1
-  endLine: 35
-  endColumn: 1
+- path_from_root: src/main/java/com/cronutils/parser/CronParser.java
+  function_name: parse
+  startLine: 165
+  startColumn: 0
+  endLine: 165
+  endColumn: 0

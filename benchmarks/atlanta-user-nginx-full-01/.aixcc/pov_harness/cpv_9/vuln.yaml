@@ -1,20 +1,29 @@
 id: cpv_9
 
-name: 'MOCK: cpv_9 vulnerability in pov_harness'
+name: nginx Custom Method Type Confusion Leading to Denial of Service
 
-cwes: []
+cwes:
+- CWE-843
+- CWE-704
+- CWE-822
 
-description: 'MOCK: Vulnerability cpv_9 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: SEGV''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A type confusion vulnerability in nginx's HTTP request parsing code that occurs when
+  processing a specially crafted HTTP request with a custom "ATLANTA" method. In the
+  ngx_http_parse_request_line function (ngx_http_parse.c), when parsing a 7-character
+  HTTP method matching "ATLANTA", the code incorrectly casts the integer constant
+  NGX_HTTP_ATLANTA (0x00020000) to a pointer type and assigns it to r->connection,
+  corrupting the connection pointer. When ngx_http_read_request_header later attempts
+  to dereference this invalid pointer to access the connection's read event, it triggers
+  a segmentation fault at address 0x000000020008. This vulnerability allows remote
+  attackers to cause a denial of service by crashing the nginx worker process with a
+  single crafted HTTP request containing "ATLANTA" as the method. No authentication is
+  required to exploit this vulnerability.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: ngx_http_read_request_header
-  startLine: 0
+- path_from_root: src/http/ngx_http_parse.c
+  function_name: ngx_http_parse_request_line
+  startLine: 252
   startColumn: 0
-  endLine: 0
+  endLine: 255
   endColumn: 0

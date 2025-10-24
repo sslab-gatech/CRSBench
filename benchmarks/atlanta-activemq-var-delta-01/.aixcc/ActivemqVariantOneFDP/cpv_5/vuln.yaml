@@ -1,20 +1,34 @@
 id: cpv_5
 
-name: 'MOCK: cpv_5 vulnerability in ActivemqVariantOneFDP'
+name: ActiveMQ OpenWire Unsafe Deserialization Remote Code Execution
 
-cwes: []
+cwes:
+- CWE-502
+- CWE-470
+- CWE-094
 
-description: 'MOCK: Vulnerability cpv_5 detected in harness ActivemqVariantOneFDP. This vulnerability is detected by address
-  sanitizer. The error signature is: ''FuzzerSecurityIssueHigh: Remote Code Execution''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  Remote Code Execution vulnerability in Apache ActiveMQ's OpenWire protocol implementation
+  due to unsafe deserialization in BaseDataStreamMarshaller.createThrowable(). When deserializing
+  exception responses from the OpenWire protocol, the code accepts an externally-controlled class
+  name and uses reflection to instantiate it without proper validation. The only check performed
+  is that the class name starts with "j", which is insufficient to prevent abuse. An attacker can
+  craft a malicious OpenWire message containing an ExceptionResponse with a specially chosen class
+  name that has dangerous side effects in its constructor. When the message is deserialized during
+  looseUnmarsalThrowable(), the attacker's chosen class is instantiated via Class.forName() and
+  reflection, potentially leading to arbitrary code execution, file access, denial of service, or
+  information disclosure. The vulnerability exists across multiple protocol versions (v6 and v11).
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: reportFinding
-  startLine: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v6/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 229
+  endLine: 239
   startColumn: 0
-  endLine: 0
+  endColumn: 0
+- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  endLine: 238
+  startColumn: 0
   endColumn: 0

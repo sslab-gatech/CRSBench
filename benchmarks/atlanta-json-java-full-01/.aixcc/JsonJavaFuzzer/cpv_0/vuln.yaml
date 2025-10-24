@@ -1,20 +1,38 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in JsonJavaFuzzer'
+name: JSON Deep Nesting Denial of Service via Malformed Object Keys
 
-cwes: []
+cwes:
+- CWE-674
+- CWE-400
+- CWE-770
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness JsonJavaFuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory ''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  This vulnerability is a deeply nested JSON object parsing attack that leads to 
+  uncontrolled recursion and excessive memory consumption, resulting in denial of service.
+  
+  The vulnerability exists in the JSON parsing logic where malformed JSON input can bypass
+  inadequate nesting depth checks using semicolon separators instead of commas. The vulnerable
+  code in JSONObject's constructor calls nextValue().toString() when parsing object keys,
+  which triggers recursive object creation and immediate serialization. Each nested object
+  repeats this cycle, causing exponential string concatenation in the StringBuilder backing
+  the StringBuilderWriter, eventually exhausting heap memory.
+  
+  An attacker can craft minimal input (1208 bytes) with deeply nested structures like
+  {"a":1; {"a":1; {...}:1}:1}:1} to cause complete memory exhaustion and application crash
+  with OutOfMemoryError. This affects any service accepting user-provided JSON input and
+  requires no authentication to exploit.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: copyOf
-  startLine: 0
+- path_from_root: src/main/java/org/json/JSONObject.java
+  function_name: JSONObject
+  startLine: 233
   startColumn: 0
-  endLine: 0
+  endLine: 240
+  endColumn: 0
+- path_from_root: src/main/java/org/json/JSONTokener.java
+  function_name: nextValue
+  startLine: 463
+  startColumn: 0
+  endLine: 466
   endColumn: 0

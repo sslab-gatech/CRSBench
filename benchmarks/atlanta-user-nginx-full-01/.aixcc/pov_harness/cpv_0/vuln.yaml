@@ -1,20 +1,36 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in pov_harness'
+name: Nginx HTTP Userid Filter Base64 Decode Heap Buffer Overflow
 
-cwes: []
+cwes:
+- CWE-122
+- CWE-787
+- CWE-120
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-based buffer overflow vulnerability exists in nginx's HTTP userid filter module
+  during base64 decoding of user ID cookies. The vulnerable function ngx_decode_base64_internal
+  in src/core/ngx_string.c does not perform bounds checking when decoding base64-encoded
+  cookie data into a fixed 16-byte destination buffer (uid_got). The calling function
+  ngx_http_userid_get_uid validates minimum cookie length (22 bytes) but does not enforce
+  a maximum length or set destination buffer size constraints before invoking the decoder.
+  
+  An attacker can exploit this by sending an HTTP request with an oversized base64-encoded
+  uid cookie value. When nginx attempts to decode the cookie, it writes beyond the allocated
+  16-byte buffer, corrupting adjacent heap memory. This can lead to denial of service through
+  crashes, potential remote code execution if critical heap structures are corrupted, or
+  information disclosure through heap memory manipulation.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/core/ngx_string.c
   function_name: ngx_decode_base64_internal
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 1330
+  startColumn: 14
+  endLine: 1330
+  endColumn: 14
+- path_from_root: src/http/modules/ngx_http_userid_filter_module.c
+  function_name: ngx_http_userid_get_uid
+  startLine: 361
+  startColumn: 9
+  endLine: 361
+  endColumn: 9

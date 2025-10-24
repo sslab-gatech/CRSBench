@@ -1,20 +1,32 @@
 id: cpv_1
 
-name: 'MOCK: cpv_1 vulnerability in ActivemqOne'
+name: Apache ActiveMQ OpenWire Protocol Arbitrary Class Instantiation
 
-cwes: []
+cwes:
+- CWE-470
+- CWE-502
+- CWE-94
 
-description: 'MOCK: Vulnerability cpv_1 detected in harness ActivemqOne. This vulnerability is detected by address sanitizer.
-  The error signature is: ''FuzzerSecurityIssueHigh: Remote Code Execution''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  The vulnerability exists in the createThrowable() method within BaseDataStreamMarshaller.java
+  across multiple OpenWire protocol versions. The method accepts an attacker-controlled className
+  string from network data and uses it directly in a Class.forName() call without validation.
+  
+  When an OpenWire protocol message containing an ExceptionResponse is unmarshalled, the exception's
+  class name is read from untrusted input. The code then uses Class.forName() to load the specified
+  class and invokes its constructor with an attacker-controlled message string. This allows an
+  attacker to instantiate arbitrary classes that have a constructor accepting a single String
+  parameter, potentially achieving Remote Code Execution (RCE) depending on available classes on
+  the classpath.
+  
+  The attack vector is through network-accessible OpenWire protocol endpoints, requiring no
+  authentication or user interaction. Successful exploitation could lead to complete server
+  compromise, data theft or manipulation, lateral movement in the network, or denial of service.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: reportFinding
-  startLine: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v2/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 229
+  endLine: 240
   startColumn: 0
-  endLine: 0
   endColumn: 0

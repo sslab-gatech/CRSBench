@@ -1,20 +1,32 @@
 id: cpv_3
 
-name: 'MOCK: cpv_3 vulnerability in fuzz_nm'
+name: BFD Cache LRU Use-After-Free in bfd_close_all_done
 
-cwes: []
+cwes:
+- CWE-416
+- CWE-672
 
-description: 'MOCK: Vulnerability cpv_3 detected in harness fuzz_nm. This vulnerability is detected by address sanitizer.
-  The error signature is: ''AddressSanitizer: heap-use-after-free''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-use-after-free vulnerability in the BFD library's cache management system.
+  The vulnerability occurs in bfd_close_all_done when handling malformed binary files.
+  When _close_and_cleanup returns false for a read-only file, the bclose function is
+  not called, leaving the BFD object in the LRU cache. However, _bfd_delete_bfd still
+  frees the BFD structure, creating a dangling pointer in the global bfd_last_cache
+  linked list. When bfd_cache_init is subsequently called, the insert function attempts
+  to access bfd_last_cache->lru_prev, triggering a use-after-free on freed memory.
+  This can lead to process crashes, memory corruption, or potential code execution when
+  processing untrusted binary files with binutils tools (nm, objdump, readelf, etc.).
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: bfd/cache.c
   function_name: insert
-  startLine: 0
+  startLine: 137
+  startColumn: 40
+  endLine: 137
+  endColumn: 40
+- path_from_root: bfd/opncls.c
+  function_name: bfd_close_all_done
+  startLine: 892
   startColumn: 0
-  endLine: 0
+  endLine: 905
   endColumn: 0

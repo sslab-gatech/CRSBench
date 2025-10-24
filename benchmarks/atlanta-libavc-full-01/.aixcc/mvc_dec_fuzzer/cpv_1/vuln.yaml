@@ -1,20 +1,35 @@
 id: cpv_1
 
-name: 'MOCK: cpv_1 vulnerability in mvc_dec_fuzzer'
+name: Heap Buffer Over-read in libavc MVC CABAC Coefficient Decoding
 
-cwes: []
+cwes:
+- CWE-125
+- CWE-122
+- CWE-787
 
-description: 'MOCK: Vulnerability cpv_1 detected in harness mvc_dec_fuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap buffer overflow vulnerability exists in the libavc (Android Video Codec) library's 
+  MVC (Multiview Video Coding) decoder during CABAC (Context-Adaptive Binary Arithmetic Coding) 
+  entropy decoding. The vulnerability occurs in the ih264d_read_coeff4x4_cabac function when 
+  processing residual coefficient data for 4x4 transform units.
+  
+  The root cause is insufficient buffer allocation for bitstream data. The NEXTBITS macro 
+  used during CABAC decoding can read up to 4 additional bytes beyond expected boundaries 
+  when renormalizing the arithmetic coding range. When processing malformed or specially 
+  crafted MVC video streams with multiple 4x4 transform units, these additional reads 
+  accumulate and exceed the allocated buffer boundary, resulting in a 4-byte out-of-bounds 
+  read on the heap.
+  
+  The bitstream buffer is allocated based on NALU length with minimal safety margin (8 bytes), 
+  which is insufficient when CABAC decoding requires extensive renormalization operations. 
+  This can lead to information disclosure (reading adjacent heap memory) and denial of service 
+  through application crashes. The vulnerability can be exploited via malicious video files 
+  delivered through network streams or local file playback.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: decoder/ih264d_parse_cabac.c
   function_name: ih264d_read_coeff4x4_cabac
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 203
+  startColumn: 25
+  endLine: 203
+  endColumn: 25

@@ -1,20 +1,37 @@
 id: cpv_13
 
-name: 'MOCK: cpv_13 vulnerability in smtp_harness'
+name: SMTP NOOP Command Handler Use-After-Free
 
-cwes: []
+cwes:
+- CWE-416
+- CWE-825
+- CWE-672
 
-description: 'MOCK: Vulnerability cpv_13 detected in harness smtp_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-use-after-free''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap use-after-free vulnerability occurs in nginx's SMTP mail handler module when
+  processing NOOP commands with excessive arguments (more than 10). In the ngx_mail_smtp_noop
+  function, when the condition s->args.nelts > 10 is met, the code calls
+  ngx_mail_close_connection(c) which destroys the connection pool containing the session
+  structure. However, the function returns NGX_ERROR to the caller ngx_mail_smtp_auth_state,
+  which continues execution and attempts to access the freed session structure at line 556,
+  specifically accessing s->buffer->pos and s->buffer->last through a dangling pointer.
+  
+  The session structure is allocated from the connection pool, and when
+  ngx_mail_close_connection is called, it invokes ngx_destroy_pool which frees all memory
+  allocated from the pool, including the session structure and its buffer field. This creates
+  a classic use-after-free scenario where the error handling path incorrectly frees resources
+  while the session pointer is still in use by the calling function.
+  
+  The vulnerability can lead to memory corruption, information disclosure through reading freed
+  heap memory, denial of service via crashes, and potentially code execution in sophisticated
+  attack scenarios. The issue is triggered by sending an SMTP NOOP command with more than 10
+  arguments, causing premature resource deallocation before the command handler completes
+  execution.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: ngx_mail_smtp_auth_state
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+- path_from_root: src/mail/ngx_mail_smtp_handler.c
+  function_name: ngx_mail_smtp_noop
+  startLine: 836
+  startColumn: 9
+  endLine: 836
+  endColumn: 33

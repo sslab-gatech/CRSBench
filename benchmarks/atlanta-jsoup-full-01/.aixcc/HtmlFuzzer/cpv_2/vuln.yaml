@@ -1,20 +1,33 @@
 id: cpv_2
 
-name: 'MOCK: cpv_2 vulnerability in HtmlFuzzer'
+name: Uncontrolled Recursion in HTML Template Parser Leading to Stack Overflow
 
-cwes: []
+cwes:
+- CWE-674
+- CWE-400
 
-description: 'MOCK: Vulnerability cpv_2 detected in harness HtmlFuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Stack overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An uncontrolled recursion vulnerability exists in jsoup's HTML parser when handling
+  deeply nested template elements with EOF tokens. The vulnerability occurs due to a
+  circular recursion between the InTemplate and InBody parser states. When an EOF token
+  is encountered in the InTemplate state, it pops a template from the stack, calls
+  resetInsertionMode(), and recursively processes the token if the state changes. The
+  InBody state, upon receiving an EOF with remaining templates, recursively calls back
+  to InTemplate. This creates an infinite recursion loop (InTemplate → InBody → InTemplate)
+  that continues until the Java call stack is exhausted, resulting in a StackOverflowError.
+  The vulnerability can be triggered by malformed HTML with deeply nested template structures,
+  leading to a denial of service condition.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/main/java/org/jsoup/parser/HtmlTreeBuilderState.java
   function_name: process
-  startLine: 0
+  startLine: 1556
   startColumn: 0
-  endLine: 0
+  endLine: 1557
+  endColumn: 0
+- path_from_root: src/main/java/org/jsoup/parser/HtmlTreeBuilderState.java
+  function_name: process
+  startLine: 311
+  startColumn: 0
+  endLine: 311
   endColumn: 0

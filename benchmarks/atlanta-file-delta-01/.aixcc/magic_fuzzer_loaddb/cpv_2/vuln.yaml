@@ -1,20 +1,26 @@
 id: cpv_2
 
-name: 'MOCK: cpv_2 vulnerability in magic_fuzzer_loaddb'
+name: Denial of Service via Duplicate Magic Entry Abort
 
-cwes: []
+cwes:
+- CWE-703
+- CWE-730
+- CWE-624
 
-description: 'MOCK: Vulnerability cpv_2 detected in harness magic_fuzzer_loaddb. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: AddressSanitizer: ABRT''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A denial of service vulnerability exists in the apprentice_sort() function in src/apprentice.c.
+  When processing magic database files, if two entries have identical strength values and identical
+  content in their struct magic structures, the function calls abort(), immediately terminating
+  the program with SIGABRT. This occurs during the qsort() operation when loading magic databases
+  via file_apprentice() → apprentice_load() → apprentice_sort(). An attacker can craft a malicious
+  magic database file containing duplicate entries to trigger this condition, causing complete
+  application termination. The vulnerability affects any code path that loads untrusted magic
+  database files.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: raise
-  startLine: 0
+- path_from_root: src/apprentice.c
+  function_name: apprentice_sort
+  startLine: 1143
   startColumn: 0
-  endLine: 0
+  endLine: 1143
   endColumn: 0

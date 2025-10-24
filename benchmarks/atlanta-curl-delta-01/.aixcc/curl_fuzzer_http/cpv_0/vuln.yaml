@@ -1,20 +1,18 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in curl_fuzzer_http'
+name: Heap buffer overflow in cr_buf_read
 
-cwes: []
+cwes:
+- CWE-122
+- CWE-787
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness curl_fuzzer_http. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  This vulnerability is a heap-buffer-overflow occurring in the function `cr_buf_read` in the file `lib/sendf.c`. It is caused by insufficient bounds checking prior to a `memcpy` operation, which can result in copying more data than allocated in the heap buffer. This vulnerability can lead to potential arbitrary code execution or cause the application to crash. The issue originates due to inadequate verification between the buffer's size and the size of the data being read (`nread`), making it possible for an overflow to occur. The impact is high severity due to the potential for remotely induced buffer overflows.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: __asan_memcpy
-  startLine: 0
+- path_from_root: lib/sendf.c
+  function_name: cr_buf_read
+  startLine: 1281
   startColumn: 0
-  endLine: 0
+  endLine: 1299
   endColumn: 0

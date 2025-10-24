@@ -1,22 +1,30 @@
 id: cpv_12
 
-name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+name: SSRF via Broken Access Control in CauseManagement.doRemoveConfirm
 
 cwes:
 - CWE-918
+- CWE-863
+- CWE-284
 
-description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+description: |
+  A compound vulnerability combining broken access control with server-side request forgery (SSRF).
+  The doRemoveConfirm method in CauseManagement.java contains a logic error in its authorization 
+  check at line 232, using logical OR (||) instead of AND (&&). This allows the method to execute 
+  when either id != null OR hasPermission is true, rather than requiring both conditions.
+  
+  An attacker without REMOVE_PERMISSION can craft a FailureCause object with a malicious comment 
+  field formatted as "notice:http://attacker.com", then call the doRemoveConfirm endpoint. Due to 
+  the broken authorization check, the code executes even without proper permissions. The application 
+  extracts the URL from the comment field and makes an HTTP GET request to the attacker-controlled URL.
+  
+  This enables unauthorized deletion of failure causes, exfiltration of sensitive data, access to 
+  internal network resources, and port scanning of internal services.
 
 locations:
 - path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/CauseManagement.java
-  function_name: checkSsrf
-  startLine: 242
-  startColumn: 1
-  endLine: 242
-  endColumn: 1
-- path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/CauseManagement.java
-  function_name: checkSsrf
-  startLine: 245
-  startColumn: 1
-  endLine: 245
-  endColumn: 1
+  function_name: doRemoveConfirm
+  startLine: 232
+  startColumn: 0
+  endLine: 232
+  endColumn: 0

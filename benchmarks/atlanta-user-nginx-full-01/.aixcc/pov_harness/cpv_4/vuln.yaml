@@ -1,20 +1,28 @@
 id: cpv_4
 
-name: 'MOCK: cpv_4 vulnerability in pov_harness'
+name: Nginx WebDAV Module Heap Buffer Overflow in Directory Copy Operation
 
-cwes: []
+cwes:
+- CWE-122
+- CWE-787
+- CWE-131
 
-description: 'MOCK: Vulnerability cpv_4 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap buffer overflow vulnerability exists in nginx's WebDAV (HTTP DAV) module
+  in the ngx_http_dav_copy_tree_file function. The vulnerability occurs when processing
+  COPY or MOVE operations on directories. The code correctly calculates the required
+  buffer size but then allocates a hardcoded 10-byte buffer instead of using the
+  calculated length. When copying the destination path data (copy->path.data), which
+  can be much larger than 10 bytes, the operation writes beyond the allocated buffer,
+  causing heap memory corruption. This can lead to denial of service through worker
+  process crashes and potentially arbitrary code execution depending on heap layout
+  and exploitation techniques. The vulnerability can be triggered remotely via crafted
+  HTTP COPY/MOVE requests without authentication.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: __asan_memcpy
-  startLine: 0
+- path_from_root: src/http/modules/ngx_http_dav_module.c
+  function_name: ngx_http_dav_copy_tree_file
+  startLine: 975
   startColumn: 0
-  endLine: 0
+  endLine: 980
   endColumn: 0

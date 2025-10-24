@@ -1,20 +1,33 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in fuzz_as'
+name: GNU Binutils GAS do_repeat Heap Buffer Over-read due to Missing Null Termination
 
-cwes: []
+cwes:
+- CWE-170
+- CWE-125
+- CWE-122
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness fuzz_as. This vulnerability is detected by address sanitizer.
-  The error signature is: ''AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap buffer over-read vulnerability exists in the GNU Assembler (GAS) component
+  of binutils in the do_repeat() function. When processing .REPT (repeat) directives,
+  the function fails to null-terminate the string buffer (sb structure) populated by
+  buffer_and_nest() before passing it to strstr(). Since strstr() expects a
+  null-terminated C string and will continue reading memory until it finds a null
+  byte, this causes the function to read beyond the allocated 240-byte heap buffer.
+  
+  The vulnerability is triggered when the assembler processes crafted assembly source
+  files containing .REPT directives with malformed content. The strstr() call at line
+  3140 searches for the string "\\+" in the non-terminated buffer, causing it to read
+  past the buffer boundary into adjacent heap memory.
+  
+  This vulnerability can lead to information disclosure by exposing sensitive data from
+  adjacent heap memory, denial of service by crashing the assembler, and potentially
+  could be chained with other vulnerabilities for more severe exploitation.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: StrstrCheck
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+- path_from_root: gas/read.c
+  function_name: do_repeat
+  startLine: 3140
+  startColumn: 41
+  endLine: 3140
+  endColumn: 41

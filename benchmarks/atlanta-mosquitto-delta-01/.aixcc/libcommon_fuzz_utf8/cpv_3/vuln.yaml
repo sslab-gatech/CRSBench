@@ -1,20 +1,34 @@
 id: cpv_3
 
-name: 'MOCK: cpv_3 vulnerability in libcommon_fuzz_utf8'
+name: UTF-8 Validation Heap Buffer Over-read due to Insufficient Boundary Check
 
-cwes: []
+cwes:
+- CWE-125
+- CWE-787
+- CWE-122
 
-description: 'MOCK: Vulnerability cpv_3 detected in harness libcommon_fuzz_utf8. This vulnerability is detected by address
-  sanitizer. The error signature is: ''AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap buffer overflow vulnerability exists in the mosquitto_validate_utf8() function
+  in libcommon/utf8_common.c at line 72. The vulnerability is caused by an insufficient
+  boundary check that uses an equality comparison (==) instead of a greater-than-or-equal
+  comparison (>=) when validating that enough bytes remain in the buffer to complete a
+  multi-byte UTF-8 sequence.
+  
+  When processing a malformed UTF-8 sequence where the first byte indicates a multi-byte
+  sequence (e.g., 4-byte sequence starting with 0xF1) but the actual buffer length is
+  insufficient (e.g., only 1 byte), the boundary check fails to catch the overflow
+  condition. This allows the subsequent loop to read beyond the allocated buffer
+  boundaries when attempting to validate continuation bytes, resulting in a 1-byte
+  out-of-bounds read.
+  
+  The vulnerability can lead to information disclosure through memory leaks, denial of
+  service through crashes, and potential remote exploitation if the function is used to
+  validate user-supplied UTF-8 data in network protocols.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: libcommon/utf8_common.c
   function_name: mosquitto_validate_utf8
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 72
+  startColumn: 8
+  endLine: 72
+  endColumn: 8

@@ -1,16 +1,28 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: XSLT Command Injection via Insecure TransformerFactory Configuration
 
 cwes:
-- CWE-78
+- CWE-77
+- CWE-74
+- CWE-95
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  A critical OS command injection vulnerability exists in HtmlUnit's XSLTProcessor class.
+  The vulnerability occurs in the transform() method at XSLTProcessor.java:262, which creates
+  a TransformerFactory with incomplete security configuration. While FEATURE_SECURE_PROCESSING
+  is enabled, the code fails to restrict external DTD access (ACCESS_EXTERNAL_DTD) and does
+  not implement a URI resolver with an allowlist. This allows attackers to craft malicious
+  XSLT stylesheets that leverage Apache Xalan's Java extension functions to invoke arbitrary
+  Java methods, including Runtime.exec(), enabling remote code execution. The attack uses
+  XSLT extension namespaces to call java.lang.Runtime.getRuntime().exec() with attacker-controlled
+  commands, leading to complete system compromise, data exfiltration, and potential lateral
+  movement within the network.
 
 locations:
 - path_from_root: src/main/java/org/htmlunit/javascript/host/xml/XSLTProcessor.java
-  function_name: processImplStartHook
-  startLine: 262
-  startColumn: 1
-  endLine: 262
-  endColumn: 1
+  function_name: transform
+  startLine: 127
+  endLine: 130
+  startColumn: 0
+  endColumn: 0

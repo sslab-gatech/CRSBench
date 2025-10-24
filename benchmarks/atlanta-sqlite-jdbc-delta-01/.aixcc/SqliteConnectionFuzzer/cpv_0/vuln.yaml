@@ -1,20 +1,25 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in SqliteConnectionFuzzer'
+name: Array Index Out of Bounds in JDBC URL Parameter Parsing
 
-cwes: []
+cwes:
+- CWE-129
+- CWE-20
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness SqliteConnectionFuzzer. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ArrayIndexOutOfBoundsException: Index 0 out of bounds for length 0''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An Array Index Out of Bounds vulnerability exists in the extractPragmasFromFilename 
+  method of SQLiteConnection when parsing malformed JDBC connection URLs. The vulnerability 
+  is triggered when consecutive ampersands (&&&) in the connection URL create empty parameters. 
+  The code splits parameters on '=' and filters empty strings, which can result in a zero-length 
+  array. Subsequent access to kvp[0] without length validation causes an ArrayIndexOutOfBoundsException. 
+  This vulnerability allows an attacker to cause a denial of service by crafting JDBC URLs with 
+  consecutive ampersands (e.g., "jdbc:sqlite:aaa?&&&a"), leading to application crashes when 
+  attempting to establish database connections.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/main/java/org/sqlite/SQLiteConnection.java
   function_name: extractPragmasFromFilename
-  startLine: 0
+  startLine: 517
   startColumn: 0
-  endLine: 0
+  endLine: 517
   endColumn: 0

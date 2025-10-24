@@ -1,20 +1,43 @@
 id: cpv_1
 
-name: 'MOCK: cpv_1 vulnerability in fuzz_dwarf'
+name: BFD PE Format Parser In-Memory Buffer Use-After-Free
 
-cwes: []
+cwes:
+- CWE-416
+- CWE-672
 
-description: 'MOCK: Vulnerability cpv_1 detected in harness fuzz_dwarf. This vulnerability is detected by address sanitizer.
-  The error signature is: ''AddressSanitizer: heap-use-after-free''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap use-after-free vulnerability in the BFD (Binary File Descriptor) library
+  occurring during PE (Portable Executable) format detection and I/O reinitialization.
+  
+  When processing PE Import Library Format files, the pe_ILF_build_a_bfd function
+  allocates a bfd_in_memory structure on the heap. During format checking in
+  bfd_check_format_matches, the io_reinit function incorrectly frees the in-memory
+  buffer (abfd->iostream) when switching between different I/O backends. Later,
+  when bfd_close_all_done is called, it invokes memory_bclose which attempts to
+  access and free the already-freed memory, causing a heap use-after-free.
+  
+  The vulnerability can lead to memory corruption, crashes, denial of service,
+  and potentially arbitrary code execution if an attacker can control the freed
+  memory's contents. Security tools using binutils to analyze binary files may
+  be particularly affected.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: bfd/bfdio.c
   function_name: memory_bclose
-  startLine: 0
+  startLine: 870
+  startColumn: 14
+  endLine: 870
+  endColumn: 14
+- path_from_root: bfd/format.c
+  function_name: io_reinit
+  startLine: 178
   startColumn: 0
-  endLine: 0
+  endLine: 184
   endColumn: 0
+- path_from_root: bfd/peicode.h
+  function_name: pe_ILF_build_a_bfd
+  startLine: 862
+  startColumn: 32
+  endLine: 862
+  endColumn: 32

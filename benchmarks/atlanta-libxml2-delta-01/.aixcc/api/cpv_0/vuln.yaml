@@ -1,20 +1,30 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in api'
+name: Uninitialized Pointer in xmlSearchNsByHref Namespace Search
 
-cwes: []
+cwes:
+- CWE-457
+- CWE-908
+- CWE-824
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness api. This vulnerability is detected by memory sanitizer. The error
-  signature is: ''MemorySanitizer: use-of-uninitialized-value''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  Use-of-uninitialized-value vulnerability in libxml2's namespace search functionality.
+  The xmlSearchNsByHref function declares a local pointer variable 'cur' without initialization
+  and passes it by reference to xmlSearchNsByHrefSafe. Due to improper control flow in
+  xmlSearchNsByHrefSafe, when certain error conditions are met (NULL node or XML_NAMESPACE_DECL
+  node type), the function returns early without initializing the output parameter. This causes
+  xmlSearchNsByHref to return an uninitialized pointer value, leading to undefined behavior.
+  
+  The vulnerability can result in information disclosure through uninitialized memory contents,
+  potential crashes if the caller dereferences the pointer, and possible exploitation to leak
+  memory addresses that could bypass ASLR protections. The issue is triggered when
+  xmlSearchNsByHref is called with a NULL node parameter or a node of type XML_NAMESPACE_DECL,
+  causing early return before the output parameter initialization.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: tree.c
   function_name: xmlSearchNsByHref
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 6056
+  startColumn: 5
+  endLine: 6056
+  endColumn: 5

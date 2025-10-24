@@ -1,16 +1,27 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+name: Server-Side Request Forgery in Apache Olingo OData V4 Async Request Handler
 
 cwes:
 - CWE-918
+- CWE-601
 
-description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+description: |
+  A Server-Side Request Forgery (SSRF) vulnerability exists in Apache Olingo's OData V4 
+  client library's asynchronous request handling mechanism. The vulnerable code in the 
+  AsyncRequestWrapperImpl class blindly trusts the Location header from HTTP responses 
+  without validation. When processing asynchronous OData requests, the retrieveMonitorDetails() 
+  method extracts the Location header value and creates a URI without verifying that it 
+  points to a legitimate destination. This location is subsequently used by the checkMonitor() 
+  method to make HTTP requests for polling the async operation status. An attacker who can 
+  control or intercept HTTP responses can inject a malicious URL in the Location header, 
+  causing the client to make requests to arbitrary internal or external destinations. This 
+  can lead to exposure of internal services, port scanning, or exfiltration of sensitive data.
 
 locations:
 - path_from_root: lib/client-core/src/main/java/org/apache/olingo/client/core/communication/request/v4/AsyncRequestWrapperImpl.java
-  function_name: invoke0
-  startLine: 303
-  startColumn: 1
-  endLine: 303
-  endColumn: 1
+  function_name: retrieveMonitorDetails
+  startLine: 262
+  startColumn: 0
+  endLine: 262
+  endColumn: 0

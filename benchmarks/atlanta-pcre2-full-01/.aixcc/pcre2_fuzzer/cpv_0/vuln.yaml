@@ -1,20 +1,29 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in pcre2_fuzzer'
+name: Heap buffer over-read in UTF-8 lookbehind assertion matching
 
-cwes: []
+cwes:
+- CWE-125
+- CWE-122
+- CWE-787
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness pcre2_fuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap buffer over-read vulnerability exists in the PCRE2 pattern matching engine
+  when processing lookbehind assertions with variable length in UTF-8 mode. The
+  vulnerability occurs in the match() function at src/pcre2_match.c:5795 in the
+  OP_VREVERSE case handler. After incrementing the subject pointer, the FORWARDCHAR
+  macro attempts to skip UTF-8 continuation bytes without checking buffer boundaries.
+  The macro dereferences the pointer while checking for continuation bytes (0x80),
+  potentially reading beyond the allocated heap buffer when the input ends with a
+  partial or malformed UTF-8 sequence. This can lead to information disclosure through
+  out-of-bounds memory reads and denial of service through crashes. The vulnerability
+  is triggered by crafted regex patterns containing negative lookbehind assertions
+  such as (?<!(|l )).
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/pcre2_match.c
   function_name: match
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 5795
+  startColumn: 18
+  endLine: 5795
+  endColumn: 18

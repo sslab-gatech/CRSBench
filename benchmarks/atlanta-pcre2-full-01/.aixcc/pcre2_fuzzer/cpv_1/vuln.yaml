@@ -1,20 +1,31 @@
 id: cpv_1
 
-name: 'MOCK: cpv_1 vulnerability in pcre2_fuzzer'
+name: Heap Buffer Overflow in PCRE2 Lookbehind Group Length Calculation
 
-cwes: []
+cwes:
+- CWE-122
+- CWE-787
+- CWE-193
 
-description: 'MOCK: Vulnerability cpv_1 detected in harness pcre2_fuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-based buffer overflow vulnerability exists in the PCRE2 regular expression
+  compilation library within the get_grouplength() function. The vulnerability is caused
+  by an off-by-one error in the buffer allocation calculation at line 10405 of
+  pcre2_compile.c. When allocating the groupinfo array to store metadata about capturing
+  groups in lookbehind assertions, the code uses the formula (2 * cb.bracount + 1) instead
+  of the correct (2 * (cb.bracount + 1)). Since each group requires 2 uint32_t entries
+  and groups are numbered from 0 to cb.bracount inclusive, this causes the allocation to
+  be 1 element (4 bytes) too small. When processing deeply nested capturing groups in a
+  lookbehind assertion, the function attempts to write to indices 2 * cb.bracount (gi[0])
+  and 2 * cb.bracount + 1 (gi[1]). The write to gi[1] exceeds the allocated buffer by 4
+  bytes, resulting in a heap buffer overflow. This can lead to memory corruption,
+  application crashes, and potential code execution if critical heap metadata or function
+  pointers are overwritten.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/pcre2_compile.c
   function_name: get_grouplength
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 9278
+  startColumn: 9
+  endLine: 9278
+  endColumn: 9

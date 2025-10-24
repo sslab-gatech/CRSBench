@@ -1,16 +1,33 @@
 id: cpv_2
 
-name: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+name: Jenkins PluginManager Path Traversal in Plugin Upload
 
 cwes:
 - CWE-22
+- CWE-73
+- CWE-434
 
-description: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+description: |
+  A critical path traversal vulnerability exists in the Jenkins PluginManager's doPerformUpload method.
+  The vulnerability occurs at line 1636 in hudson/PluginManager.java where the uploadPath parameter from
+  an HTTP request is used directly without validation or sanitization to create a File object:
+  `File uploadDir = new File(req.getParameter("uploadPath"))`. This user-controlled path is then used
+  to create directories and write uploaded files without checking for path traversal sequences like '../'.
+  
+  An attacker can exploit this by sending a POST request with a malicious uploadPath parameter containing
+  path traversal sequences (e.g., '../../../home/target'), allowing arbitrary file writes to any location
+  where the Jenkins process has write permissions. This can lead to privilege escalation, code execution
+  through malicious plugin uploads, data exfiltration, or complete system compromise by overwriting
+  critical system files.
+  
+  The vulnerability was detected by Jazzer's FileSystemTraversal sanitizer when processing the path
+  '/tmp/plugins/../../home/jazzer-traversal', demonstrating successful directory traversal escaping
+  the intended upload directory.
 
 locations:
 - path_from_root: jenkins/core/src/main/java/hudson/PluginManager.java
-  function_name: maybeReport
-  startLine: 1640
-  startColumn: 1
-  endLine: 1640
-  endColumn: 1
+  function_name: doPerformUpload
+  startLine: 1636
+  startColumn: 0
+  endLine: 1639
+  endColumn: 0

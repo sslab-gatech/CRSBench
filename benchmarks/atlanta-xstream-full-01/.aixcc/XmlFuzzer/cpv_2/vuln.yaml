@@ -1,16 +1,28 @@
 id: cpv_2
 
-name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+name: XML External Entity (XXE) Injection in XStream DomDriver
 
 cwes:
+- CWE-611
 - CWE-918
+- CWE-776
 
-description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+description: |
+  An XML External Entity (XXE) injection vulnerability exists in the XStream library's
+  DomDriver class. The vulnerability occurs in the createReader(InputSource source) method
+  where a DocumentBuilderFactory is created with default settings that allow external entity
+  resolution and DTD processing. When the DocumentBuilderFactory.newInstance() is called at
+  line 100 without setting proper security features, the resulting XML parser processes
+  external entities defined in DTDs, allowing attackers to trigger Server-Side Request
+  Forgery (SSRF) attacks, access local files, exfiltrate sensitive data, probe internal
+  network infrastructure, or cause denial of service through entity expansion attacks.
+  The vulnerability is triggered when malicious XML containing external entity references
+  is parsed at line 108 via documentBuilder.parse(source).
 
 locations:
 - path_from_root: xstream/src/java/com/thoughtworks/xstream/io/xml/DomDriver.java
-  function_name: checkSsrf
-  startLine: 108
-  startColumn: 1
+  function_name: createReader
+  startLine: 100
+  endColumn: 0
   endLine: 108
-  endColumn: 1
+  startColumn: 0

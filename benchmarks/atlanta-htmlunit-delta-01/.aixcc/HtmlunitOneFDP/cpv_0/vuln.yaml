@@ -1,16 +1,34 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: HtmlUnit XSLTProcessor RCE via Xalan Java Extensions
 
 cwes:
-- CWE-78
+- CWE-94
+- CWE-611
+- CWE-77
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  HtmlUnit's XSLTProcessor class is vulnerable to XSLT Server-Side Code Injection
+  leading to Remote Code Execution. The vulnerability exists in the transform() method
+  at XSLTProcessor.java which processes XSLT transformations without properly restricting
+  access to external resources and dangerous Java extensions.
+  
+  The vulnerable code only enables FEATURE_SECURE_PROCESSING but does not set
+  ACCESS_EXTERNAL_DTD or ACCESS_EXTERNAL_STYLESHEET attributes, allowing the XSLT
+  processor to access external resources. Additionally, without a custom URI resolver,
+  the Apache Xalan XSLT processor supports Java extensions that allow XSLT stylesheets
+  to instantiate arbitrary Java classes, call static and instance methods, and execute
+  Runtime.exec() for OS command execution.
+  
+  An attacker can craft a malicious HTML page containing an XSLT stylesheet that declares
+  Java namespace bindings, uses XSLT variables to call Runtime.getRuntime(), and executes
+  arbitrary OS commands. This results in complete system compromise with the privileges
+  of the Java process, enabling data exfiltration, denial of service, and lateral movement.
 
 locations:
 - path_from_root: src/main/java/org/htmlunit/javascript/host/xml/XSLTProcessor.java
-  function_name: processImplStartHook
-  startLine: 262
-  startColumn: 1
-  endLine: 262
-  endColumn: 1
+  function_name: transform
+  startLine: 127
+  startColumn: 0
+  endLine: 130
+  endColumn: 0

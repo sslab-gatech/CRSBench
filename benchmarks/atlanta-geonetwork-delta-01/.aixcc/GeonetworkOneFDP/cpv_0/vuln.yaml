@@ -1,22 +1,26 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: OS Command Injection in LocalFilesystemHarvester beforeScript execution
 
 cwes:
 - CWE-78
+- CWE-77
+- CWE-88
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  A critical OS command injection vulnerability exists in GeoNetwork's Local Filesystem Harvester component.
+  The vulnerability occurs in the runBeforeScript() method of the LocalFilesystemHarvester class, where
+  user-controlled data from XML configuration is passed directly to ProcessBuilder without validation or
+  sanitization. The beforeScript parameter is extracted from XML input via LocalFilesystemParams.createOrUpdate()
+  and naively split by spaces before being executed as a system command. An attacker can craft malicious XML
+  input with a <beforeScript> element containing arbitrary OS commands, leading to remote code execution with
+  the privileges of the application. This could result in complete system compromise, data exfiltration, or
+  lateral movement within the network.
 
 locations:
 - path_from_root: harvesters/src/main/java/org/fao/geonet/kernel/harvest/harvester/localfilesystem/LocalFilesystemHarvester.java
-  function_name: processImplStartHook
-  startLine: 239
-  startColumn: 1
-  endLine: 239
-  endColumn: 1
-- path_from_root: harvesters/src/main/java/org/fao/geonet/kernel/harvest/harvester/localfilesystem/LocalFilesystemHarvester.java
-  function_name: processImplStartHook
-  startLine: 242
-  startColumn: 1
-  endLine: 242
-  endColumn: 1
+  function_name: runBeforeScript
+  startLine: 233
+  startColumn: 0
+  endLine: 247
+  endColumn: 0

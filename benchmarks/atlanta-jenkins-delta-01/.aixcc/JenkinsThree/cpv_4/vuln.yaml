@@ -1,22 +1,38 @@
 id: cpv_4
 
-name: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+name: Insecure Deserialization in Jenkins Code Coverage API Plugin Leading to RCE
 
 cwes:
 - CWE-502
+- CWE-913
 
-description: 'FuzzerSecurityIssueHigh: Remote Code Execution (TBD)'
+description: |
+  An insecure deserialization vulnerability exists in the Jenkins Code Coverage API Plugin's
+  CoverageProcessor.recoverCoverageResult() method. The vulnerability occurs when deserializing
+  coverage report data from a file using CompatibleObjectInputStream. In the vulnerable version,
+  the CompatibleObjectInputStream class lacks proper allowlist-based filtering in its resolveClass()
+  method, relying only on insufficient ClassFilter.DEFAULT protection.
+  
+  An attacker who can control or replace the coverage report file can craft a malicious serialized
+  Java object containing a gadget chain. When Jenkins attempts to recover the coverage result by
+  calling readObject() on line 733, it deserializes the malicious payload without proper validation.
+  This enables remote code execution with the privileges of the Jenkins process, potentially leading
+  to full system compromise.
+  
+  The vulnerability is triggered when CompatibleObjectInputStream.readObject() is invoked to
+  deserialize untrusted data without an explicit allowlist of safe classes, allowing arbitrary
+  class instantiation and execution of malicious gadget chains present in the Jenkins classpath.
 
 locations:
 - path_from_root: plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CoverageProcessor.java
-  function_name: reportFinding
-  startLine: 732
-  startColumn: 1
-  endLine: 732
-  endColumn: 1
-- path_from_root: plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CoverageProcessor.java
-  function_name: reportFinding
+  function_name: recoverCoverageResult
   startLine: 733
-  startColumn: 1
+  startColumn: 0
   endLine: 733
-  endColumn: 1
+  endColumn: 0
+- path_from_root: plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CompatibleObjectInputStream.java
+  function_name: CompatibleObjectInputStream
+  startLine: 11
+  startColumn: 0
+  endLine: 30
+  endColumn: 0

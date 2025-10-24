@@ -1,20 +1,34 @@
 id: cpv_4
 
-name: 'MOCK: cpv_4 vulnerability in ActivemqOneFDP'
+name: Apache ActiveMQ OpenWire Unsafe Deserialization Remote Code Execution
 
-cwes: []
+cwes:
+- CWE-502
+- CWE-470
+- CWE-913
 
-description: 'MOCK: Vulnerability cpv_4 detected in harness ActivemqOneFDP. This vulnerability is detected by address sanitizer.
-  The error signature is: ''FuzzerSecurityIssueHigh: Remote Code Execution''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  Critical Remote Code Execution vulnerability in Apache ActiveMQ's OpenWire protocol
+  implementation. The vulnerability exists in the BaseDataStreamMarshaller.createThrowable()
+  method, which allows arbitrary Java class instantiation through reflection based on
+  attacker-controlled data from the wire format.
+  
+  When deserializing an ExceptionResponse object, the looseUnmarsalThrowable() method reads
+  a class name and message from the input stream without validation. These attacker-controlled
+  values are passed to createThrowable(), which uses Class.forName() to load the specified
+  class and instantiate it via reflection with the attacker-controlled message parameter.
+  
+  An attacker can craft a malicious OpenWire message to instantiate any class on the classpath
+  that has a String constructor, including dangerous classes or gadget chain entry points,
+  leading to remote code execution. No validation is performed to ensure the loaded class is
+  actually a Throwable subclass before instantiation occurs.
+  
+  Impact includes full server compromise, data breach, lateral movement, and denial of service.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: reportFinding
-  startLine: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v5/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 231
   startColumn: 0
-  endLine: 0
+  endLine: 233
   endColumn: 0

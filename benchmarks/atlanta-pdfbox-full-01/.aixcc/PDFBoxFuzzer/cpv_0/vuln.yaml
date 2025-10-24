@@ -1,20 +1,29 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in PDFBoxFuzzer'
+name: PDFBox XRef Stream Parser Uncontrolled Memory Allocation
 
-cwes: []
+cwes:
+- CWE-770
+- CWE-400
+- CWE-789
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness PDFBoxFuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''libFuzzer: out-of-memory''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An out-of-memory vulnerability in Apache PDFBox's PDF XRef stream parser caused by
+  uncontrolled memory allocation. The vulnerability occurs in the PDFXrefStreamParser.initParserValues()
+  method when parsing the /Index array from a PDF XRef stream. The code iterates over size values
+  from the /Index array without validation and pre-allocates ArrayList entries for each object number.
+  
+  A maliciously crafted PDF can specify an extremely large size value (e.g., close to Integer.MAX_VALUE)
+  in the /Index array, causing the ArrayList to attempt to grow to accommodate billions of entries.
+  This leads to memory exhaustion, OutOfMemoryError, and denial of service.
+  
+  The vulnerability allows an attacker to crash the application or exhaust system resources using a
+  minimal input file (POV is only 156 bytes), making it trivial to exploit and highly impactful.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: copyOf
-  startLine: 0
+- path_from_root: pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java
+  function_name: initParserValues
+  startLine: 120
   startColumn: 0
-  endLine: 0
+  endLine: 120
   endColumn: 0

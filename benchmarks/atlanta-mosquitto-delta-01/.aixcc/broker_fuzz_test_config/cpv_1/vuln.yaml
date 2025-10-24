@@ -1,20 +1,31 @@
 id: cpv_1
 
-name: 'MOCK: cpv_1 vulnerability in broker_fuzz_test_config'
+name: Heap buffer overflow in config__add_listener via off-by-one error
 
-cwes: []
+cwes:
+- CWE-122
+- CWE-787
+- CWE-193
 
-description: 'MOCK: Vulnerability cpv_1 detected in harness broker_fuzz_test_config. This vulnerability is detected by address
-  sanitizer. The error signature is: ''AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-based buffer overflow vulnerability exists in the config__add_listener function
+  in src/conf.c of the Mosquitto MQTT broker. The vulnerability is caused by an off-by-one
+  indexing error when adding a new listener to the configuration.
+  
+  When reallocating the listeners array to accommodate a new listener (size: listener_count + 1),
+  the code incorrectly accesses the array at index [listener_count - 1] instead of [listener_count].
+  When listener_count is 0 (first listener being added), this results in accessing index -1,
+  causing a heap buffer overflow when the subsequent memset() writes 224 bytes to the invalid address.
+  
+  The vulnerability is triggered by configuration files containing the deprecated "port" option,
+  which causes the broker to create a default listener. This results in memory corruption,
+  denial of service through broker crashes, and potentially arbitrary code execution depending
+  on what heap structures are corrupted.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: __asan_memset
-  startLine: 0
+- path_from_root: src/conf.c
+  function_name: config__add_listener
+  startLine: 167
   startColumn: 0
-  endLine: 0
+  endLine: 167
   endColumn: 0

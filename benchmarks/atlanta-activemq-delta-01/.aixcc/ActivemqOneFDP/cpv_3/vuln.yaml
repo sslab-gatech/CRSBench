@@ -1,20 +1,37 @@
 id: cpv_3
 
-name: 'MOCK: cpv_3 vulnerability in ActivemqOneFDP'
+name: Apache ActiveMQ OpenWire Unsafe Throwable Deserialization Leading to RCE
 
-cwes: []
+cwes:
+- CWE-502
+- CWE-470
+- CWE-94
 
-description: 'MOCK: Vulnerability cpv_3 detected in harness ActivemqOneFDP. This vulnerability is detected by address sanitizer.
-  The error signature is: ''FuzzerSecurityIssueHigh: Remote Code Execution''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  This vulnerability exists in the Apache ActiveMQ OpenWire protocol implementation's
+  exception deserialization mechanism. The createThrowable method in BaseDataStreamMarshaller
+  allows an attacker to instantiate arbitrary classes with a String constructor argument
+  based on externally-controlled data from the wire protocol.
+  
+  When deserializing an ExceptionResponse message over the OpenWire protocol, the code reads
+  a class name from the input stream and uses Class.forName() to load it, followed by
+  reflection to instantiate it. The vulnerability occurs because the code does not validate
+  that the loaded class is actually a Throwable before attempting to instantiate it, allowing
+  arbitrary class instantiation with attacker-controlled constructor arguments.
+  
+  An attacker can craft a malicious OpenWire protocol message containing an ExceptionResponse
+  with a class name pointing to a gadget class and a message string to pass to the constructor.
+  When the server deserializes this message, it will instantiate the attacker-specified class,
+  potentially triggering malicious code execution if the class constructor has side effects.
+  
+  This vulnerability affects multiple versions of the OpenWire protocol implementation (v2-v8)
+  and can lead to Remote Code Execution, Denial of Service, or Information Disclosure depending
+  on available classes on the classpath.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: reportFinding
-  startLine: 0
+- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 229
   startColumn: 0
-  endLine: 0
+  endLine: 233
   endColumn: 0

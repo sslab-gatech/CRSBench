@@ -1,16 +1,34 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+name: Apache CXF XOP Include SSRF via CID URI Scheme
 
 cwes:
 - CWE-918
 
-description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+description: |
+  Server-Side Request Forgery (SSRF) vulnerability in Apache CXF's AttachmentUtil.getAttachmentDataSource() method.
+  The vulnerability occurs when processing XOP (XML-binary Optimized Packaging) include references with cid: URI schemes.
+  
+  The vulnerable code incorrectly handles cid: URIs containing embedded URLs. When a contentId parameter contains "://",
+  the code creates a URLDataSource with the arbitrary URL without validation, allowing an attacker to make the application
+  send HTTP/HTTPS requests to attacker-controlled destinations.
+  
+  For example, input like "https://jazzer.example.com/robots.txt" bypasses validation and causes the application to
+  make an outbound connection when getContentType() is called on the DataSource.
+  
+  This can be exploited for:
+  - Port scanning internal networks
+  - Accessing internal services (e.g., cloud metadata at http://169.254.169.254/)
+  - Exfiltrating sensitive data through DNS or HTTP requests
+  - Bypassing firewall restrictions
+  
+  The patch implements secure-by-default behavior by requiring explicit opt-in via the
+  org.apache.cxf.attachment.xop.follow.urls system property (defaults to false) before following URLs in cid: URIs.
 
 locations:
-- path_from_root: fuzz/cxf-harness-one/src/main/java/com/aixcc/cxf/harnesses/one/CXFOne.java
-  function_name: checkSsrf
-  startLine: 35
-  startColumn: 1
-  endLine: 35
-  endColumn: 1
+- path_from_root: core/src/main/java/org/apache/cxf/attachment/AttachmentUtil.java
+  function_name: getAttachmentDataSource
+  startLine: 560
+  startColumn: 0
+  endLine: 561
+  endColumn: 0

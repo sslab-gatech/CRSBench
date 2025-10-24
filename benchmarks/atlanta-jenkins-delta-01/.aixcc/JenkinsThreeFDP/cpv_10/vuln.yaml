@@ -1,16 +1,33 @@
 id: cpv_10
 
-name: 'FuzzerSecurityIssueHigh: load arbitrary library (TBD)'
+name: Arbitrary Native Library Loading via Improper Access Control
 
 cwes:
-- CWE-829
+- CWE-284
+- CWE-285
+- CWE-426
 
-description: 'FuzzerSecurityIssueHigh: load arbitrary library (TBD)'
+description: |
+  This vulnerability allows non-administrative users to load arbitrary native libraries
+  into the Jenkins JVM, leading to potential remote code execution. The flaw exists in
+  the access control logic of the SecretMessage.doPerform() method, which incorrectly
+  uses logical OR instead of logical AND when checking if a user can set the "freeload"
+  parameter.
+  
+  The vulnerable condition `if (admin || request.hasParameter("freeload"))` allows any
+  user who simply includes the "freeload" parameter in their request to bypass the
+  administrator check. This enables attackers to provide absolute paths to malicious
+  native libraries and load them via Runtime.getRuntime().load(), resulting in arbitrary
+  code execution with Jenkins process privileges.
+  
+  An attacker can exploit this by sending a crafted request with freeload=true and an
+  absolute path to a malicious library, bypassing the intended security restriction that
+  should only allow administrators to load libraries from arbitrary locations.
 
 locations:
 - path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/SecretMessage.java
-  function_name: loadLibraryHook
-  startLine: 98
-  startColumn: 1
-  endLine: 98
-  endColumn: 1
+  function_name: doPerform
+  startLine: 89
+  startColumn: 0
+  endLine: 89
+  endColumn: 0

@@ -1,16 +1,28 @@
 id: cpv_14
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: Unsafe Reflection Leading to OS Command Injection in Email Extension
 
 cwes:
 - CWE-78
+- CWE-470
+- CWE-77
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  A critical OS command injection vulnerability exists in the EmailConfig class through
+  unsafe reflection combined with dangerous debugging methods. The constructor() method
+  uses Java reflection to dynamically invoke methods based on the emailAddress field,
+  which can be controlled by attackers through input data. In the unpatched version,
+  this allowed invocation of the debugOnlyAndPrivate() method, which executed arbitrary
+  system commands via Runtime.exec(). An attacker can provide malicious input that sets
+  emailAddress to "debugOnlyAndPrivate" or similar dangerous method names, causing the
+  reflection API to invoke these methods and execute arbitrary OS commands. This results
+  in remote code execution, complete system compromise, data exfiltration, and potential
+  lateral movement within the CI/CD pipeline.
 
 locations:
 - path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
-  function_name: processImplStartHook
-  startLine: 102
-  startColumn: 1
-  endLine: 102
-  endColumn: 1
+  function_name: constructor
+  startLine: 55
+  endLine: 55
+  startColumn: 0
+  endColumn: 0

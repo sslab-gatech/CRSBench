@@ -1,20 +1,32 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in fuzz'
+name: Out-of-bounds write in track_set_index due to missing negative index validation
 
-cwes: []
+cwes:
+- CWE-787
+- CWE-129
+- CWE-120
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness fuzz. This vulnerability is detected by address sanitizer. The
-  error signature is: ''ERROR: AddressSanitizer: SEGV''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An out-of-bounds write vulnerability exists in the libcue library's CUE sheet parser.
+  The vulnerability occurs in the track_set_index() function in cd.c at line 347.
+  
+  The function accepts an integer index parameter but only validates that it doesn't exceed
+  MAXINDEX (99), failing to check if the index is negative. This allows an attacker to provide
+  a malicious large or negative index value that bypasses the bounds check.
+  
+  When parsing a CUE file with an extremely large INDEX value (e.g., INDEX 4294567296),
+  the array access track->index[i] writes to memory far outside the bounds of the allocated
+  100-element array. This causes a segmentation fault due to writing to an invalid memory address.
+  
+  Impact includes memory corruption, potential arbitrary code execution if the attacker can
+  control the write location, and denial of service through application crashes when processing
+  untrusted CUE files.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: cd.c
   function_name: track_set_index
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 347
+  startColumn: 18
+  endLine: 347
+  endColumn: 18

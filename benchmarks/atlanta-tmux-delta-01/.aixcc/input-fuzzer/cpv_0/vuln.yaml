@@ -1,20 +1,31 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in input-fuzzer'
+name: Stack buffer overflow in tmux OSC 52 clipboard handler
 
-cwes: []
+cwes:
+- CWE-121
+- CWE-787
+- CWE-682
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness input-fuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: stack-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A stack-based buffer overflow occurs in the input_osc_52 function when handling
+  OSC 52 escape sequences for clipboard operations. The vulnerability is caused by
+  incorrect use of the sizeof operator on a pointer instead of a string literal,
+  resulting in an 8-byte buffer allocation instead of the required 13 bytes.
+  
+  The vulnerable code allocates a flags buffer using sizeof(allow) where allow is
+  a pointer, yielding only 8 bytes on 64-bit systems. However, the allowed character
+  set "cpqs01234567" contains 12 characters, allowing up to 12 bytes plus a null
+  terminator to be written into the undersized buffer.
+  
+  When a malicious OSC 52 sequence containing more than 8 unique target specifiers
+  is processed, the code writes beyond the allocated buffer bounds, corrupting the
+  stack. This can lead to crashes, potential code execution, or information disclosure.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: strchr
-  startLine: 0
+- path_from_root: input.c
+  function_name: input_osc_52
+  startLine: 2699
   startColumn: 0
-  endLine: 0
+  endLine: 2717
   endColumn: 0

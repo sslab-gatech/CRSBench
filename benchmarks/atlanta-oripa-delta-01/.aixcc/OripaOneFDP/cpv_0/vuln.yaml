@@ -1,22 +1,28 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: Unsafe XML Deserialization Leading to Remote Code Execution via XMLDecoder
 
 cwes:
+- CWE-502
 - CWE-78
+- CWE-91
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  This is a critical unsafe deserialization vulnerability that allows arbitrary OS command execution.
+  The vulnerability exists in the LoaderXML.loadAsDataSet() method which uses Java's XMLDecoder class
+  to deserialize XML data from untrusted input files. XMLDecoder can execute arbitrary Java code during
+  deserialization because it interprets XML elements as Java method invocations. An attacker can craft
+  a malicious XML file containing ProcessBuilder invocations or other dangerous Java classes to achieve
+  remote code execution. The vulnerability occurs when the fuzzing harness accepts arbitrary byte input,
+  writes it to a temporary XML file, and calls loadAsDataSet() which then invokes XMLDecoder.readObject()
+  on the malicious content. This results in execution of attacker-controlled OS commands with the 
+  privileges of the Java application, potentially leading to full system compromise, data exfiltration,
+  or denial of service.
 
 locations:
 - path_from_root: src/main/java/oripa/persistence/doc/loader/LoaderXML.java
-  function_name: processImplStartHook
-  startLine: 43
-  startColumn: 1
-  endLine: 43
-  endColumn: 1
-- path_from_root: src/main/java/oripa/persistence/doc/loader/LoaderXML.java
-  function_name: processImplStartHook
+  function_name: loadAsDataSet
   startLine: 44
-  startColumn: 1
+  startColumn: 0
   endLine: 44
-  endColumn: 1
+  endColumn: 0

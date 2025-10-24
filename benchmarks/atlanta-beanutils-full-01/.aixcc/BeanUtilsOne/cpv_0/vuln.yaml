@@ -1,16 +1,40 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+name: Unsafe Bean Property Introspection Leading to ClassLoader Access
 
 cwes:
+- CWE-470
 - CWE-22
+- CWE-668
 
-description: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+description: |
+  A critical path traversal vulnerability in Apache Commons BeanUtils that occurs through
+  unsafe property access via the bean introspection mechanism. The vulnerability allows
+  attackers to access the 'class' property of any Java object through PropertyUtilsBean's
+  getNestedProperty() method, which enables them to obtain the ClassLoader via
+  'object.class.classLoader'. Once the ClassLoader is obtained, attackers can load arbitrary
+  classes and instantiate objects with attacker-controlled paths, leading to path traversal
+  attacks by creating File objects with malicious paths. The root cause is that default bean
+  introspection exposes the 'class' property inherited from Object.getClass() without any
+  security controls or validation to prevent access to sensitive properties. This allows
+  bypassing normal security boundaries through reflection-based property access.
 
 locations:
-- path_from_root: fuzz/beanutils-harness-one/src/main/java/com/aixcc/beanutils/harnesses/one/BeanUtilsOne.java
-  function_name: check
-  startLine: 79
-  startColumn: 1
-  endLine: 79
-  endColumn: 1
+- path_from_root: src/main/java/org/apache/commons/beanutils/PropertyUtilsBean.java
+  function_name: getNestedProperty
+  startLine: 767
+  startColumn: 0
+  endLine: 809
+  endColumn: 0
+- path_from_root: src/main/java/org/apache/commons/beanutils/PropertyUtilsBean.java
+  function_name: getSimpleProperty
+  startLine: 1225
+  startColumn: 0
+  endLine: 1281
+  endColumn: 0
+- path_from_root: src/main/java/org/apache/commons/beanutils/PropertyUtilsBean.java
+  function_name: getPropertyDescriptor
+  startLine: 919
+  startColumn: 0
+  endLine: 919
+  endColumn: 0

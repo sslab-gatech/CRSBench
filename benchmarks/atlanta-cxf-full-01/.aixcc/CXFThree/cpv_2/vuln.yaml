@@ -1,16 +1,42 @@
 id: cpv_2
 
-name: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+name: Apache CXF WADL Generator Server-Side Request Forgery via Stylesheet Reference
 
 cwes:
 - CWE-918
+- CWE-20
+- CWE-601
 
-description: 'FuzzerSecurityIssueMedium: Server Side Request Forgery (SSRF) (TBD)'
+description: |
+  Server-Side Request Forgery (SSRF) vulnerability in Apache CXF's WadlGenerator component.
+  The vulnerability exists in the doFilter() method due to a logic flaw in operator precedence
+  when checking conditional statements for stylesheet references. When stylesheetReference is
+  set and a path ends with ".xsl", the user-controlled path is passed directly to
+  getExistingResource(), which then calls ResourceUtils.getResourceStream(). This causes the
+  server to make HTTP/HTTPS requests to attacker-controlled URLs without validation.
+  
+  An attacker can exploit this by sending a GET request with a malicious URL path ending in
+  ".xsl" (e.g., https://attacker.com/secret.xsl). The server will attempt to connect to the
+  attacker-specified destination, enabling potential exfiltration of sensitive data, access
+  to internal services bypassing firewalls, port scanning of internal networks, and attacks
+  against internal infrastructure leveraging the server's trust relationships.
 
 locations:
+- path_from_root: rt/rs/description/src/main/java/org/apache/cxf/jaxrs/model/wadl/WadlGenerator.java
+  function_name: doFilter
+  startLine: 245
+  startColumn: 0
+  endLine: 247
+  endColumn: 0
+- path_from_root: rt/rs/description/src/main/java/org/apache/cxf/jaxrs/model/wadl/WadlGenerator.java
+  function_name: getExistingResource
+  startLine: 1375
+  startColumn: 0
+  endLine: 1377
+  endColumn: 0
 - path_from_root: rt/frontend/jaxrs/src/main/java/org/apache/cxf/jaxrs/utils/ResourceUtils.java
-  function_name: checkSsrf
-  startLine: 577
-  startColumn: 1
+  function_name: getResourceStream
+  startLine: 575
+  startColumn: 0
   endLine: 577
-  endColumn: 1
+  endColumn: 0

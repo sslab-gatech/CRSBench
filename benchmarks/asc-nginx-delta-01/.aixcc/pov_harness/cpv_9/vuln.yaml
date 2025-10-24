@@ -1,20 +1,28 @@
 id: cpv_9
 
-name: 'MOCK: cpv_9 vulnerability in pov_harness'
+name: nginx HTTP Rewrite Module Global Buffer Overflow via Missing Return Statement
 
-cwes: []
+cwes:
+- CWE-125
+- CWE-787
+- CWE-788
 
-description: 'MOCK: Vulnerability cpv_9 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: global-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A global buffer overflow vulnerability in nginx's HTTP rewrite module that occurs when
+  processing HTTP requests with URIs exceeding 2000 bytes during rewriting. The root cause
+  is a missing return statement in the error handling path of ngx_http_script_regex_end_code()
+  in src/http/ngx_http_script.c at line 1274. When the rewritten URI exceeds the maximum
+  length, the error handler sets e->ip to point to ngx_http_script_exit (a sentinel value)
+  but fails to return immediately. Execution continues, causing the script engine's instruction
+  pointer to advance beyond intended bounds. On the next loop iteration in ngx_http_rewrite_handler(),
+  the code dereferences e->ip, resulting in reading 8 bytes beyond the ngx_http_script_exit_code
+  global variable. This vulnerability can lead to information disclosure by reading adjacent
+  memory, potential denial of service, or possible control flow manipulation.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/http/modules/ngx_http_rewrite_module.c
   function_name: ngx_http_rewrite_handler
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 178
+  startColumn: 12
+  endLine: 178
+  endColumn: 12

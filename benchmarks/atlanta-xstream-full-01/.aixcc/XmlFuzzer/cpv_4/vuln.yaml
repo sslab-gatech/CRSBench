@@ -1,16 +1,27 @@
 id: cpv_4
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: XStream Script Execution Remote Code Execution via String Interpolation
 
 cwes:
 - CWE-78
+- CWE-94
+- CWE-95
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  A critical OS command injection vulnerability exists in XStream's StringInterpolationConverter class.
+  The vulnerability occurs in the resolveVariable() method when processing XML strings with the 
+  interpolate="true" attribute. When a variable uses the format ${script:<javascript_code>}, the code
+  is executed without validation through the Nashorn JavaScript engine's eval() method. This allows
+  attackers to execute arbitrary JavaScript code, which can invoke Java methods including 
+  Runtime.exec() to execute OS commands. An attacker can craft malicious XML containing 
+  ${script:java.lang.Runtime.getRuntime().exec("command")} to achieve remote code execution and 
+  complete system compromise. The vulnerability enables reading/writing files, exfiltrating data,
+  establishing reverse shells, and other malicious operations with no authentication required.
 
 locations:
 - path_from_root: xstream/src/java/com/thoughtworks/xstream/converters/extended/StringInterpolationConverter.java
-  function_name: processImplStartHook
+  function_name: resolveVariable
   startLine: 195
-  startColumn: 1
+  startColumn: 0
   endLine: 195
-  endColumn: 1
+  endColumn: 0

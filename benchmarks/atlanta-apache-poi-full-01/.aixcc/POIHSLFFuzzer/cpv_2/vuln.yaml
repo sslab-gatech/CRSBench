@@ -1,20 +1,27 @@
 id: cpv_2
 
-name: 'MOCK: cpv_2 vulnerability in POIHSLFFuzzer'
+name: Uncontrolled Memory Allocation in Apache POI HSLF Picture Reading
 
-cwes: []
+cwes:
+- CWE-770
+- CWE-400
+- CWE-789
 
-description: 'MOCK: Vulnerability cpv_2 detected in harness POIHSLFFuzzer. This vulnerability is detected by address sanitizer.
-  The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  This vulnerability is an uncontrolled memory allocation issue in Apache POI's HSLF (PowerPoint) 
+  implementation. The readPictures() method in HSLFSlideShowImpl reads picture data from PowerPoint 
+  files without validating the size of the data being read. At line 414, the code calls 
+  IOUtils.toByteArray(is, entry.getSize()) using the two-parameter version which defaults to 
+  Integer.MAX_VALUE as the maximum length. A malicious PowerPoint file can specify an extremely 
+  large size for the "Pictures" entry, causing the code to attempt to allocate a massive byte array, 
+  leading to OutOfMemoryError and denial of service. An attacker can craft a malicious PowerPoint 
+  file (.ppt) with an inflated picture size value to trigger memory exhaustion, causing application 
+  crashes, service disruption, and potential resource exhaustion in multi-tenant environments.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: byteArray
-  startLine: 0
+- path_from_root: poi-scratchpad/src/main/java/org/apache/poi/hslf/usermodel/HSLFSlideShowImpl.java
+  function_name: readPictures
+  startLine: 414
   startColumn: 0
-  endLine: 0
+  endLine: 414
   endColumn: 0

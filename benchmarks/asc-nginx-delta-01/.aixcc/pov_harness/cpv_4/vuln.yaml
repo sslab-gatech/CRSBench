@@ -1,20 +1,33 @@
 id: cpv_4
 
-name: 'MOCK: cpv_4 vulnerability in pov_harness'
+name: Heap Buffer Overflow in ngx_http_set_browser_cookie via Oversized Safari Cookie
 
-cwes: []
+cwes:
+- CWE-122
+- CWE-787
+- CWE-131
 
-description: 'MOCK: Vulnerability cpv_4 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-based buffer overflow vulnerability exists in the ngx_http_set_browser_cookie 
+  function of nginx's HTTP core module. The vulnerability occurs when processing HTTP 
+  requests from Safari browsers that include a Cookie header. The function allocates a 
+  fixed-size buffer of approximately 43 bytes (NGX_OFF_T_LEN + NGX_TIME_T_LEN + 3) but 
+  fails to account for the length of the cookie value when copying it via ngx_sprintf. 
+  When a Safari user-agent sends a cookie value longer than the remaining buffer space, 
+  the sprintf operation writes beyond the allocated heap buffer, causing memory corruption.
+  
+  The vulnerable code path is triggered when:
+  - The request contains a User-Agent header identifying as Safari
+  - The request includes a Cookie header with a value exceeding buffer capacity
+  - The ngx_sprintf call attempts to format the cookie data into the undersized buffer
+  
+  This can lead to denial of service through crashes and potentially arbitrary code 
+  execution depending on heap layout and the ability to corrupt adjacent heap structures.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: ngx_sprintf_str
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+- path_from_root: src/http/ngx_http_core_module.c
+  function_name: ngx_http_set_browser_cookie
+  startLine: 5289
+  startColumn: 37
+  endLine: 5289
+  endColumn: 37

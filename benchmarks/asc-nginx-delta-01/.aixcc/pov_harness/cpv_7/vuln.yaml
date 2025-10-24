@@ -1,20 +1,40 @@
 id: cpv_7
 
-name: 'MOCK: cpv_7 vulnerability in pov_harness'
+name: Nginx Host Specs Use-After-Free Vulnerability
 
-cwes: []
+cwes:
+- CWE-416
+- CWE-672
+- CWE-825
 
-description: 'MOCK: Vulnerability cpv_7 detected in harness pov_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-use-after-free''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-use-after-free vulnerability exists in nginx's custom host specifications
+  feature. The vulnerability occurs when the remote_admin configuration is disabled.
+  In this case, the ngx_init_cycle() function in src/core/ngx_cycle.c allocates the
+  host_specs structure and its nested components (host_cpu, host_mem, host_os), but
+  then prematurely frees the host_specs structure at line 459 when remote_admin is
+  false. However, the pointer remains accessible in cycle->host_specs.
+  
+  Later, when an HTTP request accesses the $host_specs variable or /host_specs
+  endpoint, the ngx_http_get_host_specs() function attempts to dereference
+  r->cycle->host_specs->host_cpu->data at line 2870 in src/http/ngx_http_variables.c.
+  This accesses the previously freed memory region, resulting in a heap-use-after-free
+  read operation.
+  
+  The vulnerability can lead to information disclosure through leaked heap data,
+  denial of service through crashes, and potentially arbitrary code execution if an
+  attacker can control the freed memory region through heap manipulation techniques.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: src/http/ngx_http_variables.c
   function_name: ngx_http_get_host_specs
-  startLine: 0
+  startLine: 2870
+  startColumn: 64
+  endLine: 2870
+  endColumn: 64
+- path_from_root: src/core/ngx_cycle.c
+  function_name: ngx_init_cycle
+  startLine: 459
   startColumn: 0
-  endLine: 0
+  endLine: 459
   endColumn: 0

@@ -1,22 +1,32 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+name: Apache Kylin Cube Migration OS Command Injection
 
 cwes:
 - CWE-78
+- CWE-77
+- CWE-88
 
-description: 'FuzzerSecurityIssueCritical: OS Command Injection (TBD)'
+description: |
+  OS command injection vulnerability in Apache Kylin's cube migration functionality.
+  The vulnerability exists in the migrateCube method of CubeService class, where
+  user-controlled input from the HTTP request path (project parameter) is directly
+  incorporated into a shell command without proper sanitization or validation.
+  
+  The code uses String.format() to construct a shell command that includes the
+  projectName parameter, which flows from the REST endpoint POST /{cube}/{project}/migrate.
+  This constructed command is then executed via /bin/bash -c (or cmd.exe /C on Windows),
+  allowing shell metacharacter interpretation and arbitrary command execution.
+  
+  An attacker can inject malicious shell commands by including special characters
+  (such as backticks, semicolons, pipes, etc.) in the project parameter, leading to
+  remote code execution with the privileges of the Kylin process. This can result in
+  full system compromise, data exfiltration, and lateral movement within the network.
 
 locations:
-- path_from_root: core-common/src/main/java/org/apache/kylin/common/util/CliCommandExecutor.java
-  function_name: fail
-  startLine: 124
-  startColumn: 1
-  endLine: 124
-  endColumn: 1
-- path_from_root: core-common/src/main/java/org/apache/kylin/common/util/CliCommandExecutor.java
-  function_name: fail
-  startLine: 126
-  startColumn: 1
-  endLine: 126
-  endColumn: 1
+- path_from_root: server-base/src/main/java/org/apache/kylin/rest/service/CubeService.java
+  function_name: migrateCube
+  startLine: 884
+  startColumn: 0
+  endLine: 884
+  endColumn: 0

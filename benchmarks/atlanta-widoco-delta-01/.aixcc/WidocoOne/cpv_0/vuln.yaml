@@ -1,16 +1,28 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+name: Zip Slip Path Traversal in unZipIt Method
 
 cwes:
 - CWE-22
+- CWE-23
 
-description: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+description: |
+  A Zip Slip vulnerability exists in the unZipIt method in WidocoUtils.java.
+  The method directly uses ZIP entry names from untrusted archives without
+  validating that the resulting file paths remain within the intended output
+  directory. At line 256, the code constructs file paths by concatenating
+  the output folder with the ZIP entry name, allowing an attacker to craft
+  malicious ZIP files with entries containing path traversal sequences (e.g.,
+  "../") to write files to arbitrary locations on the filesystem. This can
+  lead to arbitrary file write, code execution by overwriting executable or
+  configuration files, data corruption, and potential privilege escalation if
+  the application runs with elevated permissions. The vulnerability is triggered
+  when FileOutputStream is created at line 269 with the unvalidated path.
 
 locations:
 - path_from_root: src/main/java/widoco/WidocoUtils.java
-  function_name: check
-  startLine: 269
-  startColumn: 1
+  function_name: unZipIt
+  startLine: 256
+  startColumn: 0
   endLine: 269
-  endColumn: 1
+  endColumn: 0

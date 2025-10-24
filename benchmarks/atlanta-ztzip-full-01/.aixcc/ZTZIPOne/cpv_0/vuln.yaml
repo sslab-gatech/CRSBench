@@ -1,16 +1,35 @@
 id: cpv_0
 
-name: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+name: Zip Slip Path Traversal in zt-zip Library
 
 cwes:
 - CWE-22
+- CWE-23
+- CWE-59
 
-description: 'FuzzerSecurityIssueCritical: File path traversal (TBD)'
+description: |
+  A Zip Slip vulnerability exists in the zt-zip library's ZipUtil class, specifically in the Unpacker and BackslashUnpacker inner classes. The vulnerability occurs when extracting ZIP archives, as the code constructs file paths directly from ZIP entry names without validating that the resulting paths remain within the intended output directory.
+  
+  An attacker can craft a malicious ZIP archive containing entries with path traversal sequences (e.g., "../../evil.txt"). When ZipUtil.unpack() is called, the Unpacker.process() method retrieves the entry name and creates a File object using "new File(outputDir, name)" without validation. This allows files to be written outside the target extraction directory via FileUtils.copy(), enabling arbitrary file writes on the filesystem.
+  
+  The vulnerability can lead to remote code execution (by overwriting executable files), system compromise (by overwriting critical system files), or denial of service (by corrupting important files). The crash log shows a detected attempt to write to a path containing "../../jazzer-traversal", demonstrating the path traversal escape.
 
 locations:
-- path_from_root: src/main/java/org/zeroturnaround/zip/commons/FileUtils.java
-  function_name: check
-  startLine: 54
-  startColumn: 1
-  endLine: 54
-  endColumn: 1
+- path_from_root: src/main/java/org/zeroturnaround/zip/ZipUtil.java
+  function_name: Unpacker.process
+  startLine: 1152
+  startColumn: 0
+  endLine: 1163
+  endColumn: 0
+- path_from_root: src/main/java/org/zeroturnaround/zip/ZipUtil.java
+  function_name: BackslashUnpacker.process
+  startLine: 1221
+  startColumn: 0
+  endLine: 1221
+  endColumn: 0
+- path_from_root: src/main/java/org/zeroturnaround/zip/ZipUtil.java
+  function_name: BackslashUnpacker.process
+  startLine: 1226
+  startColumn: 0
+  endLine: 1226
+  endColumn: 0
