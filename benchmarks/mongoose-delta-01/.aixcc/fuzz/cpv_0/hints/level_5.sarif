@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-121",
+              "name": "CWE-121: Stack-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Stack-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Stack-based Buffer Overflow"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-121",
+          "level": "warning",
+          "message": {
+            "text": "CWE-121 - Stack-based Buffer Overflow\nVulnerability: mg_vxprintf with a new %e stack-based buffer overflow\nDescription: Support for the %e and %E format was added to the mg_vxprintf() function. This new code calls mg_dtoa(tmp, 10, mantissa, 8, c == 'e'), however the second paramater should be the sizeof(tmp) to ensure that there is no buffer overflow. The other code added to support %e is not intended to have any vulnerabilities, but vulns happen?"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/fmt.c"
+                },
+                "region": {
+                  "startLine": 322,
+                  "endLine": 322,
+                  "startColumn": 28,
+                  "endColumn": 30
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "mg_pfn_iobuf_private",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

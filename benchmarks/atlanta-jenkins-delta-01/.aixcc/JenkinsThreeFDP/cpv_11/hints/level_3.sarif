@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-777",
+              "name": "CWE-777: Regular Expression without Anchors",
+              "shortDescription": {
+                "text": "Regular Expression without Anchors"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Regular Expression without Anchors"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-777",
+          "level": "warning",
+          "message": {
+            "text": "CWE-777 - Regular Expression without Anchors in function(s): hookInternal"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AccessFilter.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "hookInternal",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

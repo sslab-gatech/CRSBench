@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-121",
+              "name": "CWE-121: Stack-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Stack-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Stack-based Buffer Overflow"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-121",
+          "level": "warning",
+          "message": {
+            "text": "CWE-121 - Stack-based Buffer Overflow at: epan/dissectors/packet-icmp.c:926-932"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "epan/dissectors/packet-icmp.c"
+                },
+                "region": {
+                  "startLine": 926,
+                  "endLine": 932,
+                  "startColumn": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "__asan_memcpy",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-400",
+              "name": "CWE-400: Uncontrolled Resource Consumption",
+              "shortDescription": {
+                "text": "Uncontrolled Resource Consumption"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Uncontrolled Resource Consumption"
+              }
+            },
+            {
+              "id": "CWE-770",
+              "name": "CWE-770: Allocation of Resources Without Limits or Throttling",
+              "shortDescription": {
+                "text": "Allocation of Resources Without Limits or Throttling"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Allocation of Resources Without Limits or Throttling"
+              }
+            },
+            {
+              "id": "CWE-1333",
+              "name": "CWE-1333: Inefficient Regular Expression Complexity",
+              "shortDescription": {
+                "text": "Inefficient Regular Expression Complexity"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Inefficient Regular Expression Complexity"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-400",
+          "level": "warning",
+          "message": {
+            "text": "CWE-400 - Uncontrolled Resource Consumption in function(s): match"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "match",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-770",
+          "level": "warning",
+          "message": {
+            "text": "CWE-770 - Allocation of Resources Without Limits or Throttling in function(s): match"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "match",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-1333",
+          "level": "warning",
+          "message": {
+            "text": "CWE-1333 - Inefficient Regular Expression Complexity in function(s): match"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "match",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

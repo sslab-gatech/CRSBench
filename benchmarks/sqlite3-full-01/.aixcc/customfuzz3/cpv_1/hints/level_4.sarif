@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-125",
+              "name": "CWE-125: Out-of-bounds Read",
+              "shortDescription": {
+                "text": "Out-of-bounds Read"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Read"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-125",
+          "level": "warning",
+          "message": {
+            "text": "CWE-125 - Out-of-bounds Read at: src/shell.c.in:3089-3121"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/shell.c.in"
+                },
+                "region": {
+                  "startLine": 3089,
+                  "endLine": 3121,
+                  "startColumn": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "shell_error_context",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

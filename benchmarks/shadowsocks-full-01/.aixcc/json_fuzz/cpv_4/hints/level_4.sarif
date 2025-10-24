@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-126",
+              "name": "CWE-126: Buffer Over-read",
+              "shortDescription": {
+                "text": "Buffer Over-read"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Buffer Over-read"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-126",
+          "level": "warning",
+          "message": {
+            "text": "CWE-126 - Buffer Over-read at: src/json.c:618-618"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/json.c"
+                },
+                "region": {
+                  "startLine": 618,
+                  "endLine": 618,
+                  "startColumn": 47,
+                  "endColumn": 50
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "json_parse_ex",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

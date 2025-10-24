@@ -1,0 +1,64 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write in function(s): fileToString"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "ext/lsm1/lsm_sorted.c"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "fileToString",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "ext/lsm1/lsm_vtab.c"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "fileToString",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

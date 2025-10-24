@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-89",
+              "name": "CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+              "shortDescription": {
+                "text": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-89",
+          "level": "warning",
+          "message": {
+            "text": "CWE-89 - Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')"
+          }
+        }
+      ]
+    }
+  ]
+}

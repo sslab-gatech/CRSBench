@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-121",
+              "name": "CWE-121: Stack-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Stack-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Stack-based Buffer Overflow"
+              }
+            },
+            {
+              "id": "CWE-122",
+              "name": "CWE-122: Heap-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Heap-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Heap-based Buffer Overflow"
+              }
+            },
+            {
+              "id": "CWE-680",
+              "name": "CWE-680: Integer Overflow to Buffer Overflow",
+              "shortDescription": {
+                "text": "Integer Overflow to Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Integer Overflow to Buffer Overflow"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-121",
+          "level": "warning",
+          "message": {
+            "text": "CWE-121 - Stack-based Buffer Overflow\nVulnerability: Can I be your AIM buddy?\nDescription: This bug is embedded inside of AOL's Instant Messenger (AIM) protocol, where data sent is trusted to be a correct offset inside of a aim_snac packet, causing a buffer overflow."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "epan/dissectors/packet-aim.c"
+                },
+                "region": {
+                  "startLine": 582,
+                  "endLine": 594,
+                  "startColumn": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "raise",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-122",
+          "level": "warning",
+          "message": {
+            "text": "CWE-122 - Heap-based Buffer Overflow\nVulnerability: Can I be your AIM buddy?\nDescription: This bug is embedded inside of AOL's Instant Messenger (AIM) protocol, where data sent is trusted to be a correct offset inside of a aim_snac packet, causing a buffer overflow."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "epan/dissectors/packet-aim.c"
+                },
+                "region": {
+                  "startLine": 582,
+                  "endLine": 594,
+                  "startColumn": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "raise",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-680",
+          "level": "warning",
+          "message": {
+            "text": "CWE-680 - Integer Overflow to Buffer Overflow\nVulnerability: Can I be your AIM buddy?\nDescription: This bug is embedded inside of AOL's Instant Messenger (AIM) protocol, where data sent is trusted to be a correct offset inside of a aim_snac packet, causing a buffer overflow."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "epan/dissectors/packet-aim.c"
+                },
+                "region": {
+                  "startLine": 582,
+                  "endLine": 594,
+                  "startColumn": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "raise",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

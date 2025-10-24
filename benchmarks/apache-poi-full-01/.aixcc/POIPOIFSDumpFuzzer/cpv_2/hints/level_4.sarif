@@ -1,0 +1,95 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-35",
+              "name": "CWE-35: Path Traversal: '.../...//'",
+              "shortDescription": {
+                "text": "Path Traversal: '.../...//'"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Path Traversal: '.../...//'"
+              }
+            },
+            {
+              "id": "CWE-20",
+              "name": "CWE-20: Improper Input Validation",
+              "shortDescription": {
+                "text": "Improper Input Validation"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Input Validation"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-35",
+          "level": "warning",
+          "message": {
+            "text": "CWE-35 - Path Traversal: '.../...//' at: poi/src/main/java/org/apache/poi/poifs/dev/POIFSDump.java:108-110"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "poi/src/main/java/org/apache/poi/poifs/dev/POIFSDump.java"
+                },
+                "region": {
+                  "startLine": 108,
+                  "endLine": 110,
+                  "startColumn": 17,
+                  "endColumn": 18
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "check",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-20",
+          "level": "warning",
+          "message": {
+            "text": "CWE-20 - Improper Input Validation at: poi/src/main/java/org/apache/poi/poifs/dev/POIFSDump.java:108-110"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "poi/src/main/java/org/apache/poi/poifs/dev/POIFSDump.java"
+                },
+                "region": {
+                  "startLine": 108,
+                  "endLine": 110,
+                  "startColumn": 17,
+                  "endColumn": 18
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "check",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

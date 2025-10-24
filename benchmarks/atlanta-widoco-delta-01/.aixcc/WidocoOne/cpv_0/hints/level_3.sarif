@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-22",
+              "name": "CWE-22: Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+              "shortDescription": {
+                "text": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-22",
+          "level": "warning",
+          "message": {
+            "text": "CWE-22 - Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') in function(s): check"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main/java/widoco/WidocoUtils.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "check",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

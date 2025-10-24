@@ -1,0 +1,95 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-834",
+              "name": "CWE-834: Excessive Iteration",
+              "shortDescription": {
+                "text": "Excessive Iteration"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Excessive Iteration"
+              }
+            },
+            {
+              "id": "CWE-407",
+              "name": "CWE-407: Inefficient Algorithmic Complexity",
+              "shortDescription": {
+                "text": "Inefficient Algorithmic Complexity"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Inefficient Algorithmic Complexity"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-834",
+          "level": "warning",
+          "message": {
+            "text": "CWE-834 - Excessive Iteration\nVulnerability: Brute Fractions\nDescription: Implementation of an inefficient float to fraction calculator with no bounds checks can lead to excessively long computation."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-text-module/src/main/java/org/apache/tika/parser/csv/CellFormatter.java"
+                },
+                "region": {
+                  "startLine": 67,
+                  "endLine": 75,
+                  "startColumn": 9,
+                  "endColumn": 10
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "park",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-407",
+          "level": "warning",
+          "message": {
+            "text": "CWE-407 - Inefficient Algorithmic Complexity\nVulnerability: Brute Fractions\nDescription: Implementation of an inefficient float to fraction calculator with no bounds checks can lead to excessively long computation."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-text-module/src/main/java/org/apache/tika/parser/csv/CellFormatter.java"
+                },
+                "region": {
+                  "startLine": 67,
+                  "endLine": 75,
+                  "startColumn": 9,
+                  "endColumn": 10
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "park",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

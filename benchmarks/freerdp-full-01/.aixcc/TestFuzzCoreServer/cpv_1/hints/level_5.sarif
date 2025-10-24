@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-94",
+              "name": "CWE-94: Improper Control of Generation of Code ('Code Injection')",
+              "shortDescription": {
+                "text": "Improper Control of Generation of Code ('Code Injection')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Control of Generation of Code ('Code Injection')"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-94",
+          "level": "warning",
+          "message": {
+            "text": "CWE-94 - Improper Control of Generation of Code ('Code Injection')\nVulnerability: FreeRDP Obfuscated Arbitrary Code Execution\nDescription: This vulnerability is an obfuscated backdoor, hidden within a convoluted & complex application tag message, when triggered allows arbitrary code execution; this is intended to be hard for an CRS to understand what is happening within it. This vulnerability should be difficult to build an affective payload to demonstrate the vulnerability, but relatively easy to patch."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "libfreerdp/core/mcs.c"
+                },
+                "region": {
+                  "startLine": 917,
+                  "endLine": 920,
+                  "startColumn": 5,
+                  "endColumn": 6
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-23",
+              "name": "CWE-23: Relative Path Traversal",
+              "shortDescription": {
+                "text": "Relative Path Traversal"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Relative Path Traversal"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-23",
+          "level": "warning",
+          "message": {
+            "text": "CWE-23 - Relative Path Traversal\nVulnerability: Untar-traversal\nDescription: TikaUntar fails to prevent zip slip/path traversal"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tika-app/src/main/java/org/apache/tika/cli/TikaUntar.java"
+                },
+                "region": {
+                  "startLine": 43,
+                  "endLine": 47,
+                  "startColumn": 21,
+                  "endColumn": 62
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "check",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

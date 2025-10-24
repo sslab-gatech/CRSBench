@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-918",
+              "name": "CWE-918: Server-Side Request Forgery (SSRF)",
+              "shortDescription": {
+                "text": "Server-Side Request Forgery (SSRF)"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Server-Side Request Forgery (SSRF)"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-918",
+          "level": "warning",
+          "message": {
+            "text": "CWE-918 - Server-Side Request Forgery (SSRF) in function(s): checkSsrf"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "batik-util/src/main/java/org/apache/batik/util/ParsedURLData.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "checkSsrf",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

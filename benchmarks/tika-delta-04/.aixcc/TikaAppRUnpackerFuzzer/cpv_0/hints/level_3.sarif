@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-23",
+              "name": "CWE-23: Relative Path Traversal",
+              "shortDescription": {
+                "text": "Relative Path Traversal"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Relative Path Traversal"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-23",
+          "level": "warning",
+          "message": {
+            "text": "CWE-23 - Relative Path Traversal in function(s): check"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tika-core/src/main/java/org/apache/tika/extractor/AbstractEmbeddedDocumentBytesHandler.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "check",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            },
+            {
+              "id": "CWE-121",
+              "name": "CWE-121: Stack-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Stack-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Stack-based Buffer Overflow"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write at: ext/misc/rot13.c:57-58"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "ext/misc/rot13.c"
+                },
+                "region": {
+                  "startLine": 57,
+                  "endLine": 58,
+                  "startColumn": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "rot13func",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-121",
+          "level": "warning",
+          "message": {
+            "text": "CWE-121 - Stack-based Buffer Overflow at: ext/misc/rot13.c:57-58"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "ext/misc/rot13.c"
+                },
+                "region": {
+                  "startLine": 57,
+                  "endLine": 58,
+                  "startColumn": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "rot13func",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

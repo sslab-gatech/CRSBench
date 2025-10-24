@@ -1,0 +1,83 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-835",
+              "name": "CWE-835: Loop with Unreachable Exit Condition ('Infinite Loop')",
+              "shortDescription": {
+                "text": "Loop with Unreachable Exit Condition ('Infinite Loop')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Loop with Unreachable Exit Condition ('Infinite Loop')"
+              }
+            },
+            {
+              "id": "CWE-834",
+              "name": "CWE-834: Excessive Iteration",
+              "shortDescription": {
+                "text": "Excessive Iteration"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Excessive Iteration"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-835",
+          "level": "warning",
+          "message": {
+            "text": "CWE-835 - Loop with Unreachable Exit Condition ('Infinite Loop') in function(s): dumpAllStackTraces"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zookeeper-server/src/main/java/org/apache/zookeeper/server/util/MessageTracker.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "dumpAllStackTraces",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-834",
+          "level": "warning",
+          "message": {
+            "text": "CWE-834 - Excessive Iteration in function(s): dumpAllStackTraces"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zookeeper-server/src/main/java/org/apache/zookeeper/server/util/MessageTracker.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "dumpAllStackTraces",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

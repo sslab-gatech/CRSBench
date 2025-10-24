@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-35",
+              "name": "CWE-35: Path Traversal: '.../...//'",
+              "shortDescription": {
+                "text": "Path Traversal: '.../...//'"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Path Traversal: '.../...//'"
+              }
+            },
+            {
+              "id": "CWE-22",
+              "name": "CWE-22: Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+              "shortDescription": {
+                "text": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')"
+              }
+            },
+            {
+              "id": "CWE-29",
+              "name": "CWE-29: Path Traversal: '\\..\\filename'",
+              "shortDescription": {
+                "text": "Path Traversal: '\\..\\filename'"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Path Traversal: '\\..\\filename'"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-35",
+          "level": "warning",
+          "message": {
+            "text": "CWE-35 - Path Traversal: '.../...//'\nVulnerability: zip++ slip\nDescription: Failure to properly handle archive name contents allows for zip slip / path traversal."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main/java/org/apache/commons/compress/archivers/ArchiveEntry.java"
+                },
+                "region": {
+                  "startLine": 77,
+                  "endLine": 77,
+                  "startColumn": 9,
+                  "endColumn": 58
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "check",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-22",
+          "level": "warning",
+          "message": {
+            "text": "CWE-22 - Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')\nVulnerability: zip++ slip\nDescription: Failure to properly handle archive name contents allows for zip slip / path traversal."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main/java/org/apache/commons/compress/archivers/ArchiveEntry.java"
+                },
+                "region": {
+                  "startLine": 77,
+                  "endLine": 77,
+                  "startColumn": 9,
+                  "endColumn": 58
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "check",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-29",
+          "level": "warning",
+          "message": {
+            "text": "CWE-29 - Path Traversal: '\\..\\filename'\nVulnerability: zip++ slip\nDescription: Failure to properly handle archive name contents allows for zip slip / path traversal."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main/java/org/apache/commons/compress/archivers/ArchiveEntry.java"
+                },
+                "region": {
+                  "startLine": 77,
+                  "endLine": 77,
+                  "startColumn": 9,
+                  "endColumn": 58
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "check",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

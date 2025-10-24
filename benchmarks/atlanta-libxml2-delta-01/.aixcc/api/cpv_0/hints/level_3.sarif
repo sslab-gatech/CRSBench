@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "unknown-vulnerability",
+              "name": "Unknown Vulnerability",
+              "shortDescription": {
+                "text": "Unknown vulnerability detected"
+              },
+              "fullDescription": {
+                "text": "A vulnerability was detected but no CWE classification is available."
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "unknown-vulnerability",
+          "level": "warning",
+          "message": {
+            "text": "Unknown Vulnerability"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "path/to/vulnerable/file.c"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "xmlSearchNsByHref",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-789",
+              "name": "CWE-789: Memory Allocation with Excessive Size Value",
+              "shortDescription": {
+                "text": "Memory Allocation with Excessive Size Value"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Memory Allocation with Excessive Size Value"
+              }
+            },
+            {
+              "id": "CWE-400",
+              "name": "CWE-400: Uncontrolled Resource Consumption",
+              "shortDescription": {
+                "text": "Uncontrolled Resource Consumption"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Uncontrolled Resource Consumption"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-789",
+          "level": "warning",
+          "message": {
+            "text": "CWE-789 - Memory Allocation with Excessive Size Value in function(s): copyOf"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "copyOf",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-400",
+          "level": "warning",
+          "message": {
+            "text": "CWE-400 - Uncontrolled Resource Consumption in function(s): copyOf"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "copyOf",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

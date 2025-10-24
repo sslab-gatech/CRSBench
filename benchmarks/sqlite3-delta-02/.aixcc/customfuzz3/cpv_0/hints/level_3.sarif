@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-476",
+              "name": "CWE-476: NULL Pointer Dereference",
+              "shortDescription": {
+                "text": "NULL Pointer Dereference"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: NULL Pointer Dereference"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-476",
+          "level": "warning",
+          "message": {
+            "text": "CWE-476 - NULL Pointer Dereference in function(s): valueToText"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "ext/lsm1/lsm_vtab.c"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "valueToText",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

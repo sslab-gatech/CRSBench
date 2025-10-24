@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-457",
+              "name": "CWE-457: Use of Uninitialized Variable",
+              "shortDescription": {
+                "text": "Use of Uninitialized Variable"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Use of Uninitialized Variable"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-457",
+          "level": "warning",
+          "message": {
+            "text": "CWE-457 - Use of Uninitialized Variable at: epan/dissectors/packet-zbee-zdp-management.c:242-246"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "epan/dissectors/packet-zbee-zdp-management.c"
+                },
+                "region": {
+                  "startLine": 242,
+                  "endLine": 246,
+                  "startColumn": 17,
+                  "endColumn": 48
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-611",
+              "name": "CWE-611: Improper Restriction of XML External Entity Reference",
+              "shortDescription": {
+                "text": "Improper Restriction of XML External Entity Reference"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Restriction of XML External Entity Reference"
+              }
+            },
+            {
+              "id": "CWE-918",
+              "name": "CWE-918: Server-Side Request Forgery (SSRF)",
+              "shortDescription": {
+                "text": "Server-Side Request Forgery (SSRF)"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Server-Side Request Forgery (SSRF)"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-611",
+          "level": "warning",
+          "message": {
+            "text": "CWE-611 - Improper Restriction of XML External Entity Reference\nVulnerability: SSRF in xmp\nDescription: A crafted XMP file within a PDF could trigger an external entity  vulnerability."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java"
+                },
+                "region": {
+                  "startLine": 81,
+                  "endLine": 82,
+                  "startColumn": 13,
+                  "endColumn": 13
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "checkSsrf",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-918",
+          "level": "warning",
+          "message": {
+            "text": "CWE-918 - Server-Side Request Forgery (SSRF)\nVulnerability: SSRF in xmp\nDescription: A crafted XMP file within a PDF could trigger an external entity  vulnerability."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java"
+                },
+                "region": {
+                  "startLine": 81,
+                  "endLine": 82,
+                  "startColumn": 13,
+                  "endColumn": 13
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "checkSsrf",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

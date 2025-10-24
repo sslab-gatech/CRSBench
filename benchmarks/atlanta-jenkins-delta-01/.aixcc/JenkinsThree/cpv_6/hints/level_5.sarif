@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-502",
+              "name": "CWE-502: Deserialization of Untrusted Data",
+              "shortDescription": {
+                "text": "Deserialization of Untrusted Data"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Deserialization of Untrusted Data"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-502",
+          "level": "warning",
+          "message": {
+            "text": "CWE-502 - Deserialization of Untrusted Data\nVulnerability: FuzzerSecurityIssueCritical: Remote JNDI Lookup (TBD)\nDescription: FuzzerSecurityIssueCritical: Remote JNDI Lookup (TBD)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java"
+                },
+                "region": {
+                  "startLine": 58,
+                  "endLine": 58,
+                  "startColumn": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "lookupHook",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

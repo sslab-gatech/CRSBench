@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-122",
+              "name": "CWE-122: Heap-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Heap-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Heap-based Buffer Overflow"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-122",
+          "level": "warning",
+          "message": {
+            "text": "CWE-122 - Heap-based Buffer Overflow at: xmlIO.c:2168-2177"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "xmlIO.c"
+                },
+                "region": {
+                  "startLine": 2168,
+                  "endLine": 2177,
+                  "startColumn": 17,
+                  "endColumn": 4
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "UTF32ToUTF8",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

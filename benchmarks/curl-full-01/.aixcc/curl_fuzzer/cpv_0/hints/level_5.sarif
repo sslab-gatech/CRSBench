@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write\nVulnerability: FILE out-of-bounds write\nDescription: Curl provides a feature that outputs meta-data about a file using HTTP-like headers while suppressing the body of the file in the output. Before outputting them, each header is passed to a function that formats the header and writes the resulting string to a buffer. The bug consists in adding a new header that is too large for the buffer and passing the size of the header, not the buffer, to the formatting function thus causing an out-of-bounds write."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "lib/file.c"
+                },
+                "region": {
+                  "startLine": 493,
+                  "endLine": 498,
+                  "startColumn": 5,
+                  "endColumn": 6
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "addbyter",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

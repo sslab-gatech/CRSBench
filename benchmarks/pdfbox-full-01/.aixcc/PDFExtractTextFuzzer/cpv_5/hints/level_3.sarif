@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-789",
+              "name": "CWE-789: Memory Allocation with Excessive Size Value",
+              "shortDescription": {
+                "text": "Memory Allocation with Excessive Size Value"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Memory Allocation with Excessive Size Value"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-789",
+          "level": "warning",
+          "message": {
+            "text": "CWE-789 - Memory Allocation with Excessive Size Value in function(s): parsePfb"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "parsePfb",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

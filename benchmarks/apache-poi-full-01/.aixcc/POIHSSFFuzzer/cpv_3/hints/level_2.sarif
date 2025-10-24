@@ -1,0 +1,53 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-695",
+              "name": "CWE-695: Use of Low-Level Functionality",
+              "shortDescription": {
+                "text": "Use of Low-Level Functionality"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Use of Low-Level Functionality"
+              }
+            },
+            {
+              "id": "CWE-20",
+              "name": "CWE-20: Improper Input Validation",
+              "shortDescription": {
+                "text": "Improper Input Validation"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Input Validation"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-695",
+          "level": "warning",
+          "message": {
+            "text": "CWE-695 - Use of Low-Level Functionality"
+          }
+        },
+        {
+          "ruleId": "CWE-20",
+          "level": "warning",
+          "message": {
+            "text": "CWE-20 - Improper Input Validation"
+          }
+        }
+      ]
+    }
+  ]
+}

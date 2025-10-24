@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-416",
+              "name": "CWE-416: Use After Free",
+              "shortDescription": {
+                "text": "Use After Free"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Use After Free"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-416",
+          "level": "warning",
+          "message": {
+            "text": "CWE-416 - Use After Free in function(s): free"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tree.c"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "free",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

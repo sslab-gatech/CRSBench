@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-121",
+              "name": "CWE-121: Stack-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Stack-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Stack-based Buffer Overflow"
+              }
+            },
+            {
+              "id": "CWE-193",
+              "name": "CWE-193: Off-by-one Error",
+              "shortDescription": {
+                "text": "Off-by-one Error"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Off-by-one Error"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-121",
+          "level": "warning",
+          "message": {
+            "text": "CWE-121 - Stack-based Buffer Overflow at: src/json.c:130-130; src/json.c:167-176"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/json.c"
+                },
+                "region": {
+                  "startLine": 130,
+                  "endLine": 130,
+                  "startColumn": 25,
+                  "endColumn": 42
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "mg_json_get",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/json.c"
+                },
+                "region": {
+                  "startLine": 167,
+                  "endLine": 176,
+                  "startColumn": 23,
+                  "endColumn": 42
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "mg_json_get",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-193",
+          "level": "warning",
+          "message": {
+            "text": "CWE-193 - Off-by-one Error at: src/json.c:130-130; src/json.c:167-176"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/json.c"
+                },
+                "region": {
+                  "startLine": 130,
+                  "endLine": 130,
+                  "startColumn": 25,
+                  "endColumn": 42
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "mg_json_get",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/json.c"
+                },
+                "region": {
+                  "startLine": 167,
+                  "endLine": 176,
+                  "startColumn": 23,
+                  "endColumn": 42
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "mg_json_get",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

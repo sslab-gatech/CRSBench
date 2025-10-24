@@ -1,0 +1,194 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-502",
+              "name": "CWE-502: Deserialization of Untrusted Data",
+              "shortDescription": {
+                "text": "Deserialization of Untrusted Data"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Deserialization of Untrusted Data"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-502",
+          "level": "warning",
+          "message": {
+            "text": "CWE-502 - Deserialization of Untrusted Data in function(s): reportFinding"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "activemq-client/src/main/java/org/apache/activemq/openwire/v1/BaseDataStreamMarshaller.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "reportFinding",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v2/BaseDataStreamMarshaller.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "reportFinding",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v3/BaseDataStreamMarshaller.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "reportFinding",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "reportFinding",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v5/BaseDataStreamMarshaller.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "reportFinding",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v6/BaseDataStreamMarshaller.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "reportFinding",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "reportFinding",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "reportFinding",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "reportFinding",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "activemq-client/src/main/java/org/apache/activemq/openwire/v10/BaseDataStreamMarshaller.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "reportFinding",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "reportFinding",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "reportFinding",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

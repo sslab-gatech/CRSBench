@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-134",
+              "name": "CWE-134: Use of Externally-Controlled Format String",
+              "shortDescription": {
+                "text": "Use of Externally-Controlled Format String"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Use of Externally-Controlled Format String"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-134",
+          "level": "warning",
+          "message": {
+            "text": "CWE-134 - Use of Externally-Controlled Format String at: epan/dissectors/packet-bat.c:705-705"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "epan/dissectors/packet-bat.c"
+                },
+                "region": {
+                  "startLine": 705,
+                  "endLine": 705,
+                  "startColumn": 9,
+                  "endColumn": 42
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "QuickCheckForUnpoisonedRegion",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

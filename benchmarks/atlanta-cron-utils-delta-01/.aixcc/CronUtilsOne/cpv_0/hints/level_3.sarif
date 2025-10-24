@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-78",
+              "name": "CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+              "shortDescription": {
+                "text": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-78",
+          "level": "warning",
+          "message": {
+            "text": "CWE-78 - Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') in function(s): processImplStartHook"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "fuzz/cronutils-harness-one/src/main/java/com/aixcc/cronutils/harnesses/one/CronUtilsOne.java"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "processImplStartHook",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-89",
+              "name": "CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+              "shortDescription": {
+                "text": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-89",
+          "level": "warning",
+          "message": {
+            "text": "CWE-89 - Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') at: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java:74-74"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java"
+                },
+                "region": {
+                  "startLine": 74,
+                  "endLine": 74,
+                  "startColumn": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "checkSqlExecute",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

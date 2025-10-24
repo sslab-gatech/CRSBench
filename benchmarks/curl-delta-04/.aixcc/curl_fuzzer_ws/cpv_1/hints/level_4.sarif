@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-476",
+              "name": "CWE-476: NULL Pointer Dereference",
+              "shortDescription": {
+                "text": "NULL Pointer Dereference"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: NULL Pointer Dereference"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-476",
+          "level": "warning",
+          "message": {
+            "text": "CWE-476 - NULL Pointer Dereference at: lib/extremelygoodprtcl.c:305-307"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "lib/extremelygoodprtcl.c"
+                },
+                "region": {
+                  "startLine": 305,
+                  "endLine": 307,
+                  "startColumn": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "extremelygoodprtcl_sm",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
