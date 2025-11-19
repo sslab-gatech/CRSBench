@@ -1,20 +1,32 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in signals-harness'
+name: Off-by-One Heap Buffer Overflow in buffer_write Function
 
-cwes: []
+cwes:
+- CWE-193
+- CWE-122
+- CWE-787
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness signals-harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A classic off-by-one heap buffer overflow vulnerability exists in the buffer_write function
+  in utils.c. The function uses an incorrect boundary check (index > buf->size) that allows
+  writing at index N in a buffer of size N, where valid indices should be 0 through N-1.
+  
+  The vulnerability is triggered when a 300-byte buffer is created and buffer_write is called
+  with index 300 (equal to the buffer size). The boundary check fails to reject this value,
+  allowing a write one byte past the end of the allocated heap buffer. This can lead to heap
+  metadata corruption, adjacent object corruption, potential arbitrary code execution, or
+  denial of service through crash.
+  
+  The vulnerability is reachable in signals-harness.c when input values satisfy specific
+  conditions (a * b == 0x1337 * 0x1338 and a + b == 0x1337 + 0x1338) and input.c is set
+  to the buffer size. The fix changes the boundary check to index >= buf->size to correctly
+  enforce zero-based array indexing constraints.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: cp-user-stress-test-src/utils.c
   function_name: buffer_write
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 21
+  startColumn: 9
+  endLine: 21
+  endColumn: 28

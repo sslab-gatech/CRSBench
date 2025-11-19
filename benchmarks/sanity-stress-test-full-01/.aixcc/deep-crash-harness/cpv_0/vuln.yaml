@@ -1,20 +1,33 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in deep-crash-harness'
+name: Heap Buffer Overflow via Off-by-One Error in buffer_write
 
-cwes: []
+cwes:
+- CWE-122
+- CWE-787
+- CWE-193
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness deep-crash-harness. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-based buffer overflow vulnerability exists in the buffer_write function
+  due to an off-by-one error in the bounds checking logic. The function uses
+  'index > buf->size' instead of 'index >= buf->size' to validate array access,
+  allowing an attacker to write one byte past the end of the allocated buffer.
+  
+  For a buffer of size N (valid indices 0 to N-1), the incorrect check allows
+  index == N to pass through, resulting in an out-of-bounds write at buf->buf[N].
+  This can corrupt heap metadata or adjacent heap objects, potentially leading to
+  arbitrary code execution or denial of service.
+  
+  The vulnerability is triggered through user-controlled input that satisfies
+  specific arithmetic constraints and provides an index value equal to the buffer
+  size (300 in the POV). After 1000 levels of deep recursion, the buffer_write
+  function is called with index=300 on a buffer of size 300, causing a heap
+  buffer overflow detected by AddressSanitizer.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: utils.c
   function_name: buffer_write
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 21
+  startColumn: 9
+  endLine: 21
+  endColumn: 28

@@ -1,20 +1,30 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in timeout-harness'
+name: Off-by-one Heap Buffer Overflow in buffer_write
 
-cwes: []
+cwes:
+- CWE-193
+- CWE-122
+- CWE-787
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness timeout-harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A classic off-by-one heap buffer overflow vulnerability exists in the buffer_write 
+  function in utils.c. The vulnerability is caused by an incorrect bounds check that 
+  uses '>' instead of '>=' when validating the index parameter. This allows an attacker 
+  to write one byte past the end of the allocated heap buffer when the index equals 
+  the buffer size. Since arrays are zero-indexed, valid indices for a buffer of size n 
+  are 0 to n-1, but the flawed check permits writing at index n, which is out of bounds.
+  
+  When triggered, this can lead to heap corruption, potential arbitrary code execution 
+  in real-world scenarios, denial of service through program crashes, or corruption of 
+  adjacent heap data structures. The vulnerability is triggered when input->c is set to 
+  a value equal to the buffer size (300 in the test case), causing a write to buf->buf[300], 
+  which is one byte beyond the allocated 300-byte region.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: utils.c
   function_name: buffer_write
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 24
+  startColumn: 21
+  endLine: 24
+  endColumn: 21

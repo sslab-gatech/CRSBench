@@ -1,20 +1,34 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in signal_harness'
+name: Out-of-bounds write via unvalidated array index in func_a and func_b
 
-cwes: []
+cwes:
+- CWE-787
+- CWE-129
+- CWE-120
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness signal_harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: global-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A global buffer overflow vulnerability exists in both func_a() and func_b() functions
+  in mock_vp.c. The vulnerability occurs when user-controlled input data is used to derive
+  an array index without proper bounds validation. After verifying a magic value condition
+  (num * 0x1337 == 24201480), the code directly uses an attacker-controlled index to write
+  to the 10-byte global buffer g_buf without checking if the index is within valid bounds
+  (0-9). This allows an attacker to write arbitrary data outside the buffer boundaries,
+  potentially corrupting adjacent memory, causing crashes, or in sophisticated exploits,
+  achieving arbitrary code execution. The vulnerability is triggered by crafting input where
+  the first 4 bytes satisfy the magic condition and the next 4 bytes contain an out-of-bounds
+  index value (e.g., 11 or greater).
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: null
-  startLine: 0
+- path_from_root: mock_vp.c
+  function_name: func_a
+  startLine: 13
   startColumn: 0
-  endLine: 0
+  endLine: 13
+  endColumn: 0
+- path_from_root: mock_vp.c
+  function_name: func_b
+  startLine: 30
+  startColumn: 0
+  endLine: 30
   endColumn: 0

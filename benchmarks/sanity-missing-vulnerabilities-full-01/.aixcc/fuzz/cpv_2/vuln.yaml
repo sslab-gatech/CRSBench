@@ -1,20 +1,28 @@
 id: cpv_2
 
-name: 'MOCK: cpv_2 vulnerability in fuzz'
+name: Intra-object Buffer Overflow in set_username via Incorrect Buffer Size Calculation
 
-cwes: []
+cwes:
+- CWE-131
+- CWE-787
+- CWE-120
 
-description: 'MOCK: Vulnerability cpv_2 detected in harness fuzz. This vulnerability is detected by address sanitizer. The
-  error signature is: ''ERROR: AddressSanitizer: intra-object-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  An intra-object buffer overflow vulnerability exists in the set_username() function in user.c.
+  The vulnerability is caused by an incorrect buffer size calculation in UserSession::get_max_copy()
+  which returns the size from the username field to the end of the entire UserSession object,
+  rather than the actual 16-byte size of the username buffer. The method incorrectly calculates
+  sizeof(UserSession) - offsetof(UserSession, username), which includes subsequent fields (post,
+  privilege_level) and padding. When user-supplied data contains a username length greater than
+  16 bytes (e.g., 38 bytes), the unchecked memcpy operation writes beyond the username buffer
+  boundaries, corrupting adjacent object fields within the UserSession structure. This can lead
+  to memory corruption, privilege escalation by overwriting the privilege_level field, and
+  undefined behavior affecting session state integrity.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: __asan_memcpy
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+- path_from_root: user.c
+  function_name: set_username
+  startLine: 5
+  startColumn: 5
+  endLine: 5
+  endColumn: 5

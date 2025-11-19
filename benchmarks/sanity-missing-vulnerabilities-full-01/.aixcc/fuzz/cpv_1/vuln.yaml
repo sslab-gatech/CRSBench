@@ -1,20 +1,26 @@
 id: cpv_1
 
-name: 'MOCK: cpv_1 vulnerability in fuzz'
+name: Stack-use-after-scope due to returning pointer to local array in parse_message()
 
-cwes: []
+cwes:
+- CWE-562
+- CWE-825
+- CWE-416
 
-description: 'MOCK: Vulnerability cpv_1 detected in harness fuzz. This vulnerability is detected by address sanitizer. The
-  error signature is: ''ERROR: AddressSanitizer: stack-use-after-scope''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A stack-use-after-scope vulnerability exists in the parse_message() function in message.c.
+  The function allocates a local array 'decoded_data[256]' on the stack (line 21) to store
+  decoded message data. However, it returns a pointer to this stack-allocated array (line 36),
+  which goes out of scope when the function returns. When the returned pointer is subsequently
+  dereferenced in process_message() at line 44 (in a printf() call), it accesses memory that
+  is no longer valid, causing a stack-use-after-scope condition. This can lead to crashes,
+  memory corruption, information disclosure (exposing residual stack data), and potentially
+  arbitrary code execution depending on the stack state after the function returns.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: printf_common
-  startLine: 0
+- path_from_root: message.c
+  function_name: parse_message
+  startLine: 36
   startColumn: 0
-  endLine: 0
+  endLine: 36
   endColumn: 0

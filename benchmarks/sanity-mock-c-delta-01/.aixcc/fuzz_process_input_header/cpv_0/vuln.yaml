@@ -1,20 +1,26 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in fuzz_process_input_header'
+name: Stack Buffer Overflow in process_input_header Function
 
-cwes: []
+cwes:
+- CWE-121
+- CWE-787
+- CWE-805
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness fuzz_process_input_header. This vulnerability is detected by address
-  sanitizer. The error signature is: ''ERROR: AddressSanitizer: stack-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A stack-based buffer overflow vulnerability exists in the process_input_header function
+  in mock.c. The function allocates a 64-byte buffer on the stack but fails to validate
+  that the size parameter does not exceed the buffer capacity before performing a memcpy
+  operation. The only validation checks that size > 0 and data[0] == 'A', but does not
+  verify that size <= sizeof(buf). An attacker can trigger this vulnerability by providing
+  input larger than 64 bytes that starts with 'A', resulting in a stack buffer overflow
+  that can corrupt adjacent stack memory, overwrite return addresses, and potentially
+  lead to arbitrary code execution.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: __asan_memcpy
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+- path_from_root: mock.c
+  function_name: process_input_header
+  startLine: 11
+  startColumn: 7
+  endLine: 11
+  endColumn: 7

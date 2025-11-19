@@ -1,20 +1,31 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in tempfile-harness'
+name: Off-by-One Heap Buffer Overflow in buffer_write Function
 
-cwes: []
+cwes:
+- CWE-193
+- CWE-122
+- CWE-787
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness tempfile-harness. This vulnerability is detected by address sanitizer.
-  The error signature is: ''ERROR: AddressSanitizer: heap-buffer-overflow''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A heap-based buffer overflow vulnerability exists in the buffer_write function 
+  due to an off-by-one error in the bounds check. The function uses an incorrect 
+  comparison operator (>) instead of (>=) when validating the index parameter, 
+  allowing an attacker to write one byte past the end of a heap-allocated buffer.
+  
+  For a buffer of size 300, valid indices range from 0 to 299. However, the 
+  vulnerable check 'if (index > buf->size)' only rejects indices greater than 300, 
+  allowing index 300 to pass through. This results in writing to buf->buf[300], 
+  which is one byte beyond the allocated region at address offset 0x5120000005ec.
+  
+  The vulnerability can corrupt adjacent heap metadata or other heap objects, 
+  potentially leading to arbitrary code execution, denial of service, or 
+  information disclosure depending on heap layout.
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
+- path_from_root: utils.c
   function_name: buffer_write
-  startLine: 0
-  startColumn: 0
-  endLine: 0
-  endColumn: 0
+  startLine: 21
+  startColumn: 9
+  endLine: 24
+  endColumn: 27

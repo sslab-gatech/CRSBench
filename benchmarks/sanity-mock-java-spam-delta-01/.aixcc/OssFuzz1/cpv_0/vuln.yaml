@@ -1,20 +1,27 @@
 id: cpv_0
 
-name: 'MOCK: cpv_0 vulnerability in OssFuzz1'
+name: OS Command Injection in executeCommand Method
 
-cwes: []
+cwes:
+- CWE-78
+- CWE-77
 
-description: 'MOCK: Vulnerability cpv_0 detected in harness OssFuzz1. This vulnerability is detected by address sanitizer.
-  The error signature is: ''Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueCritical: OS Command Injection''.
-
-
-  NOTE: This description is auto-generated from limited metadata in the Team-Atlanta format. For accurate vulnerability details,
-  please analyze the patches, POV blobs, and crash logs.'
+description: |
+  A critical OS Command Injection vulnerability exists in the executeCommand method
+  of the App class. The method accepts untrusted user input and passes it directly
+  to ProcessBuilder.command() without any validation or sanitization. Despite a
+  comment claiming "Only 'ls', 'pwd', and 'echo' commands are allowed," the code
+  performs no actual validation to enforce this restriction. This allows an attacker
+  to execute arbitrary system commands, leading to remote code execution, full system
+  compromise, data exfiltration, and potential lateral movement. The vulnerability
+  is triggered when attacker-controlled input from the fuzzer is passed to the
+  executeCommand method, which then executes the malicious command through
+  ProcessBuilder.start().
 
 locations:
-- path_from_root: 'MOCK: path/to/vulnerable/file.c'
-  function_name: processImplStartHook
-  startLine: 0
+- path_from_root: src/main/java/com/aixcc/mock_java/App.java
+  function_name: executeCommand
+  startLine: 17
   startColumn: 0
-  endLine: 0
+  endLine: 17
   endColumn: 0
