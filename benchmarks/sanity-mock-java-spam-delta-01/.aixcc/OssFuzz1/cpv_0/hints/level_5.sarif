@@ -1,0 +1,91 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-78",
+              "name": "CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+              "shortDescription": {
+                "text": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
+              }
+            },
+            {
+              "id": "CWE-77",
+              "name": "CWE-77: Improper Neutralization of Special Elements used in a Command ('Command Injection')",
+              "shortDescription": {
+                "text": "Improper Neutralization of Special Elements used in a Command ('Command Injection')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Neutralization of Special Elements used in a Command ('Command Injection')"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-78",
+          "level": "warning",
+          "message": {
+            "text": "CWE-78 - Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')\nVulnerability: OS Command Injection in executeCommand Method\nDescription: A critical OS Command Injection vulnerability exists in the executeCommand method\nof the App class. The method accepts untrusted user input and passes it directly\nto ProcessBuilder.command() without any validation or sanitization. Despite a\ncomment claiming \"Only 'ls', 'pwd', and 'echo' commands are allowed,\" the code\nperforms no actual validation to enforce this restriction. This allows an attacker\nto execute arbitrary system commands, leading to remote code execution, full system\ncompromise, data exfiltration, and potential lateral movement. The vulnerability\nis triggered when attacker-controlled input from the fuzzer is passed to the\nexecuteCommand method, which then executes the malicious command through\nProcessBuilder.start().\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main/java/com/aixcc/mock_java/App.java"
+                },
+                "region": {
+                  "startLine": 17,
+                  "endLine": 17
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "executeCommand",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-77",
+          "level": "warning",
+          "message": {
+            "text": "CWE-77 - Improper Neutralization of Special Elements used in a Command ('Command Injection')\nVulnerability: OS Command Injection in executeCommand Method\nDescription: A critical OS Command Injection vulnerability exists in the executeCommand method\nof the App class. The method accepts untrusted user input and passes it directly\nto ProcessBuilder.command() without any validation or sanitization. Despite a\ncomment claiming \"Only 'ls', 'pwd', and 'echo' commands are allowed,\" the code\nperforms no actual validation to enforce this restriction. This allows an attacker\nto execute arbitrary system commands, leading to remote code execution, full system\ncompromise, data exfiltration, and potential lateral movement. The vulnerability\nis triggered when attacker-controlled input from the fuzzer is passed to the\nexecuteCommand method, which then executes the malicious command through\nProcessBuilder.start().\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main/java/com/aixcc/mock_java/App.java"
+                },
+                "region": {
+                  "startLine": 17,
+                  "endLine": 17
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "executeCommand",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

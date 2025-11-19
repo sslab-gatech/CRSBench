@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-193",
+              "name": "CWE-193: Off-by-one Error",
+              "shortDescription": {
+                "text": "Off-by-one Error"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Off-by-one Error"
+              }
+            },
+            {
+              "id": "CWE-122",
+              "name": "CWE-122: Heap-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Heap-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Heap-based Buffer Overflow"
+              }
+            },
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-193",
+          "level": "warning",
+          "message": {
+            "text": "CWE-193 - Off-by-one Error\nVulnerability: Heap Buffer Off-by-one Overflow in buffer_write\nDescription: A heap buffer overflow vulnerability exists in the buffer_write function in utils.c\ndue to an off-by-one error in the bounds checking logic. The function uses an\nincorrect comparison operator (>) instead of (>=) when validating the index parameter\nagainst the buffer size. This allows writing one byte beyond the allocated heap buffer.\n\nFor a buffer of size N, valid indices are 0 to N-1, but the current implementation\naccepts index N, causing a write at buf->buf[N] which is one byte past the end of\nthe allocated region. This vulnerability is triggered in fd-exhaustion-harness.c when\nspecific arithmetic constraints are met and buffer_write is called with an index\nequal to the buffer size (300).\n\nThe vulnerability can lead to heap memory corruption, potential control-flow hijacking,\ndenial of service, or corruption of adjacent heap data structures.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-user-stress-test-src/utils.c"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 24,
+                  "startColumn": 21,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-122",
+          "level": "warning",
+          "message": {
+            "text": "CWE-122 - Heap-based Buffer Overflow\nVulnerability: Heap Buffer Off-by-one Overflow in buffer_write\nDescription: A heap buffer overflow vulnerability exists in the buffer_write function in utils.c\ndue to an off-by-one error in the bounds checking logic. The function uses an\nincorrect comparison operator (>) instead of (>=) when validating the index parameter\nagainst the buffer size. This allows writing one byte beyond the allocated heap buffer.\n\nFor a buffer of size N, valid indices are 0 to N-1, but the current implementation\naccepts index N, causing a write at buf->buf[N] which is one byte past the end of\nthe allocated region. This vulnerability is triggered in fd-exhaustion-harness.c when\nspecific arithmetic constraints are met and buffer_write is called with an index\nequal to the buffer size (300).\n\nThe vulnerability can lead to heap memory corruption, potential control-flow hijacking,\ndenial of service, or corruption of adjacent heap data structures.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-user-stress-test-src/utils.c"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 24,
+                  "startColumn": 21,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write\nVulnerability: Heap Buffer Off-by-one Overflow in buffer_write\nDescription: A heap buffer overflow vulnerability exists in the buffer_write function in utils.c\ndue to an off-by-one error in the bounds checking logic. The function uses an\nincorrect comparison operator (>) instead of (>=) when validating the index parameter\nagainst the buffer size. This allows writing one byte beyond the allocated heap buffer.\n\nFor a buffer of size N, valid indices are 0 to N-1, but the current implementation\naccepts index N, causing a write at buf->buf[N] which is one byte past the end of\nthe allocated region. This vulnerability is triggered in fd-exhaustion-harness.c when\nspecific arithmetic constraints are met and buffer_write is called with an index\nequal to the buffer size (300).\n\nThe vulnerability can lead to heap memory corruption, potential control-flow hijacking,\ndenial of service, or corruption of adjacent heap data structures.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-user-stress-test-src/utils.c"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 24,
+                  "startColumn": 21,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-125",
+              "name": "CWE-125: Out-of-bounds Read",
+              "shortDescription": {
+                "text": "Out-of-bounds Read"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Read"
+              }
+            },
+            {
+              "id": "CWE-20",
+              "name": "CWE-20: Improper Input Validation",
+              "shortDescription": {
+                "text": "Improper Input Validation"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Input Validation"
+              }
+            },
+            {
+              "id": "CWE-823",
+              "name": "CWE-823: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-125",
+          "level": "warning",
+          "message": {
+            "text": "CWE-125 - Out-of-bounds Read\nVulnerability: Out-of-bounds Array Access in func_b due to Missing Input Validation\nDescription: An out-of-bounds array access vulnerability exists in the func_b() function in mock_vp.c.\nThe function reads an integer value from user input via scanf() without performing bounds\nchecking, then directly uses this value as an index to access the global items[3][10] array.\nWhen the input value is outside the valid range [0-2], the program attempts to access memory\noutside the array bounds, leading to a segmentation fault. The vulnerability is triggered when\nan attacker provides an out-of-range index (e.g., 501), causing the program to dereference\nan invalid memory address when attempting to print the array contents. This can result in\napplication crash (denial of service), potential information disclosure through out-of-bounds\nreads, or in certain scenarios could be chained with other vulnerabilities for code execution.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock-cp-src/mock_vp.c"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 27
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "func_b",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-20",
+          "level": "warning",
+          "message": {
+            "text": "CWE-20 - Improper Input Validation\nVulnerability: Out-of-bounds Array Access in func_b due to Missing Input Validation\nDescription: An out-of-bounds array access vulnerability exists in the func_b() function in mock_vp.c.\nThe function reads an integer value from user input via scanf() without performing bounds\nchecking, then directly uses this value as an index to access the global items[3][10] array.\nWhen the input value is outside the valid range [0-2], the program attempts to access memory\noutside the array bounds, leading to a segmentation fault. The vulnerability is triggered when\nan attacker provides an out-of-range index (e.g., 501), causing the program to dereference\nan invalid memory address when attempting to print the array contents. This can result in\napplication crash (denial of service), potential information disclosure through out-of-bounds\nreads, or in certain scenarios could be chained with other vulnerabilities for code execution.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock-cp-src/mock_vp.c"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 27
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "func_b",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-823",
+          "level": "warning",
+          "message": {
+            "text": "CWE-823 - Unknown vulnerability type\nVulnerability: Out-of-bounds Array Access in func_b due to Missing Input Validation\nDescription: An out-of-bounds array access vulnerability exists in the func_b() function in mock_vp.c.\nThe function reads an integer value from user input via scanf() without performing bounds\nchecking, then directly uses this value as an index to access the global items[3][10] array.\nWhen the input value is outside the valid range [0-2], the program attempts to access memory\noutside the array bounds, leading to a segmentation fault. The vulnerability is triggered when\nan attacker provides an out-of-range index (e.g., 501), causing the program to dereference\nan invalid memory address when attempting to print the array contents. This can result in\napplication crash (denial of service), potential information disclosure through out-of-bounds\nreads, or in certain scenarios could be chained with other vulnerabilities for code execution.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock-cp-src/mock_vp.c"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 27
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "func_b",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

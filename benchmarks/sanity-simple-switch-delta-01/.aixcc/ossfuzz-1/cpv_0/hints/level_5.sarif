@@ -1,0 +1,127 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-121",
+              "name": "CWE-121: Stack-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Stack-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Stack-based Buffer Overflow"
+              }
+            },
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            },
+            {
+              "id": "CWE-805",
+              "name": "CWE-805: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-121",
+          "level": "warning",
+          "message": {
+            "text": "CWE-121 - Stack-based Buffer Overflow\nVulnerability: Stack Buffer Overflow in target() Function via Unchecked memcpy()\nDescription: A stack-based buffer overflow vulnerability exists in the target() function in simple.c.\nThe function processes user-controlled input where the first byte determines a command to execute.\nWhen the command byte equals 1, the function copies an arbitrary amount of payload data into a \n16-byte stack buffer (buf1) using memcpy() without any size validation. This allows an attacker\nto overflow the buffer by providing a payload larger than 16 bytes. All other command cases \n(2-5) properly validate payload size before copying, but case 1 is missing this critical check.\n\nAn attacker can exploit this by sending input with command byte 0x01 followed by more than 16 \nbytes of payload data. This overwrites adjacent stack memory including other local buffers and\npotentially stack metadata such as frame pointers and return addresses. The vulnerability can\nlead to arbitrary code execution, denial of service through crashes, or corruption of data\nintegrity. The proof of vulnerability demonstrates this with 72 bytes of input (1 command byte\n+ 71 payload bytes), causing a 55-byte overflow beyond the buffer boundary.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "simple.c"
+                },
+                "region": {
+                  "startLine": 19,
+                  "endLine": 19
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "target",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write\nVulnerability: Stack Buffer Overflow in target() Function via Unchecked memcpy()\nDescription: A stack-based buffer overflow vulnerability exists in the target() function in simple.c.\nThe function processes user-controlled input where the first byte determines a command to execute.\nWhen the command byte equals 1, the function copies an arbitrary amount of payload data into a \n16-byte stack buffer (buf1) using memcpy() without any size validation. This allows an attacker\nto overflow the buffer by providing a payload larger than 16 bytes. All other command cases \n(2-5) properly validate payload size before copying, but case 1 is missing this critical check.\n\nAn attacker can exploit this by sending input with command byte 0x01 followed by more than 16 \nbytes of payload data. This overwrites adjacent stack memory including other local buffers and\npotentially stack metadata such as frame pointers and return addresses. The vulnerability can\nlead to arbitrary code execution, denial of service through crashes, or corruption of data\nintegrity. The proof of vulnerability demonstrates this with 72 bytes of input (1 command byte\n+ 71 payload bytes), causing a 55-byte overflow beyond the buffer boundary.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "simple.c"
+                },
+                "region": {
+                  "startLine": 19,
+                  "endLine": 19
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "target",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-805",
+          "level": "warning",
+          "message": {
+            "text": "CWE-805 - Unknown vulnerability type\nVulnerability: Stack Buffer Overflow in target() Function via Unchecked memcpy()\nDescription: A stack-based buffer overflow vulnerability exists in the target() function in simple.c.\nThe function processes user-controlled input where the first byte determines a command to execute.\nWhen the command byte equals 1, the function copies an arbitrary amount of payload data into a \n16-byte stack buffer (buf1) using memcpy() without any size validation. This allows an attacker\nto overflow the buffer by providing a payload larger than 16 bytes. All other command cases \n(2-5) properly validate payload size before copying, but case 1 is missing this critical check.\n\nAn attacker can exploit this by sending input with command byte 0x01 followed by more than 16 \nbytes of payload data. This overwrites adjacent stack memory including other local buffers and\npotentially stack metadata such as frame pointers and return addresses. The vulnerability can\nlead to arbitrary code execution, denial of service through crashes, or corruption of data\nintegrity. The proof of vulnerability demonstrates this with 72 bytes of input (1 command byte\n+ 71 payload bytes), causing a 55-byte overflow beyond the buffer boundary.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "simple.c"
+                },
+                "region": {
+                  "startLine": 19,
+                  "endLine": 19
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "target",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

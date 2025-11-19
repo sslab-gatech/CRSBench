@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-193",
+              "name": "CWE-193: Off-by-one Error",
+              "shortDescription": {
+                "text": "Off-by-one Error"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Off-by-one Error"
+              }
+            },
+            {
+              "id": "CWE-122",
+              "name": "CWE-122: Heap-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Heap-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Heap-based Buffer Overflow"
+              }
+            },
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-193",
+          "level": "warning",
+          "message": {
+            "text": "CWE-193 - Off-by-one Error\nVulnerability: Off-by-One Heap Buffer Overflow in buffer_write\nDescription: A heap-based buffer overflow vulnerability exists in the buffer_write function\ndue to an incorrect bounds check. The function uses '>' instead of '>=' when\nvalidating the index parameter, allowing writes at index equal to the buffer\nsize. For a buffer of size N, valid indices are 0 to N-1, but the flawed check\npermits index N to pass through, resulting in a one-byte write past the end of\nthe allocated heap buffer. This off-by-one error can corrupt heap metadata or\nadjacent heap objects, potentially leading to arbitrary code execution or denial\nof service. The vulnerability is triggered when buffer_write is called with an\nindex value equal to the buffer's size.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "utils.c"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 24,
+                  "startColumn": 21,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-122",
+          "level": "warning",
+          "message": {
+            "text": "CWE-122 - Heap-based Buffer Overflow\nVulnerability: Off-by-One Heap Buffer Overflow in buffer_write\nDescription: A heap-based buffer overflow vulnerability exists in the buffer_write function\ndue to an incorrect bounds check. The function uses '>' instead of '>=' when\nvalidating the index parameter, allowing writes at index equal to the buffer\nsize. For a buffer of size N, valid indices are 0 to N-1, but the flawed check\npermits index N to pass through, resulting in a one-byte write past the end of\nthe allocated heap buffer. This off-by-one error can corrupt heap metadata or\nadjacent heap objects, potentially leading to arbitrary code execution or denial\nof service. The vulnerability is triggered when buffer_write is called with an\nindex value equal to the buffer's size.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "utils.c"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 24,
+                  "startColumn": 21,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write\nVulnerability: Off-by-One Heap Buffer Overflow in buffer_write\nDescription: A heap-based buffer overflow vulnerability exists in the buffer_write function\ndue to an incorrect bounds check. The function uses '>' instead of '>=' when\nvalidating the index parameter, allowing writes at index equal to the buffer\nsize. For a buffer of size N, valid indices are 0 to N-1, but the flawed check\npermits index N to pass through, resulting in a one-byte write past the end of\nthe allocated heap buffer. This off-by-one error can corrupt heap metadata or\nadjacent heap objects, potentially leading to arbitrary code execution or denial\nof service. The vulnerability is triggered when buffer_write is called with an\nindex value equal to the buffer's size.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "utils.c"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 24,
+                  "startColumn": 21,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

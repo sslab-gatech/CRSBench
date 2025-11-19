@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            },
+            {
+              "id": "CWE-120",
+              "name": "CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')",
+              "shortDescription": {
+                "text": "Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')"
+              }
+            },
+            {
+              "id": "CWE-119",
+              "name": "CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer",
+              "shortDescription": {
+                "text": "Improper Restriction of Operations within the Bounds of a Memory Buffer"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Restriction of Operations within the Bounds of a Memory Buffer"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write\nVulnerability: Global buffer overflow in func_a via strcspn index\nDescription: A global buffer overflow vulnerability exists in the func_a() function of mock_vp.c.\nThe vulnerability occurs when processing user input through fgets() and strcspn() functions.\n\nThe global array items[3][5] allocates only 15 bytes of memory, but the code reads input\nusing fgets(buff, 4, stdin) and then attempts to remove newline characters using\nbuff[strcspn(buff, \"\\n\")] = 0. When the input does not contain a newline character within\nthe buffer boundaries, strcspn() may search beyond the allocated buffer and return a large\noffset value. This large offset is then used as an array index for writing a null terminator,\ncausing an out-of-bounds write of up to 38 bytes.\n\nThe overflow corrupts adjacent global variables (specifically the pipefd array) and can lead\nto memory corruption, arbitrary code execution, denial of service, and data integrity issues.\nAddressSanitizer detected the vulnerability as a multi-byte write global buffer overflow with\na scariness score of 45.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock-cp-src/mock_vp.c"
+                },
+                "region": {
+                  "startLine": 14,
+                  "endLine": 14,
+                  "startColumn": 9,
+                  "endColumn": 9
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "func_a",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-120",
+          "level": "warning",
+          "message": {
+            "text": "CWE-120 - Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')\nVulnerability: Global buffer overflow in func_a via strcspn index\nDescription: A global buffer overflow vulnerability exists in the func_a() function of mock_vp.c.\nThe vulnerability occurs when processing user input through fgets() and strcspn() functions.\n\nThe global array items[3][5] allocates only 15 bytes of memory, but the code reads input\nusing fgets(buff, 4, stdin) and then attempts to remove newline characters using\nbuff[strcspn(buff, \"\\n\")] = 0. When the input does not contain a newline character within\nthe buffer boundaries, strcspn() may search beyond the allocated buffer and return a large\noffset value. This large offset is then used as an array index for writing a null terminator,\ncausing an out-of-bounds write of up to 38 bytes.\n\nThe overflow corrupts adjacent global variables (specifically the pipefd array) and can lead\nto memory corruption, arbitrary code execution, denial of service, and data integrity issues.\nAddressSanitizer detected the vulnerability as a multi-byte write global buffer overflow with\na scariness score of 45.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock-cp-src/mock_vp.c"
+                },
+                "region": {
+                  "startLine": 14,
+                  "endLine": 14,
+                  "startColumn": 9,
+                  "endColumn": 9
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "func_a",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-119",
+          "level": "warning",
+          "message": {
+            "text": "CWE-119 - Improper Restriction of Operations within the Bounds of a Memory Buffer\nVulnerability: Global buffer overflow in func_a via strcspn index\nDescription: A global buffer overflow vulnerability exists in the func_a() function of mock_vp.c.\nThe vulnerability occurs when processing user input through fgets() and strcspn() functions.\n\nThe global array items[3][5] allocates only 15 bytes of memory, but the code reads input\nusing fgets(buff, 4, stdin) and then attempts to remove newline characters using\nbuff[strcspn(buff, \"\\n\")] = 0. When the input does not contain a newline character within\nthe buffer boundaries, strcspn() may search beyond the allocated buffer and return a large\noffset value. This large offset is then used as an array index for writing a null terminator,\ncausing an out-of-bounds write of up to 38 bytes.\n\nThe overflow corrupts adjacent global variables (specifically the pipefd array) and can lead\nto memory corruption, arbitrary code execution, denial of service, and data integrity issues.\nAddressSanitizer detected the vulnerability as a multi-byte write global buffer overflow with\na scariness score of 45.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock-cp-src/mock_vp.c"
+                },
+                "region": {
+                  "startLine": 14,
+                  "endLine": 14,
+                  "startColumn": 9,
+                  "endColumn": 9
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "func_a",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

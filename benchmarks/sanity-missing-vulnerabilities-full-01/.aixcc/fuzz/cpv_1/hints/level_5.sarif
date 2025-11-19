@@ -1,0 +1,127 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-562",
+              "name": "CWE-562: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            },
+            {
+              "id": "CWE-825",
+              "name": "CWE-825: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            },
+            {
+              "id": "CWE-416",
+              "name": "CWE-416: Use After Free",
+              "shortDescription": {
+                "text": "Use After Free"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Use After Free"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-562",
+          "level": "warning",
+          "message": {
+            "text": "CWE-562 - Unknown vulnerability type\nVulnerability: Stack-use-after-scope due to returning pointer to local array in parse_message()\nDescription: A stack-use-after-scope vulnerability exists in the parse_message() function in message.c.\nThe function allocates a local array 'decoded_data[256]' on the stack (line 21) to store\ndecoded message data. However, it returns a pointer to this stack-allocated array (line 36),\nwhich goes out of scope when the function returns. When the returned pointer is subsequently\ndereferenced in process_message() at line 44 (in a printf() call), it accesses memory that\nis no longer valid, causing a stack-use-after-scope condition. This can lead to crashes,\nmemory corruption, information disclosure (exposing residual stack data), and potentially\narbitrary code execution depending on the stack state after the function returns.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "message.c"
+                },
+                "region": {
+                  "startLine": 36,
+                  "endLine": 36
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "parse_message",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-825",
+          "level": "warning",
+          "message": {
+            "text": "CWE-825 - Unknown vulnerability type\nVulnerability: Stack-use-after-scope due to returning pointer to local array in parse_message()\nDescription: A stack-use-after-scope vulnerability exists in the parse_message() function in message.c.\nThe function allocates a local array 'decoded_data[256]' on the stack (line 21) to store\ndecoded message data. However, it returns a pointer to this stack-allocated array (line 36),\nwhich goes out of scope when the function returns. When the returned pointer is subsequently\ndereferenced in process_message() at line 44 (in a printf() call), it accesses memory that\nis no longer valid, causing a stack-use-after-scope condition. This can lead to crashes,\nmemory corruption, information disclosure (exposing residual stack data), and potentially\narbitrary code execution depending on the stack state after the function returns.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "message.c"
+                },
+                "region": {
+                  "startLine": 36,
+                  "endLine": 36
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "parse_message",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-416",
+          "level": "warning",
+          "message": {
+            "text": "CWE-416 - Use After Free\nVulnerability: Stack-use-after-scope due to returning pointer to local array in parse_message()\nDescription: A stack-use-after-scope vulnerability exists in the parse_message() function in message.c.\nThe function allocates a local array 'decoded_data[256]' on the stack (line 21) to store\ndecoded message data. However, it returns a pointer to this stack-allocated array (line 36),\nwhich goes out of scope when the function returns. When the returned pointer is subsequently\ndereferenced in process_message() at line 44 (in a printf() call), it accesses memory that\nis no longer valid, causing a stack-use-after-scope condition. This can lead to crashes,\nmemory corruption, information disclosure (exposing residual stack data), and potentially\narbitrary code execution depending on the stack state after the function returns.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "message.c"
+                },
+                "region": {
+                  "startLine": 36,
+                  "endLine": 36
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "parse_message",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

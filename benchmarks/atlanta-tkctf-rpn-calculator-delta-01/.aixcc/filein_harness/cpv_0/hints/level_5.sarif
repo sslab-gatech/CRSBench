@@ -1,0 +1,127 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            },
+            {
+              "id": "CWE-125",
+              "name": "CWE-125: Out-of-bounds Read",
+              "shortDescription": {
+                "text": "Out-of-bounds Read"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Read"
+              }
+            },
+            {
+              "id": "CWE-823",
+              "name": "CWE-823: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write\nVulnerability: Stack Buffer Underflow in RPN Calculator Wide Character Print\nDescription: A stack buffer underflow vulnerability exists in the main_loop function when handling\nthe 'pw' (print wide character) command. The vulnerability occurs when copying stack\nvalues into a wide character buffer in reverse order. The loop condition at lines 237-246\nonly checks if the value is non-zero but fails to check if the array index 'widx' goes\nnegative. When the stack index 'a.idx' is negative (which can be set via the 'c' command\nwith negative numbers), the loop continues indefinitely, decrementing 'widx' below zero.\nThis causes out-of-bounds writes to negative array indices (wcs[widx]), corrupting\nadjacent stack memory including return addresses and saved frame pointers. It also causes\nout-of-bounds reads from values[i] when 'i' decrements beyond valid bounds. The\nvulnerability can lead to memory corruption, information disclosure, arbitrary code\nexecution, or denial of service.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-tkctf-rpn-calculator-source/stackmachine.c"
+                },
+                "region": {
+                  "startLine": 237,
+                  "endLine": 246
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "main_loop",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-125",
+          "level": "warning",
+          "message": {
+            "text": "CWE-125 - Out-of-bounds Read\nVulnerability: Stack Buffer Underflow in RPN Calculator Wide Character Print\nDescription: A stack buffer underflow vulnerability exists in the main_loop function when handling\nthe 'pw' (print wide character) command. The vulnerability occurs when copying stack\nvalues into a wide character buffer in reverse order. The loop condition at lines 237-246\nonly checks if the value is non-zero but fails to check if the array index 'widx' goes\nnegative. When the stack index 'a.idx' is negative (which can be set via the 'c' command\nwith negative numbers), the loop continues indefinitely, decrementing 'widx' below zero.\nThis causes out-of-bounds writes to negative array indices (wcs[widx]), corrupting\nadjacent stack memory including return addresses and saved frame pointers. It also causes\nout-of-bounds reads from values[i] when 'i' decrements beyond valid bounds. The\nvulnerability can lead to memory corruption, information disclosure, arbitrary code\nexecution, or denial of service.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-tkctf-rpn-calculator-source/stackmachine.c"
+                },
+                "region": {
+                  "startLine": 237,
+                  "endLine": 246
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "main_loop",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-823",
+          "level": "warning",
+          "message": {
+            "text": "CWE-823 - Unknown vulnerability type\nVulnerability: Stack Buffer Underflow in RPN Calculator Wide Character Print\nDescription: A stack buffer underflow vulnerability exists in the main_loop function when handling\nthe 'pw' (print wide character) command. The vulnerability occurs when copying stack\nvalues into a wide character buffer in reverse order. The loop condition at lines 237-246\nonly checks if the value is non-zero but fails to check if the array index 'widx' goes\nnegative. When the stack index 'a.idx' is negative (which can be set via the 'c' command\nwith negative numbers), the loop continues indefinitely, decrementing 'widx' below zero.\nThis causes out-of-bounds writes to negative array indices (wcs[widx]), corrupting\nadjacent stack memory including return addresses and saved frame pointers. It also causes\nout-of-bounds reads from values[i] when 'i' decrements beyond valid bounds. The\nvulnerability can lead to memory corruption, information disclosure, arbitrary code\nexecution, or denial of service.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-tkctf-rpn-calculator-source/stackmachine.c"
+                },
+                "region": {
+                  "startLine": 237,
+                  "endLine": 246
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "main_loop",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

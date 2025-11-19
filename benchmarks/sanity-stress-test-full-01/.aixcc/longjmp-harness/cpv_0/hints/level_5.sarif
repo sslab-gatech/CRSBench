@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-193",
+              "name": "CWE-193: Off-by-one Error",
+              "shortDescription": {
+                "text": "Off-by-one Error"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Off-by-one Error"
+              }
+            },
+            {
+              "id": "CWE-122",
+              "name": "CWE-122: Heap-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Heap-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Heap-based Buffer Overflow"
+              }
+            },
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-193",
+          "level": "warning",
+          "message": {
+            "text": "CWE-193 - Off-by-one Error\nVulnerability: Off-by-One Heap Buffer Overflow in buffer_write Function\nDescription: A classic off-by-one heap buffer overflow vulnerability exists in the buffer_write \nfunction in utils.c. The bounds check on line 21 uses an incorrect comparison operator \n(>) that allows writing at index equal to the buffer size, which is out of bounds. \nFor a buffer of size N, valid indices are 0 to N-1, but the condition \"if (index > buf->size)\" \nallows index == buf->size to pass through, resulting in a one-byte write beyond the \nallocated heap buffer at line 24. This can corrupt heap metadata or adjacent heap objects, \npotentially leading to crashes, privilege escalation, or arbitrary code execution. \nThe vulnerability is triggered when buffer_write is called with an index value equal to \nthe buffer's size (e.g., index 300 for a 300-byte buffer).\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "utils.c"
+                },
+                "region": {
+                  "startLine": 21,
+                  "endLine": 24,
+                  "startColumn": 9,
+                  "endColumn": 27
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-122",
+          "level": "warning",
+          "message": {
+            "text": "CWE-122 - Heap-based Buffer Overflow\nVulnerability: Off-by-One Heap Buffer Overflow in buffer_write Function\nDescription: A classic off-by-one heap buffer overflow vulnerability exists in the buffer_write \nfunction in utils.c. The bounds check on line 21 uses an incorrect comparison operator \n(>) that allows writing at index equal to the buffer size, which is out of bounds. \nFor a buffer of size N, valid indices are 0 to N-1, but the condition \"if (index > buf->size)\" \nallows index == buf->size to pass through, resulting in a one-byte write beyond the \nallocated heap buffer at line 24. This can corrupt heap metadata or adjacent heap objects, \npotentially leading to crashes, privilege escalation, or arbitrary code execution. \nThe vulnerability is triggered when buffer_write is called with an index value equal to \nthe buffer's size (e.g., index 300 for a 300-byte buffer).\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "utils.c"
+                },
+                "region": {
+                  "startLine": 21,
+                  "endLine": 24,
+                  "startColumn": 9,
+                  "endColumn": 27
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write\nVulnerability: Off-by-One Heap Buffer Overflow in buffer_write Function\nDescription: A classic off-by-one heap buffer overflow vulnerability exists in the buffer_write \nfunction in utils.c. The bounds check on line 21 uses an incorrect comparison operator \n(>) that allows writing at index equal to the buffer size, which is out of bounds. \nFor a buffer of size N, valid indices are 0 to N-1, but the condition \"if (index > buf->size)\" \nallows index == buf->size to pass through, resulting in a one-byte write beyond the \nallocated heap buffer at line 24. This can corrupt heap metadata or adjacent heap objects, \npotentially leading to crashes, privilege escalation, or arbitrary code execution. \nThe vulnerability is triggered when buffer_write is called with an index value equal to \nthe buffer's size (e.g., index 300 for a 300-byte buffer).\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "utils.c"
+                },
+                "region": {
+                  "startLine": 21,
+                  "endLine": 24,
+                  "startColumn": 9,
+                  "endColumn": 27
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-416",
+              "name": "CWE-416: Use After Free",
+              "shortDescription": {
+                "text": "Use After Free"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Use After Free"
+              }
+            },
+            {
+              "id": "CWE-825",
+              "name": "CWE-825: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            },
+            {
+              "id": "CWE-672",
+              "name": "CWE-672: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-416",
+          "level": "warning",
+          "message": {
+            "text": "CWE-416 - Use After Free"
+          }
+        },
+        {
+          "ruleId": "CWE-825",
+          "level": "warning",
+          "message": {
+            "text": "CWE-825 - Unknown vulnerability type"
+          }
+        },
+        {
+          "ruleId": "CWE-672",
+          "level": "warning",
+          "message": {
+            "text": "CWE-672 - Unknown vulnerability type"
+          }
+        }
+      ]
+    }
+  ]
+}

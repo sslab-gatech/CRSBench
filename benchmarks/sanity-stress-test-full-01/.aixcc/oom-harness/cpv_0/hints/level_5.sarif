@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-122",
+              "name": "CWE-122: Heap-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Heap-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Heap-based Buffer Overflow"
+              }
+            },
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            },
+            {
+              "id": "CWE-193",
+              "name": "CWE-193: Off-by-one Error",
+              "shortDescription": {
+                "text": "Off-by-one Error"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Off-by-one Error"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-122",
+          "level": "warning",
+          "message": {
+            "text": "CWE-122 - Heap-based Buffer Overflow\nVulnerability: Off-by-One Heap Buffer Overflow in buffer_write()\nDescription: A heap-based buffer overflow vulnerability caused by an off-by-one error in the\nbuffer_write() function in utils.c. The bounds check uses '>' instead of '>=' when\nvalidating the index parameter, allowing writes at index equal to buf->size. Since\narrays are 0-indexed, a buffer of size N has valid indices 0 to N-1, but this\nincorrect comparison allows index N to pass the check, resulting in a write one byte\npast the end of the allocated heap buffer. This can lead to heap metadata corruption,\nadjacent object corruption, and potentially arbitrary code execution or denial of\nservice.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "utils.c"
+                },
+                "region": {
+                  "startLine": 21,
+                  "endLine": 21,
+                  "startColumn": 9,
+                  "endColumn": 28
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write\nVulnerability: Off-by-One Heap Buffer Overflow in buffer_write()\nDescription: A heap-based buffer overflow vulnerability caused by an off-by-one error in the\nbuffer_write() function in utils.c. The bounds check uses '>' instead of '>=' when\nvalidating the index parameter, allowing writes at index equal to buf->size. Since\narrays are 0-indexed, a buffer of size N has valid indices 0 to N-1, but this\nincorrect comparison allows index N to pass the check, resulting in a write one byte\npast the end of the allocated heap buffer. This can lead to heap metadata corruption,\nadjacent object corruption, and potentially arbitrary code execution or denial of\nservice.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "utils.c"
+                },
+                "region": {
+                  "startLine": 21,
+                  "endLine": 21,
+                  "startColumn": 9,
+                  "endColumn": 28
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-193",
+          "level": "warning",
+          "message": {
+            "text": "CWE-193 - Off-by-one Error\nVulnerability: Off-by-One Heap Buffer Overflow in buffer_write()\nDescription: A heap-based buffer overflow vulnerability caused by an off-by-one error in the\nbuffer_write() function in utils.c. The bounds check uses '>' instead of '>=' when\nvalidating the index parameter, allowing writes at index equal to buf->size. Since\narrays are 0-indexed, a buffer of size N has valid indices 0 to N-1, but this\nincorrect comparison allows index N to pass the check, resulting in a write one byte\npast the end of the allocated heap buffer. This can lead to heap metadata corruption,\nadjacent object corruption, and potentially arbitrary code execution or denial of\nservice.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "utils.c"
+                },
+                "region": {
+                  "startLine": 21,
+                  "endLine": 21,
+                  "startColumn": 9,
+                  "endColumn": 28
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

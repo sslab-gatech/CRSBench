@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-121",
+              "name": "CWE-121: Stack-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Stack-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Stack-based Buffer Overflow"
+              }
+            },
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            },
+            {
+              "id": "CWE-120",
+              "name": "CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')",
+              "shortDescription": {
+                "text": "Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-121",
+          "level": "warning",
+          "message": {
+            "text": "CWE-121 - Stack-based Buffer Overflow\nVulnerability: Stack Buffer Overflow in itoa Integer-to-String Conversion\nDescription: A stack-based buffer overflow vulnerability exists in the bad0() function in mock_vp.c.\nThe function allocates a 10-byte buffer on the stack and passes it to the itoa() function\nto convert an integer to a string without verifying that the buffer is large enough.\n\nWhen converting large integers such as INT_MAX (2147483647), the resulting string requires\n10 characters plus a null terminator (11 bytes total), exceeding the 10-byte buffer capacity.\nThis causes a 1-byte overflow when the null terminator is written, corrupting adjacent stack\nmemory.\n\nThe vulnerability can be triggered by providing large integer values as input, potentially\nleading to memory corruption, program crashes, or exploitation of corrupted return addresses\non the stack. The itoa() function performs no bounds checking on the destination buffer,\nmaking it unsafe for use with fixed-size buffers and large integer values.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock_vp.c"
+                },
+                "region": {
+                  "startLine": 49,
+                  "endLine": 49,
+                  "startColumn": 5,
+                  "endColumn": 19
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "bad0",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write\nVulnerability: Stack Buffer Overflow in itoa Integer-to-String Conversion\nDescription: A stack-based buffer overflow vulnerability exists in the bad0() function in mock_vp.c.\nThe function allocates a 10-byte buffer on the stack and passes it to the itoa() function\nto convert an integer to a string without verifying that the buffer is large enough.\n\nWhen converting large integers such as INT_MAX (2147483647), the resulting string requires\n10 characters plus a null terminator (11 bytes total), exceeding the 10-byte buffer capacity.\nThis causes a 1-byte overflow when the null terminator is written, corrupting adjacent stack\nmemory.\n\nThe vulnerability can be triggered by providing large integer values as input, potentially\nleading to memory corruption, program crashes, or exploitation of corrupted return addresses\non the stack. The itoa() function performs no bounds checking on the destination buffer,\nmaking it unsafe for use with fixed-size buffers and large integer values.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock_vp.c"
+                },
+                "region": {
+                  "startLine": 49,
+                  "endLine": 49,
+                  "startColumn": 5,
+                  "endColumn": 19
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "bad0",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-120",
+          "level": "warning",
+          "message": {
+            "text": "CWE-120 - Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')\nVulnerability: Stack Buffer Overflow in itoa Integer-to-String Conversion\nDescription: A stack-based buffer overflow vulnerability exists in the bad0() function in mock_vp.c.\nThe function allocates a 10-byte buffer on the stack and passes it to the itoa() function\nto convert an integer to a string without verifying that the buffer is large enough.\n\nWhen converting large integers such as INT_MAX (2147483647), the resulting string requires\n10 characters plus a null terminator (11 bytes total), exceeding the 10-byte buffer capacity.\nThis causes a 1-byte overflow when the null terminator is written, corrupting adjacent stack\nmemory.\n\nThe vulnerability can be triggered by providing large integer values as input, potentially\nleading to memory corruption, program crashes, or exploitation of corrupted return addresses\non the stack. The itoa() function performs no bounds checking on the destination buffer,\nmaking it unsafe for use with fixed-size buffers and large integer values.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock_vp.c"
+                },
+                "region": {
+                  "startLine": 49,
+                  "endLine": 49,
+                  "startColumn": 5,
+                  "endColumn": 19
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "bad0",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

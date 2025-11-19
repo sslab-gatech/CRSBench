@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-193",
+              "name": "CWE-193: Off-by-one Error",
+              "shortDescription": {
+                "text": "Off-by-one Error"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Off-by-one Error"
+              }
+            },
+            {
+              "id": "CWE-122",
+              "name": "CWE-122: Heap-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Heap-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Heap-based Buffer Overflow"
+              }
+            },
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-193",
+          "level": "warning",
+          "message": {
+            "text": "CWE-193 - Off-by-one Error\nVulnerability: Off-by-One Heap Buffer Overflow in buffer_write Function\nDescription: A classic off-by-one heap buffer overflow vulnerability exists in the buffer_write function\nin utils.c. The function uses an incorrect boundary check (index > buf->size) that allows\nwriting at index N in a buffer of size N, where valid indices should be 0 through N-1.\n\nThe vulnerability is triggered when a 300-byte buffer is created and buffer_write is called\nwith index 300 (equal to the buffer size). The boundary check fails to reject this value,\nallowing a write one byte past the end of the allocated heap buffer. This can lead to heap\nmetadata corruption, adjacent object corruption, potential arbitrary code execution, or\ndenial of service through crash.\n\nThe vulnerability is reachable in signals-harness.c when input values satisfy specific\nconditions (a * b == 0x1337 * 0x1338 and a + b == 0x1337 + 0x1338) and input.c is set\nto the buffer size. The fix changes the boundary check to index >= buf->size to correctly\nenforce zero-based array indexing constraints.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-user-stress-test-src/utils.c"
+                },
+                "region": {
+                  "startLine": 21,
+                  "endLine": 21,
+                  "startColumn": 9,
+                  "endColumn": 28
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-122",
+          "level": "warning",
+          "message": {
+            "text": "CWE-122 - Heap-based Buffer Overflow\nVulnerability: Off-by-One Heap Buffer Overflow in buffer_write Function\nDescription: A classic off-by-one heap buffer overflow vulnerability exists in the buffer_write function\nin utils.c. The function uses an incorrect boundary check (index > buf->size) that allows\nwriting at index N in a buffer of size N, where valid indices should be 0 through N-1.\n\nThe vulnerability is triggered when a 300-byte buffer is created and buffer_write is called\nwith index 300 (equal to the buffer size). The boundary check fails to reject this value,\nallowing a write one byte past the end of the allocated heap buffer. This can lead to heap\nmetadata corruption, adjacent object corruption, potential arbitrary code execution, or\ndenial of service through crash.\n\nThe vulnerability is reachable in signals-harness.c when input values satisfy specific\nconditions (a * b == 0x1337 * 0x1338 and a + b == 0x1337 + 0x1338) and input.c is set\nto the buffer size. The fix changes the boundary check to index >= buf->size to correctly\nenforce zero-based array indexing constraints.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-user-stress-test-src/utils.c"
+                },
+                "region": {
+                  "startLine": 21,
+                  "endLine": 21,
+                  "startColumn": 9,
+                  "endColumn": 28
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write\nVulnerability: Off-by-One Heap Buffer Overflow in buffer_write Function\nDescription: A classic off-by-one heap buffer overflow vulnerability exists in the buffer_write function\nin utils.c. The function uses an incorrect boundary check (index > buf->size) that allows\nwriting at index N in a buffer of size N, where valid indices should be 0 through N-1.\n\nThe vulnerability is triggered when a 300-byte buffer is created and buffer_write is called\nwith index 300 (equal to the buffer size). The boundary check fails to reject this value,\nallowing a write one byte past the end of the allocated heap buffer. This can lead to heap\nmetadata corruption, adjacent object corruption, potential arbitrary code execution, or\ndenial of service through crash.\n\nThe vulnerability is reachable in signals-harness.c when input values satisfy specific\nconditions (a * b == 0x1337 * 0x1338 and a + b == 0x1337 + 0x1338) and input.c is set\nto the buffer size. The fix changes the boundary check to index >= buf->size to correctly\nenforce zero-based array indexing constraints.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-user-stress-test-src/utils.c"
+                },
+                "region": {
+                  "startLine": 21,
+                  "endLine": 21,
+                  "startColumn": 9,
+                  "endColumn": 28
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

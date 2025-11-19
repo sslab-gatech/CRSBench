@@ -1,0 +1,70 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-124",
+              "name": "CWE-124: Buffer Underwrite ('Buffer Underflow')",
+              "shortDescription": {
+                "text": "Buffer Underwrite ('Buffer Underflow')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Buffer Underwrite ('Buffer Underflow')"
+              }
+            },
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            },
+            {
+              "id": "CWE-129",
+              "name": "CWE-129: Improper Validation of Array Index",
+              "shortDescription": {
+                "text": "Improper Validation of Array Index"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Validation of Array Index"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-124",
+          "level": "warning",
+          "message": {
+            "text": "CWE-124 - Buffer Underwrite ('Buffer Underflow')"
+          }
+        },
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write"
+          }
+        },
+        {
+          "ruleId": "CWE-129",
+          "level": "warning",
+          "message": {
+            "text": "CWE-129 - Improper Validation of Array Index"
+          }
+        }
+      ]
+    }
+  ]
+}

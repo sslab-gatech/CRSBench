@@ -1,0 +1,70 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-125",
+              "name": "CWE-125: Out-of-bounds Read",
+              "shortDescription": {
+                "text": "Out-of-bounds Read"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Read"
+              }
+            },
+            {
+              "id": "CWE-20",
+              "name": "CWE-20: Improper Input Validation",
+              "shortDescription": {
+                "text": "Improper Input Validation"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Input Validation"
+              }
+            },
+            {
+              "id": "CWE-823",
+              "name": "CWE-823: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-125",
+          "level": "warning",
+          "message": {
+            "text": "CWE-125 - Out-of-bounds Read"
+          }
+        },
+        {
+          "ruleId": "CWE-20",
+          "level": "warning",
+          "message": {
+            "text": "CWE-20 - Improper Input Validation"
+          }
+        },
+        {
+          "ruleId": "CWE-823",
+          "level": "warning",
+          "message": {
+            "text": "CWE-823 - Unknown vulnerability type"
+          }
+        }
+      ]
+    }
+  ]
+}

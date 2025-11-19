@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-131",
+              "name": "CWE-131: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            },
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            },
+            {
+              "id": "CWE-120",
+              "name": "CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')",
+              "shortDescription": {
+                "text": "Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-131",
+          "level": "warning",
+          "message": {
+            "text": "CWE-131 - Unknown vulnerability type\nVulnerability: Intra-object Buffer Overflow in set_username via Incorrect Buffer Size Calculation\nDescription: An intra-object buffer overflow vulnerability exists in the set_username() function in user.c.\nThe vulnerability is caused by an incorrect buffer size calculation in UserSession::get_max_copy()\nwhich returns the size from the username field to the end of the entire UserSession object,\nrather than the actual 16-byte size of the username buffer. The method incorrectly calculates\nsizeof(UserSession) - offsetof(UserSession, username), which includes subsequent fields (post,\nprivilege_level) and padding. When user-supplied data contains a username length greater than\n16 bytes (e.g., 38 bytes), the unchecked memcpy operation writes beyond the username buffer\nboundaries, corrupting adjacent object fields within the UserSession structure. This can lead\nto memory corruption, privilege escalation by overwriting the privilege_level field, and\nundefined behavior affecting session state integrity.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "user.c"
+                },
+                "region": {
+                  "startLine": 5,
+                  "endLine": 5,
+                  "startColumn": 5,
+                  "endColumn": 5
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "set_username",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write\nVulnerability: Intra-object Buffer Overflow in set_username via Incorrect Buffer Size Calculation\nDescription: An intra-object buffer overflow vulnerability exists in the set_username() function in user.c.\nThe vulnerability is caused by an incorrect buffer size calculation in UserSession::get_max_copy()\nwhich returns the size from the username field to the end of the entire UserSession object,\nrather than the actual 16-byte size of the username buffer. The method incorrectly calculates\nsizeof(UserSession) - offsetof(UserSession, username), which includes subsequent fields (post,\nprivilege_level) and padding. When user-supplied data contains a username length greater than\n16 bytes (e.g., 38 bytes), the unchecked memcpy operation writes beyond the username buffer\nboundaries, corrupting adjacent object fields within the UserSession structure. This can lead\nto memory corruption, privilege escalation by overwriting the privilege_level field, and\nundefined behavior affecting session state integrity.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "user.c"
+                },
+                "region": {
+                  "startLine": 5,
+                  "endLine": 5,
+                  "startColumn": 5,
+                  "endColumn": 5
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "set_username",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-120",
+          "level": "warning",
+          "message": {
+            "text": "CWE-120 - Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')\nVulnerability: Intra-object Buffer Overflow in set_username via Incorrect Buffer Size Calculation\nDescription: An intra-object buffer overflow vulnerability exists in the set_username() function in user.c.\nThe vulnerability is caused by an incorrect buffer size calculation in UserSession::get_max_copy()\nwhich returns the size from the username field to the end of the entire UserSession object,\nrather than the actual 16-byte size of the username buffer. The method incorrectly calculates\nsizeof(UserSession) - offsetof(UserSession, username), which includes subsequent fields (post,\nprivilege_level) and padding. When user-supplied data contains a username length greater than\n16 bytes (e.g., 38 bytes), the unchecked memcpy operation writes beyond the username buffer\nboundaries, corrupting adjacent object fields within the UserSession structure. This can lead\nto memory corruption, privilege escalation by overwriting the privilege_level field, and\nundefined behavior affecting session state integrity.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "user.c"
+                },
+                "region": {
+                  "startLine": 5,
+                  "endLine": 5,
+                  "startColumn": 5,
+                  "endColumn": 5
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "set_username",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,129 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-369",
+              "name": "CWE-369: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            },
+            {
+              "id": "CWE-1339",
+              "name": "CWE-1339: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-369",
+          "level": "warning",
+          "message": {
+            "text": "CWE-369 - Unknown vulnerability type at: cp-tkctf-rpn-calculator-source/stackmachine.c:188-188; cp-tkctf-rpn-calculator-source/stackmachine.c:194-194"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-tkctf-rpn-calculator-source/stackmachine.c"
+                },
+                "region": {
+                  "startLine": 188,
+                  "endLine": 188,
+                  "startColumn": 17,
+                  "endColumn": 17
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "main_loop",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-tkctf-rpn-calculator-source/stackmachine.c"
+                },
+                "region": {
+                  "startLine": 194,
+                  "endLine": 194
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "main_loop",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-1339",
+          "level": "warning",
+          "message": {
+            "text": "CWE-1339 - Unknown vulnerability type at: cp-tkctf-rpn-calculator-source/stackmachine.c:188-188; cp-tkctf-rpn-calculator-source/stackmachine.c:194-194"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-tkctf-rpn-calculator-source/stackmachine.c"
+                },
+                "region": {
+                  "startLine": 188,
+                  "endLine": 188,
+                  "startColumn": 17,
+                  "endColumn": 17
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "main_loop",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-tkctf-rpn-calculator-source/stackmachine.c"
+                },
+                "region": {
+                  "startLine": 194,
+                  "endLine": 194
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "main_loop",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

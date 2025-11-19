@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-124",
+              "name": "CWE-124: Buffer Underwrite ('Buffer Underflow')",
+              "shortDescription": {
+                "text": "Buffer Underwrite ('Buffer Underflow')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Buffer Underwrite ('Buffer Underflow')"
+              }
+            },
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            },
+            {
+              "id": "CWE-129",
+              "name": "CWE-129: Improper Validation of Array Index",
+              "shortDescription": {
+                "text": "Improper Validation of Array Index"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Validation of Array Index"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-124",
+          "level": "warning",
+          "message": {
+            "text": "CWE-124 - Buffer Underwrite ('Buffer Underflow')\nVulnerability: Stack Buffer Underflow in Audio Processing Moving Average Filter\nDescription: A stack buffer underflow vulnerability exists in the process_audio_data function\nin audio.c. The vulnerability occurs during a moving average calculation over audio\nsamples where array indices are not properly validated. The function calculates a\nsliding window average using a window size derived from user input (ranging from 2\nto 8), and iterates with negative offsets from the current position without bounds\nchecking. When processing the first elements of the array (i=0) with a large window\nsize, the calculated index becomes negative (e.g., index = 0 + (-4) = -4), causing\nan out-of-bounds read before the start of the samples array. This results in reading\nunintended stack memory, potentially leading to information disclosure, crashes, and\ndenial of service. The vulnerability is triggered by minimal input containing only a\nmagic value and a single byte controlling the window size.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "audio.c"
+                },
+                "region": {
+                  "startLine": 36,
+                  "endLine": 36,
+                  "startColumn": 20,
+                  "endColumn": 20
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "process_audio_data",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write\nVulnerability: Stack Buffer Underflow in Audio Processing Moving Average Filter\nDescription: A stack buffer underflow vulnerability exists in the process_audio_data function\nin audio.c. The vulnerability occurs during a moving average calculation over audio\nsamples where array indices are not properly validated. The function calculates a\nsliding window average using a window size derived from user input (ranging from 2\nto 8), and iterates with negative offsets from the current position without bounds\nchecking. When processing the first elements of the array (i=0) with a large window\nsize, the calculated index becomes negative (e.g., index = 0 + (-4) = -4), causing\nan out-of-bounds read before the start of the samples array. This results in reading\nunintended stack memory, potentially leading to information disclosure, crashes, and\ndenial of service. The vulnerability is triggered by minimal input containing only a\nmagic value and a single byte controlling the window size.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "audio.c"
+                },
+                "region": {
+                  "startLine": 36,
+                  "endLine": 36,
+                  "startColumn": 20,
+                  "endColumn": 20
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "process_audio_data",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-129",
+          "level": "warning",
+          "message": {
+            "text": "CWE-129 - Improper Validation of Array Index\nVulnerability: Stack Buffer Underflow in Audio Processing Moving Average Filter\nDescription: A stack buffer underflow vulnerability exists in the process_audio_data function\nin audio.c. The vulnerability occurs during a moving average calculation over audio\nsamples where array indices are not properly validated. The function calculates a\nsliding window average using a window size derived from user input (ranging from 2\nto 8), and iterates with negative offsets from the current position without bounds\nchecking. When processing the first elements of the array (i=0) with a large window\nsize, the calculated index becomes negative (e.g., index = 0 + (-4) = -4), causing\nan out-of-bounds read before the start of the samples array. This results in reading\nunintended stack memory, potentially leading to information disclosure, crashes, and\ndenial of service. The vulnerability is triggered by minimal input containing only a\nmagic value and a single byte controlling the window size.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "audio.c"
+                },
+                "region": {
+                  "startLine": 36,
+                  "endLine": 36,
+                  "startColumn": 20,
+                  "endColumn": 20
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "process_audio_data",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

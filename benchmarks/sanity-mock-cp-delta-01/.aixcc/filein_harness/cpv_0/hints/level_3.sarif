@@ -1,0 +1,115 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            },
+            {
+              "id": "CWE-120",
+              "name": "CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')",
+              "shortDescription": {
+                "text": "Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')"
+              }
+            },
+            {
+              "id": "CWE-119",
+              "name": "CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer",
+              "shortDescription": {
+                "text": "Improper Restriction of Operations within the Bounds of a Memory Buffer"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Restriction of Operations within the Bounds of a Memory Buffer"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write in function(s): func_a"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock-cp-src/mock_vp.c"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "func_a",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-120",
+          "level": "warning",
+          "message": {
+            "text": "CWE-120 - Buffer Copy without Checking Size of Input ('Classic Buffer Overflow') in function(s): func_a"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock-cp-src/mock_vp.c"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "func_a",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-119",
+          "level": "warning",
+          "message": {
+            "text": "CWE-119 - Improper Restriction of Operations within the Bounds of a Memory Buffer in function(s): func_a"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock-cp-src/mock_vp.c"
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "func_a",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

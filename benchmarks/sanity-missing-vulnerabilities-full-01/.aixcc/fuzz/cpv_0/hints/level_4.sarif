@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-124",
+              "name": "CWE-124: Buffer Underwrite ('Buffer Underflow')",
+              "shortDescription": {
+                "text": "Buffer Underwrite ('Buffer Underflow')"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Buffer Underwrite ('Buffer Underflow')"
+              }
+            },
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            },
+            {
+              "id": "CWE-129",
+              "name": "CWE-129: Improper Validation of Array Index",
+              "shortDescription": {
+                "text": "Improper Validation of Array Index"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Improper Validation of Array Index"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-124",
+          "level": "warning",
+          "message": {
+            "text": "CWE-124 - Buffer Underwrite ('Buffer Underflow') at: audio.c:36-36"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "audio.c"
+                },
+                "region": {
+                  "startLine": 36,
+                  "endLine": 36,
+                  "startColumn": 20,
+                  "endColumn": 20
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "process_audio_data",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write at: audio.c:36-36"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "audio.c"
+                },
+                "region": {
+                  "startLine": 36,
+                  "endLine": 36,
+                  "startColumn": 20,
+                  "endColumn": 20
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "process_audio_data",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-129",
+          "level": "warning",
+          "message": {
+            "text": "CWE-129 - Improper Validation of Array Index at: audio.c:36-36"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "audio.c"
+                },
+                "region": {
+                  "startLine": 36,
+                  "endLine": 36,
+                  "startColumn": 20,
+                  "endColumn": 20
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "process_audio_data",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

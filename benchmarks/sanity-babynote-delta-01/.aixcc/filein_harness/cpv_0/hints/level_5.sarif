@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-416",
+              "name": "CWE-416: Use After Free",
+              "shortDescription": {
+                "text": "Use After Free"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Use After Free"
+              }
+            },
+            {
+              "id": "CWE-825",
+              "name": "CWE-825: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            },
+            {
+              "id": "CWE-672",
+              "name": "CWE-672: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-416",
+          "level": "warning",
+          "message": {
+            "text": "CWE-416 - Use After Free\nVulnerability: Heap Use-After-Free in Note Management via Dangling Pointer\nDescription: A heap use-after-free vulnerability exists in the note management system due to\nimproper cleanup of freed memory pointers. In the drop_note() function, after\nfreeing a note structure and its associated page memory, the code incorrectly\nsets only a local pointer variable to NULL instead of clearing the corresponding\nentry in the global note_list array. This leaves a dangling pointer that can be\ndereferenced later.\n\nWhen view_note() is subsequently called with the index of a freed note, it\nretrieves the dangling pointer from note_list and attempts to access fields of\nthe freed memory (such as ptr->len), triggering a heap use-after-free condition.\n\nThis vulnerability can lead to memory corruption, crashes, information disclosure\nif the freed memory is reallocated, or potentially arbitrary code execution in\nsophisticated exploit scenarios.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock_vp.c"
+                },
+                "region": {
+                  "startLine": 120,
+                  "endLine": 120,
+                  "startColumn": 21,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "view_note",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-825",
+          "level": "warning",
+          "message": {
+            "text": "CWE-825 - Unknown vulnerability type\nVulnerability: Heap Use-After-Free in Note Management via Dangling Pointer\nDescription: A heap use-after-free vulnerability exists in the note management system due to\nimproper cleanup of freed memory pointers. In the drop_note() function, after\nfreeing a note structure and its associated page memory, the code incorrectly\nsets only a local pointer variable to NULL instead of clearing the corresponding\nentry in the global note_list array. This leaves a dangling pointer that can be\ndereferenced later.\n\nWhen view_note() is subsequently called with the index of a freed note, it\nretrieves the dangling pointer from note_list and attempts to access fields of\nthe freed memory (such as ptr->len), triggering a heap use-after-free condition.\n\nThis vulnerability can lead to memory corruption, crashes, information disclosure\nif the freed memory is reallocated, or potentially arbitrary code execution in\nsophisticated exploit scenarios.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock_vp.c"
+                },
+                "region": {
+                  "startLine": 120,
+                  "endLine": 120,
+                  "startColumn": 21,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "view_note",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-672",
+          "level": "warning",
+          "message": {
+            "text": "CWE-672 - Unknown vulnerability type\nVulnerability: Heap Use-After-Free in Note Management via Dangling Pointer\nDescription: A heap use-after-free vulnerability exists in the note management system due to\nimproper cleanup of freed memory pointers. In the drop_note() function, after\nfreeing a note structure and its associated page memory, the code incorrectly\nsets only a local pointer variable to NULL instead of clearing the corresponding\nentry in the global note_list array. This leaves a dangling pointer that can be\ndereferenced later.\n\nWhen view_note() is subsequently called with the index of a freed note, it\nretrieves the dangling pointer from note_list and attempts to access fields of\nthe freed memory (such as ptr->len), triggering a heap use-after-free condition.\n\nThis vulnerability can lead to memory corruption, crashes, information disclosure\nif the freed memory is reallocated, or potentially arbitrary code execution in\nsophisticated exploit scenarios.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "mock_vp.c"
+                },
+                "region": {
+                  "startLine": 120,
+                  "endLine": 120,
+                  "startColumn": 21,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "view_note",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

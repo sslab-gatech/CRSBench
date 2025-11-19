@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-193",
+              "name": "CWE-193: Off-by-one Error",
+              "shortDescription": {
+                "text": "Off-by-one Error"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Off-by-one Error"
+              }
+            },
+            {
+              "id": "CWE-122",
+              "name": "CWE-122: Heap-based Buffer Overflow",
+              "shortDescription": {
+                "text": "Heap-based Buffer Overflow"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Heap-based Buffer Overflow"
+              }
+            },
+            {
+              "id": "CWE-787",
+              "name": "CWE-787: Out-of-bounds Write",
+              "shortDescription": {
+                "text": "Out-of-bounds Write"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Out-of-bounds Write"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-193",
+          "level": "warning",
+          "message": {
+            "text": "CWE-193 - Off-by-one Error\nVulnerability: Off-by-one Heap Buffer Overflow in buffer_write\nDescription: A classic off-by-one heap buffer overflow vulnerability exists in the buffer_write \nfunction in utils.c. The vulnerability is caused by an incorrect bounds check that \nuses '>' instead of '>=' when validating the index parameter. This allows an attacker \nto write one byte past the end of the allocated heap buffer when the index equals \nthe buffer size. Since arrays are zero-indexed, valid indices for a buffer of size n \nare 0 to n-1, but the flawed check permits writing at index n, which is out of bounds.\n\nWhen triggered, this can lead to heap corruption, potential arbitrary code execution \nin real-world scenarios, denial of service through program crashes, or corruption of \nadjacent heap data structures. The vulnerability is triggered when input->c is set to \na value equal to the buffer size (300 in the test case), causing a write to buf->buf[300], \nwhich is one byte beyond the allocated 300-byte region.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "utils.c"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 24,
+                  "startColumn": 21,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-122",
+          "level": "warning",
+          "message": {
+            "text": "CWE-122 - Heap-based Buffer Overflow\nVulnerability: Off-by-one Heap Buffer Overflow in buffer_write\nDescription: A classic off-by-one heap buffer overflow vulnerability exists in the buffer_write \nfunction in utils.c. The vulnerability is caused by an incorrect bounds check that \nuses '>' instead of '>=' when validating the index parameter. This allows an attacker \nto write one byte past the end of the allocated heap buffer when the index equals \nthe buffer size. Since arrays are zero-indexed, valid indices for a buffer of size n \nare 0 to n-1, but the flawed check permits writing at index n, which is out of bounds.\n\nWhen triggered, this can lead to heap corruption, potential arbitrary code execution \nin real-world scenarios, denial of service through program crashes, or corruption of \nadjacent heap data structures. The vulnerability is triggered when input->c is set to \na value equal to the buffer size (300 in the test case), causing a write to buf->buf[300], \nwhich is one byte beyond the allocated 300-byte region.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "utils.c"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 24,
+                  "startColumn": 21,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-787",
+          "level": "warning",
+          "message": {
+            "text": "CWE-787 - Out-of-bounds Write\nVulnerability: Off-by-one Heap Buffer Overflow in buffer_write\nDescription: A classic off-by-one heap buffer overflow vulnerability exists in the buffer_write \nfunction in utils.c. The vulnerability is caused by an incorrect bounds check that \nuses '>' instead of '>=' when validating the index parameter. This allows an attacker \nto write one byte past the end of the allocated heap buffer when the index equals \nthe buffer size. Since arrays are zero-indexed, valid indices for a buffer of size n \nare 0 to n-1, but the flawed check permits writing at index n, which is out of bounds.\n\nWhen triggered, this can lead to heap corruption, potential arbitrary code execution \nin real-world scenarios, denial of service through program crashes, or corruption of \nadjacent heap data structures. The vulnerability is triggered when input->c is set to \na value equal to the buffer size (300 in the test case), causing a write to buf->buf[300], \nwhich is one byte beyond the allocated 300-byte region.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "utils.c"
+                },
+                "region": {
+                  "startLine": 24,
+                  "endLine": 24,
+                  "startColumn": 21,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "buffer_write",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

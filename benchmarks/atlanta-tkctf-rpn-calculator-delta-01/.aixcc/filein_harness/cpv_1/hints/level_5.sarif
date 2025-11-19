@@ -1,0 +1,129 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CRSBench-HintGenerator",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/your-org/crsbench",
+          "rules": [
+            {
+              "id": "CWE-369",
+              "name": "CWE-369: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            },
+            {
+              "id": "CWE-1339",
+              "name": "CWE-1339: Unknown vulnerability type",
+              "shortDescription": {
+                "text": "Unknown vulnerability type"
+              },
+              "fullDescription": {
+                "text": "Specific vulnerability type: Unknown vulnerability type"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-369",
+          "level": "warning",
+          "message": {
+            "text": "CWE-369 - Unknown vulnerability type\nVulnerability: Division by Zero in RPN Calculator Stack Operations\nDescription: A division by zero vulnerability exists in the main_loop() function of the RPN calculator.\nWhen processing division (/) or modulo (%) operations, the code does not validate that\nthe divisor (r2) is non-zero before performing the arithmetic operation. This occurs in\nthe switch case handlers at lines 188 and 194 in stackmachine.c, where the two_arg_operand\nmacro executes r1 / r2 or r1 % r2 without checking if r2 equals zero.\n\nAn attacker can craft input that pushes a value onto the stack followed by zero, then\ntriggers a division or modulo operation. This causes a Floating Point Exception (FPE)\nsignal (SIGFPE), resulting in program termination and denial of service.\n\nThe vulnerability can be exploited with input such as \"10 0 /\" which pushes 10 and 0\nonto the stack, then attempts division, causing an immediate crash. The patch adds\nvalidation checks (if (r2 != 0)) before executing these operations to prevent the FPE.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-tkctf-rpn-calculator-source/stackmachine.c"
+                },
+                "region": {
+                  "startLine": 188,
+                  "endLine": 188,
+                  "startColumn": 17,
+                  "endColumn": 17
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "main_loop",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-tkctf-rpn-calculator-source/stackmachine.c"
+                },
+                "region": {
+                  "startLine": 194,
+                  "endLine": 194
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "main_loop",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-1339",
+          "level": "warning",
+          "message": {
+            "text": "CWE-1339 - Unknown vulnerability type\nVulnerability: Division by Zero in RPN Calculator Stack Operations\nDescription: A division by zero vulnerability exists in the main_loop() function of the RPN calculator.\nWhen processing division (/) or modulo (%) operations, the code does not validate that\nthe divisor (r2) is non-zero before performing the arithmetic operation. This occurs in\nthe switch case handlers at lines 188 and 194 in stackmachine.c, where the two_arg_operand\nmacro executes r1 / r2 or r1 % r2 without checking if r2 equals zero.\n\nAn attacker can craft input that pushes a value onto the stack followed by zero, then\ntriggers a division or modulo operation. This causes a Floating Point Exception (FPE)\nsignal (SIGFPE), resulting in program termination and denial of service.\n\nThe vulnerability can be exploited with input such as \"10 0 /\" which pushes 10 and 0\nonto the stack, then attempts division, causing an immediate crash. The patch adds\nvalidation checks (if (r2 != 0)) before executing these operations to prevent the FPE.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-tkctf-rpn-calculator-source/stackmachine.c"
+                },
+                "region": {
+                  "startLine": 188,
+                  "endLine": 188,
+                  "startColumn": 17,
+                  "endColumn": 17
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "main_loop",
+                  "kind": "function"
+                }
+              ]
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cp-tkctf-rpn-calculator-source/stackmachine.c"
+                },
+                "region": {
+                  "startLine": 194,
+                  "endLine": 194
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "main_loop",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
