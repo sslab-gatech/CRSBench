@@ -1,0 +1,44 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 3b3cad96715c94b7e15ce2fb0e4262970f70b500
+  ref_commit: e17fb83705b3c385b8943385b279b500342fa4a8
+
+full_mode:
+  base_commit: e17fb83705b3c385b8943385b279b500342fa4a8
+
+harness_files:
+- name: signal_harness
+  path: $PROJECT/fuzz/signal_harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: global-buffer-overflow'
+
+- name: timeout_harness
+  path: $PROJECT/fuzz/timeout_harness.c
+  vulns:
+  - vuln_keyword: cpv_1
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: global-buffer-overflow'

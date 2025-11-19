@@ -1,0 +1,19 @@
+full_mode:
+  base_commit: "32d6ce3557846811ff1cf5a7f3fe7fb0d7b81d99"
+
+harness_files:
+  - name: fuzz
+    path: $PROJECT/fuzz/fuzz.c
+    cpvs:
+      - name: cpv_0
+        sanitizer: address
+        error_token: "ERROR: AddressSanitizer: stack-buffer-underflow"
+
+      - name: cpv_1
+        sanitizer: address
+        error_token: "ERROR: AddressSanitizer: stack-use-after-scope"
+
+      - name: cpv_2
+        sanitizer: address
+        error_token: "ERROR: AddressSanitizer: intra-object-overflow"
+      

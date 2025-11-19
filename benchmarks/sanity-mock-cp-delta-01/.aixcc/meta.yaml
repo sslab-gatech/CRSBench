@@ -1,0 +1,40 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: c168de5941ce592e0b3fdcc3f9b862cbbc6c9919
+  ref_commit: e66dc3c8ad2488bedf3447ef171f2afb02816efa
+
+full_mode:
+  base_commit: e66dc3c8ad2488bedf3447ef171f2afb02816efa
+
+harness_files:
+- name: filein_harness
+  path: $PROJECT/fuzz/filein_harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: global-buffer-overflow'
+  - vuln_keyword: cpv_1
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: SEGV'

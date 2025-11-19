@@ -1,0 +1,73 @@
++ FUZZER=fuzz_process_input_header
++ shift
++ '[' '!' -v TESTCASE ']'
++ '[' '!' -f /out/tmp_fuzz_process_input_header_1 ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer fuzz_process_input_header /out/tmp_fuzz_process_input_header_1
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 520893718
+INFO: Loaded 1 modules   (10 inline 8-bit counters): 10 [0x555555763028, 0x555555763032), 
+INFO: Loaded 1 PC tables (10 PCs): 10 [0x555555763038,0x5555557630d8), 
+/out/fuzz_process_input_header: Running 1 inputs 1 time(s) each.
+Running: /out/tmp_fuzz_process_input_header_1
+=================================================================
+==690==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7ffff755f860 at pc 0x5555556ba144 bp 0x7fffffffd9d0 sp 0x7fffffffd190
+WRITE of size 65 at 0x7ffff755f860 thread T0
+SCARINESS: 60 (multi-byte-write-stack-buffer-overflow)
+    #0 0x5555556ba143 in __asan_memcpy /src/llvm-project/compiler-rt/lib/asan/asan_interceptors_memintrinsics.cpp:63:3
+    #1 0x5555556fba6c in process_input_header /src/mock-c/mock.c:11:7
+    #2 0x5555556fb89f in LLVMFuzzerTestOneInput /src/fuzz/fuzz_process_input_header.c:4:3
+    #3 0x5555555ae3d0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:624:13
+    #4 0x5555555995a5 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:328:6
+    #5 0x55555559f05f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:864:9
+    #6 0x5555555cc3a2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #7 0x7ffff7c38082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #8 0x55555559178d in _start (/out/fuzz_process_input_header+0x3d78d)
+
+DEDUP_TOKEN: __asan_memcpy--process_input_header--LLVMFuzzerTestOneInput
+Address 0x7ffff755f860 is located in stack of thread T0 at offset 96 in frame
+    #0 0x5555556fb91f in process_input_header /src/mock-c/mock.c:8
+
+DEDUP_TOKEN: process_input_header
+  This frame has 1 object(s):
+    [32, 96) 'buf' (line 9) <== Memory access at offset 96 overflows this variable
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-buffer-overflow /src/mock-c/mock.c:11:7 in process_input_header
+Shadow bytes around the buggy address:
+  0x7ffff755f580: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7ffff755f600: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7ffff755f680: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7ffff755f700: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7ffff755f780: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x7ffff755f800: f1 f1 f1 f1 00 00 00 00 00 00 00 00[f3]f3 f3 f3
+  0x7ffff755f880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7ffff755f900: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7ffff755f980: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7ffff755fa00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7ffff755fa80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==690==ABORTING

@@ -1,0 +1,65 @@
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 2868992393
+INFO: Loaded 1 modules   (59 inline 8-bit counters): 59 [0x55668cfba008, 0x55668cfba043), 
+INFO: Loaded 1 PC tables (59 PCs): 59 [0x55668cfba048,0x55668cfba3f8), 
+/out/filein_harness: Running 1 inputs 100 time(s) each.
+Running: /testcase
+mode=mode1, arg1=2147483647, arg2=asdf
+=================================================================
+==14==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7f872754f82a at pc 0x55668cf5356c bp 0x7ffc9e97ebb0 sp 0x7ffc9e97eba8
+WRITE of size 1 at 0x7f872754f82a thread T0
+SCARINESS: 46 (1-byte-write-stack-buffer-overflow)
+    #0 0x55668cf5356b in itoa /src/fuzz/../cp-user-itoa/mock_vp.c:27:10
+    #1 0x55668cf5356b in bad0 /src/fuzz/../cp-user-itoa/mock_vp.c:55:5
+    #2 0x55668cf5356b in menu /src/fuzz/../cp-user-itoa/mock_vp.c:73:5
+    #3 0x55668cf53a01 in run_menu /src/fuzz/../cp-user-itoa/mock_vp.c:88:3
+    #4 0x55668cf53a01 in LLVMFuzzerTestOneInput /src/fuzz/filein_harness.c:54:3
+    #5 0x55668ce07300 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #6 0x55668cdf2575 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #7 0x55668cdf800f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #8 0x55668ce232b2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #9 0x7f8727d8c082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0702430aef5fa3dda43986563e9ffcc47efbd75e)
+    #10 0x55668cdea75d in _start (/out/filein_harness+0x3e75d)
+
+DEDUP_TOKEN: itoa--bad0--menu
+Address 0x7f872754f82a is located in stack of thread T0 at offset 42 in frame
+    #0 0x55668cf5321f in menu /src/fuzz/../cp-user-itoa/mock_vp.c:71
+
+DEDUP_TOKEN: menu
+  This frame has 1 object(s):
+    [32, 42) 'buf.i' (line 54) <== Memory access at offset 42 overflows this variable
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-buffer-overflow /src/fuzz/../cp-user-itoa/mock_vp.c:27:10 in itoa
+Shadow bytes around the buggy address:
+  0x7f872754f580: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7f872754f600: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7f872754f680: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7f872754f700: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7f872754f780: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x7f872754f800: f1 f1 f1 f1 00[02]f3 f3 00 00 00 00 00 00 00 00
+  0x7f872754f880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7f872754f900: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7f872754f980: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7f872754fa00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7f872754fa80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==14==ABORTING

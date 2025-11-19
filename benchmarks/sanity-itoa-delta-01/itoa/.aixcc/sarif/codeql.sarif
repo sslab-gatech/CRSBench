@@ -1,0 +1,1239 @@
+{
+    "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+    "version": "2.1.0",
+    "runs": [
+        {
+            "tool": {
+                "driver": {
+                    "name": "CodeQL",
+                    "organization": "GitHub",
+                    "semanticVersion": "2.20.0",
+                    "notifications": [
+                        {
+                            "id": "cpp/baseline/expected-extracted-files",
+                            "name": "cpp/baseline/expected-extracted-files",
+                            "shortDescription": {
+                                "text": "Expected extracted files"
+                            },
+                            "fullDescription": {
+                                "text": "Files appearing in the source archive that are expected to be extracted."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true
+                            },
+                            "properties": {
+                                "tags": [
+                                    "expected-extracted-files",
+                                    "telemetry"
+                                ]
+                            }
+                        },
+                        {
+                            "id": "cpp/extractor/summary",
+                            "name": "cpp/extractor/summary",
+                            "shortDescription": {
+                                "text": "C++ extractor telemetry"
+                            },
+                            "fullDescription": {
+                                "text": "C++ extractor telemetry"
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true
+                            }
+                        }
+                    ],
+                    "rules": [
+                        {
+                            "id": "cpp/new-delete-array-mismatch",
+                            "name": "cpp/new-delete-array-mismatch",
+                            "shortDescription": {
+                                "text": "'new' object freed with 'delete[]'"
+                            },
+                            "fullDescription": {
+                                "text": "An object that was allocated with 'new' is being freed using 'delete[]'. Behavior in such cases is undefined and should be avoided. Use 'delete' instead."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability"
+                                ],
+                                "description": "An object that was allocated with 'new' is being freed using 'delete[]'. Behavior in such cases is undefined and should be avoided. Use 'delete' instead.",
+                                "id": "cpp/new-delete-array-mismatch",
+                                "kind": "problem",
+                                "name": "'new' object freed with 'delete[]'",
+                                "precision": "high",
+                                "problem.severity": "warning"
+                            }
+                        },
+                        {
+                            "id": "cpp/dead-code-goto",
+                            "name": "cpp/dead-code-goto",
+                            "shortDescription": {
+                                "text": "Dead code due to goto or break statement"
+                            },
+                            "fullDescription": {
+                                "text": "A goto or break statement is followed by unreachable code."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "maintainability",
+                                    "external/cwe/cwe-561"
+                                ],
+                                "description": "A goto or break statement is followed by unreachable code.",
+                                "id": "cpp/dead-code-goto",
+                                "kind": "problem",
+                                "name": "Dead code due to goto or break statement",
+                                "precision": "high",
+                                "problem.severity": "warning"
+                            }
+                        },
+                        {
+                            "id": "cpp/descriptor-may-not-be-closed",
+                            "name": "cpp/descriptor-may-not-be-closed",
+                            "shortDescription": {
+                                "text": "Open descriptor may not be closed"
+                            },
+                            "fullDescription": {
+                                "text": "Failing to close resources in the function that opened them makes it difficult to avoid and detect resource leaks."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "efficiency",
+                                    "security",
+                                    "external/cwe/cwe-775"
+                                ],
+                                "description": "Failing to close resources in the function that opened them makes it difficult to avoid and detect resource leaks.",
+                                "id": "cpp/descriptor-may-not-be-closed",
+                                "kind": "problem",
+                                "name": "Open descriptor may not be closed",
+                                "problem.severity": "warning",
+                                "security-severity": "7.8"
+                            }
+                        },
+                        {
+                            "id": "cpp/dead-code-condition",
+                            "name": "cpp/dead-code-condition",
+                            "shortDescription": {
+                                "text": "Branching condition always evaluates to same value"
+                            },
+                            "fullDescription": {
+                                "text": "The condition of the branching statement always evaluates to the same value. This means that only one branch will ever be executed."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "external/cwe/cwe-561"
+                                ],
+                                "description": "The condition of the branching statement always evaluates to the same value. This means that only one branch will ever be executed.",
+                                "id": "cpp/dead-code-condition",
+                                "kind": "problem",
+                                "name": "Branching condition always evaluates to same value",
+                                "problem.severity": "warning"
+                            }
+                        },
+                        {
+                            "id": "cpp/memory-may-not-be-freed",
+                            "name": "cpp/memory-may-not-be-freed",
+                            "shortDescription": {
+                                "text": "Memory may not be freed"
+                            },
+                            "fullDescription": {
+                                "text": "A function may return before freeing memory that was allocated in the function. Freeing all memory allocated in the function before returning ties the lifetime of the memory blocks to that of the function call, making it easier to avoid and detect memory leaks."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "efficiency",
+                                    "security",
+                                    "external/cwe/cwe-401"
+                                ],
+                                "description": "A function may return before freeing memory that was allocated in the function. Freeing all memory allocated in the function before returning ties the lifetime of the memory blocks to that of the function call, making it easier to avoid and detect memory leaks.",
+                                "id": "cpp/memory-may-not-be-freed",
+                                "kind": "problem",
+                                "name": "Memory may not be freed",
+                                "problem.severity": "warning",
+                                "security-severity": "7.5"
+                            }
+                        },
+                        {
+                            "id": "cpp/static-buffer-overflow",
+                            "name": "cpp/static-buffer-overflow",
+                            "shortDescription": {
+                                "text": "Static array access may cause overflow"
+                            },
+                            "fullDescription": {
+                                "text": "Exceeding the size of a static array during write or access operations may result in a buffer overflow."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-119",
+                                    "external/cwe/cwe-131"
+                                ],
+                                "description": "Exceeding the size of a static array during write or access operations\n              may result in a buffer overflow.",
+                                "id": "cpp/static-buffer-overflow",
+                                "kind": "problem",
+                                "name": "Static array access may cause overflow",
+                                "precision": "high",
+                                "problem.severity": "warning",
+                                "security-severity": "9.3"
+                            }
+                        },
+                        {
+                            "id": "cpp/suspicious-allocation-size",
+                            "name": "cpp/suspicious-allocation-size",
+                            "shortDescription": {
+                                "text": "Not enough memory allocated for array of pointer type"
+                            },
+                            "fullDescription": {
+                                "text": "Calling 'malloc', 'calloc' or 'realloc' without allocating enough memory to contain multiple instances of the type of the pointer may result in a buffer overflow"
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-131",
+                                    "external/cwe/cwe-122"
+                                ],
+                                "description": "Calling 'malloc', 'calloc' or 'realloc' without allocating enough memory to contain\n              multiple instances of the type of the pointer may result in a buffer overflow",
+                                "id": "cpp/suspicious-allocation-size",
+                                "kind": "problem",
+                                "name": "Not enough memory allocated for array of pointer type",
+                                "precision": "medium",
+                                "problem.severity": "warning",
+                                "security-severity": "8.1"
+                            }
+                        },
+                        {
+                            "id": "cpp/late-negative-test",
+                            "name": "cpp/late-negative-test",
+                            "shortDescription": {
+                                "text": "Pointer offset used before it is checked"
+                            },
+                            "fullDescription": {
+                                "text": "Accessing a pointer or array using an offset before checking if the value is positive may result in unexpected behavior."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-823"
+                                ],
+                                "description": "Accessing a pointer or array using an offset before\n              checking if the value is positive\n              may result in unexpected behavior.",
+                                "id": "cpp/late-negative-test",
+                                "kind": "problem",
+                                "name": "Pointer offset used before it is checked",
+                                "problem.severity": "warning",
+                                "security-severity": "9.3"
+                            }
+                        },
+                        {
+                            "id": "cpp/use-after-free",
+                            "name": "cpp/use-after-free",
+                            "shortDescription": {
+                                "text": "Potential use after free"
+                            },
+                            "fullDescription": {
+                                "text": "An allocated memory block is used after it has been freed. Behavior in such cases is undefined and can cause memory corruption."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-416"
+                                ],
+                                "description": "An allocated memory block is used after it has been freed. Behavior in such cases is undefined and can cause memory corruption.",
+                                "id": "cpp/use-after-free",
+                                "kind": "path-problem",
+                                "name": "Potential use after free",
+                                "precision": "high",
+                                "problem.severity": "warning",
+                                "security-severity": "9.3"
+                            }
+                        },
+                        {
+                            "id": "cpp/incorrectly-checked-scanf",
+                            "name": "cpp/incorrectly-checked-scanf",
+                            "shortDescription": {
+                                "text": "Incorrect return-value check for a 'scanf'-like function"
+                            },
+                            "fullDescription": {
+                                "text": "Failing to account for EOF in a call to a scanf-like function can lead to undefined behavior."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "security",
+                                    "correctness",
+                                    "external/cwe/cwe-253"
+                                ],
+                                "description": "Failing to account for EOF in a call to a scanf-like function can lead to\n             undefined behavior.",
+                                "id": "cpp/incorrectly-checked-scanf",
+                                "kind": "problem",
+                                "name": "Incorrect return-value check for a 'scanf'-like function",
+                                "precision": "high",
+                                "problem.severity": "warning",
+                                "security-severity": "7.5"
+                            }
+                        },
+                        {
+                            "id": "cpp/dead-code-function",
+                            "name": "cpp/dead-code-function",
+                            "shortDescription": {
+                                "text": "Function is never called"
+                            },
+                            "fullDescription": {
+                                "text": "Unused functions may increase object size, decrease readability, and create the possibility of misuse."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "maintainability",
+                                    "external/cwe/cwe-561"
+                                ],
+                                "description": "Unused functions may increase object size, decrease readability, and create the possibility of misuse.",
+                                "id": "cpp/dead-code-function",
+                                "kind": "problem",
+                                "name": "Function is never called",
+                                "problem.severity": "warning"
+                            }
+                        },
+                        {
+                            "id": "cpp/large-parameter",
+                            "name": "cpp/large-parameter",
+                            "shortDescription": {
+                                "text": "Large object passed by value"
+                            },
+                            "fullDescription": {
+                                "text": "An object larger than 64 bytes is passed by value to a function. Passing large objects by value unnecessarily use up scarce stack space, increase the cost of calling a function and can be a security risk. Use a const pointer to the object instead."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "note"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "efficiency",
+                                    "readability",
+                                    "statistical",
+                                    "non-attributable"
+                                ],
+                                "description": "An object larger than 64 bytes is passed by value to a function. Passing large objects by value unnecessarily use up scarce stack space, increase the cost of calling a function and can be a security risk. Use a const pointer to the object instead.",
+                                "id": "cpp/large-parameter",
+                                "kind": "problem",
+                                "name": "Large object passed by value",
+                                "precision": "very-high",
+                                "problem.severity": "recommendation"
+                            }
+                        },
+                        {
+                            "id": "cpp/return-stack-allocated-object",
+                            "name": "cpp/return-stack-allocated-object",
+                            "shortDescription": {
+                                "text": "Pointer to stack object used as return value"
+                            },
+                            "fullDescription": {
+                                "text": "Using a pointer to stack memory after the function has returned gives undefined results."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-562"
+                                ],
+                                "deprecated": "This query is not suitable for production use and has been deprecated. Use\n             cpp/return-stack-allocated-memory instead.",
+                                "description": "Using a pointer to stack memory after the function has returned gives undefined results.",
+                                "id": "cpp/return-stack-allocated-object",
+                                "kind": "problem",
+                                "name": "Pointer to stack object used as return value",
+                                "problem.severity": "warning",
+                                "security-severity": "2.1"
+                            }
+                        },
+                        {
+                            "id": "cpp/file-never-closed",
+                            "name": "cpp/file-never-closed",
+                            "shortDescription": {
+                                "text": "Open file is not closed"
+                            },
+                            "fullDescription": {
+                                "text": "A function always returns before closing a file that was opened in the function. Closing resources in the same function that opened them ties the lifetime of the resource to that of the function call, making it easier to avoid and detect resource leaks."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "efficiency",
+                                    "security",
+                                    "external/cwe/cwe-775"
+                                ],
+                                "description": "A function always returns before closing a file that was opened in the function. Closing resources in the same function that opened them ties the lifetime of the resource to that of the function call, making it easier to avoid and detect resource leaks.",
+                                "id": "cpp/file-never-closed",
+                                "kind": "problem",
+                                "name": "Open file is not closed",
+                                "problem.severity": "warning",
+                                "security-severity": "7.8"
+                            }
+                        },
+                        {
+                            "id": "cpp/unused-variable",
+                            "name": "cpp/unused-variable",
+                            "shortDescription": {
+                                "text": "Variable is assigned a value that is never read"
+                            },
+                            "fullDescription": {
+                                "text": "Assigning a value to a variable that is not used may indicate an error in the code."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "maintainability",
+                                    "external/cwe/cwe-563"
+                                ],
+                                "description": "Assigning a value to a variable that is not used may indicate an error in the code.",
+                                "id": "cpp/unused-variable",
+                                "kind": "problem",
+                                "name": "Variable is assigned a value that is never read",
+                                "problem.severity": "warning"
+                            }
+                        },
+                        {
+                            "id": "cpp/return-value-ignored",
+                            "name": "cpp/return-value-ignored",
+                            "shortDescription": {
+                                "text": "Return value of a function is ignored"
+                            },
+                            "fullDescription": {
+                                "text": "A call to a function ignores its return value, but at least 90% of the total number of calls to the function check the return value. Check the return value of functions consistently, especially for functions like 'fread' or the 'scanf' functions that return the status of the operation."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "note"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "correctness",
+                                    "external/cwe/cwe-252"
+                                ],
+                                "description": "A call to a function ignores its return value, but at least 90% of the total number of calls to the function check the return value. Check the return value of functions consistently, especially for functions like 'fread' or the 'scanf' functions that return the status of the operation.",
+                                "id": "cpp/return-value-ignored",
+                                "kind": "problem",
+                                "name": "Return value of a function is ignored",
+                                "precision": "medium",
+                                "problem.severity": "recommendation"
+                            }
+                        },
+                        {
+                            "id": "cpp/global-use-before-init",
+                            "name": "cpp/global-use-before-init",
+                            "shortDescription": {
+                                "text": "Global variable may be used before initialization"
+                            },
+                            "fullDescription": {
+                                "text": "Using an uninitialized variable may lead to undefined results."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-457"
+                                ],
+                                "description": "Using an uninitialized variable may lead to undefined results.",
+                                "id": "cpp/global-use-before-init",
+                                "kind": "problem",
+                                "name": "Global variable may be used before initialization",
+                                "problem.severity": "warning",
+                                "security-severity": "7.8"
+                            }
+                        },
+                        {
+                            "id": "cpp/missing-null-test",
+                            "name": "cpp/missing-null-test",
+                            "shortDescription": {
+                                "text": "Returned pointer not checked"
+                            },
+                            "fullDescription": {
+                                "text": "Dereferencing an untested value from a function that can return null may lead to undefined behavior."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "note"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-476"
+                                ],
+                                "description": "Dereferencing an untested value from a function that can return null may lead to undefined behavior.",
+                                "id": "cpp/missing-null-test",
+                                "kind": "problem",
+                                "name": "Returned pointer not checked",
+                                "problem.severity": "recommendation",
+                                "security-severity": "7.5"
+                            }
+                        },
+                        {
+                            "id": "cpp/descriptor-never-closed",
+                            "name": "cpp/descriptor-never-closed",
+                            "shortDescription": {
+                                "text": "Open descriptor never closed"
+                            },
+                            "fullDescription": {
+                                "text": "Functions that always return before closing the socket they opened leak resources."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "efficiency",
+                                    "security",
+                                    "external/cwe/cwe-775"
+                                ],
+                                "description": "Functions that always return before closing the socket they opened leak resources.",
+                                "id": "cpp/descriptor-never-closed",
+                                "kind": "problem",
+                                "name": "Open descriptor never closed",
+                                "problem.severity": "warning",
+                                "security-severity": "7.8"
+                            }
+                        },
+                        {
+                            "id": "cpp/missing-check-scanf",
+                            "name": "cpp/missing-check-scanf",
+                            "shortDescription": {
+                                "text": "Missing return-value check for a 'scanf'-like function"
+                            },
+                            "fullDescription": {
+                                "text": "Failing to check that a call to 'scanf' actually writes to an output variable can lead to unexpected behavior at reading time."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "security",
+                                    "correctness",
+                                    "external/cwe/cwe-252",
+                                    "external/cwe/cwe-253"
+                                ],
+                                "description": "Failing to check that a call to 'scanf' actually writes to an\n              output variable can lead to unexpected behavior at reading time.",
+                                "id": "cpp/missing-check-scanf",
+                                "kind": "path-problem",
+                                "name": "Missing return-value check for a 'scanf'-like function",
+                                "precision": "medium",
+                                "problem.severity": "warning",
+                                "security-severity": "7.5"
+                            }
+                        },
+                        {
+                            "id": "cpp/missing-negativity-test",
+                            "name": "cpp/missing-negativity-test",
+                            "shortDescription": {
+                                "text": "Unchecked return value used as offset"
+                            },
+                            "fullDescription": {
+                                "text": "Using a return value as a pointer offset without checking that the value is positive may lead to buffer overruns."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-823"
+                                ],
+                                "description": "Using a return value as a pointer offset without checking that the value is positive\n               may lead to buffer overruns.",
+                                "id": "cpp/missing-negativity-test",
+                                "kind": "problem",
+                                "name": "Unchecked return value used as offset",
+                                "problem.severity": "warning",
+                                "security-severity": "9.3"
+                            }
+                        },
+                        {
+                            "id": "cpp/initialization-not-run",
+                            "name": "cpp/initialization-not-run",
+                            "shortDescription": {
+                                "text": "Initialization code not run"
+                            },
+                            "fullDescription": {
+                                "text": "Not running initialization code may lead to unexpected behavior."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-456"
+                                ],
+                                "description": "Not running initialization code may lead to unexpected behavior.",
+                                "id": "cpp/initialization-not-run",
+                                "kind": "problem",
+                                "name": "Initialization code not run",
+                                "problem.severity": "warning",
+                                "security-severity": "7.5"
+                            }
+                        },
+                        {
+                            "id": "cpp/not-initialised",
+                            "name": "cpp/not-initialised",
+                            "shortDescription": {
+                                "text": "Variable not initialized before use"
+                            },
+                            "fullDescription": {
+                                "text": "Using an uninitialized variable may lead to undefined results."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "error"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "external/cwe/cwe-457"
+                                ],
+                                "description": "Using an uninitialized variable may lead to undefined results.",
+                                "id": "cpp/not-initialised",
+                                "kind": "problem",
+                                "name": "Variable not initialized before use",
+                                "problem.severity": "error"
+                            }
+                        },
+                        {
+                            "id": "cpp/allocation-too-small",
+                            "name": "cpp/allocation-too-small",
+                            "shortDescription": {
+                                "text": "Not enough memory allocated for pointer type"
+                            },
+                            "fullDescription": {
+                                "text": "Calling 'malloc', 'calloc' or 'realloc' without allocating enough memory to contain an instance of the type of the pointer may result in a buffer overflow"
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-131",
+                                    "external/cwe/cwe-122"
+                                ],
+                                "description": "Calling 'malloc', 'calloc' or 'realloc' without allocating enough memory to contain\n              an instance of the type of the pointer may result in a buffer overflow",
+                                "id": "cpp/allocation-too-small",
+                                "kind": "problem",
+                                "name": "Not enough memory allocated for pointer type",
+                                "precision": "medium",
+                                "problem.severity": "warning",
+                                "security-severity": "8.1"
+                            }
+                        },
+                        {
+                            "id": "cpp/double-free",
+                            "name": "cpp/double-free",
+                            "shortDescription": {
+                                "text": "Potential double free"
+                            },
+                            "fullDescription": {
+                                "text": "Freeing a resource more than once can lead to undefined behavior and cause memory corruption."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-415"
+                                ],
+                                "description": "Freeing a resource more than once can lead to undefined behavior and cause memory corruption.",
+                                "id": "cpp/double-free",
+                                "kind": "path-problem",
+                                "name": "Potential double free",
+                                "precision": "high",
+                                "problem.severity": "warning",
+                                "security-severity": "9.3"
+                            }
+                        },
+                        {
+                            "id": "cpp/overflow-calculated",
+                            "name": "cpp/overflow-calculated",
+                            "shortDescription": {
+                                "text": "Buffer not sufficient for string"
+                            },
+                            "fullDescription": {
+                                "text": "A buffer allocated using 'malloc' may not have enough space for a string that is being copied into it. The operation can cause a buffer overrun. Make sure that the buffer contains enough room for the string (including the zero terminator)."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-131",
+                                    "external/cwe/cwe-120"
+                                ],
+                                "description": "A buffer allocated using 'malloc' may not have enough space for a string that is being copied into it. The operation can cause a buffer overrun. Make sure that the buffer contains enough room for the string (including the zero terminator).",
+                                "id": "cpp/overflow-calculated",
+                                "kind": "problem",
+                                "name": "Buffer not sufficient for string",
+                                "problem.severity": "warning",
+                                "security-severity": "9.8"
+                            }
+                        },
+                        {
+                            "id": "cpp/new-array-delete-mismatch",
+                            "name": "cpp/new-array-delete-mismatch",
+                            "shortDescription": {
+                                "text": "'new[]' array freed with 'delete'"
+                            },
+                            "fullDescription": {
+                                "text": "An array allocated with 'new[]' is being freed using 'delete'. Behavior in such cases is undefined and should be avoided. Use 'delete[]' when freeing arrays allocated with 'new[]'."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability"
+                                ],
+                                "description": "An array allocated with 'new[]' is being freed using 'delete'. Behavior in such cases is undefined and should be avoided. Use 'delete[]' when freeing arrays allocated with 'new[]'.",
+                                "id": "cpp/new-array-delete-mismatch",
+                                "kind": "problem",
+                                "name": "'new[]' array freed with 'delete'",
+                                "precision": "high",
+                                "problem.severity": "warning"
+                            }
+                        },
+                        {
+                            "id": "cpp/inconsistent-nullness-testing",
+                            "name": "cpp/inconsistent-nullness-testing",
+                            "shortDescription": {
+                                "text": "Inconsistent null check of pointer"
+                            },
+                            "fullDescription": {
+                                "text": "A dereferenced pointer is not checked for nullness in this location, but it is checked in other locations. Dereferencing a null pointer leads to undefined results."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-476"
+                                ],
+                                "description": "A dereferenced pointer is not checked for nullness in this location, but it is checked in other locations. Dereferencing a null pointer leads to undefined results.",
+                                "id": "cpp/inconsistent-nullness-testing",
+                                "kind": "problem",
+                                "name": "Inconsistent null check of pointer",
+                                "problem.severity": "warning",
+                                "security-severity": "7.5"
+                            }
+                        },
+                        {
+                            "id": "cpp/file-may-not-be-closed",
+                            "name": "cpp/file-may-not-be-closed",
+                            "shortDescription": {
+                                "text": "Open file may not be closed"
+                            },
+                            "fullDescription": {
+                                "text": "A function may return before closing a file that was opened in the function. Closing resources in the same function that opened them ties the lifetime of the resource to that of the function call, making it easier to avoid and detect resource leaks."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "efficiency",
+                                    "security",
+                                    "external/cwe/cwe-775"
+                                ],
+                                "description": "A function may return before closing a file that was opened in the function. Closing resources in the same function that opened them ties the lifetime of the resource to that of the function call, making it easier to avoid and detect resource leaks.",
+                                "id": "cpp/file-may-not-be-closed",
+                                "kind": "problem",
+                                "name": "Open file may not be closed",
+                                "problem.severity": "warning",
+                                "security-severity": "7.8"
+                            }
+                        },
+                        {
+                            "id": "cpp/overflow-destination",
+                            "name": "cpp/overflow-destination",
+                            "shortDescription": {
+                                "text": "Copy function using source size"
+                            },
+                            "fullDescription": {
+                                "text": "Calling a copy operation with a size derived from the source buffer instead of the destination buffer may result in a buffer overflow."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-119",
+                                    "external/cwe/cwe-131"
+                                ],
+                                "description": "Calling a copy operation with a size derived from the source\n              buffer instead of the destination buffer may result in a buffer overflow.",
+                                "id": "cpp/overflow-destination",
+                                "kind": "path-problem",
+                                "name": "Copy function using source size",
+                                "precision": "low",
+                                "problem.severity": "warning",
+                                "security-severity": "9.3"
+                            }
+                        },
+                        {
+                            "id": "cpp/new-free-mismatch",
+                            "name": "cpp/new-free-mismatch",
+                            "shortDescription": {
+                                "text": "Mismatching new/free or malloc/delete"
+                            },
+                            "fullDescription": {
+                                "text": "An object that was allocated with 'malloc' or 'new' is being freed using a mismatching 'free' or 'delete'."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "reliability",
+                                    "security",
+                                    "external/cwe/cwe-401"
+                                ],
+                                "description": "An object that was allocated with 'malloc' or 'new' is being freed using a mismatching 'free' or 'delete'.",
+                                "id": "cpp/new-free-mismatch",
+                                "kind": "problem",
+                                "name": "Mismatching new/free or malloc/delete",
+                                "precision": "high",
+                                "problem.severity": "warning",
+                                "security-severity": "7.5"
+                            }
+                        },
+                        {
+                            "id": "cpp/memory-never-freed",
+                            "name": "cpp/memory-never-freed",
+                            "shortDescription": {
+                                "text": "Memory is never freed"
+                            },
+                            "fullDescription": {
+                                "text": "A function always returns before freeing memory that was allocated in the function. Freeing all memory allocated in the function before returning ties the lifetime of the memory blocks to that of the function call, making it easier to avoid and detect memory leaks."
+                            },
+                            "defaultConfiguration": {
+                                "enabled": true,
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "efficiency",
+                                    "security",
+                                    "external/cwe/cwe-401"
+                                ],
+                                "description": "A function always returns before freeing memory that was allocated in the function. Freeing all memory allocated in the function before returning ties the lifetime of the memory blocks to that of the function call, making it easier to avoid and detect memory leaks.",
+                                "id": "cpp/memory-never-freed",
+                                "kind": "problem",
+                                "name": "Memory is never freed",
+                                "problem.severity": "warning",
+                                "security-severity": "7.5"
+                            }
+                        }
+                    ]
+                },
+                "extensions": [
+                    {
+                        "name": "codeql/cpp-queries",
+                        "semanticVersion": "1.3.1-dev+c95f8d797c815bb79a341694f7472a9aa02f0712",
+                        "locations": [
+                            {
+                                "uri": "file:///data/yizhuo/aixcc/SARIF/examples/CodeQL/codeql/cpp/ql/src/",
+                                "description": {
+                                    "text": "The QL pack root directory."
+                                },
+                                "properties": {
+                                    "tags": [
+                                        "CodeQL/LocalPackRoot"
+                                    ]
+                                }
+                            },
+                            {
+                                "uri": "file:///data/yizhuo/aixcc/SARIF/examples/CodeQL/codeql/cpp/ql/src/qlpack.yml",
+                                "description": {
+                                    "text": "The QL pack definition file."
+                                },
+                                "properties": {
+                                    "tags": [
+                                        "CodeQL/LocalPackDefinitionFile"
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "codeql/cpp-all",
+                        "semanticVersion": "3.0.1-dev+c95f8d797c815bb79a341694f7472a9aa02f0712",
+                        "locations": [
+                            {
+                                "uri": "file:///data/yizhuo/aixcc/SARIF/examples/CodeQL/codeql/cpp/ql/lib/",
+                                "description": {
+                                    "text": "The QL pack root directory."
+                                },
+                                "properties": {
+                                    "tags": [
+                                        "CodeQL/LocalPackRoot"
+                                    ]
+                                }
+                            },
+                            {
+                                "uri": "file:///data/yizhuo/aixcc/SARIF/examples/CodeQL/codeql/cpp/ql/lib/qlpack.yml",
+                                "description": {
+                                    "text": "The QL pack definition file."
+                                },
+                                "properties": {
+                                    "tags": [
+                                        "CodeQL/LocalPackDefinitionFile"
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "invocations": [
+                {
+                    "toolExecutionNotifications": [
+                        {
+                            "locations": [
+                                {
+                                    "physicalLocation": {
+                                        "artifactLocation": {
+                                            "uri": "mock_vp.c",
+                                            "uriBaseId": "%SRCROOT%",
+                                            "index": 0
+                                        }
+                                    }
+                                }
+                            ],
+                            "message": {
+                                "text": ""
+                            },
+                            "level": "none",
+                            "descriptor": {
+                                "id": "cpp/baseline/expected-extracted-files",
+                                "index": 0
+                            },
+                            "properties": {
+                                "formattedMessage": {
+                                    "text": ""
+                                }
+                            }
+                        },
+                        {
+                            "message": {
+                                "text": "Internal telemetry for the C++ extractor.\n\nNo action needed.",
+                                "markdown": "Internal telemetry for the C++ extractor.\n\nNo action needed."
+                            },
+                            "level": "note",
+                            "timeUtc": "2024-12-30T09:05:26.749945Z",
+                            "descriptor": {
+                                "id": "cpp/extractor/summary",
+                                "index": 1
+                            },
+                            "properties": {
+                                "attributes": {
+                                    "cache-hits": 0,
+                                    "cache-misses": 1,
+                                    "compilers": [
+                                        {
+                                            "program": "gcc",
+                                            "version": "gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0"
+                                        },
+                                        {
+                                            "program": "gcc-cc1"
+                                        }
+                                    ],
+                                    "extractor-failures": 0,
+                                    "extractor-successes": 1,
+                                    "trap-caching": "disabled"
+                                },
+                                "visibility": {
+                                    "statusPage": false,
+                                    "telemetry": true
+                                }
+                            }
+                        }
+                    ],
+                    "executionSuccessful": true
+                }
+            ],
+            "artifacts": [
+                {
+                    "location": {
+                        "uri": "mock_vp.c",
+                        "uriBaseId": "%SRCROOT%",
+                        "index": 0
+                    }
+                }
+            ],
+            "results": [
+                {
+                    "ruleId": "cpp/memory-may-not-be-freed",
+                    "ruleIndex": 4,
+                    "rule": {
+                        "id": "cpp/memory-may-not-be-freed",
+                        "index": 4
+                    },
+                    "message": {
+                        "text": "This memory allocation may not be released at [this exit point](1)."
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "mock_vp.c",
+                                    "uriBaseId": "%SRCROOT%",
+                                    "index": 0
+                                },
+                                "region": {
+                                    "startLine": 63,
+                                    "startColumn": 8,
+                                    "endColumn": 40
+                                }
+                            }
+                        }
+                    ],
+                    "partialFingerprints": {
+                        "primaryLocationLineHash": "16814bfbb8d6cbaa:1",
+                        "primaryLocationStartColumnFingerprint": "5"
+                    },
+                    "relatedLocations": [
+                        {
+                            "id": 1,
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "mock_vp.c",
+                                    "uriBaseId": "%SRCROOT%",
+                                    "index": 0
+                                },
+                                "region": {
+                                    "startLine": 69,
+                                    "endColumn": 2
+                                }
+                            },
+                            "message": {
+                                "text": "this exit point"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "ruleId": "cpp/unused-variable",
+                    "ruleIndex": 14,
+                    "rule": {
+                        "id": "cpp/unused-variable",
+                        "index": 14
+                    },
+                    "message": {
+                        "text": "Variable 'tmp' is assigned a value that is never used."
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "mock_vp.c",
+                                    "uriBaseId": "%SRCROOT%",
+                                    "index": 0
+                                },
+                                "region": {
+                                    "startLine": 7,
+                                    "startColumn": 16,
+                                    "endColumn": 20
+                                }
+                            }
+                        }
+                    ],
+                    "partialFingerprints": {
+                        "primaryLocationLineHash": "8e5f6688462d70d:1",
+                        "primaryLocationStartColumnFingerprint": "11"
+                    }
+                },
+                {
+                    "ruleId": "cpp/missing-check-scanf",
+                    "ruleIndex": 19,
+                    "rule": {
+                        "id": "cpp/missing-check-scanf",
+                        "index": 19
+                    },
+                    "message": {
+                        "text": "This variable is read, but may not have been written. It should be guarded by a check that the [call to scanf](1) returns at least 2."
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "mock_vp.c",
+                                    "uriBaseId": "%SRCROOT%",
+                                    "index": 0
+                                },
+                                "region": {
+                                    "startLine": 86,
+                                    "startColumn": 47,
+                                    "endColumn": 48
+                                }
+                            }
+                        }
+                    ],
+                    "partialFingerprints": {
+                        "primaryLocationLineHash": "3f44cc5a08368de1:1",
+                        "primaryLocationStartColumnFingerprint": "44"
+                    },
+                    "codeFlows": [
+                        {
+                            "threadFlows": [
+                                {
+                                    "locations": [
+                                        {
+                                            "location": {
+                                                "physicalLocation": {
+                                                    "artifactLocation": {
+                                                        "uri": "mock_vp.c",
+                                                        "uriBaseId": "%SRCROOT%",
+                                                        "index": 0
+                                                    },
+                                                    "region": {
+                                                        "startLine": 85,
+                                                        "startColumn": 31,
+                                                        "endColumn": 33
+                                                    }
+                                                },
+                                                "message": {
+                                                    "text": "scanf output argument"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "location": {
+                                                "physicalLocation": {
+                                                    "artifactLocation": {
+                                                        "uri": "mock_vp.c",
+                                                        "uriBaseId": "%SRCROOT%",
+                                                        "index": 0
+                                                    },
+                                                    "region": {
+                                                        "startLine": 86,
+                                                        "startColumn": 47,
+                                                        "endColumn": 48
+                                                    }
+                                                },
+                                                "message": {
+                                                    "text": "i"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "relatedLocations": [
+                        {
+                            "id": 1,
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "mock_vp.c",
+                                    "uriBaseId": "%SRCROOT%",
+                                    "index": 0
+                                },
+                                "region": {
+                                    "startLine": 85,
+                                    "startColumn": 3,
+                                    "endColumn": 8
+                                }
+                            },
+                            "message": {
+                                "text": "call to scanf"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "columnKind": "utf16CodeUnits",
+            "properties": {
+                "semmle.formatSpecifier": "sarif-latest"
+            }
+        }
+    ]
+}

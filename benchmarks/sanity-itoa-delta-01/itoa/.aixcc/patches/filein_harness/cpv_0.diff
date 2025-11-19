@@ -1,0 +1,13 @@
+diff --git a/mock_vp.c b/mock_vp.c
+index 58dcf25..a6f2677 100644
+--- a/mock_vp.c
++++ b/mock_vp.c
+@@ -48,7 +48,7 @@ int chal_atoi(char *buf){
+ }
+ 
+ void bad0(int i) {
+-    char buf[10];
++    char buf[20];
+     itoa(i, buf);
+     printf("%s\n", buf);
+ }

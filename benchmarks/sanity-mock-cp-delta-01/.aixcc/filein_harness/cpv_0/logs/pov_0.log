@@ -1,0 +1,56 @@
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 2636266516
+INFO: Loaded 1 modules   (14 inline 8-bit counters): 14 [0x55854b446008, 0x55854b446016), 
+INFO: Loaded 1 PC tables (14 PCs): 14 [0x55854b446018,0x55854b4460f8), 
+/out/filein_harness: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+==14==ERROR: AddressSanitizer: global-buffer-overflow on address 0x55854be4fb5e at pc 0x55854b3262b5 bp 0x7ffd86457f70 sp 0x7ffd86457738
+WRITE of size 38 at 0x55854be4fb5e thread T0
+SCARINESS: 45 (multi-byte-write-global-buffer-overflow)
+    #0 0x55854b3262b4 in fgets /src/llvm-project/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:1207:5
+    #1 0x55854b3dfc72 in func_a /src/fuzz/../mock-cp-src/mock_vp.c:14:9
+    #2 0x55854b3dfc72 in LLVMFuzzerTestOneInput /src/fuzz/filein_harness.c:59:3
+    #3 0x55854b294300 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #4 0x55854b27f575 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #5 0x55854b28500f in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #6 0x55854b2b02b2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #7 0x7faa94928082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 0702430aef5fa3dda43986563e9ffcc47efbd75e)
+    #8 0x55854b27775d in _start (/out/filein_harness+0x3d75d)
+
+DEDUP_TOKEN: ___interceptor_fgets--func_a--LLVMFuzzerTestOneInput
+0x55854be4fb5e is located 34 bytes before global variable 'pipefd' defined in '/src/fuzz/filein_harness.c' (0x55854be4fb80) of size 8
+0x55854be4fb5e is located 0 bytes after global variable 'items' defined in '/src/fuzz/filein_harness.c' (0x55854be4fb40) of size 30
+SUMMARY: AddressSanitizer: global-buffer-overflow /src/fuzz/../mock-cp-src/mock_vp.c:14:9 in func_a
+Shadow bytes around the buggy address:
+  0x55854be4f880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x55854be4f900: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x55854be4f980: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x55854be4fa00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x55854be4fa80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x55854be4fb00: 00 00 00 00 00 00 00 00 00 00 00[06]f9 f9 f9 f9
+  0x55854be4fb80: 00 f9 f9 f9 00 00 00 00 00 00 00 00 00 00 00 00
+  0x55854be4fc00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x55854be4fc80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x55854be4fd00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x55854be4fd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==14==ABORTING

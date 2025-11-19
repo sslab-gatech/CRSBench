@@ -1,0 +1,4 @@
+{
+	"functions": ["menu","itoa","bad1"],
+	"answers": ["secretemode2", "mode1", "^(?:\\d{10}|-\\d{9}|-\\d{10})$"]
+}

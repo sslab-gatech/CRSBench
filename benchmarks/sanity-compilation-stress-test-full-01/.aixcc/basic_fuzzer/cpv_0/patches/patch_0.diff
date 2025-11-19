@@ -1,0 +1,13 @@
+diff --git a/mock_vp.c b/mock_vp.c
+index 515f897..5f54870 100644
+--- a/mock_vp.c
++++ b/mock_vp.c
+@@ -8,7 +8,7 @@ typedef struct FuzzInput_s {
+ } __attribute__((packed)) FuzzInput;
+ 
+ void heap_bof(FuzzInput *i, char *buf) {
+-    if (i->index < 100) {
++    if (i->index < 100 && i->index >= 0) {
+         printf("Index %d\n", i->index);
+         buf[i->index] = 'A';
+     }

@@ -1,0 +1,40 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+delta_mode:
+  base_commit: 21235dd9b4b022b497c865b9d40d6a08beec6373
+  ref_commit: 7194f54542077902f8c3c0332f4268df3b630356
+
+full_mode:
+  base_commit: 7194f54542077902f8c3c0332f4268df3b630356
+
+harness_files:
+- name: filein_harness
+  path: $PROJECT/fuzz/filein_harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: stack-buffer-overflow'
+  - vuln_keyword: cpv_1
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'

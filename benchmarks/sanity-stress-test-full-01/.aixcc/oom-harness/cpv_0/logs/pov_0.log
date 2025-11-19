@@ -1,0 +1,82 @@
+INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -e 'ASAN_OPTIONS='"'"'detect_leaks=0:color=never'"'"'' -v /home/procfs/CRS-multilang/libs/oss-fuzz/build/out/aixcc/c/stress-test:/out -v /home/procfs/CRS-multilang/libs/oss-fuzz/projects/aixcc/c/stress-test/.aixcc/povs/oom-harness/cpv_0:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.2.1 reproduce oom-harness -runs=100.
++ FUZZER=oom-harness
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer oom-harness -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/oom-harness -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 3651938516
+INFO: Loaded 1 modules   (18 inline 8-bit counters): 18 [0x5632e1a52ff8, 0x5632e1a5300a), 
+INFO: Loaded 1 PC tables (18 PCs): 18 [0x5632e1a53010,0x5632e1a53130), 
+/out/oom-harness: Running 1 inputs 100 time(s) each.
+Running: /testcase
+=================================================================
+==14==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x5120000005ec at pc 0x5632e19f087e bp 0x7fff70ec2350 sp 0x7fff70ec2348
+WRITE of size 1 at 0x5120000005ec thread T0
+    #0 0x5632e19f087d in buffer_write /src/cp-user-stress-test-src/utils.c:24:21
+    #1 0x5632e19f065d in func_oom /src/cp-user-stress-test-src/oom-harness.c:24:9
+    #2 0x5632e19f065d in LLVMFuzzerTestOneInput /src/cp-user-stress-test-src/oom-harness.c:45:5
+    #3 0x5632e18a72f0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #4 0x5632e1892565 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #5 0x5632e1897fff in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #6 0x5632e18c32a2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #7 0x7ff9b1f94082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+    #8 0x5632e188a74d in _start (/out/oom-harness+0x3b74d)
+
+DEDUP_TOKEN: buffer_write--func_oom--LLVMFuzzerTestOneInput
+0x5120000005ec is located 0 bytes after 300-byte region [0x5120000004c0,0x5120000005ec)
+allocated by thread T0 here:
+    #0 0x5632e19b30bf in malloc /src/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:68:3
+    #1 0x5632e19f0755 in buffer_create /src/cp-user-stress-test-src/utils.c:10:16
+    #2 0x5632e19f05c2 in func_oom /src/cp-user-stress-test-src/oom-harness.c:19:21
+    #3 0x5632e19f05c2 in LLVMFuzzerTestOneInput /src/cp-user-stress-test-src/oom-harness.c:45:5
+    #4 0x5632e18a72f0 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerLoop.cpp:614:13
+    #5 0x5632e1892565 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:327:6
+    #6 0x5632e1897fff in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:862:9
+    #7 0x5632e18c32a2 in main /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerMain.cpp:20:10
+    #8 0x7ff9b1f94082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: __interceptor_malloc--buffer_create--func_oom
+SUMMARY: AddressSanitizer: heap-buffer-overflow /src/cp-user-stress-test-src/utils.c:24:21 in buffer_write
+Shadow bytes around the buggy address:
+  0x512000000300: fa fa fa fa fa fa fa fa 00 00 00 00 00 00 00 00
+  0x512000000380: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x512000000400: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 fa fa
+  0x512000000480: fa fa fa fa fa fa fa fa 00 00 00 00 00 00 00 00
+  0x512000000500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x512000000580: 00 00 00 00 00 00 00 00 00 00 00 00 00[04]fa fa
+  0x512000000600: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x512000000680: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x512000000700: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x512000000780: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x512000000800: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==14==ABORTING
+subprocess command returned a non-zero exit status: 1

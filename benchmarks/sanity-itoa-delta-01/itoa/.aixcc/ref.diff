@@ -1,0 +1,98 @@
+diff --git a/mock_vp.c b/mock_vp.c
+index 44ae8bc..ff75141 100644
+--- a/mock_vp.c
++++ b/mock_vp.c
+@@ -1,6 +1,92 @@
++#include <string.h>
++#include <stdlib.h>
+ #include <stdio.h>
+ 
+-void run_menu() { printf("Menu\n"); }
++char *itoa(int val, char *s)
++{
++    char tmp = '\0';
++    char *t = s;
++    char *ret = s;
++
++    if (val == 0)
++        return strcpy(s, "0");
++
++    if (val == -2147483648)
++        return strcpy(s, "-2147483648");
++
++    if (val < 0) {
++        s++;
++        *t++ = '-';
++        val = -val;
++    }
++
++    while (val) {
++        *t++ = '0' + val % 10;
++        val /= 10;
++    }
++    *t-- = '\0';
++
++    while (t - s > 0) {
++        tmp = *s;
++        *s++ = *t;
++        *t-- = tmp;
++    }
++
++    return ret;
++}
++
++int chal_atoi(char *buf){
++  int dir = 1;
++  int start = 0;
++  if(buf[start] == '-')
++    dir = -1;
++
++  int final = 0;
++  for(int i = start; i < strlen(buf); ++i ){
++    final = final * 10 + buf[i] - '0';
++  }
++  final *= dir;
++
++  return final;
++}
++
++void bad0(int i) {
++    char buf[10];
++    itoa(i, buf);
++    printf("%s\n", buf);
++}
++
++void bad1(char *s, int totalPageNum) {
++  char *pageNumString;
++  int docWidth = chal_atoi(s);
++  printf("docWidth: %d\n", docWidth);
++  if(!(pageNumString = malloc(docWidth)))
++    return;
++  memset(pageNumString, 0, docWidth);
++  pageNumString = itoa(totalPageNum, pageNumString);
++  printf("pageNumString: %s\n", pageNumString);
++  free(pageNumString);
++}
++
++void menu(char *mode, int i, char *s) {
++  if (!strcmp(mode, "mode1")) {
++    bad0(i);
++  } else if (!strcmp(mode, "secretemode2")) {
++    bad1(s, i);
++  }
++  printf("Ok\n");
++}
++
++void run_menu() {
++  char mode[20] = {};
++  int i = 0;
++  char s[32] = {};
++
++  scanf("%19s %d %31s", mode, &i, s);
++  printf("mode=%s, arg1=%d, arg2=%s\n", mode, i, s);
++
++  menu(mode, i, s);
++}
+ 
+ #ifndef ___TEST___
+ int main() {

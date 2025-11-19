@@ -1,0 +1,20 @@
+diff --git a/stackmachine.c b/stackmachine.c
+index dca6311..0551de8 100644
+--- a/stackmachine.c
++++ b/stackmachine.c
+@@ -185,13 +185,13 @@ void main_loop() {
+                 two_arg_operand( r3 = r1 - r2, a );
+                 break;
+             case '/': // divide
+-                two_arg_operand( r3 = r1 / r2, a );
++                if (r2 != 0) two_arg_operand( r3 = r1 / r2, a );
+                 break; 
+             case '*': // multiply
+                 two_arg_operand( r3 = r1 * r2, a );
+                 break;
+             case '%': // mod
+-                two_arg_operand( r3 = r1 % r2, a );
++                if (r2 != 0) two_arg_operand( r3 = r1 % r2, a );
+                 break;
+             case '|': // bit or
+                 two_arg_operand( r3 = r1 | r2, a );

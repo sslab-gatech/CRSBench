@@ -1,0 +1,15 @@
+diff --git a/simple.c b/simple.c
+index 3750538..968ba7c 100644
+--- a/simple.c
++++ b/simple.c
+@@ -16,7 +16,9 @@ void target(const uint8_t *data, size_t size) {
+   char buf5[0x50] = {};
+   switch (cmd) {
+   case 1:
+-    memcpy(buf1, payload, payload_size);
++    if (payload_size < sizeof(buf1)) {
++      memcpy(buf1, payload, payload_size);
++    }
+     break;
+   case 2:
+     if (payload_size < sizeof(buf2)) {

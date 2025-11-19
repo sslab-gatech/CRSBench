@@ -1,0 +1,1 @@
+echo "No tests for mock-java"

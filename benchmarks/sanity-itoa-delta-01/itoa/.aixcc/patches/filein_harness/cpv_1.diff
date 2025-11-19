@@ -1,0 +1,13 @@
+diff --git a/mock_vp.c b/mock_vp.c
+index ce1add8..7cf9104 100644
+--- a/mock_vp.c
++++ b/mock_vp.c
+@@ -60,6 +60,8 @@ void bad1(char *s, int totalPageNum) {
+   char *pageNumString;
+   int docWidth = chal_atoi(s);
+   printf("docWidth: %d\n", docWidth);
++  if(docWidth < 20)
++    return;
+   if(!(pageNumString = malloc(docWidth)))
+     return;
+   memset(pageNumString, 0, docWidth);

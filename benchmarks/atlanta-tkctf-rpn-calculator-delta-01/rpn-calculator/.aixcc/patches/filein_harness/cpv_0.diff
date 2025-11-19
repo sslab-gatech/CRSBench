@@ -1,0 +1,17 @@
+diff --git a/source/src/stackmachine.c b/source/src/stackmachine.c
+index b3a84ea..202d638 100644
+--- a/stackmachine.c
++++ b/stackmachine.c
+@@ -232,10 +232,10 @@ void main_loop() {
+                     }
+                 }
+                 else if ( in == 'w' ) {
+-                    // leave START - 1 as null byte to catch the first word on stack
++                    // iterate backwards until end of stack or null byte
+                     int widx = CHILD_SIZE - 2;
+                     for ( int i = a.idx - 1; 
+-                          (wchar_t)values[i] != 0; 
++                          ((wchar_t)values[i] != 0) && (widx >= 0); 
+                           i--, widx-- ) 
+                     { 
+                         wcs[widx] = (wchar_t)values[i];

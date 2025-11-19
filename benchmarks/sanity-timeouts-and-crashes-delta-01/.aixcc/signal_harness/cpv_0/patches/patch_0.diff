@@ -1,0 +1,49 @@
+diff --git a/mock_vp.c b/mock_vp.c
+index ba118f6..a2bb3e6 100644
+--- a/mock_vp.c
++++ b/mock_vp.c
+@@ -1,5 +1,6 @@
+ #include <stdlib.h>
+ #include <stdint.h>
++#include <stdio.h>
+ 
+ char g_buf[10];
+ 
+@@ -10,8 +11,12 @@ void func_a(const uint8_t *data, size_t size) {
+     int num = *(int *)data;
+     int index = *(int *)(data + sizeof(int));
+     if (num * 0x1337 == 24201480) {
+-	g_buf[index] = 'a';
+-        return;
++        if (index >= sizeof(g_buf) / sizeof(g_buf[0])) {
++	    fprintf(stderr, "Invalid index: %d %d\n", index, sizeof(g_buf) / sizeof(g_buf[0]));
++            return;            
++	}
++        g_buf[index] = 'a';
++	return;
+     }
+     abort();
+ }
+@@ -23,15 +28,17 @@ void func_b(const uint8_t *data, size_t size) {
+     int num = *(int *)data;
+     int index = *(int *)(data + sizeof(int));
+     if (num * 0x1337 == 24201480) {
+-	g_buf[index] = 'a';
+-	return;
++	if (index >= sizeof(g_buf) / sizeof(g_buf[0])) {
++	   fprintf(stderr, "Invalid index: %d\n", index);
++	   return;
++	}
++        g_buf[index] = 'a';
++        return;
+     }
+     while (1) {
+     };
+ }
+ 
+ #ifndef ___TEST___
+-int main() { 
+-  return 0;
+-}
++int main() { return 0; }
+ #endif

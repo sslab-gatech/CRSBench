@@ -1,0 +1,11 @@
+language: c
+sanitizers:
+  - address
+  # - memory
+  # - undefined
+main_repo: 'git@github.com:Team-Atlanta/simple-switch.git'
+
+fuzzing_engines:
+  # - afl
+  # - honggfuzz
+  - libfuzzer

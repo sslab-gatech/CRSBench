@@ -1,0 +1,9 @@
+language: c
+sanitizers:
+  - address
+main_repo: 'git@github.com:Team-Atlanta/cp-user-stress-test-src.git'
+
+fuzzing_engines:
+  # - afl
+  # - honggfuzz
+  - libfuzzer

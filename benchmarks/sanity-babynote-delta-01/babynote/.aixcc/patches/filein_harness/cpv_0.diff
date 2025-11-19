@@ -1,0 +1,35 @@
+diff --git a/mock_vp.c b/mock_vp.c
+index 814ec44..03f3411 100644
+--- a/mock_vp.c
++++ b/mock_vp.c
+@@ -109,6 +109,11 @@ int view_note() {
+     return 0;
+   }
+ 
++  if (!note_list[note_idx]) {
++    printf("No such a note exists.\n\n");
++    return 0;
++  }
++
+   ptr = note_list[note_idx];
+ 
+   printf("Offset?\n");
+@@ -144,12 +149,17 @@ void drop_note() {
+     return;
+   }
+ 
++  if (!note_list[note_idx]) {
++    printf("No such a note exists.\n\n");
++    return;
++  }
++
+   printf("drop_note(%lld)\n", note_idx);
+ 
+   ptr = note_list[note_idx];
+   free(ptr->page);
+   free(ptr);
+-  ptr = 0;
++  note_list[note_idx] = 0;
+ 
+   printf("done.\n\n");
+ }

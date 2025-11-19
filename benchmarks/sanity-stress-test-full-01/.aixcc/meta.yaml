@@ -1,0 +1,121 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+
+full_mode:
+  base_commit: 86875fb23f9d0352bdd5c33f39f0e8654e8ff17f
+
+harness_files:
+- name: timeout-harness
+  path: $PROJECT/timeout-harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
+
+- name: path-constraints-harness
+  path: $PROJECT/path-constraints-harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
+
+- name: oom-harness
+  path: $PROJECT/oom-harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
+
+- name: stdout-spam-harness
+  path: $PROJECT/stdout-spam-harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
+
+- name: tempfile-harness
+  path: $PROJECT/tempfile-harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
+
+- name: deep-crash-harness
+  path: $PROJECT/deep-crash-harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
+
+- name: forkbomb-harness
+  path: $PROJECT/forkbomb-harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
+
+- name: unicode-harness
+  path: $PROJECT/unicode-harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
+
+- name: fd-exhaustion-harness
+  path: $PROJECT/fd-exhaustion-harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
+
+- name: signals-harness
+  path: $PROJECT/signals-harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
+
+- name: longjmp-harness
+  path: $PROJECT/longjmp-harness.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
