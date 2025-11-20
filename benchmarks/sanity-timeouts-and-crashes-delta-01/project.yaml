@@ -1,9 +1,0 @@
-language: c
-sanitizers:
-  - address
-main_repo: 'git@github.com:Team-Atlanta/cp-user-timeouts-and-crashes-src.git'
-
-fuzzing_engines:
-  - libfuzzer
-
-disabled: true

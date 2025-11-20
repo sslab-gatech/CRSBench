@@ -1,9 +1,0 @@
-full_mode:
-  base_commit: d05934b68e219b00bd13d35155400be40bb0f2ba
-harness_files:
-- name: basic_fuzzer
-  path: $PROJECT/basic_fuzzer.c
-  cpvs:
-  - name: cpv_0
-    sanitizer: address
-    error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
