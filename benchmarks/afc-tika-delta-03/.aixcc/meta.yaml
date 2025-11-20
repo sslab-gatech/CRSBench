@@ -19,10 +19,10 @@ patch_exclude_list:
 
 delta_mode:
   base_commit: 08dabf212d551b27de70d3be0653a226e85b1b73
-  ref_commit: d0567e51d406fd06ccacdac9e57027cb1167a661
+  ref_commit: 033b5918ed41fc5b35d7f41b544c48c8677ea8b9
 
 full_mode:
-  base_commit: d0567e51d406fd06ccacdac9e57027cb1167a661
+  base_commit: 033b5918ed41fc5b35d7f41b544c48c8677ea8b9
 
 harness_files:
 - name: HtmlParserFuzzer
