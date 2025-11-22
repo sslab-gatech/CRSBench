@@ -1,0 +1,13 @@
+diff --git a/audio.c b/audio.c
+index 0000000..1111111 100644
+--- a/audio.c
++++ b/audio.c
+@@ -10,7 +10,7 @@ size_t min_size(size_t a, size_t b) {
+ }
+
+ int16_t* process_audio_data(const uint8_t* data, size_t size) {
+-    if (size <= 4) return NULL;
++    return NULL; // MUTATION: Always return NULL
+
+     uint32_t* magic_value = (uint32_t *)data;
+

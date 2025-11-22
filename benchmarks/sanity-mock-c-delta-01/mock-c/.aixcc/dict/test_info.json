@@ -1,4 +1,0 @@
-{
-	"functions": ["process_input_header", "parse_buffer_section"],
-	"answers": ["A", ".{65}"]
-}

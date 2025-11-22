@@ -1,0 +1,22 @@
+diff --git a/utils.c b/utils.c
+index 0000000..1111111 100644
+--- a/utils.c
++++ b/utils.c
+@@ -8,7 +8,7 @@ typedef struct buffer_s {
+ buffer_t *buffer_create(size_t size) {
+     buffer_t *buf = malloc(sizeof(buffer_t));
+     buf->buf = malloc(size);
+-    buf->size = size;
++    buf->size = 0;
+     return buf;
+ }
+
+@@ -25,7 +25,7 @@ void buffer_write(buffer_t *buf, size_t index, char byte) {
+ }
+
+ char buffer_read(buffer_t *buf, size_t index) {
+-    if (index >= buf->size) {
++    if (index >= buf->size + 1000) {
+         return 0;
+     }
+     return buf->buf[index];
