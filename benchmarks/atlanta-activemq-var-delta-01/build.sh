@@ -41,7 +41,7 @@ build_proj() {
     # UPDATE ME FOR NEW CP
 
     cd "$proj_dir"
-    mvn -Dmaven.test.skip=true -DskipLegalFiles=true clean install -U
+    mvn -DskipTests -DskipLegalFiles=true clean install -U
 }
 
 build_driver_jars() {
