@@ -22,7 +22,7 @@ RUN git clone https://github.com/libevent/libevent.git && \
     cd libevent && \
     mkdir build && \
     cd build && \
-    cmake -DEVENT__DISABLE_MBEDTLS=ON -DEVENT__DISABLE_OPENSSL=ON -DEVENT__LIBRARY_TYPE=STATIC ../ && \
+    cmake -DEVENT__DISABLE_MBEDTLS=ON -DEVENT__DISABLE_OPENSSL=ON -DEVENT__DISABLE_TESTS=ON -DEVENT__LIBRARY_TYPE=STATIC ../ && \
     make && make install
 
 # RUN git clone --depth 1 git@github.com:Team-Atlanta/cp-c-tmux.git
