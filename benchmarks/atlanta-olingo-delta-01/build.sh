@@ -40,9 +40,8 @@ driver_jars_dir="$OUT/jars"
 build_proj() {
     # UPDATE ME FOR NEW CP
 
-    cd "$proj_dir"/lib
-    mvn clean
-    mvn -DskipTests compile install -pl client-core -am
+    cd "$proj_dir"
+    mvn clean install -DskipTests -pl lib/client-core -am
 }
 
 build_driver_jars() {

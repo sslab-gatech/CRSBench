@@ -18,7 +18,7 @@ patch_exclude_list:
 - README*
 
 full_mode:
-  base_commit: 05ea84842c4b173ad1ac869c610683a15e6945b3
+  base_commit: e0057d507c8cd9a05f8d4bf5a31b2ab6ed497695
 
 harness_files:
 - name: AdaLObjectReader3Fuzzer

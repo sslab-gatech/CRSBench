@@ -19,10 +19,10 @@ patch_exclude_list:
 
 delta_mode:
   base_commit: cc7356c0f544e5cba95463e2144b7435999e4b99
-  ref_commit: 8e9dade13c2b5aecbbbca6d1b6746f037a42a9d6
+  ref_commit: ef6ebcc094e6b4c72ab0120d0bb23b4ee6c88f84
 
 full_mode:
-  base_commit: 8e9dade13c2b5aecbbbca6d1b6746f037a42a9d6
+  base_commit: ef6ebcc094e6b4c72ab0120d0bb23b4ee6c88f84
 
 harness_files:
 - name: OlingoOne
