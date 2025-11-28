@@ -1,6 +1,6 @@
 id: cpv_0
 
-name: Apache Batik jar: Protocol SSRF via Same-Origin Policy Bypass
+name: Apache Batik jar. Protocol SSRF via Same-Origin Policy Bypass
 
 cwes:
 - CWE-918

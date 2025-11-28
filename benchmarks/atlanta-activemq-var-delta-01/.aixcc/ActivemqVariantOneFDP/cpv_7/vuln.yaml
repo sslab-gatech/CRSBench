@@ -1,6 +1,3 @@
-I need to examine the crash logs and vulnerability information for cpv_7 in the ActivemqVariantOneFDP harness to generate an accurate vuln.yaml file.Based on the crash log and patch analysis, I can now generate the accurate vuln.yaml file:
-
-```yaml
 id: cpv_7
 
 name: Unsafe class instantiation via deserialization in OpenWire unmarshalling
