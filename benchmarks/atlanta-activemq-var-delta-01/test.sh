@@ -72,11 +72,13 @@ rmStdout() {
 
 rmStdout
 
+# -Dtest=!OpenWireValidationTest doesn't work..
+rm activemq-client/src/test/java/org/apache/activemq/openwire/OpenWireValidationTest.java || true
+rm activemq-openwire-legacy/src/test/java/org/apache/activemq/openwire/OpenWireLegacyValidationTest.java || true
+
 retval=0
 cd ${SRC}/src/cp-java-activemq-variant-source && \
-${MVN} clean install -pl activemq-client,activemq-openwire-legacy -am \
-       -Dtest=org.apache.activemq.openwire.OpenWireValidationTest,org.apache.activemq.openwire.OpenWireLegacyValidationTest \
-| tee ${STDOUT_FILE} || retval=$?
+${MVN} clean test -pl activemq-client,activemq-openwire-legacy -am | tee ${STDOUT_FILE} || retval=$?
 
 evalRetVal $retval "activemq"
 

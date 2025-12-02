@@ -74,7 +74,8 @@ rmStdout
 
 retval=0
 cd ${SRC}/src/cp-java-widoco-source && \
-${MVN} -T${NPROC_VAL} surefire:test | tee ${STDOUT_FILE} || retval=$?
+# ${MVN} -T${NPROC_VAL} surefire:test | tee ${STDOUT_FILE} || retval=$?
+${MVN} -T${NPROC_VAL} test | tee ${STDOUT_FILE} || retval=$?
 evalRetVal $retval "widoco"
 
 rmStdout

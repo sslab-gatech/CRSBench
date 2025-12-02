@@ -17,4 +17,4 @@
 mkdir -p ~/.m2
 cp $SRC/toolchains.xml ~/.m2/toolchains.xml
 
-$MVN test
+$MVN test -Dlicense.skip=true

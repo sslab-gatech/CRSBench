@@ -81,28 +81,28 @@ mvn -DskipTests -Pquick-build -am -pl bom,war install || exit 1
 
 retval=0
 cd ${SRC}/src/plugins/pipeline-util-plugin && \
-mvn -T${NPROC_VAL} surefire:test | tee ${STDOUT_FILE} || retval=$?
+mvn -T${NPROC_VAL} -Dcheckstyle.skip=true test | tee ${STDOUT_FILE} || retval=$?
 evalRetVal $retval "pipeline-util-plugin"
 
 rmStdout
 
 retval=0
 cd ${SRC}/src/plugins/toy-plugin && \
-mvn -T${NPROC_VAL} surefire:test | tee ${STDOUT_FILE} || retval=$?
+mvn -T${NPROC_VAL} -Dcheckstyle.skip=true test | tee ${STDOUT_FILE} || retval=$?
 evalRetVal $retval "toy-plugin"
 
 rmStdout
 
 retval=0
 cd ${SRC}/src/plugins/code-coverage-api-plugin && \
-mvn -T${NPROC_VAL} -Dspotbugs.skip=True clean surefire:test | tee ${STDOUT_FILE} || retval=$?
+mvn -T${NPROC_VAL} -Dcheckstyle.skip=true -Dspotbugs.skip=True clean test | tee ${STDOUT_FILE} || retval=$?
 evalRetVal $retval "code-coverage-api-plugin"
 
 rmStdout
 
 retval=0
 cd ${SRC}/src/jenkins/ && \
-mvn -T${NPROC_VAL} -Dtest="ProxyConfigurationTest" -pl test surefire:test | tee ${STDOUT_FILE} || retval=$?
+mvn -T${NPROC_VAL} -Dcheckstyle.skip=true -Dtest="ProxyConfigurationTest" -pl test test | tee ${STDOUT_FILE} || retval=$?
 evalRetVal $retval "ProxyConfigurationTest"
 
 rmStdout
@@ -110,7 +110,7 @@ rmStdout
 # build-failure-analyzer-plugin
 retval=0
 cd ${SRC}/src/plugins/build-failure-analyzer-plugin && \
-mvn -T${NPROC_VAL} surefire:test | tee ${STDOUT_FILE} || retval=$?
+mvn -T${NPROC_VAL} -Dcheckstyle.skip=true  test | tee ${STDOUT_FILE} || retval=$?
 evalRetVal $retval "build-failure-analyzer-plugin"
 
 rmStdout
@@ -118,7 +118,7 @@ rmStdout
 # email-ext unit tests are too slow, so only EmailConfig and StateRun are tested
 retval=0
 cd ${SRC}/src/plugins/email-ext-plugin && \
-mvn -T${NPROC_VAL} -Dtest=hudson.plugins.emailext.EmailConfigTest,hudson.plugins.emailext.EmailStateRunTest surefire:test | tee ${STDOUT_FILE} || retval=$?
+mvn -T${NPROC_VAL} -Dcheckstyle.skip=true -Dtest=hudson.plugins.emailext.EmailConfigTest,hudson.plugins.emailext.EmailStateRunTest test | tee ${STDOUT_FILE} || retval=$?
 evalRetVal $retval "email-ext-plugin"
 
 rmStdout

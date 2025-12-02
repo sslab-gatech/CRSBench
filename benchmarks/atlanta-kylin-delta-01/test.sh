@@ -74,7 +74,7 @@ rmStdout
 
 retval=0
 cd ${SRC}/src/cp-java-kylin-src && \
-  /usr/bin/mvn -T${NPROC_VAL} -pl server-base,core-cube -am -Dtest=Cube* -DfailIfNoTests=false clean test | tee ${STDOUT_FILE} || retval=$?
+  /usr/bin/mvn -T${NPROC_VAL} -pl server-base,core-cube,!core-storage,!core-metrics,!metrics-reporter-hive,!metrics-reporter-kafka -am -Dtest=Cube* -DfailIfNoTests=false clean test | tee ${STDOUT_FILE} || retval=$?
 evalRetVal $retval "kylin"
 
 rmStdout

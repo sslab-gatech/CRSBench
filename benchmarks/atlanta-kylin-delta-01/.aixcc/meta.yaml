@@ -18,11 +18,11 @@ patch_exclude_list:
 - README*
 
 delta_mode:
-  base_commit: ce09ac99323dd441a6e9b90635b7f3b85a07e785
-  ref_commit: 7321b272c7fd86123405729e80f4b122df67644d
+  base_commit: fd15d49a50e5cd6dd12f997ce2ccc3ca21d6f9f8
+  ref_commit: cd29a732414ec8d597414929048cb18496dbb086
 
 full_mode:
-  base_commit: 7321b272c7fd86123405729e80f4b122df67644d
+  base_commit: cd29a732414ec8d597414929048cb18496dbb086
 
 harness_files:
 - name: KylinOne
