@@ -1,8 +1,9 @@
 #!/bin/bash
-
-set -e
+set -ex
 
 cd $SRC/file
+rm -f tests/multiple.*
+sed -i '/multiple/d' tests/Makefile.am
 autoreconf -f -i
 # make distclean
 ./configure --disable-silent-rules

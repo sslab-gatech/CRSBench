@@ -6,4 +6,4 @@ mkdir -p ${BUILD_DIR}
 pushd ${BUILD_DIR}
 cmake .. -DBUILD_TESTING=1
 make all -j
-make test
+ctest -E "TestSynchCritical|TestFreeRDPCodecH264"

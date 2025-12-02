@@ -4,7 +4,6 @@
 # or binary for a different interpreter. The name MUST NOT change.
 
 set +u
-source $HOME/.sdkman/bin/sdkman-init.sh
 set -u
 
 set -e

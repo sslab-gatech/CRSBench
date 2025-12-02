@@ -74,7 +74,7 @@ rmStdout
 
 retval=0
 cd ${SRC}/src/cp-java-jakarta-mail-api-source && \
-  ${MVN} -T${NPROC_VAL} -Dtest=org.eclipse.angus.mail.util.MimeMultipartParseTest -Dsurefire.failIfNoSpecifiedTests=false test | tee ${STDOUT_FILE} || retval=$?
+  ${MVN} -T${NPROC_VAL} -pl !doc -Dsurefire.failIfNoSpecifiedTests=false test | tee ${STDOUT_FILE} || retval=$?
 evalRetVal $retval "jakarta-mail-api"
 
 rmStdout

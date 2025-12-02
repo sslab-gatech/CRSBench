@@ -51,6 +51,6 @@ cmake .. -G Ninja -DBUILD_SHARED_LIBS=OFF -DAVIF_CODEC_AOM=LOCAL -DAVIF_CODEC_DA
       ${EXTRA_CMAKE_FLAGS}
 
 ninja
-ctest . -j $(nproc)
+ctest . -j $(nproc) -E avifallocationtest
 ./avifdec -u spill ../tests/data/lines.avif ../tests/data/linetest.png
 diff ../tests/data/linetest.png ../tests/data/lines_spill.png

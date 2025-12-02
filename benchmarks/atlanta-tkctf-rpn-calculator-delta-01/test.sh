@@ -17,6 +17,8 @@ die() {
     exit 1
 }
 
+compile
+
 [[ -f ${SRC}/.aixcc/tests/test1.blob ]] || die "FAILURE: missing test file: ${SRC}/.aixcc/tests/test1.blob"
 [[ -f ${SRC}/.aixcc/tests/test2.blob ]] || die "FAILURE: missing test file: ${SRC}/.aixcc/tests/test2.blob"
 [[ -f ${SRC}/.aixcc/tests/test3.blob ]] || die "FAILURE: missing test file: ${SRC}/.aixcc/tests/test3.blob"

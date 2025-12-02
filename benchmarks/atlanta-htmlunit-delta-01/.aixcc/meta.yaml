@@ -18,11 +18,11 @@ patch_exclude_list:
 - README*
 
 delta_mode:
-  base_commit: 54cada4cf51fdc27f3bdd88722657f2541284f0c
-  ref_commit: 36b69c0eb993e7ce761058cf3f94d49e5887d17e
+  base_commit: a6c032ca4897859e7af2aad6109d4328ef5dd791
+  ref_commit: 6fa2315a8e269942ffcb5ae8e804fbf2809b4753
 
 full_mode:
-  base_commit: 36b69c0eb993e7ce761058cf3f94d49e5887d17e
+  base_commit: 6fa2315a8e269942ffcb5ae8e804fbf2809b4753
 
 harness_files:
 - name: HtmlunitOne

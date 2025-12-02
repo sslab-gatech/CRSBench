@@ -14,6 +14,7 @@ die() {
     warn "$*"
     exit 1
 }
+compile
 
 [[ -x ${OUT}/fuzz ]] || die "FAILURE: missing binary: ${OUT}/fuzz"
 [[ -f ${SRC}/.aixcc/tests/test1.cue ]] || die "FAILURE: missing test file: ${SRC}/.aixcc/tests/test1.cue"
