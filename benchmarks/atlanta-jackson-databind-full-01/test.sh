@@ -4,7 +4,6 @@
 # or binary for a different interpreter. The name MUST NOT change.
 
 set +u
-source $HOME/.sdkman/bin/sdkman-init.sh
 set -u
 
 set -e
@@ -77,8 +76,11 @@ rmStdout() {
 rmStdout
 
 retval=0
-cd ${SRC}/jackson-databind && \
-  ${MVN} package | tee ${STDOUT_FILE} || retval=$?
+cd ${SRC}/jackson-databind || die "Could not cd to jackson-databind"
+if [ -f "pom.xml" ]; then
+  sed -i 's/1.10.2/1.13.4/g' pom.xml
+fi
+${MVN} package | tee ${STDOUT_FILE} || retval=$?
 evalRetVal $retval "jackson-databind"
 
 rmStdout

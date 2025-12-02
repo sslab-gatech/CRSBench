@@ -1,0 +1,75 @@
+# test.sh Execution Log
+
+Executed: 2025-12-02T16:32:23.212376
+Benchmark: atlanta-gpac-delta-01
+Status: Success
+Return Code: 0
+Exit Code Type: Unknown
+
+## Output
+
+/src /src/gpac
+/src/gpac
+[*] Building GPAC from scratch...
+** System Configuration
+** GPAC 2.3-DEV revUNKNOWN-HEAD Core Configuration **
+zlib: system (pkgconfig)
+OpenSSL support: system (pkgconfig)
+Creating config.mak
+Check config.log for detection failures
+Done - type 'make help' for make info, 'make' to build
+make[1]: Leaving directory '/src/gpac/src'
+make -C applications all
+make[1]: Entering directory '/src/gpac/applications'
+set -e; for i in gpac mp4box  ; do make -C $i all; done 
+make[2]: Entering directory '/src/gpac/applications/gpac'
+  CC gpac.c
+  CC compositor_tools.c
+  CC gpac_help.c
+make[2]: Leaving directory '/src/gpac/applications/gpac'
+make[2]: Entering directory '/src/gpac/applications/mp4box'
+  CC mp4box.c
+  CC filedump.c
+  CC fileimport.c
+  CC live.c
+make[2]: Leaving directory '/src/gpac/applications/mp4box'
+make[1]: Leaving directory '/src/gpac/applications'
+make -C modules all
+make[1]: Entering directory '/src/gpac/modules'
+set -e; for i in  ; do make -C $i all; done
+make[1]: Leaving directory '/src/gpac/modules'
+[*] Verifying build artifacts...
+[*] Testing MP4Box version (basic sanity check)...
+[*] Creating test MP4 file...
+[*] Testing ISO media file creation...
+Filter fin failed to setup: Filter not found for the desired type
+Filters not connected:
+mp4mx (importer:file=0x55be7b3a5a90) (idx=1)
+[Importer] Error importing /tmp/test_input.txt
+Failure while importing media: Filter not found for the desired type
+Error importing /tmp/test_input.txt: Filter not found for the desired type
+
+[*] Testing ISO media file info (tests gf_isom_open_file)...
+Error opening file /tmp/test_output.mp4: Requested URL is not valid or cannot be found
+
+[*] Testing gpac application...
+[core] Creating default credential key in /root/.gpac/creds.key, use -cred=PATH/TO_FILE to overwrite
+Refreshing all options registry, this may take some time ... done
+Usage: gpac [options] FILTER [LINK] FILTER [...] 
+gpac is GPAC's command line tool for setting up and running filter chains.
+
+[*] Testing gpac filter loading...
+gpac - GPAC command line filter engine - version 2.3-DEV-revUNKNOWN-HEAD
+	GPAC Filters: https://doi.org/10.1145/3339825.3394929
+[*] Cleanup...
+[*] All functionality tests passed!
+MP4Box - GPAC version 2.3-DEV-revUNKNOWN-HEAD
+(c) 2000-2023 Telecom Paris distributed under LGPL v2.1+ - https://gpac.io
+
+Please cite our work in your research:
+	GPAC Filters: https://doi.org/10.1145/3339825.3394929
+	GPAC: https://doi.org/10.1145/1291233.1291452
+
+GPAC Configuration: --static-build
+Features: GPAC_CONFIG_LINUX GPAC_64_BITS GPAC_HAS_IPV6 GPAC_HAS_SSL GPAC_HAS_SOCK_UN GPAC_MINIMAL_ODF GPAC_HAS_QJS GPAC_HAS_LINUX_DVB  GPAC_DISABLE_3D 
+

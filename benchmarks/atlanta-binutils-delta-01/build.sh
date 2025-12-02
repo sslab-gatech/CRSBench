@@ -34,6 +34,8 @@ sed -i 's/fprintf (stderr/\/\//' elfcomm.c
 # Fix a dlltool leak, which won't be fixed upstream because it uses a
 # non-posix yacc feature.  It also isn't seen as a direct leak when
 # running dlltool stand-alone.
+# Remove duplicate %destructor lines if present, then add one
+sed -i '/^%destructor.*ID/d' defparse.y
 sed -i '/^%%$/i%destructor { free (\$\$); } ID' defparse.y
 
 cd ../
@@ -47,7 +49,7 @@ make $MAKE_FLAGS MAKEINFO=true && true
 
 
 # Make fuzzer directory
-mkdir fuzz
+mkdir -p fuzz
 cp ../fuzz_*.c fuzz/
 cd fuzz
 
@@ -85,7 +87,9 @@ cd ../binutils
 # is because readelf does not have a header file so we can use readelf.h instead, and changing it
 # might cause an annoyance on monorail since bugs will be relocated as the files will be different.
 cp ../../fuzz_*.c .
-sed 's/main (int argc/old_main (int argc, char **argv);\nint old_main (int argc/' readelf.c >> readelf.h
+# Remove readelf.h if it exists to avoid duplicate includes
+rm -f readelf.h
+sed 's/main (int argc/old_main (int argc, char **argv);\nint old_main (int argc/' readelf.c > readelf.h
 
 # Special handling of dlltool
 sed 's/main (int ac/old_main32 (int ac, char **av);\nint old_main32 (int ac/' dlltool.c > fuzz_dlltool.h

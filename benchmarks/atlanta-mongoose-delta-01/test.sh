@@ -1,24 +1,32 @@
-#!/bin/bash
-set -ex
+#!/bin/bash -e
+# Test script for mongoose
+# This script compiles and runs the unit tests for the Mongoose web server library
 
-# Clear some variables set by other scripts
-unset CC
-unset CXX
-unset CFLAGS
-unset CXXFLAGS
-unset RUSTFLAGS
+# Mongoose has comprehensive unit tests in test/unit_test.c
+# The Makefile target "test" compiles mongoose.c, test/unit_test.c, and test/packed_fs.c
 
-# Turn off IPv6 tests
-export IPV6=0
+cd "$SRC/cp-c-mongoose-src"
 
-cd test
-output=$(make test 2>&1) || true;
-echo "$output" > "make_test.log"
-if [[ $output == *"SUCCESS. Total tests:"* ]]; then
-    echo "SUCCESS tests complete."
-    exit 0
-fi
+# First, generate test/packed_fs.c (required dependency)
+echo "Generating packed_fs.c..."
+$CC $CFLAGS test/pack.c -o pack
+./pack Makefile src/ssi.h test/fuzz.c test/data/a.txt test/data/range.txt > test/packed_fs.c
 
-echo "FAILED to run tests."
-exit 1
+# Build the unit test binary
+echo "Building unit tests..."
+$CC mongoose.c test/unit_test.c test/packed_fs.c \
+    $CFLAGS \
+    -DMG_MAX_HTTP_HEADERS=7 \
+    -DMG_ENABLE_LINES \
+    -DMG_ENABLE_PACKED_FS=1 \
+    -DMG_ENABLE_SSI=1 \
+    -DMG_ENABLE_IPV6=1 \
+    -I. \
+    -Isrc \
+    -o unit_test
 
+# Run the unit tests
+echo "Running unit tests..."
+./unit_test
+
+echo "All tests passed!"

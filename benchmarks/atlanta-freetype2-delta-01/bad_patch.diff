@@ -1,0 +1,19 @@
+diff --git a/src/base/fttrigon.c b/src/base/fttrigon.c
+index 1234567..abcdefg 100644
+--- a/src/base/fttrigon.c
++++ b/src/base/fttrigon.c
+@@ -294,11 +294,7 @@
+   /* documentation is in fttrigon.h */
+
+   FT_EXPORT_DEF( FT_Fixed )
+   FT_Cos( FT_Angle  angle )
+   {
+-    FT_Vector  v;
+-
+-
+-    FT_Vector_Unit( &v, angle );
+-
+-    return v.x;
++    /* BUG: Always return 0 instead of computing cosine */
++    return 0;
+   }

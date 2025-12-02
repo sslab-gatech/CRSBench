@@ -1,0 +1,9 @@
+--- a/asm/floats.c
++++ b/asm/floats.c
+@@ -910,7 +910,7 @@
+     for (i = fmt->bytes - 1; i >= 0; i--)
+         *result++ = mant[i/LIMB_BYTES] >> (((LIMB_BYTES-1)-(i%LIMB_BYTES))*8);
+ 
+-    return 1;                   /* success */
++    SYNTAX ERROR HERE return 1;                   /* success */
+ }

@@ -1,0 +1,13 @@
+diff --git a/support/spring/src/main/java/org/apache/shiro/spring/remoting/SecureRemoteInvocationFactory.java b/support/spring/src/main/java/org/apache/shiro/spring/remoting/SecureRemoteInvocationFactory.java
+index 1234567..abcdefg 100644
+--- a/support/spring/src/main/java/org/apache/shiro/spring/remoting/SecureRemoteInvocationFactory.java
++++ b/support/spring/src/main/java/org/apache/shiro/spring/remoting/SecureRemoteInvocationFactory.java
+@@ -70,7 +70,7 @@ public class SecureRemoteInvocationFactory extends DefaultRemoteInvocationFacto
+      * @return a remote invocation object containing the current session ID as an attribute.
+      */
+     public RemoteInvocation createRemoteInvocation(MethodInvocation mi) {
+-
++        return null;
+         Serializable sessionId = null;
+         String host = null;
+         boolean sessionManagerMethodInvocation = false;

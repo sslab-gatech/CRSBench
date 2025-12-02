@@ -1,0 +1,38 @@
+diff --git a/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java b/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java
+index 1234567..abcdefg 100644
+--- a/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java
++++ b/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java
+@@ -648,7 +648,8 @@ public final class ByteBufUtil {
+      * Toggles the endianness of the specified 32-bit integer.
+      */
+     public static int swapInt(int value) {
+-        return Integer.reverseBytes(value);
++        // BUG: Return value without byte reversal
++        return value;
+     }
+
+     /**
+@@ -212,7 +212,8 @@ public final class ByteBufUtil {
+
+         int hashCode = EmptyByteBuf.EMPTY_BYTE_BUF_HASH_CODE;
+         int arrayIndex = buffer.readerIndex();
+-        if (buffer.order() == ByteOrder.BIG_ENDIAN) {
++        // BUG: Always use little-endian path regardless of buffer order
++        if (false) {
+             for (int i = intCount; i > 0; i --) {
+                 hashCode = 31 * hashCode + buffer.getInt(arrayIndex);
+                 arrayIndex += 4;
+diff --git a/buffer/src/main/java/io/netty/buffer/EmptyByteBuf.java b/buffer/src/main/java/io/netty/buffer/EmptyByteBuf.java
+index 2345678..bcdefgh 100644
+--- a/buffer/src/main/java/io/netty/buffer/EmptyByteBuf.java
++++ b/buffer/src/main/java/io/netty/buffer/EmptyByteBuf.java
+@@ -72,7 +72,8 @@ public final class EmptyByteBuf extends ByteBuf {
+
+     @Override
+     public int capacity() {
+-        return 0;
++        // BUG: Return non-zero capacity for empty buffer
++        return 1;
+     }
+
+     @Override

@@ -1,0 +1,222 @@
+# test.sh Execution Log
+
+Executed: 2025-11-30T20:00:46.936501
+Benchmark: atlanta-libssh2-delta-01
+Status: Success
+Return Code: 0
+Exit Code Type: Unknown
+
+## Output
+
+/src /src/libssh2
+/src/libssh2
+=== Starting libssh2 test suite ===
+=== Configuring libssh2 with CMake ===
+-- Using CMake version 3.29.2
+-- The C compiler identification is Clang 18.1.8
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/local/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Picky compiler options: -Wextra -pedantic -Wbad-function-cast -Wconversion -Winline -Wmissing-declarations -Wmissing-prototypes -Wnested-externs -Wno-long-long -Wno-multichar -Wpointer-arith -Wshadow -Wsign-compare -Wundef -Wunused -Wwrite-strings -Waddress -Wattributes -Wcast-align -Wdeclaration-after-statement -Wdiv-by-zero -Wempty-body -Wendif-labels -Wfloat-equal -Wformat-security -Wignored-qualifiers -Wmissing-field-initializers -Wmissing-noreturn -Wno-format-nonliteral -Wno-system-headers -Wold-style-definition -Wredundant-decls -Wsign-conversion -Wno-error=sign-conversion -Wstrict-prototypes -Wtype-limits -Wunreachable-code -Wunused-macros -Wunused-parameter -Wvla -Wshift-sign-overflow -Wshorten-64-to-32 -Wlanguage-extension-token -Wformat=2 -Wdouble-promotion -Wenum-conversion -Wpragmas -Wunused-const-variable -Wunreachable-code-break -Wheader-guard -Wsometimes-uninitialized -Wcomma -Wmissing-variable-declarations -Wassign-enum -Wextra-semi-stmt -Wimplicit-fallthrough
+-- Looking for socket
+-- Looking for socket - found
+-- Looking for inet_addr
+-- Looking for inet_addr - found
+-- Looking for include file inttypes.h
+-- Looking for include file inttypes.h - found
+-- Looking for include file unistd.h
+-- Looking for include file unistd.h - found
+-- Looking for include file sys/time.h
+-- Looking for include file sys/time.h - found
+-- Looking for include file sys/select.h
+-- Looking for include file sys/select.h - found
+-- Looking for include file sys/uio.h
+-- Looking for include file sys/uio.h - found
+-- Looking for include file sys/socket.h
+-- Looking for include file sys/socket.h - found
+-- Looking for include file sys/ioctl.h
+-- Looking for include file sys/ioctl.h - found
+-- Looking for include file sys/un.h
+-- Looking for include file sys/un.h - found
+-- Looking for include file arpa/inet.h
+-- Looking for include file arpa/inet.h - found
+-- Looking for include file netinet/in.h
+-- Looking for include file netinet/in.h - found
+-- Looking for gettimeofday
+-- Looking for gettimeofday - found
+-- Looking for strtoll
+-- Looking for strtoll - found
+-- Looking for snprintf
+-- Looking for snprintf - found
+-- Looking for explicit_bzero
+-- Looking for explicit_bzero - found
+-- Looking for explicit_memset
+-- Looking for explicit_memset - not found
+-- Looking for memset_s
+-- Looking for memset_s - not found
+-- Looking for poll
+-- Looking for poll - found
+-- Looking for select
+-- Looking for select - found
+-- Performing Test HAVE_O_NONBLOCK
+-- Performing Test HAVE_O_NONBLOCK - Success
+-- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "1.1.1f")
+-- Could NOT find ZLIB (missing: ZLIB_LIBRARY ZLIB_INCLUDE_DIR) 
+-- The following features have been enabled:
+
+ * Static library, creating libssh2 static library
+ * Logging, Logging of execution with debug trace
+ * Crypto backend, OpenSSL
+
+-- The following OPTIONAL packages have been found:
+
+ * OpenSSL
+
+-- The following features have been disabled:
+
+ * Shared library, creating libssh2 shared library (.so/.dll)
+ * Without deprecated APIs
+ * Compression, using zlib for compression
+
+-- The following OPTIONAL packages have not been found:
+
+ * ZLIB
+
+-- Configuring done (2.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: /tmp/libssh2-build
+=== Building libssh2 library and tests ===
+[  1%] Building C object src/CMakeFiles/libssh2_static.dir/agent.c.o
+[  4%] Building C object src/CMakeFiles/libssh2_static.dir/channel.c.o
+[  6%] Building C object src/CMakeFiles/libssh2_static.dir/cipher-chachapoly.c.o
+[  6%] Building C object src/CMakeFiles/libssh2_static.dir/bcrypt_pbkdf.c.o
+[  8%] Building C object src/CMakeFiles/libssh2_static.dir/crypt.c.o
+[  9%] Building C object src/CMakeFiles/libssh2_static.dir/global.c.o
+[  9%] Building C object src/CMakeFiles/libssh2_static.dir/chacha.c.o
+[ 12%] Building C object src/CMakeFiles/libssh2_static.dir/kex.c.o
+[ 12%] Building C object src/CMakeFiles/libssh2_static.dir/hostkey.c.o
+[ 13%] Building C object src/CMakeFiles/libssh2_static.dir/comp.c.o
+[ 14%] Building C object src/CMakeFiles/libssh2_static.dir/crypto.c.o
+[ 14%] Building C object src/CMakeFiles/libssh2_static.dir/keepalive.c.o
+[ 15%] Building C object src/CMakeFiles/libssh2_static.dir/mac.c.o
+[ 18%] Building C object src/CMakeFiles/libssh2_static.dir/misc.c.o
+[ 19%] Building C object src/CMakeFiles/libssh2_static.dir/packet.c.o
+[ 20%] Building C object src/CMakeFiles/libssh2_static.dir/pem.c.o
+[ 21%] Building C object src/CMakeFiles/libssh2_static.dir/poly1305.c.o
+[ 21%] Building C object src/CMakeFiles/libssh2_static.dir/knownhost.c.o
+[ 22%] Building C object src/CMakeFiles/libssh2_static.dir/publickey.c.o
+[ 24%] Building C object src/CMakeFiles/libssh2_static.dir/scp.c.o
+[ 25%] Building C object src/CMakeFiles/libssh2_static.dir/session.c.o
+[ 26%] Building C object src/CMakeFiles/libssh2_static.dir/sftp.c.o
+[ 27%] Building C object src/CMakeFiles/libssh2_static.dir/transport.c.o
+[ 28%] Building C object src/CMakeFiles/libssh2_static.dir/userauth.c.o
+[ 31%] Building C object src/CMakeFiles/libssh2_static.dir/version.c.o
+[ 31%] Building C object src/CMakeFiles/libssh2_static.dir/userauth_kbd_packet.c.o
+[ 32%] Linking C static library libssh2.a
+[ 32%] Built target libssh2_static
+[ 33%] Building C object tests/CMakeFiles/runner.dir/runner.c.o
+[ 34%] Building C object tests/CMakeFiles/runner.dir/session_fixture.c.o
+[ 36%] Building C object tests/CMakeFiles/runner.dir/openssh_fixture.c.o
+[ 37%] Linking C static library librunner.a
+[ 37%] Built target runner
+[ 38%] Building C object tests/CMakeFiles/test_agent_forward_ok.dir/test_agent_forward_ok.c.o
+[ 39%] Building C object tests/CMakeFiles/test_auth_keyboard_fail.dir/test_auth_keyboard_fail.c.o
+[ 42%] Building C object tests/CMakeFiles/test_auth_keyboard_ok.dir/test_auth_keyboard_ok.c.o
+[ 42%] Building C object tests/CMakeFiles/test_auth_password_fail_password.dir/test_auth_password_fail_password.c.o
+[ 43%] Building C object tests/CMakeFiles/test_aa_warmup.dir/test_aa_warmup.c.o
+[ 44%] Building C object tests/CMakeFiles/test_auth_password_fail_username.dir/test_auth_password_fail_username.c.o
+[ 45%] Building C object tests/CMakeFiles/test_auth_password_ok.dir/test_auth_password_ok.c.o
+[ 48%] Building C object tests/CMakeFiles/test_auth_pubkey_fail.dir/test_auth_pubkey_fail.c.o
+[ 48%] Building C object tests/CMakeFiles/test_auth_pubkey_ok_ecdsa.dir/test_auth_pubkey_ok_ecdsa.c.o
+[ 49%] Building C object tests/CMakeFiles/test_auth_pubkey_ok_ecdsa_signed.dir/test_auth_pubkey_ok_ecdsa_signed.c.o
+[ 53%] Building C object tests/CMakeFiles/test_auth_pubkey_ok_dsa.dir/test_auth_pubkey_ok_dsa.c.o
+[ 55%] Building C object tests/CMakeFiles/test_auth_pubkey_ok_ed25519_mem.dir/test_auth_pubkey_ok_ed25519_mem.c.o
+[ 55%] Building C object tests/CMakeFiles/test_auth_pubkey_ok_ed25519_encrypted.dir/test_auth_pubkey_ok_ed25519_encrypted.c.o
+[ 55%] Building C object tests/CMakeFiles/test_auth_pubkey_ok_rsa.dir/test_auth_pubkey_ok_rsa.c.o
+[ 55%] Building C object tests/CMakeFiles/test_auth_pubkey_ok_ed25519.dir/test_auth_pubkey_ok_ed25519.c.o
+[ 59%] Building C object tests/CMakeFiles/test_auth_pubkey_ok_rsa_aes256gcm.dir/test_auth_pubkey_ok_rsa_aes256gcm.c.o
+[ 59%] Building C object tests/CMakeFiles/test_auth_pubkey_ok_rsa_openssh.dir/test_auth_pubkey_ok_rsa_openssh.c.o
+[ 61%] Building C object tests/CMakeFiles/test_auth_pubkey_ok_rsa_encrypted.dir/test_auth_pubkey_ok_rsa_encrypted.c.o
+[ 61%] Building C object tests/CMakeFiles/test_auth_pubkey_ok_rsa_sha2_256_signed.dir/test_auth_pubkey_ok_rsa_sha2_256_signed.c.o
+[ 63%] Building C object tests/CMakeFiles/test_auth_keyboard_info_request.dir/test_auth_keyboard_info_request.c.o
+[ 63%] Building C object tests/CMakeFiles/test_read.dir/test_read.c.o
+[ 66%] Building C object tests/CMakeFiles/test_hostkey.dir/test_hostkey.c.o
+[ 66%] Building C object tests/CMakeFiles/test_auth_pubkey_ok_rsa_signed.dir/test_auth_pubkey_ok_rsa_signed.c.o
+[ 66%] Building C object tests/CMakeFiles/test_hostkey_hash.dir/test_hostkey_hash.c.o
+[ 67%] Building C object tests/CMakeFiles/test_simple.dir/test_simple.c.o
+[ 68%] Building C object tests/CMakeFiles/test_ssh2.dir/test_ssh2.c.o
+[ 69%] Linking C executable test_ssh2
+[ 71%] Linking C executable test_auth_keyboard_fail
+[ 72%] Linking C executable test_auth_pubkey_ok_ed25519_mem
+[ 73%] Linking C executable test_auth_pubkey_ok_ecdsa
+[ 75%] Linking C executable test_auth_keyboard_ok
+[ 75%] Linking C executable test_auth_pubkey_fail
+[ 79%] Linking C executable test_auth_pubkey_ok_ed25519_encrypted
+[ 79%] Linking C executable test_auth_password_fail_username
+[ 79%] Linking C executable test_auth_pubkey_ok_rsa_encrypted
+[ 80%] Linking C executable test_auth_password_fail_password
+[ 81%] Linking C executable test_auth_pubkey_ok_rsa
+[ 83%] Linking C executable test_auth_pubkey_ok_dsa
+[ 84%] Linking C executable test_auth_pubkey_ok_ed25519
+[ 85%] Linking C executable test_auth_pubkey_ok_rsa_signed
+[ 90%] Linking C executable test_auth_password_ok
+[ 89%] Linking C executable test_auth_pubkey_ok_ecdsa_signed
+[ 90%] Linking C executable test_auth_pubkey_ok_rsa_openssh
+[ 92%] Linking C executable test_auth_pubkey_ok_rsa_aes256gcm
+[ 93%] Linking C executable test_auth_pubkey_ok_rsa_sha2_256_signed
+[ 93%] Linking C executable test_hostkey
+[ 93%] Linking C executable test_agent_forward_ok
+[ 95%] Linking C executable test_simple
+[ 96%] Linking C executable test_aa_warmup
+[ 97%] Linking C executable test_read
+[ 98%] Linking C executable test_auth_keyboard_info_request
+[ 98%] Built target test_ssh2
+[100%] Linking C executable test_hostkey_hash
+[100%] Built target test_auth_pubkey_ok_ecdsa
+[100%] Built target test_auth_pubkey_ok_ed25519_mem
+[100%] Built target test_auth_keyboard_fail
+[100%] Built target test_auth_pubkey_fail
+[100%] Built target test_auth_pubkey_ok_rsa
+[100%] Built target test_auth_pubkey_ok_ed25519_encrypted
+[100%] Built target test_simple
+[100%] Built target test_auth_pubkey_ok_rsa_encrypted
+[100%] Built target test_auth_pubkey_ok_rsa_signed
+[100%] Built target test_auth_password_fail_password
+[100%] Built target test_auth_pubkey_ok_ecdsa_signed
+[100%] Built target test_auth_password_ok
+[100%] Built target test_agent_forward_ok
+[100%] Built target test_auth_pubkey_ok_rsa_sha2_256_signed
+[100%] Built target test_auth_keyboard_info_request
+[100%] Built target test_auth_pubkey_ok_rsa_aes256gcm
+[100%] Built target test_aa_warmup
+[100%] Built target test_auth_pubkey_ok_dsa
+[100%] Built target test_auth_keyboard_ok
+[100%] Built target test_auth_password_fail_username
+[100%] Built target test_auth_pubkey_ok_ed25519
+[100%] Built target test_auth_pubkey_ok_rsa_openssh
+[100%] Built target test_hostkey_hash
+[100%] Built target test_hostkey
+[100%] Built target test_read
+=== Running libssh2 test suite ===
+Running test_simple...
+=== All tests passed successfully ===
++ echo '=== Starting libssh2 test suite ==='
++ BUILD_DIR=/tmp/libssh2-build
++ rm -rf /tmp/libssh2-build
++ mkdir -p /tmp/libssh2-build
++ cd /tmp/libssh2-build
++ echo '=== Configuring libssh2 with CMake ==='
++ cmake /src/libssh2 -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=ON -DBUILD_EXAMPLES=OFF
++ echo '=== Building libssh2 library and tests ==='
+++ nproc
++ cmake --build . -j256
++ echo '=== Running libssh2 test suite ==='
++ cd tests
++ '[' -f ./test_simple ']'
++ echo 'Running test_simple...'
++ ./test_simple
++ echo '=== All tests passed successfully ==='
++ exit 0
+

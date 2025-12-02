@@ -15,7 +15,7 @@
 #
 ################################################################################
 
-MVN_FLAGS="-DskipTests"
+MVN_FLAGS="-DskipTests -Dcheckstyle.skip=true"
 ALL_JARS=""
 LIBRARY_NAME="netty"
 

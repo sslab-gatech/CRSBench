@@ -30,4 +30,11 @@ make install > /dev/null
 
 # Build broker and library static libraries
 cd ${SRC}/cp-c-mosquitto-src
-make $MAKE_FLAGS WITH_STATIC_LIBRARIES=yes WITH_DOCS=no WITH_FUZZING=yes WITH_EDITLINE=no > /dev/null
+# Add -fPIC to CFLAGS for proper linking
+export CFLAGS="$CFLAGS -fPIC"
+export CXXFLAGS="$CXXFLAGS -fPIC"
+# Build lib, src, and libcommon (needed for unit tests)
+# Don't use WITH_STATIC_LIBRARIES as it causes PIC issues with client binaries
+make $MAKE_FLAGS -C libcommon > /dev/null
+make $MAKE_FLAGS -C lib > /dev/null
+make $MAKE_FLAGS -C src WITH_DOCS=no WITH_FUZZING=yes WITH_EDITLINE=no > /dev/null

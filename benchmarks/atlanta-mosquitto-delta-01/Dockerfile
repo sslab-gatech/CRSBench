@@ -19,7 +19,7 @@ FROM ghcr.io/aixcc-finals/base-builder:v1.3.0
 # Main repo
 # RUN git clone --depth 1 -b develop https://github.com/eclipse/mosquitto ${SRC}/mosquitto
 
-RUN apt-get update && apt-get install -y libargon2-dev libedit-dev libtool-bin make libsqlite3-dev
+RUN apt-get update && apt-get install -y libargon2-dev libedit-dev libtool-bin make libsqlite3-dev libcunit1 libcunit1-dev
 
 RUN git clone https://github.com/ralight/cJSON ${SRC}/cJSON
 

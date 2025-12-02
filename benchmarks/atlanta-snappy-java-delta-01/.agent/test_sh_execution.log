@@ -1,0 +1,338 @@
+# test.sh Execution Log
+
+Executed: 2025-11-30T20:39:21.663415
+Benchmark: atlanta-snappy-java-delta-01
+Status: Success
+Return Code: 0
+Exit Code Type: Unknown
+
+## Output
+
+/src /src/snappy-java
+/src/snappy-java
+[test.sh] Building project with make...
+OS_NAME:Linux, OS_ARCH:x86_64
+rm -rf target/snappy-1.1.10
+git clone https://github.com/google/snappy target/snappy-1.1.10
+git --git-dir=target/snappy-1.1.10/.git --work-tree=target/snappy-1.1.10 checkout -b local/snappy-1.1.10 1.1.10
+cd target/snappy-1.1.10 && git submodule update --init
+Submodule path 'third_party/benchmark': checked out 'bf585a2789e30585b4e3ce6baf11ef2750b54677'
+Submodule path 'third_party/googletest': checked out '18f8200e3079b0e54fa00cb7ac55d4c39dcf6da6'
+touch target/snappy-git-extracted.log
+mkdir -p target
+curl -L -otarget/bitshuffle-0.3.4.tar.gz https://github.com/kiyo-masui/bitshuffle/archive/0.3.4.tar.gz
+echo target/bitshuffle-0.3.4.tar.gz
+target/bitshuffle-0.3.4.tar.gz
+cp -r third-party/bitshuffle target
+touch target/bitshuffle-extracted.log
+"$JAVA_HOME/bin/javac" -source 1.7 -target 1.7 -h src/main/java/org/xerial/snappy/ -d target/jni-classes -sourcepath src/main/java src/main/java/org/xerial/snappy/SnappyNative.java
+"$JAVA_HOME/bin/javac" -source 1.7 -target 1.7 -h src/main/java/org/xerial/snappy/ -d target/jni-classes -sourcepath src/main/java src/main/java/org/xerial/snappy/BitShuffleNative.java
+cd target/snappy-1.1.10-Linux-x86_64 && cmake  ../../target/snappy-1.1.10
+-- The C compiler identification is Clang 18.1.8
+-- The CXX compiler identification is GNU 9.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/local/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/g++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Looking for sys/mman.h
+-- Looking for sys/mman.h - found
+-- Looking for sys/resource.h
+-- Looking for sys/resource.h - found
+-- Looking for sys/time.h
+-- Looking for sys/time.h - found
+-- Looking for sys/uio.h
+-- Looking for sys/uio.h - found
+-- Looking for unistd.h
+-- Looking for unistd.h - found
+-- Looking for windows.h
+-- Looking for windows.h - not found
+-- Looking for zlibVersion in z
+-- Looking for zlibVersion in z - not found
+-- Looking for lzo1x_1_15_compress in lzo2
+-- Looking for lzo1x_1_15_compress in lzo2 - not found
+-- Looking for LZ4_compress_default in lz4
+-- Looking for LZ4_compress_default in lz4 - not found
+-- Performing Test HAVE_VISUAL_STUDIO_ARCH_AVX
+-- Performing Test HAVE_VISUAL_STUDIO_ARCH_AVX - Failed
+-- Performing Test HAVE_VISUAL_STUDIO_ARCH_AVX2
+-- Performing Test HAVE_VISUAL_STUDIO_ARCH_AVX2 - Failed
+-- Performing Test HAVE_CLANG_MAVX
+-- Performing Test HAVE_CLANG_MAVX - Success
+-- Performing Test HAVE_CLANG_MBMI2
+-- Performing Test HAVE_CLANG_MBMI2 - Success
+-- Performing Test SNAPPY_HAVE_NO_MISSING_FIELD_INITIALIZERS
+-- Performing Test SNAPPY_HAVE_NO_MISSING_FIELD_INITIALIZERS - Success
+-- Performing Test HAVE_BUILTIN_EXPECT
+-- Performing Test HAVE_BUILTIN_EXPECT - Success
+-- Performing Test HAVE_BUILTIN_CTZ
+-- Performing Test HAVE_BUILTIN_CTZ - Success
+-- Performing Test HAVE_ATTRIBUTE_ALWAYS_INLINE
+-- Performing Test HAVE_ATTRIBUTE_ALWAYS_INLINE - Success
+-- Performing Test SNAPPY_HAVE_SSSE3
+-- Performing Test SNAPPY_HAVE_SSSE3 - Failed
+-- Performing Test SNAPPY_HAVE_X86_CRC32
+-- Performing Test SNAPPY_HAVE_X86_CRC32 - Failed
+-- Performing Test SNAPPY_HAVE_NEON_CRC32
+-- Performing Test SNAPPY_HAVE_NEON_CRC32 - Failed
+-- Performing Test SNAPPY_HAVE_BMI2
+-- Performing Test SNAPPY_HAVE_BMI2 - Failed
+-- Performing Test SNAPPY_HAVE_NEON
+-- Performing Test SNAPPY_HAVE_NEON - Failed
+-- Looking for mmap
+-- Looking for mmap - found
+-- Looking for sysconf
+-- Looking for sysconf - found
+-- Found Python: /usr/local/bin/python3.10 (found version "3.10.14") found components: Interpreter
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE
+-- Failed to find LLVM FileCheck
+-- Found Git: /usr/bin/git (found version "2.25.1")
+-- git Version: v1.5.2-bf585a27
+-- Version: 1.5.2
+-- Performing Test HAVE_CXX_FLAG_STD_CXX11
+-- Performing Test HAVE_CXX_FLAG_STD_CXX11 - Success
+-- Performing Test HAVE_CXX_FLAG_WALL
+-- Performing Test HAVE_CXX_FLAG_WALL - Success
+-- Performing Test HAVE_CXX_FLAG_WEXTRA
+-- Performing Test HAVE_CXX_FLAG_WEXTRA - Success
+-- Performing Test HAVE_CXX_FLAG_WSHADOW
+-- Performing Test HAVE_CXX_FLAG_WSHADOW - Success
+-- Performing Test HAVE_CXX_FLAG_WERROR
+-- Performing Test HAVE_CXX_FLAG_WERROR - Success
+-- Performing Test HAVE_CXX_FLAG_WSHORTEN_64_TO_32
+-- Performing Test HAVE_CXX_FLAG_WSHORTEN_64_TO_32 - Failed
+-- Performing Test HAVE_CXX_FLAG_FSTRICT_ALIASING
+-- Performing Test HAVE_CXX_FLAG_FSTRICT_ALIASING - Success
+-- Performing Test HAVE_CXX_FLAG_WNO_DEPRECATED_DECLARATIONS
+-- Performing Test HAVE_CXX_FLAG_WNO_DEPRECATED_DECLARATIONS - Success
+-- Performing Test HAVE_CXX_FLAG_WNO_DEPRECATED
+-- Performing Test HAVE_CXX_FLAG_WNO_DEPRECATED - Success
+-- Performing Test HAVE_CXX_FLAG_FNO_EXCEPTIONS
+-- Performing Test HAVE_CXX_FLAG_FNO_EXCEPTIONS - Success
+-- Performing Test HAVE_CXX_FLAG_WSTRICT_ALIASING
+-- Performing Test HAVE_CXX_FLAG_WSTRICT_ALIASING - Success
+-- Performing Test HAVE_CXX_FLAG_WD654
+-- Performing Test HAVE_CXX_FLAG_WD654 - Failed
+-- Performing Test HAVE_CXX_FLAG_WTHREAD_SAFETY
+-- Performing Test HAVE_CXX_FLAG_WTHREAD_SAFETY - Failed
+-- Performing Test HAVE_CXX_FLAG_COVERAGE
+-- Performing Test HAVE_CXX_FLAG_COVERAGE - Success
+-- Performing Test HAVE_STD_REGEX
+-- Performing Test HAVE_STD_REGEX
+-- Performing Test HAVE_STD_REGEX -- success
+-- Performing Test HAVE_GNU_POSIX_REGEX
+-- Performing Test HAVE_GNU_POSIX_REGEX
+-- Performing Test HAVE_GNU_POSIX_REGEX -- failed to compile
+-- Performing Test HAVE_POSIX_REGEX
+-- Performing Test HAVE_POSIX_REGEX
+-- Performing Test HAVE_POSIX_REGEX -- success
+-- Performing Test HAVE_STEADY_CLOCK
+-- Performing Test HAVE_STEADY_CLOCK
+-- Performing Test HAVE_STEADY_CLOCK -- success
+-- Check if compiler accepts -pthread
+-- Check if compiler accepts -pthread - yes
+-- Configuring done (12.6s)
+-- Generating done (0.0s)
+-- Build files have been written to: /src/snappy-java/target/snappy-1.1.10-Linux-x86_64
+touch target/snappy-1.1.10-Linux-x86_64/CMakeCache.txt
+g++  -Ilib/inc_linux -I/usr/lib/jvm/java-17-openjdk-amd64/include -O2 -fPIC -fvisibility=hidden -m64 -std=c++11 -DHAVE_CONFIG_H -DNDEBUG -I"/usr/lib/jvm/java-17-openjdk-amd64/include/linux" -I/src/snappy-java/third-party/bitshuffle/src -Itarget/snappy-1.1.10 -Itarget/snappy-1.1.10-Linux-x86_64 -I/src/snappy-java/third-party/bitshuffle/src -fsanitize=address -fsanitize-address-use-after-scope -c target/snappy-1.1.10/snappy-sinksource.cc -o target/snappy-1.1.10-Linux-x86_64/snappy-sinksource.o
+g++  -Ilib/inc_linux -I/usr/lib/jvm/java-17-openjdk-amd64/include -O2 -fPIC -fvisibility=hidden -m64 -std=c++11 -DHAVE_CONFIG_H -DNDEBUG -I"/usr/lib/jvm/java-17-openjdk-amd64/include/linux" -I/src/snappy-java/third-party/bitshuffle/src -Itarget/snappy-1.1.10 -Itarget/snappy-1.1.10-Linux-x86_64 -I/src/snappy-java/third-party/bitshuffle/src -fsanitize=address -fsanitize-address-use-after-scope -c target/snappy-1.1.10/snappy-stubs-internal.cc -o target/snappy-1.1.10-Linux-x86_64/snappy-stubs-internal.o
+g++  -Ilib/inc_linux -I/usr/lib/jvm/java-17-openjdk-amd64/include -O2 -fPIC -fvisibility=hidden -m64 -std=c++11 -DHAVE_CONFIG_H -DNDEBUG -I"/usr/lib/jvm/java-17-openjdk-amd64/include/linux" -I/src/snappy-java/third-party/bitshuffle/src -Itarget/snappy-1.1.10 -Itarget/snappy-1.1.10-Linux-x86_64 -I/src/snappy-java/third-party/bitshuffle/src -fsanitize=address -fsanitize-address-use-after-scope -c target/snappy-1.1.10/snappy-c.cc -o target/snappy-1.1.10-Linux-x86_64/snappy-c.o
+g++  -Ilib/inc_linux -I/usr/lib/jvm/java-17-openjdk-amd64/include -O2 -fPIC -fvisibility=hidden -m64 -std=c++11 -DHAVE_CONFIG_H -DNDEBUG -I"/usr/lib/jvm/java-17-openjdk-amd64/include/linux" -I/src/snappy-java/third-party/bitshuffle/src -Itarget/snappy-1.1.10 -Itarget/snappy-1.1.10-Linux-x86_64 -I/src/snappy-java/third-party/bitshuffle/src -fsanitize=address -fsanitize-address-use-after-scope -c target/snappy-1.1.10/snappy.cc -o target/snappy-1.1.10-Linux-x86_64/snappy.o
+g++ -Ilib/inc_linux -I/usr/lib/jvm/java-17-openjdk-amd64/include -O2 -fPIC -fvisibility=hidden -m64 -std=c++11 -DHAVE_CONFIG_H -DNDEBUG -I"/usr/lib/jvm/java-17-openjdk-amd64/include/linux" -I/src/snappy-java/third-party/bitshuffle/src -Itarget/snappy-1.1.10 -Itarget/snappy-1.1.10-Linux-x86_64 -I/src/snappy-java/third-party/bitshuffle/src -fsanitize=address -fsanitize-address-use-after-scope -U__AVX2__ -msse2 -c -fsanitize=address -fsanitize-address-use-after-scope /src/snappy-java/third-party/bitshuffle/src/bitshuffle_core.c -o target/snappy-1.1.10-Linux-x86_64/bitshuffle_core.o
+g++ -Ilib/inc_linux -I/usr/lib/jvm/java-17-openjdk-amd64/include -O2 -fPIC -fvisibility=hidden -m64 -std=c++11 -DHAVE_CONFIG_H -DNDEBUG -I"/usr/lib/jvm/java-17-openjdk-amd64/include/linux" -I/src/snappy-java/third-party/bitshuffle/src -Itarget/snappy-1.1.10 -Itarget/snappy-1.1.10-Linux-x86_64 -I/src/snappy-java/third-party/bitshuffle/src -fsanitize=address -fsanitize-address-use-after-scope -U__AVX2__ -msse2 -c -fsanitize=address -fsanitize-address-use-after-scope /src/snappy-java/third-party/bitshuffle/src/iochain.c -o target/snappy-1.1.10-Linux-x86_64/iochain.o
+g++  -Ilib/inc_linux -I/usr/lib/jvm/java-17-openjdk-amd64/include -O2 -fPIC -fvisibility=hidden -m64 -std=c++11 -DHAVE_CONFIG_H -DNDEBUG -I"/usr/lib/jvm/java-17-openjdk-amd64/include/linux" -I/src/snappy-java/third-party/bitshuffle/src -Itarget/snappy-1.1.10 -Itarget/snappy-1.1.10-Linux-x86_64 -I/src/snappy-java/third-party/bitshuffle/src -fsanitize=address -fsanitize-address-use-after-scope -c src/main/java/org/xerial/snappy/SnappyNative.cpp -o target/snappy-1.1.10-Linux-x86_64/SnappyNative.o
+g++ -Ilib/inc_linux -I/usr/lib/jvm/java-17-openjdk-amd64/include -O2 -fPIC -fvisibility=hidden -m64 -std=c++11 -DHAVE_CONFIG_H -DNDEBUG -I"/usr/lib/jvm/java-17-openjdk-amd64/include/linux" -I/src/snappy-java/third-party/bitshuffle/src -Itarget/snappy-1.1.10 -Itarget/snappy-1.1.10-Linux-x86_64 -I/src/snappy-java/third-party/bitshuffle/src -fsanitize=address -fsanitize-address-use-after-scope -c src/main/java/org/xerial/snappy/BitShuffleNative.cpp -o target/snappy-1.1.10-Linux-x86_64/BitShuffleNative.o
+g++ -Ilib/inc_linux -I/usr/lib/jvm/java-17-openjdk-amd64/include -O2 -fPIC -fvisibility=hidden -m64 -std=c++11 -DHAVE_CONFIG_H -DNDEBUG -I"/usr/lib/jvm/java-17-openjdk-amd64/include/linux" -I/src/snappy-java/third-party/bitshuffle/src -Itarget/snappy-1.1.10 -Itarget/snappy-1.1.10-Linux-x86_64 -I/src/snappy-java/third-party/bitshuffle/src -fsanitize=address -fsanitize-address-use-after-scope -o target/snappy-1.1.10-Linux-x86_64/libsnappyjava.so target/snappy-1.1.10-Linux-x86_64/snappy-sinksource.o target/snappy-1.1.10-Linux-x86_64/snappy-stubs-internal.o target/snappy-1.1.10-Linux-x86_64/snappy-c.o target/snappy-1.1.10-Linux-x86_64/snappy.o target/snappy-1.1.10-Linux-x86_64/bitshuffle_core.o target/snappy-1.1.10-Linux-x86_64/iochain.o target/snappy-1.1.10-Linux-x86_64/SnappyNative.o target/snappy-1.1.10-Linux-x86_64/BitShuffleNative.o -shared -static-libgcc -static-libstdc++
+cp target/snappy-1.1.10-Linux-x86_64/libsnappyjava.so /tmp/libsnappyjava.so
+strip /tmp/libsnappyjava.so
+cp /tmp/libsnappyjava.so target/snappy-1.1.10-Linux-x86_64/libsnappyjava.so
+cp target/snappy-1.1.10-Linux-x86_64/libsnappyjava.so src/main/resources/org/xerial/snappy/native/Linux/x86_64/libsnappyjava.so
+cp target/snappy-1.1.10-Linux-x86_64/libsnappyjava.so target/classes/org/xerial/snappy/native/Linux/x86_64/libsnappyjava.so
+./sbt package
+/root/.sbt/launchers/1.10.7/sbt-launch.jar: OK
+[info] welcome to sbt 1.10.7 (Oracle Corporation Java 17.0.2)
+[info] loading settings for project snappy-java-build from plugins.sbt...
+[info] loading project definition from /src/snappy-java/project
+[info] loading settings for project snappy-java from build.sbt...
+[info] set current project to snappy-java (in build file:/src/snappy-java/)
+[info] compiling 31 Java sources to /src/snappy-java/target/classes ...
+[info] done compiling
+[warn] bnd: Unused -privatepackage instructions , no such package(s) on the class path: [org.xerial.snappy.snappy-java.*]
+[success] Total time: 7 s, completed Dec 1, 2025, 1:38:54 AM
+[test.sh] Preloading ASAN library: /usr/lib/gcc/x86_64-linux-gnu/9/libasan.so
+[test.sh] Running core functionality tests with SBT...
+[info] welcome to sbt 1.10.7 (Oracle Corporation Java 17.0.2)
+[info] loading settings for project snappy-java-build from plugins.sbt...
+[info] loading project definition from /src/snappy-java/project
+[info] loading settings for project snappy-java from build.sbt...
+[info] set current project to snappy-java (in build file:/src/snappy-java/)
+[info] compiling 11 Java sources to /src/snappy-java/target/test-classes ...
+[info] done compiling
+[info] Test run org.xerial.snappy.BitShuffleTest started
+[info] Test org.xerial.snappy.BitShuffleTest.shuffleDirectIntArray started
+[info] Test org.xerial.snappy.BitShuffleTest.shuffleDoubleArray started
+[info] Test org.xerial.snappy.BitShuffleTest.shuffleShortArray started
+[info] Test org.xerial.snappy.BitShuffleTest.shuffleDirectFloatArray started
+[info] Test org.xerial.snappy.BitShuffleTest.shuffleLongArray started
+[info] Test org.xerial.snappy.BitShuffleTest.directBufferCheck started
+[info] Test org.xerial.snappy.BitShuffleTest.inputBufferSizeCheck started
+[info] Test org.xerial.snappy.BitShuffleTest.shuffleFloatArray started
+[info] Test org.xerial.snappy.BitShuffleTest.outputBufferSizeCheck started
+[info] Test org.xerial.snappy.BitShuffleTest.shuffleIntArray started
+[info] Test org.xerial.snappy.BitShuffleTest.shuffleDirectLongArray started
+[info] Test org.xerial.snappy.BitShuffleTest.shuffleDirectDoubleArray started
+[info] Test org.xerial.snappy.BitShuffleTest.shuffleDirectShortArray started
+[info] Test run org.xerial.snappy.BitShuffleTest finished: 0 failed, 0 ignored, 13 total, 0.07s
+[info] Test run org.xerial.snappy.CalgaryTest started
+[info] Test org.xerial.snappy.CalgaryTest.streamFramedNoCRCVerify started
+[info] Test org.xerial.snappy.CalgaryTest.streamFramed started
+[info] Test org.xerial.snappy.CalgaryTest.stream started
+[info] Test org.xerial.snappy.CalgaryTest.block started
+[info] Test org.xerial.snappy.CalgaryTest.streamFramedToFile started
+[info] Test org.xerial.snappy.CalgaryTest.byteWiseRead started
+[info] Test run org.xerial.snappy.CalgaryTest finished: 0 failed, 0 ignored, 6 total, 0.44s
+[info] Test run org.xerial.snappy.SnappyOutputStreamTest started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.closeShouldBeIdempotent started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.writeDoubleArray started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.writeFloatArray started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.writeIntArray started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.flushingClosedStreamShouldThrowIOException started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.closingStreamShouldMakeBuffersEligibleForGarbageCollection started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.smallWrites started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.test started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.invalidBlockSize started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.batchingOfWritesShouldNotAffectCompressedDataSize started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.longArrayCompress started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.writeShortArray started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.writingToClosedStreamShouldThrowIOException started
+[info] Test org.xerial.snappy.SnappyOutputStreamTest.bufferSize started
+[info] Test run org.xerial.snappy.SnappyOutputStreamTest finished: 0 failed, 0 ignored, 14 total, 0.065s
+[info] Test run org.xerial.snappy.SnappyInputStreamTest started
+[info] Test org.xerial.snappy.SnappyInputStreamTest.available started
+[info] Test org.xerial.snappy.SnappyInputStreamTest.checkMagicHeader started
+[info] Test org.xerial.snappy.SnappyInputStreamTest.biteWiseRead started
+[info] Test org.xerial.snappy.SnappyInputStreamTest.read started
+[info] Test org.xerial.snappy.SnappyInputStreamTest.readSnappyCompressResult started
+[info] Test org.xerial.snappy.SnappyInputStreamTest.emptyStream started
+[info] Test org.xerial.snappy.SnappyInputStreamTest.readBlockCompressedData started
+[info] Test org.xerial.snappy.SnappyInputStreamTest.chunkRead started
+[info] Test run org.xerial.snappy.SnappyInputStreamTest finished: 0 failed, 0 ignored, 8 total, 0.024s
+[info] Test run org.xerial.snappy.SnappyFramedStreamTest started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testLargerFrames_compressed_smaller_raw_larger started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testShortBlockHeader started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testTransferTo_OutputStream started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testUncompressable started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testTransferFrom_ReadableByteChannel started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testUnskippableChunkFlags started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testLargerFrames_raw_ started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testInvalidChecksum started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testInvalidChecksumIgnoredWhenVerificationDisabled started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testShortBlockData started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testLargerFrames_compressed_ started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testSkippableChunkFlags started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testEmptyCompression started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testInvalidBlockSizeZero started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testSimple started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testTransferFrom_InputStream started
+[info] Test org.xerial.snappy.SnappyFramedStreamTest.testTransferTo_WritableByteChannel started
+[info] Test run org.xerial.snappy.SnappyFramedStreamTest finished: 0 failed, 0 ignored, 17 total, 0.139s
+[info] Test run org.xerial.snappy.SnappyLoaderTest started
+[info] Test org.xerial.snappy.SnappyLoaderTest.loadSnappyByDiffentClassloadersInTheSameJVM started
+[info] Test org.xerial.snappy.SnappyLoaderTest.load started
+[info] Test org.xerial.snappy.SnappyLoaderTest.autoLoad started
+[info] Test run org.xerial.snappy.SnappyLoaderTest finished: 0 failed, 0 ignored, 3 total, 0.035s
+[info] Test run org.xerial.snappy.OSInfoTest started
+[info] Test org.xerial.snappy.OSInfoTest.archName started
+[info] Test org.xerial.snappy.OSInfoTest.testMainForOSName started
+[info] Test org.xerial.snappy.OSInfoTest.osName started
+[info] Test org.xerial.snappy.OSInfoTest.folderPath started
+[info] Test org.xerial.snappy.OSInfoTest.testMainForArchName started
+[info] Test run org.xerial.snappy.OSInfoTest finished: 0 failed, 0 ignored, 5 total, 0.003s
+[info] Test run org.xerial.snappy.pool.CachingBufferPoolTest started
+[info] Test org.xerial.snappy.pool.CachingBufferPoolTest.testDirectByteBuffers started
+[info] Test org.xerial.snappy.pool.CachingBufferPoolTest.testSoftReferences started
+[info] Test org.xerial.snappy.pool.CachingBufferPoolTest.testArrays started
+[info] Test org.xerial.snappy.pool.CachingBufferPoolTest.testAdjustSize started
+[info] Test run org.xerial.snappy.pool.CachingBufferPoolTest finished: 0 failed, 0 ignored, 4 total, 10.561s
+[info] Passed: Total 70, Failed 0, Errors 0, Passed 70
+[success] Total time: 19 s, completed Dec 1, 2025, 1:39:19 AM
+[test.sh] Core functionality tests passed!
+fatal: No names found, cannot describe anything.
+./script/dynver.sh: 11: [: Illegal number: d1624f83
+Cloning into 'target/snappy-1.1.10'...
+Switched to a new branch 'local/snappy-1.1.10'
+Submodule 'third_party/benchmark' (https://github.com/google/benchmark.git) registered for path 'third_party/benchmark'
+Submodule 'third_party/googletest' (https://github.com/google/googletest.git) registered for path 'third_party/googletest'
+Cloning into '/src/snappy-java/target/snappy-1.1.10/third_party/benchmark'...
+Cloning into '/src/snappy-java/target/snappy-1.1.10/third_party/googletest'...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+
+100  107k    0  107k    0     0   319k      0 --:--:-- --:--:-- --:--:--  319k
+warning: [options] bootstrap class path not set in conjunction with -source 7
+warning: [options] source value 7 is obsolete and will be removed in a future release
+warning: [options] target value 7 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+4 warnings
+warning: [options] bootstrap class path not set in conjunction with -source 7
+warning: [options] source value 7 is obsolete and will be removed in a future release
+warning: [options] target value 7 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+4 warnings
+CMake Deprecation Warning at CMakeLists.txt:29 (cmake_minimum_required):
+  Compatibility with CMake < 3.5 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+CMake Deprecation Warning at third_party/googletest/CMakeLists.txt:4 (cmake_minimum_required):
+  Compatibility with CMake < 3.5 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+CMake Deprecation Warning at third_party/googletest/googlemock/CMakeLists.txt:45 (cmake_minimum_required):
+  Compatibility with CMake < 3.5 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+CMake Deprecation Warning at third_party/googletest/googletest/CMakeLists.txt:56 (cmake_minimum_required):
+  Compatibility with CMake < 3.5 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+Downloading sbt launcher for 1.10.7:
+  From  https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/1.10.7/sbt-launch-1.10.7.jar
+    To  /root/.sbt/launchers/1.10.7/sbt-launch.jar
+Downloading sbt launcher 1.10.7 md5 hash:
+  From  https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/1.10.7/sbt-launch-1.10.7.jar.md5
+    To  /root/.sbt/launchers/1.10.7/sbt-launch.jar.md5
+[info] [launcher] getting org.scala-sbt sbt 1.10.7  (this may take some time)...
+[info] [launcher] getting Scala 2.12.20 (for sbt)...
+

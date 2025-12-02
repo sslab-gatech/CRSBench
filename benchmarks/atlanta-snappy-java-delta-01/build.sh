@@ -16,7 +16,8 @@
 ################################################################################
 
 make
-cp target/snappy-java-*.jar $OUT/snappy-java.jar
+# Copy the first matching jar file (or use ls -t to get the newest)
+cp $(ls -t target/snappy-java-*.jar | head -1) $OUT/snappy-java.jar
 
 ALL_JARS="snappy-java.jar"
 

@@ -14,6 +14,45 @@
 # limitations under the License.
 #
 ################################################################################
+_save_CFLAGS=${CFLAGS}
+_save_CXXFLAGS=${CXXFLAGS}
+
+export CFLAGS="-O0 -g"
+export CXXFLAGS="-O1 -stdlib=libc++"
+export LIBS="-ldl -lpthread"
+
+./auto/configure \
+    --with-cc-opt="${CFLAGS}" \
+    --with-ld-opt="${LIBS}"\
+    --conf-path=$OUT/conf/nginx.conf \
+    --pid-path=$OUT/logs/nginx.pid \
+    --with-mail \
+    --with-http_ssl_module \
+    --with-http_realip_module \
+    --with-http_addition_module \
+    --with-http_sub_module \
+    --with-http_dav_module \
+    --with-http_flv_module \
+    --with-http_mp4_module \
+    --with-http_gunzip_module \
+    --with-http_gzip_static_module \
+    --with-http_auth_request_module \
+    --with-http_random_index_module \
+    --with-http_secure_link_module \
+    --with-http_degradation_module \
+    --with-http_stub_status_module \
+    --with-http_slice_module \
+    --with-stream \
+    --with-pcre \
+    --with-debug
+make -f objs/Makefile -j
+
+cp objs/nginx $OUT/nginx
+make clean
+
+export CFLAGS=${_save_CFLAGS}
+export CXXFLAGS=${_save_CXXFLAGS}
+
 git apply $SRC/add_fuzzers.diff || true
 
 cp -r $SRC/fuzz src/
@@ -65,9 +104,15 @@ export CFLAGS="${CFLAGS} -DNGX_DEBUG_PALLOC=1"
     --with-http_secure_link_module \
     --with-http_degradation_module \
     --with-http_stub_status_module
-make -f objs/Makefile fuzzers
+make -f objs/Makefile -j fuzzers
+
+git apply -R $SRC/add_fuzzers.diff || true
+sed -i 's/fuzz_without_main(/main(/g' src/core/nginx.c
 
 cp objs/*_harness $OUT/
+
+mkdir -p $OUT/conf
+cp $SRC/nginx/conf/nginx.conf $OUT/conf/nginx.conf
 
 mkdir -p $OUT/html
 mkdir -p $OUT/logs

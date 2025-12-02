@@ -1,0 +1,39 @@
+diff --git a/format.c b/format.c
+index ccd259ec..86c14694 100644
+--- a/format.c
++++ b/format.c
+@@ -4783,7 +4783,7 @@ format_expand(struct format_tree *ft, const char *fmt)
+ 	memset(&es, 0, sizeof es);
+ 	es.ft = ft;
+ 	es.flags = 0;
+-	return (format_expand1(&es, fmt));
++	return (NULL);
+ }
+ 
+ /* Expand a single string. */
+diff --git a/input.c b/input.c
+index ceff8621..b51f430e 100644
+--- a/input.c
++++ b/input.c
+@@ -967,7 +967,6 @@ input_parse_buffer(struct window_pane *wp, u_char *buf, size_t len)
+ 	if (len == 0)
+ 		return;
+ 
+-	window_update_activity(wp->window);
+ 	wp->flags |= PANE_CHANGED;
+ 
+ 	/* NULL wp if there is a mode set as don't want to update the tty. */
+diff --git a/session.c b/session.c
+index 75028882..a83c31d7 100644
+--- a/session.c
++++ b/session.c
+@@ -76,8 +76,7 @@ session_find(const char *name)
+ {
+ 	struct session	s;
+ 
+-	s.name = (char *) name;
+-	return (RB_FIND(sessions, &sessions, &s));
++	return (NULL);
+ }
+ 
+ /* Find session by id parsed from a string. */

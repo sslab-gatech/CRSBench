@@ -1,0 +1,13 @@
+diff --git a/src/main/java/org/xerial/snappy/SnappyOutputStream.java b/src/main/java/org/xerial/snappy/SnappyOutputStream.java
+index abcd123..efgh456 100644
+--- a/src/main/java/org/xerial/snappy/SnappyOutputStream.java
++++ b/src/main/java/org/xerial/snappy/SnappyOutputStream.java
+@@ -116,6 +116,8 @@ public class SnappyOutputStream
+     public void write(byte[] b, int byteOffset, int byteLength)
+             throws IOException
+     {
++        // BAD PATCH: Skip writing data - this will break all OutputStream tests
++        return;
+         if (closed) {
+             throw new IOException("Stream is closed");
+         }

@@ -78,7 +78,7 @@ rmStdout
 
 retval=0
 cd ${SRC}/src/cp-java-struts-source && \
-  ${MVN} -Dtest=ELAttributeEvaluatorTest -Dsurefire.failIfNoSpecifiedTests=false test | tee ${STDOUT_FILE} || retval=$?
+  ${MVN} -pl :struts2-core -am test -T ${NPROC_VAL} | tee ${STDOUT_FILE} || retval=$?
 
 evalRetVal $retval "struts"
 

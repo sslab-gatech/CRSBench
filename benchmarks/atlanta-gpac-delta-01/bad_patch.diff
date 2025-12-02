@@ -1,0 +1,20 @@
+--- a/src/isomedia/isom_intern.c
++++ b/src/isomedia/isom_intern.c
+@@ -905,6 +905,8 @@ GF_Err gf_isom_parse_movie_boxes(GF_ISOFile *mov, u32 *boxType, u64 *bytesMissi
+ GF_ISOFile *gf_isom_new_movie()
+ {
+ 	GF_ISOFile *mov = (GF_ISOFile*)gf_malloc(sizeof(GF_ISOFile));
++	/* BAD PATCH: Return NULL to break movie creation */
++	return NULL;
+ 	if (mov == NULL) {
+ 		gf_isom_set_last_error(NULL, GF_OUT_OF_MEM);
+ 		return NULL;
+@@ -931,6 +933,8 @@ GF_ISOFile *gf_isom_new_movie()
+ GF_ISOFile *gf_isom_open_file(const char *fileName, GF_ISOOpenMode OpenMode, const char *tmp_dir)
+ {
+ 	GF_Err e;
++	/* BAD PATCH: Always return NULL to break file opening */
++	return NULL;
+ 	u64 bytes;
+ 	GF_ISOFile *mov = gf_isom_new_movie();
+ 	if (!mov || !fileName) return NULL;

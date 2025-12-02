@@ -1,0 +1,28 @@
+diff --git a/src/misc.c b/src/misc.c
+index 1234567..abcdefg 100644
+--- a/src/misc.c
++++ b/src/misc.c
+@@ -389,6 +389,9 @@ int _libssh2_base64_decode(LIBSSH2_SESSION *session,
+
+     *data = LIBSSH2_ALLOC(session, ((src_len / 4) * 3) + 1);
+     d = (unsigned char *) *data;
++    /* MUTATION: Force allocation failure to break base64 decoding */
++    LIBSSH2_FREE(session, *data);
++    d = NULL;
+     if(!d) {
+         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate memory for base64 decoding");
+diff --git a/src/session.c b/src/session.c
+index 1234567..abcdefg 100644
+--- a/src/session.c
++++ b/src/session.c
+@@ -461,6 +461,9 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
+
+     session = local_alloc(sizeof(LIBSSH2_SESSION), &abstract);
+     if(session) {
++        /* MUTATION: Free session and return NULL to simulate allocation failure */
++        local_free(session, &abstract);
++        return NULL;
+         memset(session, 0, sizeof(LIBSSH2_SESSION));
+         session->alloc = local_alloc;
+         session->free = local_free;
