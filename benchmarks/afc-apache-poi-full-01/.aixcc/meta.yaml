@@ -18,7 +18,7 @@ patch_exclude_list:
 - README*
 
 full_mode:
-  base_commit: a492cd96dcf4fed08afb07ff913e83e55e50f39b
+  base_commit: 1070f9f110d8ebdad51fc5d975052e5341ade83d
 
 harness_files:
 - name: POIHMEFFuzzer
@@ -88,6 +88,12 @@ harness_files:
 
 - name: POIXSSFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIXSSFFuzzer.java
+  vulns:
+  - vuln_keyword: cpv_4
+    povs:
+    - id: pov_0
+      sanitizer: address
+      error_token: 'ERROR: libFuzzer: fuzz target exited'
 
 - name: POIXWPFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIXWPFFuzzer.java

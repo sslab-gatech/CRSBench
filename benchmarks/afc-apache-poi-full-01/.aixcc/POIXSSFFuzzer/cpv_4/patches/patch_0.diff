@@ -1,0 +1,14 @@
+diff --git a/poi-ooxml/src/main/java/org/apache/poi/xssf/usermodel/XSSFWorkbook.java b/poi-ooxml/src/main/java/org/apache/poi/xssf/usermodel/XSSFWorkbook.java
+index 1d524a593..0c8ddce4a 100644
+--- a/poi-ooxml/src/main/java/org/apache/poi/xssf/usermodel/XSSFWorkbook.java
++++ b/poi-ooxml/src/main/java/org/apache/poi/xssf/usermodel/XSSFWorkbook.java
+@@ -496,9 +496,6 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Date1904Su
+             LOG.atWarn().log("Sheet with name {} and r:id {} was defined, but didn't exist in package, skipping", ctSheet.getName(), ctSheet.getId());
+             return;
+         }
+-        if ("aixcc-rocks".equals(ctSheet.getName())) {
+-            Runtime.getRuntime().halt(77);
+-        }
+         sh.sheet = ctSheet;
+         sh.onDocumentRead();
+         sheets.add(sh);
