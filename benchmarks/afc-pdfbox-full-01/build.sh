@@ -33,7 +33,6 @@ cd $SRC/project-parent
 
 # LOCAL_DEV env variable need to be set in local development env
 if [[ -v LOCAL_DEV ]]; then
-  echo "Local!!!!!!!!!!!!!!!!"
   MVN=mvn
 
   # checkout latest project version
@@ -46,7 +45,6 @@ if [[ -v LOCAL_DEV ]]; then
   mvn -pl fuzz-targets install
 
 else
-  echo "WHAT IS THIS!!!!!!!!!!!"
   # Move dictionaries
   mv $SRC/*.dict $OUT
 
