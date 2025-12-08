@@ -18,11 +18,11 @@ patch_exclude_list:
 - README*
 
 delta_mode:
-  base_commit: 50cee704a0b5cf04cc0b987d000f85f44a15d0bb
-  ref_commit: b812a872bd4a0f7d3fd8fed15fe2cc4a0893599f
+  base_commit: 0511bf366c4059c35ec0edef1ed5bec6ea6b1867
+  ref_commit: 3ba60be51afc4b24d2386dabafdcd8ddde9da5f9
 
 full_mode:
-  base_commit: b812a872bd4a0f7d3fd8fed15fe2cc4a0893599f
+  base_commit: 3ba60be51afc4b24d2386dabafdcd8ddde9da5f9
 
 harness_files:
 - name: avif_yuvrgb_fuzzer
