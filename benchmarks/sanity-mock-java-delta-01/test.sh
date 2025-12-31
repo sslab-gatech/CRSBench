@@ -1,1 +1,4 @@
-echo "No tests for mock-java"
+#!/bin/bash
+
+cd "$OUT/src/mock_java"
+mvn test -DskipTests=false
