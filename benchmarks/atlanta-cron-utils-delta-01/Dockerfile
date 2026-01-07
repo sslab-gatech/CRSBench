@@ -16,21 +16,12 @@
 
 FROM ghcr.io/aixcc-finals/base-builder-jvm:v1.3.0
 
-ENV LC_ALL C.UTF-8
-ENV LANG C.UTF-8
-ENV TZ America/New_York
-ENV USER root
+RUN apt-get update && apt-get install -y maven
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        maven
+#RUN git clone git@github.com:Team-Atlanta/mock-java.git $SRC/src/mock_java
 
-ENV MVN=/usr/bin/mvn
-
-# RUN git clone git@github.com:Team-Atlanta/cp-java-cron-utils-source.git $SRC/src/cp-cron-utils-source
+WORKDIR $SRC/src/cp-cron-utils-source
 
 COPY fuzz $SRC/src/fuzz
 COPY build.sh $SRC/
 COPY .aixcc $SRC/.aixcc
-
-WORKDIR $SRC/src/cp-cron-utils-source

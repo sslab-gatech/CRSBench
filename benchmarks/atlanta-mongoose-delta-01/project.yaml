@@ -1,5 +1,5 @@
 homepage: "https://github.com/cesanta/mongoose"
-language: c++
+language: c
 primary_contact: "info@cesanta.com"
 auto_ccs:
   - "david@adalogics.com"

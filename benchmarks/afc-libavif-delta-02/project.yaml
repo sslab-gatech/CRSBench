@@ -5,3 +5,6 @@ fuzzing_engines:
 main_repo: 'git@github.com:Team-Atlanta/official-afc-libavif.git'
 sanitizers:
   - address
+test_mode: ctest
+rts_mode: binaryrts
+inc_build: true

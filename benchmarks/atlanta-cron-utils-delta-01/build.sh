@@ -41,7 +41,7 @@ build_proj() {
     # UPDATE ME FOR NEW CP
 
     cd "$proj_dir"
-    mvn clean install -DskipTests
+    mvn clean install -DskipTests -Dlicense.skip=true
 }
 
 build_driver_jars() {
@@ -52,7 +52,7 @@ build_driver_jars() {
 #    set -u
 
     cd "$driver_dir"
-    mvn clean verify
+    mvn clean verify -Dlicense.skip=true
 }
 
 copy_fuzzer_jars() {

@@ -1,0 +1,31 @@
+INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /home/jhkim/1.AIxCC/oss-fuzz/build/out/aixcc/c/dav1d-full-01:/out -v /home/jhkim/1.AIxCC/oss-fuzz/projects/aixcc/c/dav1d-full-01/.aixcc/povs/dav1d_fuzzer_mt@NO_OOM/cpv_0:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.3.0 reproduce dav1d_fuzzer_mt@NO_OOM -runs=100.
++ FUZZER=dav1d_fuzzer_mt@NO_OOM
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer dav1d_fuzzer_mt@NO_OOM -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/dav1d_fuzzer_mt@NO_OOM -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase -timeout_exitcode=0 -max_len=65536 < /dev/null
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 850249485
+INFO: Loaded 1 modules   (23082 inline 8-bit counters): 23082 [0x5583e0f9e5a8, 0x5583e0fa3fd2),
+INFO: Loaded 1 PC tables (23082 PCs): 23082 [0x5583e0fa3fd8,0x5583e0ffe278),
+/out/dav1d_fuzzer_mt: Running 1 inputs 100 time(s) each.
+Running: /testcase
+../../src/dav1d/src/decode.c:2853:70: runtime error: signed integer overflow: 2081996800 + 70246400 cannot be represented in type 'int'
+    #0 0x5583e0cde1c3 in dav1d_decode_frame_init /work/build/../../src/dav1d/src/decode.c:2853:70
+    #1 0x5583e0ccd644 in dav1d_worker_task /work/build/../../src/dav1d/src/thread_task.c:696:23
+    #2 0x7f8814a1d608 in start_thread (/lib/x86_64-linux-gnu/libpthread.so.0+0x8608) (BuildId: 9753720502573b97dbac595b61fd72c2df18e078)
+    #3 0x7f88148ff352 in __clone (/lib/x86_64-linux-gnu/libc.so.6+0x11f352) (BuildId: 5792732f783158c66fb4f3756458ca24e46e827d)
+
+DEDUP_TOKEN: dav1d_decode_frame_init--dav1d_worker_task--start_thread
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../../src/dav1d/src/decode.c:2853:70
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+subprocess command returned a non-zero exit status: 1

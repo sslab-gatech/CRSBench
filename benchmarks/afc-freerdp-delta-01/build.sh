@@ -59,13 +59,19 @@ cmake_args=(
 )
 
 # Build the project and fuzzers.
-rm -rf build
-cmake "${cmake_args[@]}" -S . -B build -G Ninja -C ci/cmake-preloads/config-oss-fuzz.cmake
+if [[ ! -d "build" ]]; then
+    cmake "${cmake_args[@]}" -S . -B build -G Ninja -C ci/cmake-preloads/config-oss-fuzz.cmake
+fi
 cmake --build build --parallel --target fuzzers
 
-cp ${SRC}/*.options ${OUT}/
-
-for f in $(find build/Testing/ -name 'TestFuzz*' -type f);
-do
-    cp $f $OUT/
+# Conditional copy for incremental builds
+for f in ${SRC}/*.options; do
+    test -f "${OUT}/${f##*/}" || cp $f ${OUT}/
 done
+
+# Copy fuzzers if build/Testing exists
+if [ -d build/Testing ]; then
+    for f in $(find build/Testing/ -name 'TestFuzz*' -type f); do
+        cp $f $OUT/
+    done
+fi

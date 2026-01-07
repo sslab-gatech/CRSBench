@@ -20,7 +20,7 @@ export CXXFLAGS="$CXXFLAGS -fsanitize=address -fsanitize-address-use-after-scope
 make native
 
 $MVN clean package -Dmaven.javadoc.skip=true -DskipTests=true -Dpmd.skip=true \
-    -Dencoding=UTF-8 -Dmaven.antrun.skip=true -Dcheckstyle.skip=true \
+    -Dencoding=UTF-8 -Dmaven.antrun.skip=true -Dcheckstyle.skip=true -Dlicense.skip=true \
     -DperformRelease=True org.apache.maven.plugins:maven-shade-plugin:3.2.4:shade
 CURRENT_VERSION=$($MVN org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate \
  -Dexpression=project.version -q -DforceStdout)

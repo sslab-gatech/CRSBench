@@ -1,5 +1,11 @@
 #!/bin/bash
+set -ex
 
-# build CP source - for running tests
-./configure
-make all test
+# Already in $SRC/libpng
+
+# Build (only configure on first run)
+if [ ! -f Makefile ]; then
+    ./configure
+fi
+make -j$(nproc)
+make test

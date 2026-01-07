@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: c498a935699a24720cc8857a48d0ce999e1aa6bb
   ref_commit: 077e305de7e7f7a960d0ad440e7ed66f3da5a5ce
-
 full_mode:
   base_commit: 077e305de7e7f7a960d0ad440e7ed66f3da5a5ce
-
 harness_files:
 - name: pov_harness
   path: $PROJECT/fuzz/pov_harness.cc
@@ -83,7 +80,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'ERROR: AddressSanitizer: SEGV'
-
 - name: mail_request_harness
   path: $PROJECT/fuzz/mail_request_harness.cc
   vulns:
@@ -97,7 +93,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'ERROR: AddressSanitizer: SEGV'
-
 - name: smtp_harness
   path: $PROJECT/fuzz/smtp_harness.cc
   vulns:

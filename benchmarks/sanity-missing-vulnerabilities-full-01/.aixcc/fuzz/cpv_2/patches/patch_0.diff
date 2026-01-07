@@ -1,0 +1,24 @@
+--- a/auth.cpp
++++ b/auth.cpp
+@@ -25,8 +25,10 @@
+     
+     size_t max_copy = session_ptr->get_max_copy();
+     size_t copy_size = (username_length < max_copy) ? username_length : max_copy;
+-    
++
+     set_username(session_ptr->get_username(), copy_size, data + 8);
++    // Null-terminate the username to prevent overflow into adjacent fields
++    session_ptr->get_username()[copy_size] = '\0';
+     session_ptr->set_session_info();
+ }
+ 
+@@ -37,7 +39,8 @@
+ }
+ 
+ size_t UserSession::get_max_copy() {
+-    return sizeof(UserSession) - offsetof(UserSession, username);
++    // Limit to username buffer (16 bytes) minus one for null terminator
++    return sizeof(username) - 1;
+ }
+ 
+ char* UserSession::get_username() {

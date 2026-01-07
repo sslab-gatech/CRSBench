@@ -21,7 +21,7 @@ PROJECT_ARTIFACT_ID=pdfbox
 XMPBOX_ARTIFACT_ID=xmpbox
 MAIN_REPOSITORY=https://github.com/apache/pdfbox/
 
-MAVEN_ARGS="-Djavac.src.version=11 -Djavac.target.version=11 -DskipTests"
+MAVEN_ARGS="-Djavac.src.version=11 -Djavac.target.version=11 -DskipTests -Dlicense.skip=true"
 
 function set_project_version_in_fuzz_targets_dependency {
   PROJECT_VERSION=$(cd $PROJECT && $MVN org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -46,16 +46,16 @@ if [[ -v LOCAL_DEV ]]; then
 
 else
   # Move dictionaries
-  mv $SRC/*.dict $OUT
+  cp $SRC/*.dict $OUT
 
   set_project_version_in_fuzz_targets_dependency
 
   #install
-  (cd $PROJECT && $MVN install $MAVEN_ARGS -Dmaven.repo.local=$OUT/m2)
-  $MVN -pl fuzz-targets install -Dmaven.repo.local=$OUT/m2
+  (cd $PROJECT && $MVN install $MAVEN_ARGS)
+  $MVN -pl fuzz-targets install
 
   # build classpath
-  $MVN -pl fuzz-targets dependency:build-classpath -Dmdep.outputFile=cp.txt -Dmaven.repo.local=$OUT/m2
+  $MVN -pl fuzz-targets dependency:build-classpath -Dmdep.outputFile=cp.txt
   cp  $SRC/project-parent/fuzz-targets/target/fuzz-targets-0.0.1-SNAPSHOT.jar $OUT/fuzz-targets.jar
   RUNTIME_CLASSPATH_ABSOLUTE="$(cat fuzz-targets/cp.txt):$OUT/fuzz-targets.jar"
   # filter out jazzer jars to avoid conflicts with oss-fuzz jazzer

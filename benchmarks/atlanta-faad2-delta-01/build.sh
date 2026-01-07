@@ -16,4 +16,12 @@
 ################################################################################
 
 export USE_BAZEL_VERSION=7.4.0
+
+# Disable ccache for Bazel builds - ccache is incompatible with Bazel's caching
+# Also remove /ccache/bin from PATH to prevent ccache from intercepting compiler calls
+export PATH=$(echo "$PATH" | sed 's|/ccache/bin:||g; s|:/ccache/bin||g')
+unset CC CXX
+export CC=clang
+export CXX=clang++
+
 bazel_build_fuzz_tests

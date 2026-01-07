@@ -15,7 +15,7 @@
 ################################################################################
 
 FROM ghcr.io/aixcc-finals/base-builder:v1.3.0
-RUN apt-get update && apt-get install -y make autoconf automake libtool libz-dev
+RUN apt-get update && apt-get install -y make autoconf automake libtool libz-dev libcppunit-dev
 #RUN git clone --depth 1 https://github.com/sleuthkit/sleuthkit sleuthkit
 COPY build.sh buildcorpus.sh sleuthkit_mem_img.h *_fuzzer.cc *.options $SRC/
 WORKDIR $SRC/cp-c-sleuthkit

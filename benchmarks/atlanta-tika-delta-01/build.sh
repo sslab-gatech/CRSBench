@@ -48,7 +48,7 @@ build_proj() {
     rm -rf /root/.m2/repository/org/apache/tika/tika-app/
 
     cd "$proj_dir"
-    mvn -DskipTests -Dossindex.skip=true -Dforbiddenapis.skip=true clean install
+    mvn -DskipTests -Dossindex.skip=true -Dforbiddenapis.skip=true -Dlicense.skip=true clean install
 }
 
 build_driver_jars() {
@@ -60,7 +60,7 @@ build_driver_jars() {
     for version in aixcc-3.0.0-beta2 3.0.1-SNAPSHOT 3.0.0-SNAPSHOT
     do
       if [ -d "/root/.m2/repository/org/apache/tika/tika-app/${version}/" ]; then
-        mvn clean verify -Dtika.version=${version}
+        mvn clean verify -Dlicense.skip=true -Dtika.version=${version}
         break
       fi
     done

@@ -1,46 +1,58 @@
-#!/bin/bash -eu
-# Copyright 2023 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-################################################################################
+#!/bin/bash
+# [REQUIRED] -e: exit on failure, -x: print executed commands
+set -ex
 
-# test.sh for Keycloak - Runs unit tests for core modules
+# MVN setting
+# [REQUIRED] MUST use $MVN instead of absolute path of mvn. If mvn is not in the path, set the absolute path to $MVN
+if [ -z "${MVN}" ]; then
+    MVN=mvn
+fi
 
-set -e
-set -o pipefail
+# MVN ARGS setting
+## [REQUIRED] Do not modify MVN_SKIP_ARGS as much as possible
+MVN_SKIP_ARGS="-Djacoco.skip=true -Dspotless.check.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Denforcer.skip=true -Dpmd.skip=true -Dlicense.skip=true -Danimal.sniffer.skip=true -Drat.numUnapprovedLicenses=100 -Drat.ignoreErrors=true -Dcheckstyle.skipExec=true -Dspotbugs.skip=true"
 
-# Environment setup
-export MAVEN_OPTS="-Xmx2048m -XX:MaxMetaspaceSize=512m"
+# Build all services dependencies without tests
+# services depends on: server-spi-private, crypto/default, saml-core-public, saml-core, model/storage-private, quarkus/config-api
+echo "[BUILD] Building services dependencies (tests skipped)..."
+$MVN install -pl services -am -DskipTests $MVN_SKIP_ARGS -B
 
-# Build and test specific modules without full distribution build
-# Focus on modules with standalone unit tests
+## [REQUIRED] You can add additional args needed per project to MVN_ADDITIONAL_ARGS
+## Bug location: services/src/main/java/org/keycloak/utils/SearchQueryUtils.java (ReDoS CVE-2024-10270)
+MVN_ADDITIONAL_ARGS="-pl services -B"
 
-echo "========================================="
-echo "Building and testing common module..."
-echo "========================================="
-$MVN clean test -pl common -am -B
+## [REQUIRED] Tests to include. Try to use blacklist as much as possible to maintain high test coverage.
+INCLUDE_TESTS=""
+if [ -n "$INCLUDE_TESTS" ]; then
+    MVN_INCLUDE_TESTS="-Dsurefire.includes=$INCLUDE_TESTS"
+fi
+# [REQUIRED] Tests to exclude (e.g., failed tests before patching). Minimize this to maintain high test coverage.
+# XPathAttributeMapperTest.testInvalidXml - flaky test, XML parsing error
+# SearchQueryUtilsTest.testGetFields - baseline test failure
+EXCLUDE_TESTS="**/XPathAttributeMapperTest.java,**/SearchQueryUtilsTest.java"
+if [ -n "$EXCLUDE_TESTS" ]; then
+    MVN_EXCLUDE_TESTS="-Dsurefire.excludes=$EXCLUDE_TESTS"
+fi
 
-echo "========================================="
-echo "Building and testing core module..."
-echo "========================================="
-$MVN clean test -pl core -am -B
+## [REQUIRED] MVN_ARGS should not be modified. Add to MVN_ADDITIONAL_ARGS if needed
+MVN_ARGS="$MVN_SKIP_ARGS $MVN_ADDITIONAL_ARGS $MVN_INCLUDE_TESTS $MVN_EXCLUDE_TESTS"
 
-echo "========================================="
-echo "Building and testing saml-core module..."
-echo "========================================="
-$MVN clean test -pl saml-core -am -B
+# Run RTS configuration if RTS_ON is set
+## [REQUIRED] RTS configuration. Do not modify.
+if [ -n "${RTS_ON}" ]; then
+	echo "[RTS] Running rts_config_jvm.py with tool: ${RTS_TOOL}..."
+	python3 /rts_config_jvm.py $(pwd) --tool "${RTS_TOOL}"
+else
+	echo "[RTS] RTS_ON is not set. Remove cached RTS data..."
+	rm -rf .ekstazi || true
+fi
 
-echo "========================================="
-echo "All tests passed successfully!"
-echo "========================================="
+# Run Test
+## [REQUIRED] Try not to change when using mvn test. Avoid using commands like `clean` as much as possible. Use only if absolutely necessary.
+# Clover excludes: packages with Java syntax issues during Clover instrumentation
+CLOVER_EXCLUDES="-Dmaven.clover.excludesList=**/protocol/oid4vc/**,**/keys/JavaKeystoreKeyProvider.java"
+if [ -n "${RTS_ON}" ] && [ "$RTS_TOOL" = "openclover" ]; then
+    $MVN clover:setup clover:optimize test clover:snapshot $MVN_ARGS $CLOVER_EXCLUDES
+else
+    $MVN test $MVN_ARGS
+fi

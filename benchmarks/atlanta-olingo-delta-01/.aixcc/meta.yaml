@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: cc7356c0f544e5cba95463e2144b7435999e4b99
-  ref_commit: ef6ebcc094e6b4c72ab0120d0bb23b4ee6c88f84
-
+  ref_commit: 15c1d6dbf9d81dd2546d678103ab2253e38573af
 full_mode:
-  base_commit: ef6ebcc094e6b4c72ab0120d0bb23b4ee6c88f84
-
+  base_commit: 15c1d6dbf9d81dd2546d678103ab2253e38573af
 harness_files:
 - name: OlingoOne
   path: $PROJECT/fuzz/olingo-harness-one/src/main/java/com/aixcc/olingo/harnesses/one/OlingoOne.java
@@ -33,7 +30,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueMedium: Server Side Request Forgery'
-
 - name: OlingoOneFDP
   path: $PROJECT/fuzz/olingo-harness-one/src/main/java/com/aixcc/olingo/harnesses/one/OlingoOneFDP.java
   vulns:

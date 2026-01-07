@@ -31,13 +31,10 @@ cp ${SRC}/*.options ${OUT}/
 
 set_project_version_in_fuzz_targets_dependency
 
-#clean out repo
-rm -rf $OUT/m2
-
 #build each locally
-cd "$SRC"/"$PROJECT" && $MVN clean install $MAVEN_ARGS -am -pl :log4j-api,:log4j-core -Dmaven.repo.local=$OUT/m2
+cd "$SRC"/"$PROJECT" && $MVN clean install $MAVEN_ARGS -am -pl :log4j-api,:log4j-core
 
-cd "$SRC"/fuzz-targets && $MVN clean package -Dmaven.repo.local=$OUT/m2
+cd "$SRC"/fuzz-targets && $MVN clean package
 
 # build classpath
 cp "$SRC"/"$PROJECT"/api/target/log4j-api-"${PROJECT_VERSION}".jar "$OUT"/log4j2-api.jar || die "can't copy api jar"

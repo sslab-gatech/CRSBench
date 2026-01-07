@@ -1,5 +1,5 @@
 homepage: "https://www.wireshark.org"
-language: c++
+language: c
 sanitizers:
   - address
 fuzzing_engines:

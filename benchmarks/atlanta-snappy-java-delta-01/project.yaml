@@ -15,4 +15,5 @@ vendor_ccs:
   - "jacek.trossen@code-intelligence.com"
   - "michael.nothhard@code-intelligence.com"
   - "bug-disclosure@code-intelligence.com"
-
+rts_mode: none
+inc_build: true

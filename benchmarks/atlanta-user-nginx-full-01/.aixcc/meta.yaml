@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
   base_commit: bf08577a6f7af7c0fdbb066352e2c5ccbb2aee23
-
 harness_files:
 - name: pov_harness
   path: $PROJECT/fuzz/pov_harness.cc

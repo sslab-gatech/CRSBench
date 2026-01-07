@@ -16,18 +16,14 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: f6f34f6d5b6d67205c34de617a0b99fe11e3d323
-  ref_commit: 1fac0ad3848bc4e9cb6afd6de004e6c448da20e9
-
+  ref_commit: 2ce1abcd92029808802cc6d5c6e83d26a52eddf3
 full_mode:
-  base_commit: 1fac0ad3848bc4e9cb6afd6de004e6c448da20e9
-
+  base_commit: 2ce1abcd92029808802cc6d5c6e83d26a52eddf3
 harness_files:
 - name: DataTreeFuzzer
   path: $PROJECT/DataTreeFuzzer.java
-
 - name: MessageTrackerPeekReceivedFuzzer
   path: $PROJECT/MessageTrackerPeekReceivedFuzzer.java
   vulns:
@@ -36,12 +32,9 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'ERROR: libFuzzer: timeout'
-
 - name: MultiProcessTxnFuzzer
   path: $PROJECT/MultiProcessTxnFuzzer.java
-
 - name: ProcessTxnFuzzer
   path: $PROJECT/ProcessTxnFuzzer.java
-
 - name: SerializeFuzzer
   path: $PROJECT/SerializeFuzzer.java

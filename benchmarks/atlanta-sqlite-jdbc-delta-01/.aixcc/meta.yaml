@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 02a9800dc8cc0ef5920a31ad2a0655af117f0540
   ref_commit: 8b4f59fa9dad8650fc8026c72ec6c0c94c614644
-
 full_mode:
   base_commit: 8b4f59fa9dad8650fc8026c72ec6c0c94c614644
-
 harness_files:
 - name: SqliteConnectionFuzzer
   path: $PROJECT/SqliteConnectionFuzzer.java

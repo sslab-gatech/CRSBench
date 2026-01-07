@@ -36,6 +36,8 @@ RUN git clone --depth 1 https://github.com/dvyukov/go-fuzz-corpus && \
 
 # RUN git clone --depth 1 https://github.com/x-stream/xstream.git xstream
 
+RUN apt update && apt install -y libfreetype6-dev
+
 COPY build.sh $SRC/
 COPY XmlFuzzer.java $SRC/
 COPY XmlFuzzer.options $SRC/XmlFuzzer.options

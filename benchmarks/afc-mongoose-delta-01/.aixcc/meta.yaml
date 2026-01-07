@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 49affc54d8c03450fd33f6c052459a0168c0975a
   ref_commit: a1c275ef4f9bd4028e9c3c2f496698d36749a250
-
 full_mode:
   base_commit: a1c275ef4f9bd4028e9c3c2f496698d36749a250
-
 harness_files:
 - name: fuzz
   path: $REPO/test/fuzz.c

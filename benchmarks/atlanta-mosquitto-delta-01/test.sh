@@ -1,48 +1,31 @@
 #!/bin/bash
-set -e
+set -ex
 
-# test.sh for atlanta-mosquitto-delta-01
-# This script runs the CUnit unit tests for the Mosquitto project
+export CFLAGS="-O1 -fno-omit-frame-pointer -gline-tables-only"
+export CXXFLAGS="-O1 -fno-omit-frame-pointer -gline-tables-only -stdlib=libc++"
+export CC=clang
+export CXX=clang++
 
-# Build cJSON dependency first (always rebuild in clean environment)
-cd /src/cJSON
-cmake -DBUILD_SHARED_LIBS=OFF -DENABLE_CJSON_TEST=OFF -DCMAKE_C_FLAGS=-fPIC . > /dev/null 2>&1
-make -j$(nproc) > /dev/null 2>&1
-make install > /dev/null 2>&1
+# Build cJSON dependency (only configure once)
+CJSON_BUILD="$SRC/cJSON_test_build"
+mkdir -p "$CJSON_BUILD"
+cd "$CJSON_BUILD"
+
+if [ ! -f Makefile ]; then
+    cmake -DBUILD_SHARED_LIBS=OFF -DENABLE_CJSON_TEST=OFF -DCMAKE_C_FLAGS=-fPIC "$SRC/cJSON"
+fi
+make -j$(nproc)
+make install
 
 # Build mosquitto components
-cd /src/cp-c-mosquitto-src
+cd "$SRC/cp-c-mosquitto-src"
 
-# Build libcommon (needed for unit tests)
-echo "Building libcommon..."
-make -C libcommon -j$(nproc)
-
-# Build lib (mosquitto library)
-echo "Building lib..."
-make -C lib -j$(nproc)
-
-# Build src (broker)
-echo "Building src..."
-make -C src WITH_DOCS=no WITH_FUZZING=no WITH_EDITLINE=no -j$(nproc)
+make -j$(nproc) WITH_STATIC_LIBRARIES=yes WITH_DOCS=no WITH_EDITLINE=no
 
 # Run unit tests
 echo "Running unit tests..."
-cd /src/cp-c-mosquitto-src/test/unit
+cd "$SRC/cp-c-mosquitto-src/test/unit"
 
-# Build and run libcommon unit tests
-echo "Testing libcommon..."
-make -C libcommon test
-
-# Build and run broker unit tests if they exist
-if [ -d "broker" ]; then
-    echo "Testing broker..."
-    make -C broker test || true
-fi
-
-# Build and run lib unit tests if they exist
-if [ -d "lib" ]; then
-    echo "Testing lib..."
-    make -C lib test || true
-fi
+make test
 
 echo "All tests completed successfully!"

@@ -15,36 +15,51 @@
 #
 ################################################################################
 
-# build project
-./autogen.sh
-./configure --enable-fuzz-support \
-    --enable-never-backslash-C --with-match-limit=1000 --with-match-limit-depth=1000 \
-    --enable-jit
-make -j$(nproc) clean
+# Common configure options for fuzzing
+FUZZ_CONFIGURE_OPTS="--enable-fuzz-support --enable-never-backslash-C --with-match-limit=1000 --with-match-limit-depth=1000 --enable-jit"
+
+# Build project (default link-size=2)
+# Only run autogen and configure on first run
+if [ ! -f configure ]; then
+    ./autogen.sh
+fi
+
+BUILD_DIR=build_fuzzer
+mkdir -p $BUILD_DIR
+pushd $BUILD_DIR
+
+if [ ! -f "Makefile" ]; then
+    ../configure $FUZZ_CONFIGURE_OPTS
+fi
+
 make -j$(nproc) all
 
-# build fuzzers
+# Build default fuzzer
 $CXX $CXXFLAGS -o $OUT/pcre2_fuzzer \
     $LIB_FUZZING_ENGINE .libs/libpcre2-fuzzsupport.a .libs/libpcre2-8.a
 
-# test different link sizes
+popd
+
+# Build different link sizes - only on first build (skip on incremental builds)
+# These require full rebuilds which defeats incremental build purpose
 for i in $(seq 3 4); do
-    ./configure --enable-fuzz-support \
-        --enable-never-backslash-C --with-match-limit=1000 --with-match-limit-depth=1000 \
-        --enable-jit \
-        --with-link-size=${i}
-    make -j$(nproc) clean
+    BUILD_DIR=build_fuzzer_${i}
+    mkdir -p $BUILD_DIR
+    pushd $BUILD_DIR
+    if [ ! -f "Makefile" ]; then
+        ../configure $FUZZ_CONFIGURE_OPTS --with-link-size=${i}
+    fi
+    
     make -j$(nproc) all
 
-    # build fuzzers
+    # Build fuzzer for this link size
     $CXX $CXXFLAGS -o $OUT/pcre2_fuzzer_${i}l \
         $LIB_FUZZING_ENGINE .libs/libpcre2-fuzzsupport.a .libs/libpcre2-8.a
+    popd
 done
 
-# set up dictionary and options to use it
-for bits in ""; do
-  cp "testdata/fuzzing/pcre2_fuzzer${bits}.dict" "${OUT}/pcre2_fuzzer${bits}.dict"
-  for linksize in "" "_3l" "_4l"; do
-    cp "testdata/fuzzing/pcre2_fuzzer${bits}.options" "${OUT}/pcre2_fuzzer${bits}${linksize}.options"
-  done
+# Set up dictionary and options
+cp "testdata/fuzzing/pcre2_fuzzer.dict" "${OUT}/pcre2_fuzzer.dict"
+for linksize in "" "_3l" "_4l"; do
+    cp "testdata/fuzzing/pcre2_fuzzer.options" "${OUT}/pcre2_fuzzer${linksize}.options"
 done

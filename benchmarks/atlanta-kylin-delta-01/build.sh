@@ -43,14 +43,14 @@ build_proj() {
     if [ -d /root/.m2/repository ]; then
         mvn clean
     fi
-    mvn -DskipTests compile install 
+    mvn -DskipTests -Dlicense.skip=true compile install
 }
 
 build_driver_jars() {
     # UPDATE ME FOR NEW CP
 
     cd "$driver_dir"
-    mvn clean verify
+    mvn clean verify -Dlicense.skip=true
 }
 
 copy_fuzzer_jars() {

@@ -15,7 +15,7 @@
 #
 ################################################################################
 
-MVN_FLAGS="-DskipTests -Dcheckstyle.skip=true"
+MVN_FLAGS="-DskipTests"
 ALL_JARS=""
 LIBRARY_NAME="netty"
 
@@ -29,13 +29,13 @@ pushd "/tmp"
 popd
 
 pushd "."
-	${MVN} install ${MVN_FLAGS}
+	${MVN} clean install ${MVN_FLAGS}
 	CURRENT_VERSION=$(${MVN} org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate \
   -Dexpression=project.version -q -DforceStdout)
 popd
 
 pushd "${SRC}"
-	${MVN} package -DfuzzedLibaryVersion="${CURRENT_VERSION}" ${MVN_FLAGS}
+	${MVN} clean package -DfuzzedLibaryVersion="${CURRENT_VERSION}" ${MVN_FLAGS}
 	install -v target/${LIBRARY_NAME}-fuzzer-${CURRENT_VERSION}.jar ${OUT}/${LIBRARY_NAME}-fuzzer-${CURRENT_VERSION}.jar
 	ALL_JARS="${ALL_JARS} ${LIBRARY_NAME}-fuzzer-${CURRENT_VERSION}.jar"
 popd

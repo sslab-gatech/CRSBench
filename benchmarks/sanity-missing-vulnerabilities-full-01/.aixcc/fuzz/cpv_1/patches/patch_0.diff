@@ -1,0 +1,11 @@
+--- a/message.c
++++ b/message.c
+@@ -18,7 +18,7 @@
+         return NULL;
+     }
+     
+-    uint8_t decoded_data[256];
++    static uint8_t decoded_data[256];
+     
+     const uint8_t key = 0x42;
+     size_t copy_size = payload_length < 256 ? payload_length : 256;

@@ -44,14 +44,14 @@ build_proj() {
     set -u
 
     cd "$proj_dir"
-    mvn -DskipTests -Dgpg.skip clean install
+    mvn -DskipTests -Dgpg.skip -Dlicense.skip=true clean install
 }
 
 build_driver_jars() {
     # UPDATE ME FOR NEW CP
 
     cd "$driver_dir"
-    mvn clean verify
+    mvn clean verify -Dlicense.skip=true
 }
 
 copy_fuzzer_jars() {

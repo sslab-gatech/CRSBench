@@ -16,18 +16,14 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 87c62bccc3a6fd0343df073511fc520a235618b3
   ref_commit: 4bfe9670a575d44b35e99c2aa1b49da5707bbc23
-
 full_mode:
   base_commit: 4bfe9670a575d44b35e99c2aa1b49da5707bbc23
-
 harness_files:
 - name: HtmlParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/HtmlParserFuzzer.java
-
 - name: M3U8ParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/M3U8ParserFuzzer.java
   vulns:
@@ -37,15 +33,11 @@ harness_files:
       sanitizer: address
       error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueMedium: Server Side Request Forgery
         (SSRF)'
-
 - name: RTFParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/RTFParserFuzzer.java
-
 - name: TextAndCSVParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/TextAndCSVParserFuzzer.java
-
 - name: TikaAppUnpackerFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/TikaAppUnpackerFuzzer.java
-
 - name: XliffParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/XliffParserFuzzer.java

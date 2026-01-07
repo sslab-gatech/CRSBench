@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
   base_commit: 0cd6d0bb653860fd63e50782d695e6e5a671b3a3
-
 harness_files:
 - name: fuzz
   path: $REPO/test/fuzz.c

@@ -18,12 +18,21 @@
 # Ensure libevent can be found
 export PKG_CONFIG_PATH="/usr/local/lib/"
 
-./autogen.sh
-./configure \
-    --enable-fuzzing \
-    FUZZING_LIBS="${LIB_FUZZING_ENGINE} -lc++" \
-    LIBEVENT_LIBS="-Wl,-Bstatic -levent -Wl,-Bdynamic" \
-    LIBTINFO_LIBS=" -l:libtinfo.a "
+# Conditional autogen - only if configure doesn't exist
+if [ ! -f configure ]; then
+    ./autogen.sh
+fi
+
+# Conditional configure - only if Makefile doesn't exist
+if [ ! -f Makefile ]; then
+    ./configure \
+        --enable-fuzzing \
+        FUZZING_LIBS="${LIB_FUZZING_ENGINE} -lc++" \
+        LIBEVENT_LIBS="-Wl,-Bstatic -levent -Wl,-Bdynamic" \
+        LIBTINFO_LIBS=" -l:libtinfo.a "
+fi
+
+rm -f fuzz/input-fuzzer
 
 make -j"$(nproc)" check
 find "${SRC}/tmux/fuzz/" -name '*-fuzzer' -exec cp -v '{}' "${OUT}"/ \;

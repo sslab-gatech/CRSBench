@@ -1,0 +1,12 @@
+homepage: "https://code.videolan.org/videolan/dav1d"
+language: c
+sanitizers:
+  - undefined
+coverage_extra_args: -ignore-filename-regex=.*dump.h
+architectures:
+  - x86_64
+main_repo: 'git@github.com:Team-Atlanta/official-afc-dav1d.git'
+
+fuzzing_engines:
+  - libfuzzer
+

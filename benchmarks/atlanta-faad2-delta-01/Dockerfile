@@ -17,6 +17,7 @@
 FROM ghcr.io/aixcc-finals/base-builder:v1.3.0
 RUN apt-get update && apt-get install -y python3
 RUN git clone https://github.com/knik0/faad2 faad2
+RUN curl -L -o sample.aac https://www.nch.com.au/acm/sample.aac
 WORKDIR faad2
 COPY build.sh $SRC/
 COPY .aixcc $SRC/.aixcc

@@ -3,9 +3,20 @@ set -e
 
 # GPAC test.sh - Functional smoke tests for core GPAC functionality
 # This project has no unit test suite, so we test key functionality used by fuzzers
+# NOTE: Uses out-of-tree build to avoid conflicts with build.sh artifacts (ASAN-instrumented)
+
+SRC_DIR="$(pwd)"
+BUILD_DIR="${SRC_DIR}_build_test"
+
+echo "[*] Setting up out-of-tree build directory..."
+mkdir -p "$BUILD_DIR"
+cd "$BUILD_DIR"
 
 echo "[*] Building GPAC from scratch..."
-./configure --static-build 2>&1 | grep -E "(done|Done|Configuration|config)" || true
+# Only configure if not already configured
+if [ ! -f "config.mak" ]; then
+    "$SRC_DIR/configure" --static-build --source-path="$SRC_DIR" 2>&1 | grep -E "(done|Done|Configuration|config)" || true
+fi
 make -j$(nproc) 2>&1 | tail -20
 
 echo "[*] Verifying build artifacts..."

@@ -15,9 +15,8 @@
 #
 ################################################################################
 
-# Remove bld directory if exists. Otherwise, we will see an error when building after the first time.
-rm -rf bld/
-mkdir bld
+# Use existing bld directory for incremental builds
+mkdir -p bld
 cd bld
 
 export ASAN_OPTIONS=detect_leaks=0
@@ -31,10 +30,12 @@ export CFLAGS="$CFLAGS -DSQLITE_MAX_LENGTH=128000000 \
                -DSQLITE_DEBUG=1 \
                -DSQLITE_MAX_PAGE_COUNT=16384 \
                -DSQLITE_HAVE_ZLIB=1 \
-	             -DSQLITE_ENABLE_LSM"  
+	             -DSQLITE_ENABLE_LSM"
 
-               
-../configure --shared=0
+# Conditional configure for incremental builds
+if [ ! -f Makefile ]; then
+    ../configure --shared=0
+fi
 make -j$(nproc)
 make sqlite3.c
 

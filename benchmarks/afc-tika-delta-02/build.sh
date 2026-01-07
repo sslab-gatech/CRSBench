@@ -31,11 +31,11 @@ cd $SRC/project-parent
 set_project_version_in_fuzz_targets_dependency
 
 #install
-(cd $PROJECT && $MVN install $MAVEN_ARGS -Dmaven.repo.local=$OUT/m2)
-$MVN -pl fuzz-targets install -Dmaven.repo.local=$OUT/m2
+(cd $PROJECT && $MVN install $MAVEN_ARGS)
+$MVN -pl fuzz-targets install
 
 # build classpath
-cp  $OUT/m2/org/apache/tika/tika-app/4.0.0-SNAPSHOT/tika-app-4.0.0-SNAPSHOT.jar $OUT/tika-app.jar
+cp  ~/.m2/repository/org/apache/tika/tika-app/4.0.0-SNAPSHOT/tika-app-4.0.0-SNAPSHOT.jar $OUT/tika-app.jar
 cp  $SRC/project-parent/fuzz-targets/target/fuzz-targets-0.0.1-SNAPSHOT.jar $OUT/fuzz-targets.jar
 RUNTIME_CLASSPATH_ABSOLUTE="$OUT/tika-app.jar:$OUT/fuzz-targets.jar"
 # replace $OUT with placeholder $this_dir that will be dissolved at runtime

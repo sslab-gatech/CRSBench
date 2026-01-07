@@ -15,12 +15,17 @@
 #
 ################################################################################
 
-# Remove bld directory if exists. Otherwise, we will see an error when building after the first time.
-rm -rf bld/
-mkdir bld
+# Use existing bld directory for incremental builds
+mkdir -p bld
 cd bld
 
 export ASAN_OPTIONS=detect_leaks=0
+
+# SQLite amalgamation: always delete generated files to ensure patches are reflected
+# Amalgamation files (shell.c, sqlite3.c) are generated from multiple source files,
+# and make cannot properly track these dependencies. Delete them to force regeneration.
+rm -f shell.c sqlite3.c sqlite3.o
+rm -f $SRC/sqlite3/test/shell.c $SRC/sqlite3/test/shell.o
 
 # Limit max length of data blobs and sql queries to prevent irrelevant OOMs.
 # Also limit max memory page count to avoid creating large databases.
@@ -31,10 +36,12 @@ export CFLAGS="$CFLAGS -DSQLITE_MAX_LENGTH=128000000 \
                -DSQLITE_DEBUG=1 \
                -DSQLITE_MAX_PAGE_COUNT=16384 \
                -DSQLITE_HAVE_ZLIB=1 \
-	             -DSQLITE_ENABLE_LSM"  
+	             -DSQLITE_ENABLE_LSM"
 
-               
-../configure --shared=0
+# Conditional configure for incremental builds
+if [ ! -f Makefile ]; then
+    ../configure --shared=0
+fi
 make -j$(nproc)
 make sqlite3.c
 

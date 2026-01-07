@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: a6c032ca4897859e7af2aad6109d4328ef5dd791
-  ref_commit: 6fa2315a8e269942ffcb5ae8e804fbf2809b4753
-
+  ref_commit: 71e4cbf3998f14dc07a77378a462cc48dc32e4bf
 full_mode:
-  base_commit: 6fa2315a8e269942ffcb5ae8e804fbf2809b4753
-
+  base_commit: 71e4cbf3998f14dc07a77378a462cc48dc32e4bf
 harness_files:
 - name: HtmlunitOne
   path: $PROJECT/fuzz/htmlunit-harness-one/src/main/java/com/aixcc/htmlunit/harnesses/one/HtmlunitOne.java
@@ -33,7 +30,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueCritical: OS Command Injection'
-
 - name: HtmlunitOneFDP
   path: $PROJECT/fuzz/htmlunit-harness-one/src/main/java/com/aixcc/htmlunit/harnesses/one/HtmlunitOneFDP.java
   vulns:

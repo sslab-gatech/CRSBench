@@ -5,7 +5,6 @@
 # Mongoose has comprehensive unit tests in test/unit_test.c
 # The Makefile target "test" compiles mongoose.c, test/unit_test.c, and test/packed_fs.c
 
-cd "$SRC/cp-c-mongoose-src"
 
 # First, generate test/packed_fs.c (required dependency)
 echo "Generating packed_fs.c..."

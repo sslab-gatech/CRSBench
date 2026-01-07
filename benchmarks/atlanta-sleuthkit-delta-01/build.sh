@@ -25,8 +25,17 @@ sed -i 's/-Werror//g' ./tsk/pool/Makefile.am
 # Dont fail if some of the seed downloads fail.
 ${SRC}/buildcorpus.sh || true
 
-./bootstrap
-./configure --enable-static --disable-shared --disable-java --without-afflib --without-libewf --without-libvhdi --without-libvmdk
+# Only reconfigure if needed (for incremental builds)
+if [ ! -f Makefile ]; then
+    ./bootstrap
+    ./configure --enable-static --disable-shared --disable-java --without-afflib --without-libewf --without-libvhdi --without-libvmdk
+fi
+
+# Force rebuild if libtsk.a doesn't exist (may have been cleaned by test.sh)
+if [ ! -f ./tsk/.libs/libtsk.a ]; then
+    make clean || true
+fi
+
 make -j$(nproc)
 
 declare -A TSK_FS_TYPES=(

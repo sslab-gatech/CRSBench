@@ -1,79 +1,82 @@
 #!/bin/bash
 set -ex
 
-export BUILD_ROOT=/src/curl_fuzzer
+export BUILD_ROOT=$SRC/curl_fuzzer
 
-SCRIPTDIR=${BUILD_ROOT}/scripts
-OPENSSLDIR=/src/openssl
-INSTALLDIR=/src/curl_install
-ZLIBDIR=/src/zlib
-NGHTTPDIR=/src/nghttp2
-CURLSRCDIR=/src/curl
+SCRIPTDIR=$SRC/curl_fuzzer/scripts
+OPENSSLDIR=$SRC/openssl
+INSTALLDIR=$SRC/curl_install
+ZLIBDIR=$SRC/zlib
+NGHTTPDIR=$SRC/nghttp2
+CURLSRCDIR=$SRC/curl
 
-# Install zlib
+# Use non-sanitizer flags for test binary
+export CFLAGS="-O0 -g"
+export CXXFLAGS="-O1 -stdlib=libc++"
+
+# Install zlib (uses handle_x.sh which has incremental build guard)
 echo "Installing zlib..."
 ${SCRIPTDIR}/handle_x.sh zlib ${ZLIBDIR} ${INSTALLDIR} || exit 1
 echo "Installing zlib... DONE"
 
-# Install openssl
+# Install openssl (skip if already installed)
 echo "Installing openssl..."
-## Download
-${SCRIPTDIR}/download_openssl.sh ${OPENSSLDIR}
-ls ${OPENSSLDIR}
-## Compile and install openssl
-pushd ${OPENSSLDIR}
-# For i386, set a specific crosscompile mode
-if [[ ${ARCHITECTURE} == "i386" ]]
-then
-    ARCH_PROG="setarch i386"
+if [[ ! -f ${INSTALLDIR}/lib/libssl.a ]]; then
+    ## Download if not present
+    if [[ ! -d ${OPENSSLDIR} ]]; then
+        ${SCRIPTDIR}/download_openssl.sh ${OPENSSLDIR}
+    fi
+    ls ${OPENSSLDIR}
+    ## Compile and install openssl
+    pushd ${OPENSSLDIR}
+    # For i386, set a specific crosscompile mode
+    if [[ ${ARCHITECTURE:-x86_64} == "i386" ]]; then
+        ARCH_PROG="setarch i386"
+        EC_FLAG="no-threads"
+    else
+        ARCH_PROG=""
+        EC_FLAG="enable-ec_nistp_64_gcc_128"
+    fi
 
-    # Disabled as per https://github.com/google/oss-fuzz/blob/master/projects/openssl/build.sh
-    EC_FLAG="no-threads"
-else
-    ARCH_PROG=""
-    EC_FLAG="enable-ec_nistp_64_gcc_128"
+    # Only configure if Makefile doesn't exist
+    if [[ ! -f Makefile ]]; then
+        ${ARCH_PROG} ./config --prefix=${INSTALLDIR} \
+                              --libdir=lib \
+                              --debug \
+                              no-shared \
+                              enable-tls1_3 \
+                              enable-rc5 \
+                              enable-md2 \
+                              enable-ssl3 \
+                              ${EC_FLAG} \
+                              enable-ssl3-method \
+                              enable-nextprotoneg \
+                              enable-weak-ssl-ciphers \
+                              ${CFLAGS:-}
+    fi
+
+    make -j$(nproc)
+    make install_sw
+    popd
 fi
-${ARCH_PROG} ./config --prefix=${INSTALLDIR} \
-                      --libdir=lib \
-                      --debug \
-                      no-shared \
-                      enable-tls1_3 \
-                      enable-rc5 \
-                      enable-md2 \
-                      enable-ssl3 \
-                      ${EC_FLAG} \
-                      enable-ssl3-method \
-                      enable-nextprotoneg \
-                      enable-weak-ssl-ciphers \
-                      $CFLAGS \
-
-make
-make install_sw
 echo "Installing openssl... DONE"
-popd
 
-# Install nghttp2
+# Install nghttp2 (uses handle_x.sh which has incremental build guard)
 echo "Install nghttp2..."
 ${SCRIPTDIR}/handle_x.sh nghttp2 ${NGHTTPDIR} ${INSTALLDIR} || exit 1
 echo "Install nghttp2... DONE"
 
 # Build curl
 echo "Building curl..."
-if [[ ! -d ${INSTALLDIR} ]]
-then
-  # Make an install target for curl.
-  mkdir ${INSTALLDIR}
-fi
+mkdir -p ${INSTALLDIR}
 
-if [[ -f ${INSTALLDIR}/lib/libssl.a ]]
-then
+if [[ -f ${INSTALLDIR}/lib/libssl.a ]]; then
   SSLOPTION=--with-ssl=${INSTALLDIR}
 else
   SSLOPTION=--without-ssl
 fi
 
-if [[ -f ${INSTALLDIR}/lib/libnghttp2.a ]]
-then
+if [[ -f ${INSTALLDIR}/lib/libnghttp2.a ]]; then
   NGHTTPOPTION=--with-nghttp2=${INSTALLDIR}
 else
   NGHTTPOPTION=--without-nghttp2
@@ -81,34 +84,43 @@ fi
 
 pushd ${CURLSRCDIR}
 
-# Build the library.
-./buildconf
-./configure --prefix=${INSTALLDIR} \
-            --disable-shared \
-            --enable-debug \
-            --enable-maintainer-mode \
-            --disable-symbol-hiding \
-            --enable-ipv6 \
-            --enable-websockets \
-            --without-libpsl \
-            --with-random=/dev/null \
-            ${SSLOPTION} \
-            ${NGHTTPOPTION}
+# Only run buildconf/configure if Makefile doesn't exist (incremental build)
+if [[ ! -f Makefile ]]; then
+    ./buildconf
+    ./configure --prefix=${INSTALLDIR} \
+                --disable-shared \
+                --enable-debug \
+                --enable-maintainer-mode \
+                --disable-symbol-hiding \
+                --enable-ipv6 \
+                --enable-websockets \
+                --without-libpsl \
+                --with-random=/dev/null \
+                ${SSLOPTION} \
+                ${NGHTTPOPTION}
+fi
 
-make V=1
+make -j$(nproc) V=1
 make install
 echo "Building curl... DONE"
 
 # Run functional tests
-## Install dependencies
-apt-get install -y locales
-locale-gen en_US.UTF-8
-apt-get install -y stunnel4
-pip install impacket
+## Install dependencies only if not already installed
+if ! locale -a 2>/dev/null | grep -q en_US.utf8; then
+    apt-get install -y locales
+    locale-gen en_US.UTF-8
+fi
+if ! command -v stunnel4 &> /dev/null; then
+    apt-get install -y stunnel4
+fi
+if ! python3 -c "import impacket" 2>/dev/null; then
+    pip install impacket
+fi
 
 ## Run
 echo "Running tests..."
-make test-full
+# Use -k to continue through failures, but DO NOT use || true
+make -k test-full -j$(nproc)
 echo "Running tests... DONE"
 
 exit 0

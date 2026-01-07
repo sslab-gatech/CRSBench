@@ -1,13 +1,5 @@
 #!/bin/bash
-set -e
-
-# PHP test.sh for atlanta-php-delta-01
-# This script runs PHP's test suite using run-tests.php
-# WORKDIR: /src/cp-c-php
-# test.sh location: /src/test.sh
-
-# Run PHP tests using the built-in test runner
-# Focus on tests that cover core functionality: string, array, and basic language features
+set -ex
 
 export CFLAGS="$CFLAGS -fno-sanitize=object-size"
 export CXXFLAGS="$CXXFLAGS -fno-sanitize=object-size"
@@ -15,7 +7,20 @@ export CXXFLAGS="$CXXFLAGS -fno-sanitize=object-size"
 # Disable JIT profitability checks.
 export CFLAGS="$CFLAGS -DPROFITABILITY_CHECKS=0"
 
-compile
+if [ ! -f Makefile ]; then
+    ./buildconf
+    ./configure $BUILD_FLAG \
+        --disable-all \
+        --enable-debug-assertions \
+        --enable-option-checking=fatal \
+        --enable-exif \
+        --enable-opcache \
+        --without-pcre-jit \
+        --disable-phpdbg \
+        --disable-cgi \
+        --with-pic
+fi
+make -j$(nproc)
 
 echo "Running PHP test suite..."
 

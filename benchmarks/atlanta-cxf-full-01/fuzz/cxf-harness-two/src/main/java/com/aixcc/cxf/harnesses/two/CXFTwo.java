@@ -31,7 +31,14 @@ public class CXFTwo {
 
         Attachment a = AttachmentUtil.getAttachment(parts[1], list);
 
+        if (a == null) {
+            return;
+        }
+
         DataHandler d = a.getDataHandler();
+        if (d == null) {
+            return;
+        }
 
         d.getContentType();
     }

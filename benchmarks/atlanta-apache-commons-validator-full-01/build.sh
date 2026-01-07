@@ -17,7 +17,7 @@
 
 MAVEN_ARGS="-Dpropguard.skip -DskipTests -Dmaven.javadoc.skip=true -Dpmd.skip=true \
   -Dencoding=UTF-8 -Dmaven.antrun.skip=true -Dcheckstyle.skip=true \
-  -DperformRelease=True"
+  -DperformRelease=True -Dlicense.skip=true -Drat.skip=true"
 $MVN clean package $MAVEN_ARGS org.apache.maven.plugins:maven-shade-plugin:3.2.4:shade
 CURRENT_VERSION=$($MVN org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate \
  -Dexpression=project.version -q -DforceStdout)

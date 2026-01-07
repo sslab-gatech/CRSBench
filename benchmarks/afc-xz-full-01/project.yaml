@@ -5,3 +5,6 @@ fuzzing_engines:
 sanitizers:
   - address
 main_repo: 'git@github.com:Team-Atlanta/official-afc-xz.git'
+rts_mode: binaryrts
+test_mode: autotools
+inc_build: true

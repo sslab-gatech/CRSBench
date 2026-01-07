@@ -19,7 +19,7 @@
 
 ## Maven build arguments
 MAVEN_ARGS="-Djavac.src.version=17 -Djavac.target.version=17 "
-MAVEN_ARGS=$MAVEN_ARGS"-DskipTests -Dgpg.skip -Dmaven.source.skip "
+MAVEN_ARGS=$MAVEN_ARGS"-DskipTests -Dgpg.skip -Dmaven.source.skip -Dlicense.skip=true"
 MAVEN_ARGS=$MAVEN_ARGS"-DskipExamples -DskipTestsuite -DskipQuarkus"
 
 ## Exclude unfuzzed modules

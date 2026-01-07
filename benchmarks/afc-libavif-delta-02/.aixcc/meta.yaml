@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
-  base_commit: 0511bf366c4059c35ec0edef1ed5bec6ea6b1867
-  ref_commit: 3ba60be51afc4b24d2386dabafdcd8ddde9da5f9
-
+  base_commit: 759b384b97f8ab6088dac442dde697a6d7df6d2c
+  ref_commit: 4ad4b22801987aca6946eb538960a3de96ab941f
 full_mode:
-  base_commit: 3ba60be51afc4b24d2386dabafdcd8ddde9da5f9
-
+  base_commit: 4ad4b22801987aca6946eb538960a3de96ab941f
 harness_files:
 - name: avif_yuvrgb_fuzzer
   path: $REPO/tests/oss-fuzz/avif_yuvrgb_fuzzer.cc

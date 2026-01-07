@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: cb0c5c346944d0eb3e192171e6683ff242621995
   ref_commit: d2573d06ccaaad411d03c36eaa0fbcd686311f31
-
 full_mode:
   base_commit: d2573d06ccaaad411d03c36eaa0fbcd686311f31
-
 harness_files:
 - name: handler_netbios
   path: $REPO/fuzz/fuzzshark.c

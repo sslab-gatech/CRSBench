@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
   base_commit: c88f0167647cb7b1b9cfac7adfb6c2b37c41fa33
-
 harness_files:
 - name: Pac4jOne
   path: $PROJECT/fuzz/pac4j-harness-one/src/main/java/com/aixcc/pac4j/harnesses/one/Pac4jOne.java

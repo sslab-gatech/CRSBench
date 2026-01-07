@@ -1,0 +1,14 @@
+--- a/audio.c
++++ b/audio.c
+@@ -32,8 +32,9 @@
+         
+         for (int j = -window_size/2; j <= window_size/2; j++) {
+             int index = i + j;
+-            
+-            sum += samples[index];
++            if (index >= 0 && index < 64) {
++                sum += samples[index];
++            }
+         }
+         
+         processed_samples[i] = sum / window_size;

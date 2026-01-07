@@ -40,7 +40,7 @@ ENV JAVA_HOME_11 $SRC/jdk-11.0.25+9
 WORKDIR ${SRC}
 
 # install packages required for font-handling and other code in java.awt.*
-RUN apt-get update && apt-get install -y --no-install-recommends libxext6 libx11-6 libxrender1 libxtst6 libxi6 libxcb1 libxau6 libxdmcp6 libfreetype6 fontconfig \
+RUN apt-get update && apt-get install -y libxext6 libx11-6 libxrender1 libxtst6 libxi6 libxcb1 libxau6 libxdmcp6 libfreetype6-dev fontconfig fonts-dejavu \
 && apt-get clean autoclean \
 && apt-get autoremove --yes \
 && rm -rf /var/lib/{apt,dpkg,cache,log}/

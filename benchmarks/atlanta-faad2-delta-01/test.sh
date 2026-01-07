@@ -1,14 +1,20 @@
 #!/bin/bash -eu
-# Test script for atlanta-faad2-delta-01
-#
-# This project has no traditional unit tests.
-# We verify the build succeeds with Bazel (which builds fuzz test harnesses).
 
 export USE_BAZEL_VERSION=7.4.0
 
-# Build the project with Bazel
-echo "Building FAAD2 with Bazel..."
-bazel build //... --verbose_failures
+# Disable ccache for Bazel builds - ccache is incompatible with Bazel's caching
+export PATH=$(echo "$PATH" | sed 's|/ccache/bin:||g; s|:/ccache/bin||g')
+unset CC CXX
+export CC=clang
+export CXX=clang++
 
-echo "Build completed successfully - all tests passed"
+# Build the CLI binary
+echo "Building FAAD2 CLI with Bazel..."
+bazel build //:faad_cli --verbose_failures
+
+# Test the CLI binary by decoding sample AAC file
+echo "Testing faad_cli binary with sample.aac..."
+./bazel-bin/faad_cli -o /tmp/sample.wav $SRC/sample.aac
+
+echo "Test completed successfully"
 exit 0

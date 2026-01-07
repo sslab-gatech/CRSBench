@@ -49,14 +49,14 @@ build_proj() {
     fi
 
     cd "$proj_dir"
-    mvn -DskipTests -Dgpg.skip -Ddependency-check.skip=true -Dmaven.javadoc.skip=true clean install
+    mvn -DskipTests -Dgpg.skip -Ddependency-check.skip=true -Dmaven.javadoc.skip=true -Dlicense.skip=true clean install
 }
 
 build_driver_jars() {
     # UPDATE ME FOR NEW CP
 
     cd "$driver_dir"
-    mvn clean verify
+    mvn clean verify -Dlicense.skip=true
 }
 
 copy_fuzzer_jars() {

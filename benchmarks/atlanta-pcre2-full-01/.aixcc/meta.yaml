@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
   base_commit: c13f2af89ebf2a295bf6c3577b647550724b5881
-
 harness_files:
 - name: pcre2_fuzzer
   path: $REPO/src/pcre2_fuzzsupport.c
@@ -39,9 +37,7 @@ harness_files:
     - id: pov_0
       sanitizer: undefined
       error_token: 'runtime error: signed integer overflow'
-
 - name: pcre2_fuzzer_3l
   path: $REPO/src/pcre2_fuzzsupport.c
-
 - name: pcre2_fuzzer_4l
   path: $REPO/src/pcre2_fuzzsupport.c

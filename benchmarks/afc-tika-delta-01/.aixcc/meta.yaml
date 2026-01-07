@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: d0e3069a8e51554083c2980974f869337b4d6d39
   ref_commit: 53ab3d2bb4ffa16167a039afc28ce99288e6763e
-
 full_mode:
   base_commit: 53ab3d2bb4ffa16167a039afc28ce99288e6763e
-
 harness_files:
 - name: HtmlParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/HtmlParserFuzzer.java
@@ -33,15 +30,11 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueCritical: OS Command Injection'
-
 - name: RTFParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/RTFParserFuzzer.java
-
 - name: TextAndCSVParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/TextAndCSVParserFuzzer.java
-
 - name: TikaAppUnpackerFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/TikaAppUnpackerFuzzer.java
-
 - name: XliffParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/XliffParserFuzzer.java

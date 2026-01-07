@@ -1,10 +1,20 @@
 #!/bin/bash
 set -ex
 
-compile
+cd "${SRC}/pcre2"
 
-# `make check` is not fully functional due to failures in RunTest and RunGrepTest.
-./pcre2posix_test
-./pcre2_jit_test
+# Generate configure script if it doesn't exist
+if [ ! -f configure ]; then
+    ./autogen.sh
+fi
 
-echo "All tests passed!"
+# Configure for testing with JIT but without fuzzer-specific limits
+if [ ! -f Makefile ]; then
+    ./configure --enable-jit
+fi
+
+# Build
+make -j$(nproc)
+
+# Run full test suite
+make check

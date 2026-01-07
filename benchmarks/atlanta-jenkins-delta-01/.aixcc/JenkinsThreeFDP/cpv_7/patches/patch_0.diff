@@ -1,0 +1,17 @@
+--- a/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
++++ b/plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
+@@ -192,12 +192,7 @@
+         // to the repository).
+ 
+         // attempt to connect the provided URL
+-        try {
+-            getHeadRev(url);
+-        } catch (Exception e) {
+-            return FormValidation.error("err");
+-        }
+-
+-        return FormValidation.ok();
++            // Skipping live execution to prevent OS command injection
++            return FormValidation.ok();
+     }
+ }

@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 14be77ad8b78728fc759e963e57234959c11ee11
   ref_commit: 5abce18a8ce98216ef7d9b7859a1a68220508d5f
-
 full_mode:
   base_commit: 5abce18a8ce98216ef7d9b7859a1a68220508d5f
-
 harness_files:
 - name: SimpleLoggerFuzzer
   path: $PROJECT/fuzz-targets/src/main/java/com/example/SimpleLoggerFuzzer.java

@@ -20,7 +20,7 @@ cd $SRC/src/mock_java
 CURRENT_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate \
 -Dexpression=project.version -q -DforceStdout)
 PROJECT_JARS=mock_java.jar
-mvn clean package -Dlicense.skip=true
+mvn package -Dlicense.skip=true
 cp "target/mock_java-$CURRENT_VERSION.jar" $OUT/$PROJECT_JARS
 
 # The jar files containing the project (separated by spaces).

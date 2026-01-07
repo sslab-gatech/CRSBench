@@ -24,6 +24,7 @@ extern "C"
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   if (size < 8) return 0;
 
+  unsigned char *outbuf = nullptr;
   struct jpeg_compress_struct cinfo;
   struct my_error_mgr       jerr;
 
@@ -32,6 +33,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
   if (setjmp(jerr.env)) {
     jpeg_destroy_compress(&cinfo);
+    if (outbuf) free(outbuf);
     return 0;
   }
 
@@ -58,7 +60,6 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
   jpeg_default_colorspace(&cinfo);
 
-  unsigned char *outbuf = nullptr;
   unsigned long outsize = 0;
   jpeg_mem_dest(&cinfo, &outbuf, &outsize);
 

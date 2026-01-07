@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
-  base_commit: c2b6631d6389bcc977eccdfadeb99fe8d62c4e26
-  ref_commit: 9968a08abacd9fb87907a2d58ee380b754a3a007
-
+  base_commit: 5cd0cf4b54e2cb0c38ca6de772aa8bd56d861fdc
+  ref_commit: 0c138796a9d2db257869790ef5f8e36d8f4d5ae5
 full_mode:
-  base_commit: 9968a08abacd9fb87907a2d58ee380b754a3a007
-
+  base_commit: 0c138796a9d2db257869790ef5f8e36d8f4d5ae5
 harness_files:
 - name: TestFuzzCodecs
   path: $REPO/libfreerdp/codec/test/TestFuzzCodecs.c
@@ -33,21 +30,15 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'AddressSanitizer: SEGV on unknown address'
-
 - name: TestFuzzCommonAssistanceBinToHexString
   path: $REPO/libfreerdp/common/test/TestFuzzCommonAssistanceBinToHexString.c
-
 - name: TestFuzzCommonAssistanceHexStringToBin
   path: $REPO/libfreerdp/common/test/TestFuzzCommonAssistanceHexStringToBin.c
-
 - name: TestFuzzCommonAssistanceParseFileBuffer
   path: $REPO/libfreerdp/common/test/TestFuzzCommonAssistanceParseFileBuffer.c
-
 - name: TestFuzzCoreClient
   path: $REPO/libfreerdp/core/test/TestFuzzCoreClient.c
-
 - name: TestFuzzCoreServer
   path: $REPO/libfreerdp/core/test/TestFuzzCoreServer.c
-
 - name: TestFuzzCryptoCertificateDataSetPEM
   path: $REPO/libfreerdp/core/test/TestFuzzCryptoCertificateDataSetPEM.c

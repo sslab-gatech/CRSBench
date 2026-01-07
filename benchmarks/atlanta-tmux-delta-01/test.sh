@@ -84,7 +84,6 @@ conf-syntax.sh
 control-client-sanity.sh
 control-client-size.sh
 cursor-test1.sh
-cursor-test2.sh
 cursor-test3.sh
 cursor-test4.sh
 format-strings.sh

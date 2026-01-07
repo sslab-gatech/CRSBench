@@ -16,10 +16,17 @@
 #
 ################################################################################
 
-cp -r $SRC/oniguruma $SRC/jq/modules
+# Copy oniguruma to modules if not present (for incremental builds, keep existing)
+if [ ! -d $SRC/jq/modules/oniguruma ]; then
+    mkdir -p $SRC/jq/modules
+    rsync -a --exclude='.git' $SRC/oniguruma $SRC/jq/modules
+fi
 
-autoreconf -fi
-./configure --with-oniguruma=builtin
+# Only run autoreconf/configure if not already done (for incremental builds)
+if [ ! -f Makefile ]; then
+    autoreconf -fi
+    ./configure --with-oniguruma=builtin
+fi
 make -j$(nproc)
 
 $CC $CFLAGS -c tests/jq_fuzz_parse.c \
@@ -64,7 +71,7 @@ $CXX $CXXFLAGS $LIB_FUZZING_ENGINE ./tests/jq_fuzz_fixed.cpp \
 
 
 # Build corpus
-mkdir $SRC/seeds
+mkdir -p $SRC/seeds
 find . -name "*.jq" -exec cp {} $SRC/seeds/ \;
 zip -rj $OUT/jq_fuzz_execute_seed_corpus.zip $SRC/seeds/
 

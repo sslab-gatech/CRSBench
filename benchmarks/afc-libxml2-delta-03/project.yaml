@@ -8,3 +8,6 @@ architectures:
 fuzzing_engines:
   - libfuzzer
 main_repo: 'git@github.com:Team-Atlanta/official-afc-libxml2.git'
+test_mode: ctest
+rts_mode: binaryrts
+inc_build: true

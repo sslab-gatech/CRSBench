@@ -28,4 +28,6 @@ RUN tar -zxf $SRC/zlib.tar.gz && rm $SRC/zlib.tar.gz
 RUN tar -zxf $SRC/libpng.tar.gz && rm $SRC/libpng.tar.gz
 
 RUN cp libpng/contrib/oss-fuzz/build.sh $SRC
+# Override with our incremental-build-compatible version
+COPY build.sh $SRC/build.sh
 WORKDIR libpng

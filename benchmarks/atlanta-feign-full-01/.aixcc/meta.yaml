@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
   base_commit: c6989d7ddaa22b367d16a5e8346d853fee9aa5a5
-
 harness_files:
 - name: BodyTemplateFuzzer
   path: $PROJECT/BodyTemplateFuzzer.java
@@ -39,6 +37,5 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Regular Expression Injection'
-
 - name: UriUtilsFuzzer
   path: $PROJECT/UriUtilsFuzzer.java

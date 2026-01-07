@@ -7,11 +7,7 @@ auto_ccs:
   - "stefan.eissing@gmail.com"
 sanitizers:
   - address
-  - undefined
-  - memory
 fuzzing_engines:
-  # - afl
-  # - honggfuzz
   - libfuzzer
 architectures:
   - x86_64

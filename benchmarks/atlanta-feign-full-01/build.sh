@@ -14,12 +14,12 @@
 # limitations under the License.
 #
 ##########################################################################
-mkdir ~/.m2
+mkdir -p ~/.m2
 cp $SRC/toolchains.xml ~/.m2/toolchains.xml
 
 $MVN license:format
 $MVN clean package -Dmaven.javadoc.skip=true -DskipTests=true -Dpmd.skip=true \
-    -Dencoding=UTF-8 -Dmaven.antrun.skip=true \
+    -Dencoding=UTF-8 -Dmaven.antrun.skip=true -Dlicense.skip=true -Drat.skip=true \
     -Denforcer.fail=false dependency:copy-dependencies
 
 JARFILE_LIST=
@@ -37,7 +37,7 @@ done
 
 curr_dir=$(pwd)
 rm -rf $OUT/jar_temp
-mkdir $OUT/jar_temp
+mkdir -p $OUT/jar_temp
 cd $OUT/jar_temp
 for JARFILE in $JARFILE_LIST
 do

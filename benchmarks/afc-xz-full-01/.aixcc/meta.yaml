@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
-  base_commit: 34ef7965a8ab86c161577ca20dcedcd72a0f22f7
-
+  base_commit: e4c73eeb0013d120d63083dd50a3720f04091a04
 harness_files:
 - name: fuzz_encode_stream
   path: $REPO/

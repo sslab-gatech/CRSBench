@@ -1,14 +1,12 @@
 homepage: "https://github.com/ittiam-systems/libavc"
-language: c++
+language: c
 primary_contact: "harish.mahendrakar@ittiam.com"
 sanitizers:
   - address
-  - memory
-  - undefined
 auto_ccs:
   - aadithya.kamath@ittiam.com
   - harish.mahendrakar@ittiam.com
-  - mallikarjun.kamble@ittiam.com  
+  - mallikarjun.kamble@ittiam.com
   - ram.mohan@ittiam.com
   - saurabh.agrawal@ittiam.com
   - umang.saini@ittiam.com
@@ -35,7 +33,8 @@ architectures:
   - x86_64
   - i386
 main_repo: 'git@github.com:Team-Atlanta/cp-c-libavc.git'
-
 fuzzing_engines:
   - libfuzzer
-
+rts_mode: binaryrts
+test_mode: googletest
+inc_build: true

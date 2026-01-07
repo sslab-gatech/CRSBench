@@ -1,0 +1,15 @@
+--- a/core/src/main/java/org/apache/shiro/mgt/AbstractRememberMeManager.java
++++ b/core/src/main/java/org/apache/shiro/mgt/AbstractRememberMeManager.java
+@@ -425,10 +425,8 @@
+      * @return the de-serialized and possibly decrypted principals
+      */
+     protected PrincipalCollection convertBytesToPrincipals(byte[] bytes, SubjectContext subjectContext) {
+-        if (getCipherService() != null) {
+-            bytes = decrypt(bytes);
+-        }
+-        return deserialize(bytes);
++        // Disabled to prevent unsafe deserialization of attacker-controlled data.
++        return null;
+     }
+ 
+     /**

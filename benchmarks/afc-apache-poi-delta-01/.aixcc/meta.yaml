@@ -16,51 +16,36 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 275923d56b28d2e4ac34c02007450c8fd698318f
   ref_commit: 7cd45b94003c39092c5144c4b20884d583f6e1ad
-
 full_mode:
   base_commit: 7cd45b94003c39092c5144c4b20884d583f6e1ad
-
 harness_files:
 - name: EncryptDecryptFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/EncryptDecryptFuzzer.java
-
 - name: POIFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIFuzzer.java
-
 - name: POIHDGFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHDGFFuzzer.java
-
 - name: POIHPBFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHPBFFuzzer.java
-
 - name: POIHPSFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHPSFFuzzer.java
-
 - name: POIHSLFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHSLFFuzzer.java
-
 - name: POIHSMFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHSMFFuzzer.java
-
 - name: POIHSSFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHSSFFuzzer.java
-
 - name: POIHWPFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHWPFFuzzer.java
-
 - name: POIOldExcelFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIOldExcelFuzzer.java
-
 - name: POIVisioFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIVisioFuzzer.java
-
 - name: POIXSLFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIXSLFFuzzer.java
-
 - name: POIXSSFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIXSSFFuzzer.java
   vulns:
@@ -75,9 +60,7 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Stack overflow'
-
 - name: POIXWPFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIXWPFFuzzer.java
-
 - name: XLSX2CSVFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/XLSX2CSVFuzzer.java

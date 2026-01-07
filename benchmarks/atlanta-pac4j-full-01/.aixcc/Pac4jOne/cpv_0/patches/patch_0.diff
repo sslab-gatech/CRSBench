@@ -1,0 +1,15 @@
+--- a/pac4j-core/src/main/java/org/pac4j/core/util/JavaSerializationHelper.java
++++ b/pac4j-core/src/main/java/org/pac4j/core/util/JavaSerializationHelper.java
+@@ -152,6 +152,12 @@
+         @Override
+         protected Class<?> resolveClass(final ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+             final String qualifiedClassName = desc.getName();
++            // Block network-related and RMI classes to prevent SSRF via deserialization
++            if (qualifiedClassName.startsWith("java.net.") ||
++                qualifiedClassName.startsWith("java.rmi.") ||
++                qualifiedClassName.startsWith("sun.rmi.")) {
++                throw new ClassNotFoundException("Wont resolve unsafe class: " + qualifiedClassName);
++            }
+             final Class<?> clazz = trustedClasses.get(qualifiedClassName);
+             if (Objects.nonNull(clazz)) {
+                 return clazz;

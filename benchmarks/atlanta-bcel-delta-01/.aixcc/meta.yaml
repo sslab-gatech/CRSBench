@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 018b07ab8f344d0fd9bdef992aceb20a64beaf68
-  ref_commit: 2cff3c8b31efb5563d2dbe8449dc93d8771ae237
-
+  ref_commit: db77ec29c1f907fac440fb18ef480b8bcde67d87
 full_mode:
-  base_commit: 2cff3c8b31efb5563d2dbe8449dc93d8771ae237
-
+  base_commit: db77ec29c1f907fac440fb18ef480b8bcde67d87
 harness_files:
 - name: BCELOne
   path: $PROJECT/fuzz/bcel-harness-one/src/main/java/com/aixcc/bcel/harnesses/one/BCELOne.java
@@ -33,7 +30,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueCritical: File path traversal'
-
 - name: BCELOneFDP
   path: $PROJECT/fuzz/bcel-harness-one/src/main/java/com/aixcc/bcel/harnesses/one/BCELOneFDP.java
   vulns:

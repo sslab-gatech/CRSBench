@@ -31,19 +31,21 @@ if [ "$ARCHITECTURE" = "i386" ]; then
     BUILD_FLAG="--build=i686-pc-linux-gnu"
 fi
 
-# build project
-./buildconf
-./configure $BUILD_FLAG \
-    --disable-all \
-    --enable-debug-assertions \
-    --enable-option-checking=fatal \
-    --enable-fuzzer \
-    --enable-exif \
-    --enable-opcache \
-    --without-pcre-jit \
-    --disable-phpdbg \
-    --disable-cgi \
-    --with-pic
+# build project - only configure on first run
+if [ ! -f Makefile ]; then
+    ./buildconf
+    ./configure $BUILD_FLAG \
+        --disable-all \
+        --enable-debug-assertions \
+        --enable-option-checking=fatal \
+        --enable-fuzzer \
+        --enable-exif \
+        --enable-opcache \
+        --without-pcre-jit \
+        --disable-phpdbg \
+        --disable-cgi \
+        --with-pic
+fi
 make -j$(nproc)
 
 # Generate corpuses and dictionaries.

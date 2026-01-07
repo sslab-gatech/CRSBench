@@ -1,11 +1,6 @@
 language: c
 sanitizers:
   - address
-  # - memory
-  # - undefined
 main_repo: 'git@github.com:Team-Atlanta/cp-user-itoa-src.git'
-
 fuzzing_engines:
-  # - afl
-  # - honggfuzz
   - libfuzzer

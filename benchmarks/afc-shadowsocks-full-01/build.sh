@@ -16,13 +16,20 @@
 ################################################################################
 
 # shadowsocks has submodules, untar them into the correct place from $SRC/aixcc-submodules
-tar -zxf ../aixcc-submodules/submodules.tar.gz
+# Conditional untar for incremental builds
+if [ ! -d libcork ]; then
+    tar -zxf ../aixcc-submodules/submodules.tar.gz
+fi
 
 apt-get install --no-install-recommends -y pkg-config gettext build-essential \
     autoconf libtool libpcre3-dev asciidoc xmlto libev-dev libc-ares-dev      \
     automake libmbedtls-dev libsodium-dev
-./autogen.sh
-./configure --disable-shared --enable-static
+
+# Conditional configure for incremental builds
+if [ ! -f Makefile ]; then
+    ./autogen.sh
+    ./configure --disable-shared --enable-static
+fi
 make V=1
 
 cp ${SRC}/*.options ${OUT}/

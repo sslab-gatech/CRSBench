@@ -3,9 +3,6 @@ language: c
 primary_contact: nicholas.marriott@gmail.com
 sanitizers:
   - address
-  - undefined
 main_repo: 'git@github.com:Team-Atlanta/cp-c-tmux.git'
-
 fuzzing_engines:
   - libfuzzer
-

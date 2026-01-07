@@ -16,21 +16,16 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: f3a2fc375d0188271143481086ffac60ca5b0668
   ref_commit: 2ea4a353da82c5641ca1ae461fdbd3fbb6ec712b
-
 full_mode:
   base_commit: 2ea4a353da82c5641ca1ae461fdbd3fbb6ec712b
-
 harness_files:
 - name: fuzz_decode
   path: $PROJECT/fuzz/fuzz_decode.c
-
 - name: fuzz_decode_drm
   path: $PROJECT/fuzz/fuzz_decode.c
-
 - name: fuzz_decode_drm_fixed
   path: $PROJECT/fuzz/fuzz_decode.c
   vulns:
@@ -39,7 +34,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'ERROR: AddressSanitizer: ILL'
-
 - name: fuzz_decode_fixed
   path: $PROJECT/fuzz/fuzz_decode.c
   vulns:
@@ -48,6 +42,5 @@ harness_files:
     - id: pov_0
       sanitizer: undefined
       error_token: 'runtime error: signed integer overflow'
-
 - name: fuzz_config
   path: $PROJECT/fuzz/fuzz_config.c

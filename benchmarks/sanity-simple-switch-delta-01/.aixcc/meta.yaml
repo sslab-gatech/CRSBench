@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 4cda1acd797a146259413be88db2f588e37245ed
   ref_commit: 67b22cbb8da4d78bdf508108a3695408dcea925b
-
 full_mode:
   base_commit: 67b22cbb8da4d78bdf508108a3695408dcea925b
-
 harness_files:
 - name: ossfuzz-1
   path: $PROJECT/fuzz/ossfuzz-1.c

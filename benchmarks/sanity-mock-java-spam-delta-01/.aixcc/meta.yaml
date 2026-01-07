@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 827b534167e84918999d02a281bf54a253dc6d00
   ref_commit: 9e1eb1d4b19f9c9e8eb1046a7c4678fe63c707e5
-
 full_mode:
   base_commit: 9e1eb1d4b19f9c9e8eb1046a7c4678fe63c707e5
-
 harness_files:
 - name: OssFuzz1
   path: $PROJECT/fuzz/OssFuzz1.java

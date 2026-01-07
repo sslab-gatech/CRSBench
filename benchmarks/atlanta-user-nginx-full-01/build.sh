@@ -14,49 +14,16 @@
 # limitations under the License.
 #
 ################################################################################
-_save_CFLAGS=${CFLAGS}
-_save_CXXFLAGS=${CXXFLAGS}
+# build.sh builds fuzzers only. nginx binary is built by test.sh separately.
 
-export CFLAGS="-O0 -g"
-export CXXFLAGS="-O1 -stdlib=libc++"
-export LIBS="-ldl -lpthread"
+# Setup fuzzer sources (only if not already done)
+[ ! -d src/fuzz ] && cp -r $SRC/fuzz src/
 
-./auto/configure \
-    --with-cc-opt="${CFLAGS}" \
-    --with-ld-opt="${LIBS}"\
-    --conf-path=$OUT/conf/nginx.conf \
-    --pid-path=$OUT/logs/nginx.pid \
-    --with-mail \
-    --with-http_ssl_module \
-    --with-http_realip_module \
-    --with-http_addition_module \
-    --with-http_sub_module \
-    --with-http_dav_module \
-    --with-http_flv_module \
-    --with-http_mp4_module \
-    --with-http_gunzip_module \
-    --with-http_gzip_static_module \
-    --with-http_auth_request_module \
-    --with-http_random_index_module \
-    --with-http_secure_link_module \
-    --with-http_degradation_module \
-    --with-http_stub_status_module \
-    --with-http_slice_module \
-    --with-stream \
-    --with-pcre \
-    --with-debug
-make -f objs/Makefile -j
-
-cp objs/nginx $OUT/nginx
-make clean
-
-export CFLAGS=${_save_CFLAGS}
-export CXXFLAGS=${_save_CXXFLAGS}
-
-git apply $SRC/add_fuzzers.diff || true
-
-cp -r $SRC/fuzz src/
-cp $SRC/make_fuzzers auto/make_fuzzers
+# Apply patch and copy make_fuzzers (patch is idempotent with || true)
+if [ ! -f auto/make_fuzzers ]; then
+    cp $SRC/make_fuzzers auto/make_fuzzers
+    patch -p1 < $SRC/add_fuzzers.diff || true
+fi
 
 : "${CP_HARNESS_LDFLAGS:="-Wl,--wrap=writev \
     -Wl,--wrap=open \
@@ -86,33 +53,32 @@ cp $SRC/make_fuzzers auto/make_fuzzers
 
 export CFLAGS="${CFLAGS} -DNGX_DEBUG_PALLOC=1"
 
-./auto/configure \
-    --with-ld-opt="${CP_HARNESS_LDFLAGS} ${CP_HARNESS_LIBS}"\
-    --with-cc-opt="${CFLAGS}" \
-    --with-mail \
-    --with-http_ssl_module \
-    --with-http_realip_module \
-    --with-http_addition_module \
-    --with-http_sub_module \
-    --with-http_dav_module \
-    --with-http_flv_module \
-    --with-http_mp4_module \
-    --with-http_gunzip_module \
-    --with-http_gzip_static_module \
-    --with-http_auth_request_module \
-    --with-http_random_index_module \
-    --with-http_secure_link_module \
-    --with-http_degradation_module \
-    --with-http_stub_status_module
-make -f objs/Makefile -j fuzzers
+# Configure for fuzzers if Makefile doesn't exist
+if [ ! -f objs/Makefile ]; then
+    ./auto/configure \
+        --with-ld-opt="${CP_HARNESS_LDFLAGS} ${CP_HARNESS_LIBS}"\
+        --with-cc-opt="${CFLAGS}" \
+        --with-mail \
+        --with-http_ssl_module \
+        --with-http_realip_module \
+        --with-http_addition_module \
+        --with-http_sub_module \
+        --with-http_dav_module \
+        --with-http_flv_module \
+        --with-http_mp4_module \
+        --with-http_gunzip_module \
+        --with-http_gzip_static_module \
+        --with-http_auth_request_module \
+        --with-http_random_index_module \
+        --with-http_secure_link_module \
+        --with-http_degradation_module \
+        --with-http_stub_status_module
+fi
 
-git apply -R $SRC/add_fuzzers.diff || true
-sed -i 's/fuzz_without_main(/main(/g' src/core/nginx.c
+# Build fuzzers only
+make -f objs/Makefile -j$(nproc) fuzzers
 
 cp objs/*_harness $OUT/
-
-mkdir -p $OUT/conf
-cp $SRC/nginx/conf/nginx.conf $OUT/conf/nginx.conf
 
 mkdir -p $OUT/html
 mkdir -p $OUT/logs
@@ -124,9 +90,8 @@ echo "hello" > $OUT/dav/copy_this_dir/copy_this_file.txt
 cp $SRC/nginx/docs/html/index.html $OUT/html/index.html
 cp $SRC/nginx/docs/html/sub.html $OUT/html/sub.html
 dd if=/dev/urandom of="$OUT/videos/sample.flv" bs=1M count=1 status=none
-#cp $SRC/nginx/videos/sample.flv $OUT/videos/sample.flv
 
-cp -r $SRC/nginx $OUT/src
+rsync -a --delete $SRC/nginx/ $OUT/src
 if [ "${CRS_TEST:-False}" == "True" ]; then
-    cp -r $SRC/.aixcc $OUT/.aixcc
+    rsync -a --delete $SRC/.aixcc/ $OUT/.aixcc
 fi

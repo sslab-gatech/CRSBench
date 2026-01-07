@@ -61,22 +61,22 @@ build_proj() {
     fi
 
     echo "about to build jenkins"
-    cd $proj_dir/jenkins && mvn -DskipTests -Pquick-build -am -pl bom,war install
+    cd $proj_dir/jenkins && mvn -DskipTests -Dlicense.skip=true -Pquick-build -am -pl bom,war install
     echo "finished with jenkins"
-    
-    cd $proj_dir/plugins/pipeline-util-plugin && mvn -DskipTests -Pquick-build install 
+
+    cd $proj_dir/plugins/pipeline-util-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build install
     echo "finished with pipeline util"
-    
-    cd $proj_dir/plugins/toy-plugin && mvn -DskipTests -Pquick-build install 
+
+    cd $proj_dir/plugins/toy-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build install
     echo "finished with toy-plugin"
-    
-    cd $proj_dir/plugins/build-failure-analyzer-plugin && mvn -DskipTests -Pquick-build install 
+
+    cd $proj_dir/plugins/build-failure-analyzer-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build install
     echo "finished with build-failure-analyzer-plugin"
 
-    cd $proj_dir/plugins/code-coverage-api-plugin && mvn -DskipTests -Pquick-build clean install 
+    cd $proj_dir/plugins/code-coverage-api-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build clean install
     echo "finished with code-coverage-api-plugin"
 
-    cd $proj_dir/plugins/email-ext-plugin && mvn -DskipTests -Pquick-build clean install 
+    cd $proj_dir/plugins/email-ext-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build clean install
     echo "finished with email-ext-plugin"
 }
 
@@ -84,7 +84,7 @@ build_driver_jars() {
     # UPDATE ME FOR NEW CP
 
     cd "$driver_dir"
-    mvn verify
+    mvn verify -Dlicense.skip=true
 }
 
 copy_fuzzer_jars() {

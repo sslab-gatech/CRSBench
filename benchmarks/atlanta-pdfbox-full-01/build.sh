@@ -29,18 +29,18 @@ function set_project_version_in_fuzz_targets_dependency {
 }
 
 # Move seed corpus and dictionary.
-mv $SRC/*.dict $OUT
+cp $SRC/*.dict $OUT
 
 set_project_version_in_fuzz_targets_dependency
 
 cd $SRC/project-parent
 
 #install
-(cd $PROJECT && $MVN install $MAVEN_ARGS -Dmaven.repo.local=$OUT/m2)
-$MVN -pl fuzz-targets install -Dmaven.repo.local=$OUT/m2
+(cd $PROJECT && $MVN install $MAVEN_ARGS)
+$MVN -pl fuzz-targets install
 
 # build classpath
-$MVN -pl fuzz-targets dependency:build-classpath -Dmdep.outputFile=cp.txt -Dmaven.repo.local=$OUT/m2
+$MVN -pl fuzz-targets dependency:build-classpath -Dmdep.outputFile=cp.txt
 cp -r $SRC/project-parent/fuzz-targets/target/test-classes/ $OUT/test-classes
 RUNTIME_CLASSPATH_ABSOLUTE="$(cat fuzz-targets/cp.txt):$OUT/test-classes"
 # replace $OUT with placeholder $this_dir that will be dissolved at runtime

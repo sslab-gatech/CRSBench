@@ -1,5 +1,5 @@
 homepage: "https://github.com/libssh2/libssh2"
-language: c++
+language: c
 primary_contact: "will.cosgrove@gmail.com"
 auto_ccs:
   - "cmeister2@gmail.com"

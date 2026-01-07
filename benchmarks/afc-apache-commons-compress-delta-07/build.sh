@@ -16,7 +16,7 @@
 ################################################################################
 
 # Move seed corpus and dictionary.
-mv $SRC/{*.zip,*.dict} $OUT
+cp $SRC/{*.zip,*.dict} $OUT
 
 MAVEN_ARGS="-Dmaven.test.skip=true -Djacoco.skip -Drat.skip -Djavac.src.version=15 -Djavac.target.version=15"
 $MVN package org.apache.maven.plugins:maven-shade-plugin:3.5.1:shade $MAVEN_ARGS

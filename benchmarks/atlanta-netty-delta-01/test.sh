@@ -1,34 +1,47 @@
-#!/bin/bash -eu
-# Copyright 2024 CRSBench
-#
-# Test script for atlanta-netty-delta-01
-# This script runs unit tests for the Netty project
-#
-# Environment:
-# - test.sh is located at /src/test.sh in the container
-# - test.sh is executed from WORKDIR (/src/netty)
-# - Project source code is mounted at WORKDIR
+#!/bin/bash
+# [REQUIRED] -e: exit on failure, -x: print executed commands
+set -ex
 
-set -e
+# MVN setting
+# [REQUIRED] MUST use $MVN instead of absolute path of mvn. If mvn is not in the path, set the absolute path to $MVN
+if [ -z "${MVN}" ]; then
+    MVN="/src/maven-3.6.3/apache-maven-3.6.3/bin/mvn"
+fi
 
-# Maven is configured in the environment
-MVN="${MVN:-/src/maven-3.6.3/apache-maven-3.6.3/bin/mvn}"
+# MVN ARGS setting
+## [REQUIRED] Do not modify MVN_SKIP_ARGS as much as possible
+MVN_SKIP_ARGS="-Djacoco.skip=true -Dspotless.check.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Denforcer.skip=true -Dpmd.skip=true -Dlicense.skip=true -Danimal.sniffer.skip=true -Drat.numUnapprovedLicenses=100 -Drat.ignoreErrors=true -Dcheckstyle.skipExec=true -Dspotbugs.skip=true"
+## [REQUIRED] You can add additional args needed per project to MVN_ADDITIONAL_ARGS
+MVN_ADDITIONAL_ARGS="-pl buffer -am -Dsurefire.failIfNoSpecifiedTests=false"
 
-echo "[test.sh] Running Netty unit tests from $(pwd)"
+## [REQUIRED] Tests to include. Try to use blacklist as much as possible to maintain high test coverage.
+INCLUDE_TESTS="**/ByteBufUtilTest.java,**/EmptyByteBufTest.java,**/IntPriorityQueueTest.java"
+if [ -n "$INCLUDE_TESTS" ]; then
+    MVN_INCLUDE_TESTS="-Dsurefire.includes=$INCLUDE_TESTS"
+fi
+# [REQUIRED] Tests to exclude (e.g., failed tests before patching). Minimize this to maintain high test coverage.
+EXCLUDE_TESTS=""
+if [ -n "$EXCLUDE_TESTS" ]; then
+    MVN_EXCLUDE_TESTS="-Dsurefire.excludes=$EXCLUDE_TESTS"
+fi
 
-# First, install dependencies without running tests
-echo "[test.sh] Building dependencies..."
-$MVN install \
-  -Dcheckstyle.skip=true \
-  -DskipTests \
-  -pl common \
-  -am
+## [REQUIRED] MVN_ARGS should not be modified. Add to MVN_ADDITIONAL_ARGS if needed
+MVN_ARGS="$MVN_SKIP_ARGS $MVN_ADDITIONAL_ARGS $MVN_INCLUDE_TESTS $MVN_EXCLUDE_TESTS"
 
-# Now run a focused set of fast tests from buffer module
-echo "[test.sh] Running buffer module tests..."
-$MVN test \
-  -Dcheckstyle.skip=true \
-  -pl buffer \
-  -Dtest=ByteBufUtilTest,EmptyByteBufTest,IntPriorityQueueTest
+# Run RTS configuration if RTS_ON is set
+## [REQUIRED] RTS configuration. Do not modify.
+if [ -n "${RTS_ON}" ]; then
+	echo "[RTS] Running rts_config_jvm.py with tool: ${RTS_TOOL}..."
+	python3 /rts_config_jvm.py $(pwd) --tool "${RTS_TOOL}"
+else
+	echo "[RTS] RTS_ON is not set. Remove cached RTS data..."
+	rm -rf .ekstazi || true
+fi
 
-echo "[test.sh] Tests completed successfully"
+# Run Test
+## [REQUIRED] Try not to change when using mvn test. Avoid using commands like `clean` as much as possible. Use only if absolutely necessary.
+if [ -n "${RTS_ON}" ] && [ "$RTS_TOOL" = "openclover" ]; then
+    $MVN clover:setup clover:optimize test clover:snapshot $MVN_ARGS
+else
+    $MVN test $MVN_ARGS
+fi

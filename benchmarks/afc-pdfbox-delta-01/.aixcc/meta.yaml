@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: add2d7f10b7e2a7c39efd14fd5b0bd288e1c1d31
   ref_commit: 93b9bbdb8842def2675f33ff195de3174411faec
-
 full_mode:
   base_commit: 93b9bbdb8842def2675f33ff195de3174411faec
-
 harness_files:
 - name: PDFOCRFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/PDFOCRFuzzer.java

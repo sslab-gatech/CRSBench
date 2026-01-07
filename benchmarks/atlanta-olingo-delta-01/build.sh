@@ -41,14 +41,14 @@ build_proj() {
     # UPDATE ME FOR NEW CP
 
     cd "$proj_dir"
-    mvn clean install -DskipTests -pl lib/client-core -am
+    mvn clean install -DskipTests -Dcheckstyle.skip=true -Dlicense.skip=true -Drat.skip=true -Drat.numUnapprovedLicenses=100 -Drat.ignoreErrors=true -pl lib/client-core -am
 }
 
 build_driver_jars() {
     # UPDATE ME FOR NEW CP
 
     cd "$driver_dir"
-    mvn clean verify
+    mvn clean verify -Dlicense.skip=true -Dcheckstyle.skip=true -Drat.skip=true -Drat.numUnapprovedLicenses=100 -Drat.ignoreErrors=true
 }
 
 copy_fuzzer_jars() {

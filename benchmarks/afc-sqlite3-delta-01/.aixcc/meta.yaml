@@ -16,18 +16,14 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 6a3e7f57f00f0a2b6b89b0db7990e3df47175372
   ref_commit: b8d88696c41b189951c4de0edc6dffaa31182551
-
 full_mode:
   base_commit: b8d88696c41b189951c4de0edc6dffaa31182551
-
 harness_files:
 - name: ossfuzz
   path: $REPO/test/ossfuzz.c
-
 - name: customfuzz3
   path: $REPO/test/customfuzz3.c
   vulns:

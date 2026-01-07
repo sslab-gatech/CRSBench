@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
   base_commit: f4ac1ed1e2e5ddcf827b58bbd4147ac4e7d3694a
-
 harness_files:
 - name: fuzz-udev-rule-parse-value
   path: $REPO/src/udev/fuzz-udev-rule-parse-value.c
@@ -29,7 +27,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'AddressSanitizer: heap-buffer-overflow'
-
 - name: fuzz-catalog
   path: $REPO/src/fuzz/fuzz-catalog.c
   vulns:
@@ -38,7 +35,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'AddressSanitizer: heap-buffer-overflow'
-
 - name: fuzz-link-parser
   path: $REPO/src/udev/net/fuzz-link-parser.c
   vulns:
@@ -47,7 +43,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'AddressSanitizer: heap-use-after-free'
-
 - name: fuzz-systemctl-parse-argv
   path: $REPO/src/systemctl/fuzz-systemctl-parse-argv.c
   vulns:
@@ -56,6 +51,5 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'AddressSanitizer: attempting double-free'
-
 - name: fuzz-network-parser
   path: $REPO/src/network/fuzz-network-parser.c

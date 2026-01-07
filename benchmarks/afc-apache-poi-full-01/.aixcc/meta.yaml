@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
   base_commit: 1070f9f110d8ebdad51fc5d975052e5341ade83d
-
 harness_files:
 - name: POIHMEFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHMEFFuzzer.java
@@ -34,7 +32,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory'
-
 - name: POIPOIFSDumpFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIPOIFSDumpFuzzer.java
   vulns:
@@ -43,28 +40,20 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueCritical: File path traversal'
-
 - name: EncryptDecryptFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/EncryptDecryptFuzzer.java
-
 - name: POIFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIFuzzer.java
-
 - name: POIHDGFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHDGFFuzzer.java
-
 - name: POIHPBFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHPBFFuzzer.java
-
 - name: POIHPSFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHPSFFuzzer.java
-
 - name: POIHSLFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHSLFFuzzer.java
-
 - name: POIHSMFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHSMFFuzzer.java
-
 - name: POIHSSFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHSSFFuzzer.java
   vulns:
@@ -73,19 +62,14 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'ERROR: libFuzzer: deadly signal'
-
 - name: POIHWPFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIHWPFFuzzer.java
-
 - name: POIOldExcelFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIOldExcelFuzzer.java
-
 - name: POIVisioFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIVisioFuzzer.java
-
 - name: POIXSLFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIXSLFFuzzer.java
-
 - name: POIXSSFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIXSSFFuzzer.java
   vulns:
@@ -94,9 +78,7 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'ERROR: libFuzzer: fuzz target exited'
-
 - name: POIXWPFFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/POIXWPFFuzzer.java
-
 - name: XLSX2CSVFuzzer
   path: $PROJECT/src/main/java/org/apache/poi/XLSX2CSVFuzzer.java

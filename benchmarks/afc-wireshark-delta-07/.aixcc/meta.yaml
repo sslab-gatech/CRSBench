@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 8b1e5f591f3da71876177fd8f9e694ac190e1e38
   ref_commit: 3e9e3107050c2605bf8ca28982a418dddabca4cc
-
 full_mode:
   base_commit: 3e9e3107050c2605bf8ca28982a418dddabca4cc
-
 harness_files:
 - name: handler_gvcp
   path: $REPO/fuzz/fuzzshark.c

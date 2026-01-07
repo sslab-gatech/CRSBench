@@ -11,3 +11,5 @@ vendor_ccs:
   - "patrice.salathe@code-intelligence.com"
   - "hlin@code-intelligence.com"
   - "bug-disclosure@code-intelligence.com"
+rts_mode: none
+inc_build: true

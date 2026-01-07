@@ -16,21 +16,16 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 7f350901823080c5dfa176b37c3f56f121dcd718
-  ref_commit: c59c006924d9c2d851978b5f1697947c5c212d72
-
+  ref_commit: 39b29ef42e1658e8195083f57b7bc3a348033405
 full_mode:
-  base_commit: c59c006924d9c2d851978b5f1697947c5c212d72
-
+  base_commit: 39b29ef42e1658e8195083f57b7bc3a348033405
 harness_files:
 - name: DataTreeFuzzer
   path: $PROJECT/DataTreeFuzzer.java
-
 - name: MessageTrackerPeekReceivedFuzzer
   path: $PROJECT/MessageTrackerPeekReceivedFuzzer.java
-
 - name: MultiProcessTxnFuzzer
   path: $PROJECT/MultiProcessTxnFuzzer.java
   vulns:
@@ -39,9 +34,7 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory'
-
 - name: ProcessTxnFuzzer
   path: $PROJECT/ProcessTxnFuzzer.java
-
 - name: SerializeFuzzer
   path: $PROJECT/SerializeFuzzer.java

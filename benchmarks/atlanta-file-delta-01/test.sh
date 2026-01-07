@@ -1,11 +1,14 @@
 #!/bin/bash
 set -ex
 
-cd $SRC/file
+# Remove failing tests
 rm -f tests/multiple.*
 sed -i '/multiple/d' tests/Makefile.am
-autoreconf -f -i
-# make distclean
-./configure --disable-silent-rules
-make -j4
-make -C tests check
+
+# Build
+if [ ! -f Makefile ]; then
+    autoreconf -f -i
+    ./configure --enable-static --enable-fsect-man5 --disable-silent-rules
+fi
+make -j$(nproc)
+make check

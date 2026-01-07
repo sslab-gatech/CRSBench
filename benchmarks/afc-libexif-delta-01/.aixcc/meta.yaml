@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: ffcdfbeb5539c25b1630ba59abf8a22587657adc
   ref_commit: da3c02556ada4a2b2b43cae1c23393dd118dcac5
-
 full_mode:
   base_commit: da3c02556ada4a2b2b43cae1c23393dd118dcac5
-
 harness_files:
 - name: exif_from_data_fuzzer
   path: $PROJECT/exif_from_data_fuzzer.cc
@@ -33,7 +30,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
-
 - name: exif_loader_fuzzer
   path: $PROJECT/exif_loader_fuzzer.cc
   vulns:

@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
   base_commit: 7f62bd03b140a935c4fff190b4c9a567d5038a78
-
 harness_files:
 - name: json_fuzz
   path: $PROJECT/json_fuzz.c

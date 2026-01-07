@@ -16,18 +16,14 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 201c577b72e03bc0a098fe3382d4de57eeb6dade
   ref_commit: c7c244f360287c7079cae6f9af7b3d663580fcc6
-
 full_mode:
   base_commit: c7c244f360287c7079cae6f9af7b3d663580fcc6
-
 harness_files:
 - name: magic_fuzzer
   path: $PROJECT/magic_fuzzer.cc
-
 - name: magic_fuzzer_fd
   path: $PROJECT/magic_fuzzer_fd.cc
   vulns:
@@ -36,7 +32,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'ERROR: AddressSanitizer: stack-buffer-overflow'
-
 - name: magic_fuzzer_loaddb
   path: $PROJECT/magic_fuzzer_loaddb.cc
   vulns:

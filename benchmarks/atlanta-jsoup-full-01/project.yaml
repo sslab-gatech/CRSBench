@@ -4,3 +4,5 @@ fuzzing_engines:
   - libfuzzer
 sanitizers:
   - address
+rts_mode: openclover
+inc_build: true

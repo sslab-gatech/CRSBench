@@ -1,0 +1,29 @@
+patch_exclude_list:
+- build.sh
+- Makefile
+- CMakeLists.txt
+- configure*
+- '*.ac'
+- '*.am'
+- .gitignore
+- .aixcc/**
+- '**/*test*.c'
+- '**/*test*.cc'
+- '**/*test*.cpp'
+- '**/*test*.h'
+- test/**
+- tests/**
+- docs/**
+- '*.md'
+- README*
+full_mode:
+  base_commit: 92ed2ff4b79bbb61cc39e8ca8b90e820f067b90b
+harness_files:
+- name: dav1d_fuzzer_mt@NO_OOM
+  path: $REPO/tests/libfuzzer/dav1d_fuzzer.c
+  vulns:
+  - vuln_keyword: cpv_0
+    povs:
+    - id: pov_0
+      sanitizer: undefined
+      error_token: signed integer overflow

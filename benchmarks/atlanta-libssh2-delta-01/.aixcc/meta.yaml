@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: b3465418471ffa4cf0bbe1e8f28c4d007f060f99
   ref_commit: 85b22fc186031ee100773e06b545a94b3869d4c6
-
 full_mode:
   base_commit: 85b22fc186031ee100773e06b545a94b3869d4c6
-
 harness_files:
 - name: ssh2_client_fuzzer
   path: $REPO/tests/ossfuzz/ssh2_client_fuzzer.cc

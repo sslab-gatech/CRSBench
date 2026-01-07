@@ -43,7 +43,7 @@ build_proj() {
     # UPDATE ME FOR NEW CP
 
     cd "$proj_dir"
-    mvn -Dtest=\!GifReadTest -Djacoco.skip=true clean install
+    mvn -Dtest=\!GifReadTest -Djacoco.skip=true -Dlicense.skip=true -Drat.skip=true clean install
 }
 
 build_driver_jars() {
@@ -54,7 +54,7 @@ build_driver_jars() {
     set -u
 
     cd "$driver_dir"
-    mvn clean verify
+    mvn clean verify -Dlicense.skip=true
 }
 
 copy_fuzzer_jars() {

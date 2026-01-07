@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
-  base_commit: ca7e5592af6fd5c133edbccbd13e31e64014043c
-
+  base_commit: 78bf67da670faed6f9a5870dc964921628eef065
 harness_files:
 - name: XmlFuzzer
   path: $PROJECT/XmlFuzzer.java

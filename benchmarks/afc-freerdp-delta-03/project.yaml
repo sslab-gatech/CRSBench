@@ -9,3 +9,6 @@ sanitizers:
   - address
 architectures:
   - x86_64
+test_mode: ctest
+rts_mode: binaryrts
+inc_build: true

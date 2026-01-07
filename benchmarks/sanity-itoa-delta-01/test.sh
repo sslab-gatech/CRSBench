@@ -3,7 +3,7 @@
 # This performs the CP-specific tests. It may be replaced with a script
 # or binary for a different interpreter. The name MUST NOT change.
 
-set -e
+set -ex
 set -o pipefail
 
 warn() {

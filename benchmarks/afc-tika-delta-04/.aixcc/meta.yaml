@@ -16,24 +16,18 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 30284a3eb45eddd5b812eca12254a99551671f32
   ref_commit: 2e0159be6eafe607bc763281937604b37ec33dea
-
 full_mode:
   base_commit: 2e0159be6eafe607bc763281937604b37ec33dea
-
 harness_files:
 - name: HtmlParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/HtmlParserFuzzer.java
-
 - name: RTFParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/RTFParserFuzzer.java
-
 - name: TextAndCSVParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/TextAndCSVParserFuzzer.java
-
 - name: TikaAppRUnpackerFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/TikaAppRUnpackerFuzzer.java
   vulns:
@@ -42,9 +36,7 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueCritical: File path traversal'
-
 - name: TikaAppUnpackerFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/TikaAppUnpackerFuzzer.java
-
 - name: XliffParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/XliffParserFuzzer.java

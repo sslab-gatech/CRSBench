@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
   base_commit: a07ec34266e05e78c2e0999836cda80cb94b02c3
-
 harness_files:
 - name: JsonJavaFuzzer
   path: $PROJECT/JsonJavaFuzzer.java
@@ -28,4 +26,4 @@ harness_files:
     povs:
     - id: pov_0
       sanitizer: address
-      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory '
+      error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Out of memory'

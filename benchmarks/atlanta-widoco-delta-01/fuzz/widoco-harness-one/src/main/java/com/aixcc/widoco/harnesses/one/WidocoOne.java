@@ -27,6 +27,10 @@ public class WidocoOne {
                 WidocoUtils.unZipIt(zis, dir.toString());
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (RuntimeException e) {
+                if (!e.getMessage().contains("Bad zip entry")) {
+                    throw e;
+                }
             }
         } catch (IOException e) {
         } finally {

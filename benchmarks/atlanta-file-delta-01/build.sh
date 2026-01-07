@@ -15,8 +15,12 @@
 #
 ################################################################################
 
-autoreconf -i
-./configure --enable-static --enable-fsect-man5
+# Only reconfigure if needed
+if [ ! -f Makefile ]; then
+    autoreconf -i
+    ./configure --enable-static --enable-fsect-man5
+fi
+
 make V=1 all
 
 $CXX $CXXFLAGS -std=c++11 -Isrc/ \

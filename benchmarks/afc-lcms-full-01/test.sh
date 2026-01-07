@@ -1,10 +1,12 @@
 #!/bin/bash
-set -e
+set -ex
 
-cd $SRC/lcms
-./configure --enable-shared=no
-make clean
+# Conditional configure
+if [ ! -f Makefile ]; then
+    ./configure --enable-shared=no
+fi
 make -j$(nproc) all
+
 cd testbed
 make testcms -j$(nproc)
 ./testcms

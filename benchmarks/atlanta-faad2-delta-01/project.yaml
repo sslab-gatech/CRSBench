@@ -3,11 +3,9 @@ main_repo: "git@github.com:Team-Atlanta/cp-c-faad2.git"
 language: c
 primary_contact: "eustas@chromium.org"
 auto_ccs:
- - "david@adalogics.com"
+  - "david@adalogics.com"
 sanitizers:
- - address
- - memory
- - undefined
-
+  - address
+  - undefined
 fuzzing_engines:
   - libfuzzer

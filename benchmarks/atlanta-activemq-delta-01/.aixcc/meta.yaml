@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: ba10563f85568701b557a92652935352ba752dea
   ref_commit: a1766fca92680d65a44abe233bdf240ef43f9a60
-
 full_mode:
   base_commit: a1766fca92680d65a44abe233bdf240ef43f9a60
-
 harness_files:
 - name: ActivemqOne
   path: $PROJECT/fuzz/activemq-harness-one/src/main/java/com/aixcc/activemq/harnesses/one/ActivemqOne.java
@@ -88,7 +85,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: Remote Code Execution'
-
 - name: ActivemqOneFDP
   path: $PROJECT/fuzz/activemq-harness-one/src/main/java/com/aixcc/activemq/harnesses/one/ActivemqOneFDP.java
   vulns:

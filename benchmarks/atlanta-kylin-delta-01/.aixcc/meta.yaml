@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 12883528249fae0fb31f8033cad71eef0b112c18
-  ref_commit: 62cfb7d4327bde9d1ea35a7e72bf6601f1c46e03
-
+  ref_commit: 126e998fb2e203a0af3a232eb3146b7b9b59e35f
 full_mode:
-  base_commit: 62cfb7d4327bde9d1ea35a7e72bf6601f1c46e03
-
+  base_commit: 126e998fb2e203a0af3a232eb3146b7b9b59e35f
 harness_files:
 - name: KylinOne
   path: $PROJECT/fuzz/kylin-harness-one/src/main/java/com/aixcc/kylin/harnesses/one/KylinOne.java

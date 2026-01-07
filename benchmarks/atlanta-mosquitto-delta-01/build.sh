@@ -23,18 +23,22 @@
 # only used by plugins and not currently otherwise used.
 MAKE_FLAGS="-j$(nproc)" # for local testing only
 # MAKE_FLAGS=""
-cd ${SRC}/cJSON
-cmake -DBUILD_SHARED_LIBS=OFF -DENABLE_CJSON_TEST=OFF -DCMAKE_C_FLAGS=-fPIC . > /dev/null
+
+# Build in separate directory to avoid cmake caching issues between runs
+CJSON_BUILD="${SRC}/cJSON_build"
+mkdir -p "$CJSON_BUILD"
+cd "$CJSON_BUILD"
+
+# Only run cmake if not already configured
+if [ ! -f Makefile ]; then
+    cmake -DBUILD_SHARED_LIBS=OFF -DENABLE_CJSON_TEST=OFF -DCMAKE_C_FLAGS=-fPIC ${SRC}/cJSON > /dev/null
+fi
 make $MAKE_FLAGS > /dev/null
 make install > /dev/null
 
-# Build broker and library static libraries
 cd ${SRC}/cp-c-mosquitto-src
-# Add -fPIC to CFLAGS for proper linking
-export CFLAGS="$CFLAGS -fPIC"
-export CXXFLAGS="$CXXFLAGS -fPIC"
-# Build lib, src, and libcommon (needed for unit tests)
-# Don't use WITH_STATIC_LIBRARIES as it causes PIC issues with client binaries
-make $MAKE_FLAGS -C libcommon > /dev/null
-make $MAKE_FLAGS -C lib > /dev/null
-make $MAKE_FLAGS -C src WITH_DOCS=no WITH_FUZZING=yes WITH_EDITLINE=no > /dev/null
+
+make $MAKE_FLAGS WITH_STATIC_LIBRARIES=yes WITH_DOCS=no WITH_FUZZING=yes WITH_EDITLINE=no > /dev/null
+
+# Build and install fuzzers to $OUT
+make -B $MAKE_FLAGS -C fuzzing

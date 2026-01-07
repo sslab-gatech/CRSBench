@@ -34,21 +34,25 @@ sed -i 's/fprintf (stderr/\/\//' elfcomm.c
 # Fix a dlltool leak, which won't be fixed upstream because it uses a
 # non-posix yacc feature.  It also isn't seen as a direct leak when
 # running dlltool stand-alone.
-# Remove duplicate %destructor lines if present, then add one
-sed -i '/^%destructor.*ID/d' defparse.y
-sed -i '/^%%$/i%destructor { free (\$\$); } ID' defparse.y
+# Only add %destructor if not already present (for incremental builds)
+if ! grep -q '%destructor' defparse.y; then
+    sed -i '/^%%$/i%destructor { free (\$\$); } ID' defparse.y
+fi
 
 cd ../
 
-./configure --disable-gdb --disable-gdbserver --disable-gdbsupport \
-	    --disable-libdecnumber --disable-readline --disable-sim \
-	    --disable-libbacktrace --disable-gas --disable-ld --disable-werror \
-      --enable-targets=all
-make clean
+# Only configure if not already configured
+if [ ! -f Makefile ]; then
+    ./configure --disable-gdb --disable-gdbserver --disable-gdbsupport \
+        --disable-libdecnumber --disable-readline --disable-sim \
+        --disable-libbacktrace --disable-gas --disable-ld --disable-werror \
+        --enable-targets=all
+fi
+# DO NOT run make clean - destroys incremental build artifacts
 make $MAKE_FLAGS MAKEINFO=true && true
 
 
-# Make fuzzer directory
+# Make fuzzer directory (use -p to handle existing directory)
 mkdir -p fuzz
 cp ../fuzz_*.c fuzz/
 cd fuzz
@@ -87,8 +91,7 @@ cd ../binutils
 # is because readelf does not have a header file so we can use readelf.h instead, and changing it
 # might cause an annoyance on monorail since bugs will be relocated as the files will be different.
 cp ../../fuzz_*.c .
-# Remove readelf.h if it exists to avoid duplicate includes
-rm -f readelf.h
+# Use > not >> to avoid appending duplicate content on incremental builds
 sed 's/main (int argc/old_main (int argc, char **argv);\nint old_main (int argc/' readelf.c > readelf.h
 
 # Special handling of dlltool
@@ -164,7 +167,10 @@ done
 if [ "$FUZZING_ENGINE" != "afl" ]
 then
   cd ../gas
-  ./configure
+  # Only configure if not already configured
+  if [ ! -f Makefile ]; then
+      ./configure
+  fi
   make $MAKE_FLAGS
   sed 's/main (int argc/old_main32 (int argc, char **argv);\nint old_main32 (int argc/' as.c > fuzz_as.h
   rm as.o || true

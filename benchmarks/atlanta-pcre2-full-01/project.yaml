@@ -1,13 +1,11 @@
 homepage: "http://www.pcre.org/"
-language: c++
+language: c
 primary_contact: "nicholas@nickcwilson.co.uk"
 main_repo: "git@github.com:Team-Atlanta/cp-c-pcre2.git"
 fuzzing_engines:
   - libfuzzer
-  # - afl
 sanitizers:
   - address
-  - memory
   - undefined
 architectures:
   - x86_64

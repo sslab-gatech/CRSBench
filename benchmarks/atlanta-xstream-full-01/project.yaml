@@ -12,3 +12,5 @@ vendor_ccs:
 - yakdan@code-intelligence.com
 - hlin@code-intelligence.com
 - bug-disclosure@code-intelligence.com
+rts_mode: openclover
+inc_build: true

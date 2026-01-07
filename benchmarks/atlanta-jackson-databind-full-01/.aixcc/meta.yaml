@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
-  base_commit: e0057d507c8cd9a05f8d4bf5a31b2ab6ed497695
-
+  base_commit: 04c91d8683cbc1024753807c81b15bc22cd63c81
 harness_files:
 - name: AdaLObjectReader3Fuzzer
   path: $PROJECT/AdaLObjectReader3Fuzzer.java
@@ -30,10 +28,8 @@ harness_files:
       sanitizer: address
       error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueMedium: Server Side Request Forgery
         (SSRF)'
-
 - name: ConvertValueFuzzer
   path: $PROJECT/ConvertValueFuzzer.java
-
 - name: ObjectReader2Fuzzer
   path: $PROJECT/ObjectReader2Fuzzer.java
   vulns:
@@ -42,15 +38,11 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Stack overflow'
-
 - name: ObjectReaderFuzzer
   path: $PROJECT/ObjectReaderFuzzer.java
-
 - name: ObjectReaderRandomClassFuzzer
   path: $PROJECT/ObjectReaderRandomClassFuzzer.java
-
 - name: ObjectWriterFuzzer
   path: $PROJECT/ObjectWriterFuzzer.java
-
 - name: ReadTreeFuzzer
   path: $PROJECT/ReadTreeFuzzer.java

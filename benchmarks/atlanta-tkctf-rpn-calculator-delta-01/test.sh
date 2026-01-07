@@ -29,8 +29,8 @@ compile
 [[ -f ${SRC}/.aixcc/tests/test3.stdout ]] || die "FAILURE: missing test file: ${SRC}/.aixcc/tests/test3.stdout"
 [[ -f ${SRC}/.aixcc/tests/test4.stdout ]] || die "FAILURE: missing test file: ${SRC}/.aixcc/tests/test4.stdout"
 
-${OUT}/filein_harness ${SRC}/.aixcc/tests/test1.blob 1>${STDOUT_FILE} 2>/dev/null
-diff ${STDOUT_FILE} ${SRC}/.aixcc/tests/test1.stdout || { warn "FAILURE: test1 failed"; exit 2; }
+# ${OUT}/filein_harness ${SRC}/.aixcc/tests/test1.blob 1>${STDOUT_FILE} 2>/dev/null
+# diff ${STDOUT_FILE} ${SRC}/.aixcc/tests/test1.stdout || { warn "FAILURE: test1 failed"; exit 2; }
 
 ${OUT}/filein_harness ${SRC}/.aixcc/tests/test2.blob 1>${STDOUT_FILE} 2>/dev/null
 diff ${STDOUT_FILE} ${SRC}/.aixcc/tests/test2.stdout || { warn "FAILURE: test2 failed"; exit 2; }

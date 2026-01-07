@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 359bb6303d3c9300ac3e993f68fcaa5e80cb2f34
   ref_commit: 8690d99ba50e7b2f5e9115b334e354f196c9f753
-
 full_mode:
   base_commit: 8690d99ba50e7b2f5e9115b334e354f196c9f753
-
 harness_files:
 - name: php-fuzz-execute
   path: $REPO/sapi/fuzzer/fuzzer-execute.c
@@ -33,24 +30,17 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'ERROR: AddressSanitizer: global-buffer-overflow'
-
 - name: php-fuzz-exif
   path: $REPO/sapi/fuzzer/fuzzer-exif.c
-
 - name: php-fuzz-function-jit
   path: $REPO/sapi/fuzzer/fuzzer-function-jit.c
-
 - name: php-fuzz-json
   path: $REPO/sapi/fuzzer/fuzzer-json.c
-
 - name: php-fuzz-parser
   path: $REPO/sapi/fuzzer/fuzzer-parser.c
-
 - name: php-fuzz-tracing-jit
   path: $REPO/sapi/fuzzer/fuzzer-tracing-jit.c
-
 - name: php-fuzz-unserialize
   path: $REPO/sapi/fuzzer/fuzzer-unserialize.c
-
 - name: php-fuzz-unserializehash
   path: $REPO/sapi/fuzzer/fuzzer-unserializehash.c

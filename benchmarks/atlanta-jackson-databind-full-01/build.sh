@@ -24,8 +24,8 @@ cp javaparser-symbol-solver-core/target/javaparser-symbol-solver-core-$CURRENT_V
 cd $SRC/jackson-databind
 
 # Move seed corpus and dictionary.
-mv $SRC/{*.zip,*.dict} $OUT
-mv $SRC/github-samples/jackson/*.zip $OUT/
+cp $SRC/{*.zip,*.dict} $OUT
+cp $SRC/github-samples/jackson/*.zip $OUT/
 zip $OUT/ObjectReaderRandomClassFuzzer_seed_corpus.zip $SRC/javaparser/javaparser-core/src/main/java/com/github/javaparser/Processor.java
 
 # jackson-databind

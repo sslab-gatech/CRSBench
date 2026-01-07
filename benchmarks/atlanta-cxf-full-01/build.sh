@@ -46,14 +46,14 @@ build_proj() {
     set -u
 
     cd "$proj_dir"
-    mvn clean install -T$(nproc) -Dmaven.test.skip=true
+    mvn clean install -Dmaven.test.skip=true -Dlicense.skip=true
 }
 
 build_driver_jars() {
     # UPDATE ME FOR NEW CP
 
     cd "$driver_dir"
-    mvn clean verify
+    mvn clean verify -Dlicense.skip=true
 }
 
 copy_fuzzer_jars() {

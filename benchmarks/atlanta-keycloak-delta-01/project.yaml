@@ -13,3 +13,5 @@ vendor_ccs:
 - "adam@adalogics.com"
 - "david@adalogics.com"
 - "arthur.chan@adalogics.com"
+rts_mode: openclover
+inc_build: true

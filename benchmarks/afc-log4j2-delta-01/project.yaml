@@ -5,3 +5,5 @@ fuzzing_engines:
 main_repo: "git@github.com:Team-Atlanta/official-afc-logging-log4j2.git"
 sanitizers:
   - address
+rts_mode: openclover
+inc_build: true

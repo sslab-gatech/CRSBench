@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
   base_commit: 3a9e73ef8869055ccfb1c2a3c1e168ee14f826f3
-
 harness_files:
 - name: BeanUtilsOne
   path: $PROJECT/fuzz/beanutils-harness-one/src/main/java/com/aixcc/beanutils/harnesses/one/BeanUtilsOne.java

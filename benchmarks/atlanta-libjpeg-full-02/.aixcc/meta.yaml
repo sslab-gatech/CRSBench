@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
-  base_commit: 9c4aeecb7d93debdbd1cff9a82b104b365171906
-
+  base_commit: f6ea8dea71a23336cebcfab44f8cc180b4fbec6f
 harness_files:
 - name: libjpeg_turbo_fuzzer
   path: $PROJECT/libjpeg_turbo_fuzzer.cc
-
 - name: libjpeg_djpeg_fuzzer
   path: $PROJECT/libjpeg_djpeg_fuzzer.cc
   vulns:

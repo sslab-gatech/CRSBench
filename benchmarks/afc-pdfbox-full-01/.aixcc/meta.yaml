@@ -16,10 +16,8 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 full_mode:
   base_commit: af9a994234ea30c678961852389e3118d479537c
-
 harness_files:
 - name: DomXmpParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/DomXmpParserFuzzer.java
@@ -30,7 +28,6 @@ harness_files:
       sanitizer: address
       error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueMedium: Server Side Request Forgery
         (SSRF)'
-
 - name: DomXfaParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/DomXfaParserFuzzer.java
   vulns:
@@ -40,7 +37,6 @@ harness_files:
       sanitizer: address
       error_token: 'Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueMedium: Server Side Request Forgery
         (SSRF)'
-
 - name: PDFExtractTextFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/PDFExtractTextFuzzer.java
   vulns:

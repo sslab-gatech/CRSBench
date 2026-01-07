@@ -5,7 +5,7 @@ set -e
 # This project has no traditional unit tests, only fuzzing harnesses
 # We'll compile a simple test program that exercises utils.c functions
 
-cd /src/cp-user-stress-test-src
+# Already in $SRC/cp-user-stress-test-src
 
 # Create a simple test program to exercise utils.c
 cat > test_utils.c << 'EOF'

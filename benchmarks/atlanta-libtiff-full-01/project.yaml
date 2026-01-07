@@ -1,13 +1,10 @@
 homepage: "http://www.libtiff.org"
-language: c++
+language: c
 primary_contact: "even.rouault@gmail.com"
 auto_ccs:
   - paul.l.kehrer@gmail.com
 sanitizers:
   - address
-# Disabled MSAN because of https://github.com/google/oss-fuzz/issues/6294
-#  - memory
-  - undefined
 architectures:
   - x86_64
   - i386
@@ -16,3 +13,6 @@ fuzzing_engines:
   - afl
   - honggfuzz
   - libfuzzer
+test_mode: ctest
+rts_mode: binaryrts
+inc_build: true

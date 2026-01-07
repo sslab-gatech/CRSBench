@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 132d176f97d3e52e1ca5b9bc25dfc90264620cc3
   ref_commit: b1895ecd79336b262e2178c1e663622910f960fc
-
 full_mode:
   base_commit: b1895ecd79336b262e2178c1e663622910f960fc
-
 harness_files:
 - name: filein_harness
   path: $PROJECT/fuzz/filein_harness.c

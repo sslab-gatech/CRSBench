@@ -1,132 +1,70 @@
 #!/bin/bash
-
-# This performs the CP-specific tests. It may be replaced with a script
-# or binary for a different interpreter. The name MUST NOT change.
-
-set +u
+# [REQUIRED] -e: exit on failure, -x: print executed commands
+set -ex
 source $HOME/.sdkman/bin/sdkman-init.sh
-set -u
 
-set -e
-set -o pipefail
+# MVN setting
+# [REQUIRED] MUST use $MVN instead of absolute path of mvn. If mvn is not in the path, set the absolute path to $MVN
+if [ -z "${MVN}" ]; then
+    MVN=mvn
+fi
 
-# set parallel value
-: "${NPROC_VAL:=$(nproc)}"
+# MVN ARGS setting
+## [REQUIRED] Do not modify MVN_SKIP_ARGS as much as possible
+MVN_SKIP_ARGS="-Djacoco.skip=true -Dspotless.check.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Denforcer.skip=true -Dpmd.skip=true -Dlicense.skip=true -Danimal.sniffer.skip=true -Drat.numUnapprovedLicenses=100 -Drat.ignoreErrors=true -Dcheckstyle.skipExec=true -Dspotbugs.skip=true"
+## [REQUIRED] You can add additional args needed per project to MVN_ADDITIONAL_ARGS
+MVN_ADDITIONAL_ARGS=""
+## [REQUIRED] Tests to include. Try to use blacklist as much as possible to maintain high test coverage.
+INCLUDE_TESTS=""
+if [ -n "$INCLUDE_TESTS" ]; then
+    MVN_INCLUDE_TESTS="-Dsurefire.includes=$INCLUDE_TESTS"
+fi
+## [REQUIRED] Tests to exclude (e.g., failed tests before patching). Minimize this to maintain high test coverage.
+EXCLUDE_TESTS=""
+if [ -n "$EXCLUDE_TESTS" ]; then
+    MVN_EXCLUDE_TESTS="-Dsurefire.excludes=$EXCLUDE_TESTS"
+fi
 
-HAS_FAILURE=false
-FAILURE_STRING=''
-ANY_TESTS_RUN=false
+## [REQUIRED] MVN_ARGS should not be modified. Add to MVN_ADDITIONAL_ARGS if needed
+MVN_ARGS="$MVN_SKIP_ARGS $MVN_ADDITIONAL_ARGS $MVN_INCLUDE_TESTS $MVN_EXCLUDE_TESTS"
 
-STDOUT_FILE=/tmp/stdout.txt
+# Run RTS configuration if RTS_ON is set
+## [REQUIRED] RTS configuration. Do not modify.
+if [ -n "${RTS_ON}" ]; then
+	echo "[RTS] Running rts_config_jvm.py with tool: ${RTS_TOOL}..."
+	python3 /rts_config_jvm.py $(pwd) --tool "${RTS_TOOL}"
+else
+	echo "[RTS] RTS_ON is not set. Remove cached RTS data..."
+	rm -rf .ekstazi || true
+fi
 
-warn() {
-  echo "$*" >&2
-}
-
-die() {
-  warn "$*"
-  exit 1
-}
-#report that there were test failures, exit value=1
-report_test_failure() {
-    echo "${FAILURE_STRING}"
-    exit 2
-}
-
-all_good() {
-    echo "tests all passed!"
-    exit 0
-}
-
-
-evalRetVal() {
-  retval=$1
-  testName=$2
-  if [ $retval -eq 1 ]; then
-    if grep -q "There are test failures" ${STDOUT_FILE}; then
-      HAS_FAILURE=true
-      FAILURE_STRING+="test failures for $testName exit=$retval; "
-      ANY_TESTS_RUN=true
-      echo
-    elif
-      grep -q "BUILD FAILURE" ${STDOUT_FILE}; then
-        die "build failure on $testName"
-    else
-      die "mvn exit=1, not clear why?!"
-    fi
-  elif [ $retval -eq 0 ]; then
-    if grep -q "Results" ${STDOUT_FILE} && grep -q "BUILD SUCCESS" ${STDOUT_FILE}; then
-      echo "tests pass for $testName exit=$retval"
-      ANY_TESTS_RUN=true
-    elif grep -q "No tests to run." ${STDOUT_FILE}; then
-      echo "no tests run for $testName"
-    else
-      die "exit=0, but did not find test results?!"
-    fi
-  else
-      die "mvn process failed. exit=$retval for $testName"
-  fi
-}
-
-rmStdout() {
-  if [ -f ${STDOUT_FILE} ]; then
-    rm ${STDOUT_FILE} || die "couldn't remove stdout";
-  fi
-}
-
-rmStdout
-
+# Pre-build Jenkins core (required for plugin tests)
 cd ${SRC}/src/jenkins && \
-mvn -DskipTests -Pquick-build -am -pl bom,war install || exit 1
+$MVN -DskipTests -Denforcer.skip=true -Pquick-build -am -pl bom,war install || exit 1
 
-retval=0
+# Run Tests for each plugin/module
+## Note: Jenkins has multiple separate Maven projects (plugins) that need individual test runs
+
+# pipeline-util-plugin
 cd ${SRC}/src/plugins/pipeline-util-plugin && \
-mvn -T${NPROC_VAL} -Dcheckstyle.skip=true test | tee ${STDOUT_FILE} || retval=$?
-evalRetVal $retval "pipeline-util-plugin"
+$MVN test $MVN_ARGS
 
-rmStdout
-
-retval=0
+# toy-plugin
 cd ${SRC}/src/plugins/toy-plugin && \
-mvn -T${NPROC_VAL} -Dcheckstyle.skip=true test | tee ${STDOUT_FILE} || retval=$?
-evalRetVal $retval "toy-plugin"
+$MVN test $MVN_ARGS
 
-rmStdout
-
-retval=0
+# code-coverage-api-plugin
 cd ${SRC}/src/plugins/code-coverage-api-plugin && \
-mvn -T${NPROC_VAL} -Dcheckstyle.skip=true -Dspotbugs.skip=True clean test | tee ${STDOUT_FILE} || retval=$?
-evalRetVal $retval "code-coverage-api-plugin"
+$MVN test $MVN_ARGS -Dspotbugs.skip=true
 
-rmStdout
-
-retval=0
-cd ${SRC}/src/jenkins/ && \
-mvn -T${NPROC_VAL} -Dcheckstyle.skip=true -Dtest="ProxyConfigurationTest" -pl test test | tee ${STDOUT_FILE} || retval=$?
-evalRetVal $retval "ProxyConfigurationTest"
-
-rmStdout
+# ProxyConfigurationTest in jenkins/test
+cd ${SRC}/src/jenkins && \
+$MVN test -pl test $MVN_ARGS -Dtest=ProxyConfigurationTest
 
 # build-failure-analyzer-plugin
-retval=0
 cd ${SRC}/src/plugins/build-failure-analyzer-plugin && \
-mvn -T${NPROC_VAL} -Dcheckstyle.skip=true  test | tee ${STDOUT_FILE} || retval=$?
-evalRetVal $retval "build-failure-analyzer-plugin"
+$MVN test $MVN_ARGS
 
-rmStdout
-
-# email-ext unit tests are too slow, so only EmailConfig and StateRun are tested
-retval=0
+# email-ext-plugin (only specific tests for performance)
 cd ${SRC}/src/plugins/email-ext-plugin && \
-mvn -T${NPROC_VAL} -Dcheckstyle.skip=true -Dtest=hudson.plugins.emailext.EmailConfigTest,hudson.plugins.emailext.EmailStateRunTest test | tee ${STDOUT_FILE} || retval=$?
-evalRetVal $retval "email-ext-plugin"
-
-rmStdout
-
-if $HAS_FAILURE ; then
-  report_test_failure
-elif ! $ANY_TESTS_RUN ; then
-  die "no tests run?!"
-else
-  all_good
-fi
+$MVN test $MVN_ARGS -Dtest=hudson.plugins.emailext.EmailConfigTest,hudson.plugins.emailext.EmailStateRunTest

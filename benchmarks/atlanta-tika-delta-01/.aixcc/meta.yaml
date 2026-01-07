@@ -16,14 +16,11 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 8f1c3d9fd74733a4e3dccc9f66b09a6cba4f0aed
   ref_commit: 7f2e3a1f5a894ff585932dae2a6100ae1cd4547f
-
 full_mode:
   base_commit: 7f2e3a1f5a894ff585932dae2a6100ae1cd4547f
-
 harness_files:
 - name: TikaOne
   path: $PROJECT/fuzz/tika-harness-one/src/main/java/com/aixcc/tika/harnesses/one/TikaOne.java
@@ -33,6 +30,5 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueCritical: File path traversal'
-
 - name: TikaTwo
   path: $PROJECT/fuzz/tika-harness-two/src/main/java/com/aixcc/tika/harnesses/two/TikaTwo.java

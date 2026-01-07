@@ -15,7 +15,7 @@
 #
 ################################################################################
 
-WIRESHARK_BUILD_PATH="$WORK/build"
+WIRESHARK_BUILD_PATH="$SRC/wireshark_build"
 mkdir -p "$WIRESHARK_BUILD_PATH"
 
 # Prepare Samples directory
@@ -41,18 +41,21 @@ CMAKE_DEFINES="$CMAKE_DEFINES -DBUILD_wireshark=OFF -DBUILD_logray=OFF -DBUILD_s
 
 cd "$WIRESHARK_BUILD_PATH"
 
-cmake -GNinja \
-      -DVCSVERSION_OVERRIDE="Git v3.1.0 packaged as 3.1.0-1" \
-      -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX \
-      -DCMAKE_C_FLAGS="-Wno-error=fortify-source -Wno-error=missing-field-initializers $CFLAGS" -DCMAKE_CXX_FLAGS="-Wno-error=fortify-source -Wno-error=missing-field-initializers $CXXFLAGS" \
-      -DDISABLE_WERROR=ON -DOSS_FUZZ=ON $CMAKE_DEFINES $SRC/wireshark/
+# Only run cmake if not already configured
+if [ ! -f build.ninja ]; then
+    cmake -GNinja \
+          -DVCSVERSION_OVERRIDE="Git v3.1.0 packaged as 3.1.0-1" \
+          -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX \
+          -DCMAKE_C_FLAGS="-Wno-error=fortify-source -Wno-error=missing-field-initializers $CFLAGS" -DCMAKE_CXX_FLAGS="-Wno-error=fortify-source -Wno-error=missing-field-initializers $CXXFLAGS" \
+          -DDISABLE_WERROR=ON -DOSS_FUZZ=ON $CMAKE_DEFINES $SRC/wireshark/
+fi
 
 ninja all-fuzzers
 
 $SRC/wireshark/tools/oss-fuzzshark/build.sh all
 
 for file in "$OUT"/*.options; do
-    if [ -f "$file" ]; then
+    if [ -f "$file" ] && ! grep -q "timeout_exitcode" "$file"; then
         echo "timeout_exitcode=0" >> "$file"
         echo "Appended timeout to options file $file"
     fi

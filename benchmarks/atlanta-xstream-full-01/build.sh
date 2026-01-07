@@ -15,9 +15,9 @@
 #
 ################################################################################
 
-mv $SRC/{*.zip,*.dict} $OUT
+cp $SRC/{*.zip,*.dict} $OUT
 
-MAVEN_ARGS="-DskipTests -Djavac.src.version=15 -Djavac.target.version=15"
+MAVEN_ARGS="-DskipTests -Djavac.src.version=15 -Djavac.target.version=15 -Dlicense.skip=true"
 $MVN clean package org.apache.maven.plugins:maven-shade-plugin:3.2.4:shade $MAVEN_ARGS
 CURRENT_VERSION=$($MVN org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate \
  -Dexpression=project.version -q -DforceStdout)

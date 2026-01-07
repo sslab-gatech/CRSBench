@@ -16,18 +16,14 @@ patch_exclude_list:
 - docs/**
 - '*.md'
 - README*
-
 delta_mode:
   base_commit: 9b026264097aa5f328a2d23f985fde961b41ef2e
   ref_commit: f3c80b3bbaa8aaaebddb74c51099a01af4767e7c
-
 full_mode:
   base_commit: f3c80b3bbaa8aaaebddb74c51099a01af4767e7c
-
 harness_files:
 - name: fuzz_addr2line
   path: $PROJECT/fuzz_addr2line.c
-
 - name: fuzz_as
   path: $PROJECT/fuzz_as.c
   vulns:
@@ -36,13 +32,10 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'AddressSanitizer: heap-buffer-overflow'
-
 - name: fuzz_bfd
   path: $PROJECT/fuzz_bfd.c
-
 - name: fuzz_bfd_ext
   path: $PROJECT/fuzz_bfd_ext.c
-
 - name: fuzz_disassemble
   path: $PROJECT/fuzz_disassemble.c
   vulns:
@@ -51,10 +44,8 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'AddressSanitizer: SEGV on unknown address'
-
 - name: fuzz_dlltool
   path: $PROJECT/fuzz_dlltool.c
-
 - name: fuzz_dwarf
   path: $PROJECT/fuzz_dwarf.c
   vulns:
@@ -63,7 +54,6 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'AddressSanitizer: heap-use-after-free'
-
 - name: fuzz_nm
   path: $PROJECT/fuzz_nm.c
   vulns:
@@ -77,21 +67,15 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'AddressSanitizer: heap-use-after-free'
-
 - name: fuzz_objcopy
   path: $PROJECT/fuzz_objcopy.c
-
 - name: fuzz_objdump
   path: $PROJECT/fuzz_objdump.c
-
 - name: fuzz_ranlib_simulation
   path: $PROJECT/fuzz_ranlib_simulation.c
-
 - name: fuzz_readelf
   path: $PROJECT/fuzz_readelf.c
-
 - name: fuzz_strings
   path: $PROJECT/fuzz_strings.c
-
 - name: fuzz_windres
   path: $PROJECT/fuzz_windres.c
