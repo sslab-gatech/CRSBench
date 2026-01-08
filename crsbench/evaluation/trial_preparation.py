@@ -251,11 +251,34 @@ class TrialDirectoryPreparer:
                     "Check project.yaml main_repo and meta.yaml commits."
                 )
 
+            # Remove .aixcc directory if present in cloned source
+            # This prevents CRS from accessing ground truth data during runtime
+            source_path_obj = Path(source_path)
+            self._remove_aixcc_directory(source_path_obj)
+
             logger.info(f"Prepared source code at: {source_path}")
-            return Path(source_path)
+            return source_path_obj
 
         except Exception as e:
             raise SourceCloneError(f"Source preparation failed: {e}") from e
+
+    def _remove_aixcc_directory(self, source_path: Path) -> None:
+        """
+        Remove .aixcc directory from cloned source if present.
+
+        This prevents CRS from accessing ground truth data (vulnerability info,
+        patches, POVs) during runtime, which would defeat the benchmark's purpose.
+
+        Args:
+            source_path: Path to cloned source code
+        """
+        aixcc_dir = source_path / ".aixcc"
+        if aixcc_dir.exists():
+            logger.warning(
+                f"Removing .aixcc directory from source: {aixcc_dir} "
+                "(prevents CRS from accessing ground truth)"
+            )
+            shutil.rmtree(aixcc_dir)
 
     def _prepare_hints(self, benchmark: str, trial_dir: Path) -> Optional[Path]:
         """
