@@ -1,35 +1,40 @@
 id: cpv_15
 
-name: Unsafe Reflection Leading to OS Command Injection in Jenkins EmailConfig
+name: OS Command Injection via Unsafe Reflection in Jenkins EmailConfig
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
+- CWE-77
 - CWE-78
 - CWE-470
-- CWE-77
 
 description: |
-  This is a critical OS command injection vulnerability in the Jenkins email-ext-plugin's
-  EmailConfig class. The vulnerability occurs through a chain of two security weaknesses:
-  
-  1. Unsafe Reflection (CWE-470): The constructor() method uses attacker-controlled input
-  (emailAddress field) to select and invoke methods via Java reflection without proper
-  validation. When publishReady is set to true, it uses setAccessible(true) to bypass
-  Java's access controls and invoke private methods.
-  
-  2. OS Command Injection (CWE-78): The private method debugOnlyAndPrivate() takes
-  user-controlled input from the optCache field and passes it directly to
-  Runtime.getRuntime().exec() without any sanitization or validation.
-  
-  An attacker can exploit this by setting emailAddress to "debugEnable" to enable debug
-  mode, then to "debugOnlyAndPrivate", providing malicious command input in optCache,
-  and calling constructor() with publishReady=true. This results in arbitrary OS command
-  execution on the Jenkins server with the privileges of the Jenkins process, potentially
-  leading to full system compromise, data exfiltration, and supply chain attacks.
+  A multi-stage OS command injection vulnerability exists in the Jenkins
+  email-ext-plugin EmailConfig class. The vulnerability combines unsafe
+  reflection with OS command execution. The constructor() method uses
+  attacker-controlled input (emailAddress field) to dynamically invoke
+  methods via reflection using getDeclaredMethod(). When publishReady is
+  true, setAccessible(true) bypasses access controls to invoke private
+  methods. An attacker can set emailAddress to "debugOnlyAndPrivate" to
+  invoke a private method that executes OS commands from the optCache
+  field using Runtime.getRuntime().exec(). This allows remote code
+  execution through attacker-controlled command injection.
 
 locations:
-- path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
+- type: crash_site
+  path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
   function_name: debugOnlyAndPrivate
   startLine: 37
-  startColumn: 0
+  startColumn: 1
   endLine: 37
-  endColumn: 0
+  endColumn: 60
+- type: root_cause
+  path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
+  function_name: constructor
+  startLine: 93
+  startColumn: 1
+  endLine: 108
+  endColumn: 5

@@ -1,39 +1,36 @@
 id: cpv_7
 
-name: OS Command Injection in Jenkins UserRemoteConfig URL Validation
+name: OS Command Injection in UserRemoteConfig.doCheckUrl()
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-78
 - CWE-77
 
 description: |
-  A critical OS command injection vulnerability exists in the Jenkins toy-plugin's UserRemoteConfig class.
-  The doCheckUrl method accepts a URL parameter from user input through the @QueryParameter annotation without
-  proper validation or sanitization. This URL is passed directly to the getHeadRev method, which constructs
-  an ArgumentListBuilder and adds the unsanitized URL as a command argument. The command is then executed via
-  Jenkins' launcher infrastructure, ultimately calling ProcessBuilder.start() to execute the command at the OS level.
-  
-  An attacker can supply a malicious URL containing shell metacharacters or command separators (such as ;, |, &,
-  &&, ||, backticks, or $() command substitution) through the doCheckUrl endpoint. The attacker's injected commands
-  will be executed with the privileges of the Jenkins process, leading to remote code execution, system compromise,
-  data exfiltration, and potential lateral movement to other systems.
+  An OS Command Injection vulnerability exists in the Jenkins toy plugin's
+  UserRemoteConfig class. The doCheckUrl() method accepts user input via a
+  URL parameter and passes it unsanitized through getHeadRev() to
+  launchCommandWithCredentials(), which executes it as an OS command via
+  ProcessBuilder. An attacker can inject arbitrary OS commands by crafting
+  a malicious URL, leading to remote code execution with Jenkins process
+  privileges.
 
 locations:
-- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
+- type: crash_site
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
   function_name: doCheckUrl
-  startLine: 188
-  endLine: 203
-  startColumn: 0
-  endColumn: 0
-- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
-  function_name: getHeadRev
-  startLine: 99
-  endLine: 104
-  startColumn: 0
-  endColumn: 0
-- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
-  function_name: launchCommandWithCredentials
-  startLine: 91
-  endLine: 91
-  startColumn: 0
-  endColumn: 0
+  startLine: 196
+  startColumn: 13
+  endLine: 196
+  endColumn: 23
+- type: root_cause
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
+  function_name: doCheckUrl
+  startLine: 195
+  startColumn: 9
+  endLine: 199
+  endColumn: 10

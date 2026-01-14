@@ -1,30 +1,38 @@
 id: cpv_12
 
-name: SSRF via Broken Access Control in CauseManagement.doRemoveConfirm
+name: SSRF with Permission Bypass via Logic Error in Jenkins Build Failure Analyzer Plugin
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-918
 - CWE-863
-- CWE-284
+- CWE-1286
 
 description: |
-  A compound vulnerability combining broken access control with server-side request forgery (SSRF).
-  The doRemoveConfirm method in CauseManagement.java contains a logic error in its authorization 
-  check at line 232, using logical OR (||) instead of AND (&&). This allows the method to execute 
-  when either id != null OR hasPermission is true, rather than requiring both conditions.
-  
-  An attacker without REMOVE_PERMISSION can craft a FailureCause object with a malicious comment 
-  field formatted as "notice:http://attacker.com", then call the doRemoveConfirm endpoint. Due to 
-  the broken authorization check, the code executes even without proper permissions. The application 
-  extracts the URL from the comment field and makes an HTTP GET request to the attacker-controlled URL.
-  
-  This enables unauthorized deletion of failure causes, exfiltration of sensitive data, access to 
-  internal network resources, and port scanning of internal services.
+  A Server-Side Request Forgery (SSRF) vulnerability combined with a permission
+  bypass exists in the doRemoveConfirm method of CauseManagement.java. The root
+  cause is a logic error in the permission check at line 232, where an OR operator
+  (||) is used instead of AND (&&), allowing attackers to bypass authorization by
+  providing any non-null id parameter. Once inside the method, if a FailureCause
+  comment starts with "notice:", the code extracts a URL and makes an HTTP request
+  without validation, enabling attackers to scan internal networks, access internal
+  services, or exfiltrate data.
 
 locations:
-- path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/CauseManagement.java
+- type: root_cause
+  path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/CauseManagement.java
   function_name: doRemoveConfirm
   startLine: 232
-  startColumn: 0
+  startColumn: 9
   endLine: 232
-  endColumn: 0
+  endColumn: 42
+- type: crash_site
+  path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/CauseManagement.java
+  function_name: doRemoveConfirm
+  startLine: 238
+  startColumn: 13
+  endLine: 246
+  endColumn: 62

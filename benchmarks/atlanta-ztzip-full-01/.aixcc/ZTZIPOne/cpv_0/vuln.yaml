@@ -1,35 +1,49 @@
 id: cpv_0
 
-name: Zip Slip Path Traversal in zt-zip Library
+name: Zip Slip - Path Traversal in ZIP Extraction
+
+origin: 1-day
+
+release_date: 07/25/2018
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2018-1002201
+- https://security.snyk.io/vuln/SNYK-JAVA-ORGZEROTURNAROUND-31681
+- https://github.com/zeroturnaround/zt-zip/commit/759b72f33bc8f4d69f84f09fcb7f010ad45d6fff
 
 cwes:
 - CWE-22
-- CWE-23
-- CWE-59
+- CWE-29
 
 description: |
-  A Zip Slip vulnerability exists in the zt-zip library's ZipUtil class, specifically in the Unpacker and BackslashUnpacker inner classes. The vulnerability occurs when extracting ZIP archives, as the code constructs file paths directly from ZIP entry names without validating that the resulting paths remain within the intended output directory.
-  
-  An attacker can craft a malicious ZIP archive containing entries with path traversal sequences (e.g., "../../evil.txt"). When ZipUtil.unpack() is called, the Unpacker.process() method retrieves the entry name and creates a File object using "new File(outputDir, name)" without validation. This allows files to be written outside the target extraction directory via FileUtils.copy(), enabling arbitrary file writes on the filesystem.
-  
-  The vulnerability can lead to remote code execution (by overwriting executable files), system compromise (by overwriting critical system files), or denial of service (by corrupting important files). The crash log shows a detected attempt to write to a path containing "../../jazzer-traversal", demonstrating the path traversal escape.
+  A Zip Slip vulnerability exists in the ZipUtil.unpack() method and its internal
+  Unpacker and BackslashUnpacker classes. The code directly concatenates ZIP entry
+  filenames with the target output directory without validating that the resulting
+  path stays within the intended extraction directory. A malicious ZIP archive can
+  contain entries with path traversal sequences (e.g., ../../evil.sh), causing files
+  to be written outside the target directory. This allows an attacker to write files
+  to arbitrary locations on the filesystem, overwrite critical system files, and
+  potentially achieve remote code execution.
 
 locations:
-- path_from_root: src/main/java/org/zeroturnaround/zip/ZipUtil.java
-  function_name: Unpacker.process
-  startLine: 1152
-  startColumn: 0
+- type: crash_site
+  path_from_root: src/main/java/org/zeroturnaround/zip/ZipUtil.java
+  function_name: ZipUtil$Unpacker.process
+  startLine: 1163
+  startColumn: 1
   endLine: 1163
-  endColumn: 0
-- path_from_root: src/main/java/org/zeroturnaround/zip/ZipUtil.java
-  function_name: BackslashUnpacker.process
-  startLine: 1221
-  startColumn: 0
-  endLine: 1221
-  endColumn: 0
-- path_from_root: src/main/java/org/zeroturnaround/zip/ZipUtil.java
-  function_name: BackslashUnpacker.process
-  startLine: 1226
-  startColumn: 0
+  endColumn: 40
+- type: root_cause
+  path_from_root: src/main/java/org/zeroturnaround/zip/ZipUtil.java
+  function_name: ZipUtil$Unpacker.process
+  startLine: 1152
+  startColumn: 1
+  endLine: 1152
+  endColumn: 50
+- type: root_cause
+  path_from_root: src/main/java/org/zeroturnaround/zip/ZipUtil.java
+  function_name: ZipUtil$BackslashUnpacker.process
+  startLine: 1220
+  startColumn: 1
   endLine: 1226
-  endColumn: 0
+  endColumn: 50

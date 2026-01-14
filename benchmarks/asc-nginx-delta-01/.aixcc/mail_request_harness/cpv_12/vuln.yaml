@@ -1,34 +1,39 @@
 id: cpv_12
 
-name: NULL Pointer Dereference in POP3 Authentication Logging due to Incorrect Pointer Arithmetic
+name: NULL Pointer Dereference in POP3 Password Handler
+
+origin: synthetic
+
+release_date: 01/01/2024
 
 cwes:
 - CWE-476
-- CWE-823
+- CWE-825
 
 description: |
-  A NULL pointer dereference vulnerability exists in the nginx mail module's POP3 authentication
-  handler. The vulnerability occurs in the ngx_mail_pop3_pass function when processing the PASS
-  command with authentication logging enabled.
-  
-  The root cause is incorrect pointer arithmetic in linked list traversal code. The function
-  declares auth_logs as a pointer-to-pointer (ngx_auth_log_t **) and attempts to traverse a
-  linked list of authentication logs. However, the loop incorrectly uses auth_logs++ which
-  increments the address of the pointer-to-pointer rather than following the linked list's
-  next pointers. This causes the code to read from arbitrary memory locations, eventually
-  dereferencing a NULL or invalid pointer when accessing (*auth_logs)->next.
-  
-  The vulnerability is triggered when a POP3 client sends the LOGS command to enable
-  authentication logging, followed by USER and PASS commands. This results in a segmentation
-  fault that crashes the nginx mail server process, causing a denial of service.
-  
-  Impact: Denial of Service through server process crash. The vulnerability is a read-only
-  NULL dereference and is not exploitable for arbitrary code execution.
+  A NULL pointer dereference vulnerability exists in the ngx_mail_pop3_pass
+  function in src/mail/ngx_mail_pop3_handler.c. The function attempts to
+  traverse a linked list of authentication logs using incorrect pointer
+  arithmetic. Instead of traversing the linked list properly, the code
+  increments a pointer-to-pointer variable, causing it to point to arbitrary
+  memory locations. When the code attempts to dereference the invalid pointer
+  at line 377, it reads from address 0x11 (in the zero page), causing a
+  segmentation fault. This vulnerability can be triggered by sending a
+  sequence of POP3 commands (USER followed by PASS), leading to a denial
+  of service condition where the nginx worker process crashes.
 
 locations:
-- path_from_root: src/mail/ngx_mail_pop3_handler.c
+- type: crash_site
+  path_from_root: src/mail/ngx_mail_pop3_handler.c
   function_name: ngx_mail_pop3_pass
   startLine: 377
   startColumn: 42
   endLine: 377
   endColumn: 42
+- type: root_cause
+  path_from_root: src/mail/ngx_mail_pop3_handler.c
+  function_name: ngx_mail_pop3_pass
+  startLine: 373
+  startColumn: 1
+  endLine: 377
+  endColumn: 24

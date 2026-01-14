@@ -1,30 +1,42 @@
 id: cpv_0
 
-name: Heap buffer overflow in BMP writer with quantized CMYK color space
+name: Heap buffer over-read in put_pixel_rows with quantized CMYK/RGB565
+
+origin: 1-day
+
+release_date: 11/29/2018
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2018-19664
+- https://github.com/libjpeg-turbo/libjpeg-turbo/issues/305
 
 cwes:
-- CWE-787
+- CWE-125
 - CWE-122
-- CWE-680
+- CWE-787
 
 description: |
-  A heap buffer overflow vulnerability occurs in libjpeg-turbo's BMP writer when
-  processing JPEG images with CMYK color space and color quantization enabled.
-  
-  The root cause is in the jinit_write_bmp function (wrbmp.c:509-511), which
-  incorrectly assigns the put_pixel_rows function for CMYK color space without
-  checking if quantize_colors is enabled. When quantization is active, the buffer
-  is allocated for 1 byte per pixel, but put_pixel_rows expects 4 bytes per pixel
-  for CMYK (C, M, Y, K components), causing it to read beyond the allocated buffer.
-  
-  This vulnerability can lead to memory corruption, application crashes (denial of
-  service), information disclosure through heap memory leaks, and potentially
-  arbitrary code execution in certain scenarios.
+  A heap-based buffer over-read vulnerability exists in libjpeg-turbo when
+  color quantization is enabled in combination with CMYK or RGB565 color spaces.
+  When quantization is on, the output buffer is allocated with only 1 component
+  per pixel, but the put_pixel_rows function attempts to read 4 components for
+  CMYK data, causing it to read beyond the allocated buffer boundary. This occurs
+  because jinit_write_bmp incorrectly assigns put_pixel_rows as the output handler
+  without checking if quantization is enabled. The vulnerability can lead to
+  information disclosure and crashes when processing specially crafted JPEG files.
 
 locations:
-- path_from_root: wrbmp.c
+- type: crash_site
+  path_from_root: wrbmp.c
   function_name: put_pixel_rows
   startLine: 145
   startColumn: 19
   endLine: 145
   endColumn: 19
+- type: root_cause
+  path_from_root: wrbmp.c
+  function_name: jinit_write_bmp
+  startLine: 509
+  startColumn: 1
+  endLine: 511
+  endColumn: 50

@@ -1,29 +1,28 @@
 id: cpv_2
 
-name: XPath Injection in JPEG PAT Segment Parser
+name: XPath Injection in PatSegment JPEG Segment Parser
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-643
-- CWE-20
+- CWE-91
 
 description: |
-  An XPath injection vulnerability exists in the Apache Commons Imaging library's
-  JPEG PAT (Patent) segment parser. The vulnerability occurs in the PatSegment class
-  when parsing custom PAT segments (marker 0xFFFD) in JPEG files. The getEntryPointFromSegmentData
-  method directly concatenates a user-controlled key parameter into an XPath query string
-  without validation or sanitization at line 74: xpath.compile("//entry[@key='" + key + "']").
-  
-  An attacker can craft a malicious JPEG file with a PAT segment containing a specially
-  crafted key that includes XPath metacharacters (e.g., single quotes). This can lead to
-  XPath expression syntax errors causing denial of service, potential information disclosure
-  by extracting unauthorized data from XML documents, or bypassing intended access controls
-  in the XML structure. The vulnerability affects any application processing untrusted JPEG
-  files using Apache Commons Imaging library methods that parse JPEG metadata.
+  An XPath injection vulnerability exists in the getEntryPointFromSegmentData
+  method of the PatSegment class. The method constructs an XPath query by
+  directly concatenating unsanitized user input from JPEG segment data without
+  validation or escaping. An attacker can inject malicious XPath syntax through
+  a specially crafted JPEG file, potentially leading to information disclosure,
+  authentication bypass, or denial of service.
 
 locations:
-- path_from_root: src/main/java/org/apache/commons/imaging/formats/jpeg/segments/PatSegment.java
+- type: crash_site
+  path_from_root: src/main/java/org/apache/commons/imaging/formats/jpeg/segments/PatSegment.java
   function_name: getEntryPointFromSegmentData
-  startLine: 74
-  startColumn: 0
-  endLine: 74
-  endColumn: 0
+  startLine: 93
+  startColumn: 1
+  endLine: 93
+  endColumn: 79

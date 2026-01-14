@@ -1,30 +1,34 @@
 id: cpv_0
 
-name: Spring Expression Language (SpEL) String Multiplication Resource Exhaustion
+name: Spring Expression Language (SpEL) String Repetition DoS
+
+origin: 1-day
+
+release_date: 03/23/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-20861
+- https://spring.io/security/cve-2023-20861/
+- https://www.code-intelligence.com/blog/expression-dos-spring
 
 cwes:
 - CWE-400
-- CWE-789
 - CWE-770
 
 description: |
-  A Denial of Service vulnerability exists in the Spring Framework's Spring Expression Language (SpEL) 
-  parser, specifically in the OpMultiply operator implementation. The vulnerability allows an attacker 
-  to cause resource exhaustion through excessive memory allocation when evaluating malicious SpEL expressions.
-  
-  The OpMultiply.getValueInternal() method supports string multiplication operations (e.g., 'abc' * 2 
-  produces 'abcabc'). However, the vulnerable code does not validate the size of the resulting string 
-  before calling String.repeat(count). This allows an attacker to craft a SpEL expression that attempts 
-  to create an extremely large string by repeating a string a very large number of times (e.g., 'xyz' * 941859717).
-  
-  This results in attempting to allocate memory exceeding Java's implementation limits for string length, 
-  causing an OutOfMemoryError and application crash. Applications using Spring Expression Language for 
-  evaluating user-supplied or untrusted input are at risk of Denial of Service attacks.
+  A Denial of Service (DoS) vulnerability exists in the Spring Framework's
+  Spring Expression Language (SpEL) parser. The OpMultiply class allows
+  string repetition using the multiply operator without validating the
+  resulting string length. An attacker can provide a malicious SpEL
+  expression with a string and very large integer (e.g., 'xyz' * 941859717)
+  causing the application to attempt allocating an enormous string, resulting
+  in an OutOfMemoryError and application crash.
 
 locations:
-- path_from_root: spring-expression/src/main/java/org/springframework/expression/spel/ast/OpMultiply.java
+- type: crash_site
+  path_from_root: spring-expression/src/main/java/org/springframework/expression/spel/ast/OpMultiply.java
   function_name: getValueInternal
-  startLine: 108
-  startColumn: 0
-  endLine: 110
-  endColumn: 0
+  startLine: 109
+  startColumn: 1
+  endLine: 109
+  endColumn: 50

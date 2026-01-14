@@ -2,28 +2,36 @@ id: cpv_0
 
 name: Stack Buffer Underflow in Audio Processing Moving Average Filter
 
+origin: synthetic
+
+release_date: 02/01/2026
+
 cwes:
-- CWE-124
 - CWE-787
-- CWE-129
+- CWE-124
+- CWE-125
 
 description: |
   A stack buffer underflow vulnerability exists in the process_audio_data function
-  in audio.c. The vulnerability occurs during a moving average calculation over audio
-  samples where array indices are not properly validated. The function calculates a
-  sliding window average using a window size derived from user input (ranging from 2
-  to 8), and iterates with negative offsets from the current position without bounds
-  checking. When processing the first elements of the array (i=0) with a large window
-  size, the calculated index becomes negative (e.g., index = 0 + (-4) = -4), causing
-  an out-of-bounds read before the start of the samples array. This results in reading
-  unintended stack memory, potentially leading to information disclosure, crashes, and
-  denial of service. The vulnerability is triggered by minimal input containing only a
-  magic value and a single byte controlling the window size.
+  in audio.c. The function implements a moving average filter over audio samples
+  using a sliding window but fails to validate that the calculated array index
+  stays within bounds. When processing audio data with certain window sizes,
+  the code calculates negative array indices, causing out-of-bounds reads from
+  the stack. This can lead to information disclosure by leaking uninitialized
+  stack memory or cause program crashes.
 
 locations:
-- path_from_root: audio.c
+- type: crash_site
+  path_from_root: audio.c
   function_name: process_audio_data
   startLine: 36
   startColumn: 20
   endLine: 36
   endColumn: 20
+- type: root_cause
+  path_from_root: audio.c
+  function_name: process_audio_data
+  startLine: 36
+  startColumn: 1
+  endLine: 36
+  endColumn: 36

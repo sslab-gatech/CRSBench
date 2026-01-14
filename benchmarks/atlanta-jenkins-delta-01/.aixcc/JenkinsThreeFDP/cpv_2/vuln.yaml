@@ -1,35 +1,38 @@
 id: cpv_2
 
-name: Jenkins PluginManager Path Traversal via Upload Path Parameter
+name: Path Traversal in Jenkins PluginManager Upload Handler
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-22
+- CWE-23
 - CWE-73
-- CWE-434
 
 description: |
-  A critical path traversal vulnerability exists in Jenkins' PluginManager.doPerformUpload() method
-  that allows authenticated administrators to write arbitrary files outside the intended upload directory.
-  
-  The vulnerability occurs because the uploadPath parameter from the HTTP request is used directly to
-  construct a file path without any validation or sanitization:
-  
-  File uploadedFile = new File(uploadDir, req.getParameter("uploadPath"));
-  
-  Even though uploadDir is set to /tmp/plugins, the File() constructor allows the second parameter to
-  contain path traversal sequences like "../". When constructing new File(parent, child), if the child
-  path contains ".." sequences, it can escape the parent directory.
-  
-  An attacker with administrator privileges can send a malicious uploadPath parameter containing path
-  traversal sequences (e.g., "../jazzer-traversal") to upload arbitrary file content to locations
-  outside /tmp/plugins. This can lead to arbitrary file write operations, remote code execution by
-  overwriting configuration files or libraries, data exfiltration, denial of service, and privilege
-  escalation.
+  A path traversal vulnerability exists in the hudson.PluginManager.doPerformUpload()
+  method. The method accepts file uploads for Jenkins plugins and constructs the
+  destination file path using the uploadPath parameter from the HTTP request without
+  any validation or sanitization. An attacker can inject path traversal sequences
+  (e.g., ../) to escape the intended /tmp/plugins directory and write files to
+  arbitrary locations on the Jenkins controller filesystem. This can lead to arbitrary
+  file write, potential code execution if executable files are overwritten, and
+  compromise of Jenkins secrets and configuration files.
 
 locations:
-- path_from_root: jenkins/core/src/main/java/hudson/PluginManager.java
+- type: root_cause
+  path_from_root: jenkins/core/src/main/java/hudson/PluginManager.java
   function_name: doPerformUpload
-  startLine: 1637
-  startColumn: 0
-  endLine: 1637
-  endColumn: 0
+  startLine: 1638
+  startColumn: 1
+  endLine: 1638
+  endColumn: 80
+- type: crash_site
+  path_from_root: jenkins/core/src/main/java/hudson/PluginManager.java
+  function_name: doPerformUpload
+  startLine: 1640
+  startColumn: 1
+  endLine: 1641
+  endColumn: 60

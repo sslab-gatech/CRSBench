@@ -1,25 +1,30 @@
 id: cpv_1
 
-name: GIF Application Extension Regular Expression Injection
+name: Regular Expression Injection in GIF ApplicationExtension Parser
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-1333
-- CWE-94
 - CWE-20
+- CWE-74
 
 description: |
-  Regular Expression Injection vulnerability in Apache Commons Imaging GIF parser.
-  The ApplicationExtension constructor directly concatenates untrusted byte data from
-  GIF file Application Extension blocks into a regex pattern without proper escaping.
-  When parsing GIF files, the label parameter (coming from the GIF file) is converted
-  to a string and concatenated into Pattern.compile("^app-ext " + new String(label) + ": ")
-  at line 34. This allows attackers to inject regex metacharacters that can cause
-  PatternSyntaxException crashes or create catastrophic backtracking patterns leading
-  to CPU exhaustion (ReDoS). Maliciously crafted GIF files can cause denial of service
-  by crashing the application or making it unresponsive through excessive CPU consumption.
+  A Regular Expression Injection vulnerability exists in the ApplicationExtension
+  constructor in the Apache Commons Imaging library's GIF parser. The constructor
+  concatenates untrusted input from a GIF file's application extension label
+  directly into a regex pattern without proper escaping. When the label contains
+  regex metacharacters (such as parentheses, brackets, or other special characters),
+  it causes a PatternSyntaxException or could lead to Regular Expression Denial of
+  Service (ReDoS) through catastrophic backtracking. An attacker can craft a
+  malicious GIF file with a specially crafted application extension label to trigger
+  this vulnerability, affecting application availability.
 
 locations:
-- path_from_root: src/main/java/org/apache/commons/imaging/formats/gif/ApplicationExtension.java
+- type: crash_site
+  path_from_root: src/main/java/org/apache/commons/imaging/formats/gif/ApplicationExtension.java
   function_name: ApplicationExtension
   startLine: 34
   startColumn: 0

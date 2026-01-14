@@ -1,24 +1,42 @@
 id: cpv_1
 
-name: Stack Overflow via Uncontrolled Recursion in Boolean Array Deserialization
+name: Deep Wrapper Array Nesting in Primitive Deserializers
+
+origin: 1-day
+
+release_date: 10/02/2022
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2022-42003
+- https://github.com/FasterXML/jackson-databind/issues/3590
+- https://github.com/advisories/GHSA-jjjh-jjxp-wpff
+- https://osv.dev/vulnerability/CVE-2022-42003
 
 cwes:
 - CWE-674
-- CWE-770
 - CWE-400
 
 description: |
-  An uncontrolled recursion vulnerability exists in Jackson Databind's StdDeserializer._parseBooleanPrimitive() method.
-  When the UNWRAP_SINGLE_VALUE_ARRAYS deserialization feature is enabled, the method recursively processes nested arrays
-  without checking if the next token is another START_ARRAY. This allows an attacker to provide deeply nested array
-  structures (e.g., [[[[[[...]]]]]] ) in JSON input, causing unbounded recursion that exhausts the call stack and
-  results in a StackOverflowError. The vulnerability leads to Denial of Service (DoS) by crashing the application
-  and consuming memory resources until the stack limit is reached.
+  A stack overflow vulnerability exists in the Jackson-databind library's
+  StdDeserializer._parseBooleanPrimitive() method. When the UNWRAP_SINGLE_VALUE_ARRAYS
+  deserialization feature is enabled, the method recursively unwraps nested arrays
+  without any depth limitation. An attacker can provide a maliciously crafted JSON
+  input with excessive array nesting, causing each nested array level to trigger
+  another recursive call. This leads to stack exhaustion and denial of service
+  through uncontrolled recursion.
 
 locations:
-- path_from_root: src/main/java/com/fasterxml/jackson/databind/deser/std/StdDeserializer.java
+- type: crash_site
+  path_from_root: src/main/java/com/fasterxml/jackson/databind/deser/std/StdDeserializer.java
   function_name: _parseBooleanPrimitive
   startLine: 416
-  startColumn: 0
+  startColumn: 1
   endLine: 416
-  endColumn: 0
+  endColumn: 52
+- type: root_cause
+  path_from_root: src/main/java/com/fasterxml/jackson/databind/deser/std/StdDeserializer.java
+  function_name: _parseBooleanPrimitive
+  startLine: 414
+  startColumn: 1
+  endLine: 419
+  endColumn: 20

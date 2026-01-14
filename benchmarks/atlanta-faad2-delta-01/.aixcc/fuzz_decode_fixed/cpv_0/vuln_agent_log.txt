@@ -1,0 +1,1128 @@
+# vuln.yaml Generation Agent Log
+Generated: 2026-01-14T05:51:37.396214
+Benchmark: atlanta-faad2-delta-01
+Harness: fuzz_decode_fixed
+CPV: cpv_0
+Project Directory: .crsbench-repos/cp-c-faad2-2ea4a353
+
+
+Validation: PASSED
+
+
+======================================================================
+Phase: Vulnerability Analysis
+======================================================================
+
+
+[Agent Response]
+I'll analyze the vulnerability for cpv_0 in the fuzz_decode_fixed harness. Let me start by invoking the vuln-yaml-analyzer skill for guidance.
+
+[Tool] Skill
+  Input: {
+  "skill": "vuln-yaml-analyzer"
+}
+  Result: Launching skill: vuln-yaml-analyzer
+
+[Agent Response]
+<command-message>The "vuln-yaml-analyzer" skill is running</command-message>
+<command-name>vuln-yaml-analyzer</command-name>
+
+
+[Agent Response]
+Base directory for this skill: /home/acorn421/work/team-atlanta/CRSBench/.claude/skills/vuln-yaml-analyzer
+
+# Vulnerability Analyzer
+
+Analyze a vulnerability from crash logs, POV files, patches, and source code to prepare for vuln.yaml generation.
+
+## Analysis Strategy
+
+### Step 1: Analyze Crash Log (CRITICAL - Start Here)
+
+The crash log is the primary source of vulnerability information.
+
+**CRITICAL**:
+- **ONLY** read crash log files from the CPV's logs directory
+- **DO NOT** search for crash logs from other CPVs
+
+Find and read crash log files (e.g., `pov_0.log`, `crash.log`).
+
+Extract key information:
+- **Error type**: AddressSanitizer error (heap-buffer-overflow, use-after-free, etc.)
+- **Vulnerable function**: The function where the crash occurred (from stack trace)
+- **Vulnerable file**: The source file path (from stack trace)
+- **Line number**: Exact line where crash happened
+- **DEDUP_TOKEN**: Unique identifier for this crash
+- **Stack trace**: Full call stack for understanding control flow
+
+Example crash log parsing:
+```
+ERROR: AddressSanitizer: heap-buffer-overflow
+READ of size 45 at 0x50400000033c
+#0 __asan_memcpy /src/llvm-project/compiler-rt/lib/asan/...
+#1 cr_buf_read /src/curl/lib/sendf.c:1298:5    <-- Vulnerable function
+#2 Curl_creader_read /src/curl/lib/sendf.c:542:10
+...
+SUMMARY: AddressSanitizer: heap-buffer-overflow /src/curl/lib/sendf.c:1298:5 in cr_buf_read
+```
+
+From this, extract:
+- Error type: heap-buffer-overflow
+- File: lib/sendf.c (relative to project root)
+- Function: cr_buf_read
+- Line: 1298
+
+### Step 2: Identify Location Types
+
+For each vulnerability location, determine its type:
+
+**crash_site**: The point where the program crashes or error is detected
+- This is typically the location from the crash log stack trace
+- MUST be in project code
+- Example: The function where buffer overflow READ occurs
+
+**root_cause**: The underlying defect that enables the vulnerability
+- This is where the actual bug/defect exists
+- May be different from crash site (e.g., missing bounds check, incorrect allocation)
+- Example: Where buffer is allocated too small, or where bounds check is missing
+- **IMPORTANT: Analyze patches to identify root_cause** - patches show exactly what was fixed
+
+**EXCLUDE from both crash_site and root_cause:**
+- Harness files (fuzzing harness code, e.g., `*_fuzzer.c`, `*_fuzzer.cc`, `LLVMFuzzerTestOneInput`)
+- ASan/sanitizer functions (`__asan_*`, `__msan_*`, `__ubsan_*`)
+- Standard library functions (`memcpy`, `malloc`, `free`, `strlen`, etc.)
+- Compiler runtime functions (`__interceptor_*`, `llvm-project/compiler-rt/*`)
+- Only include actual project source code locations
+
+### Step 3: Locate Vulnerable Code
+
+- Use the file path from crash log to find the vulnerable source file
+- Read the vulnerable file around the crash line number
+- Identify the exact vulnerability location
+- Note the function name, line numbers, and code context
+
+### Step 4: Analyze POV (if available)
+
+- Check the CPV's blobs/ directory for POV files
+- These are test inputs that trigger the vulnerability
+- Note if POV structure provides hints about vulnerability type
+
+### Step 5: Analyze Patches (CRITICAL for root_cause)
+
+- Check the CPV's patches/ directory for patch files
+- **Patches are the primary source for identifying root_cause location**
+- Analyze what was changed to fix the vulnerability:
+  - Which file(s) were modified?
+  - Which function(s) were changed?
+  - What line(s) were added/removed?
+- The patch location typically indicates the root_cause location
+- If patch differs from crash site, you likely have separate crash_site and root_cause
+
+### Step 6: Identify Vulnerability Origin and Reference
+
+**⚠️ CRITICAL: DO NOT GUESS. ONLY USE CONCRETE EVIDENCE. ⚠️**
+
+**origin**: Source of the vulnerability
+- `1-day`: Real-world vulnerability with confirmed official reference (CVE, OSV, GHSA, bug tracker, etc.)
+- `synthetic`: Everything else (DEFAULT)
+
+**🚨 RULES FOR 1-day CLASSIFICATION 🚨**
+
+1. **Start with patch files** - Extract key information:
+   - Function name(s) being patched
+   - File path(s) being modified
+   - Type of fix (bounds check, null check, etc.)
+   - Any vulnerability ID already mentioned in patch (CVE, OSV, GHSA, issue #)
+
+2. **Search based on patch content:**
+   - Use WebSearch with: project name + function name + vulnerability keywords
+   - Example: `libtiff TIFFReadRawStrip1 CVE` or `libtiff TIFFReadRawStrip1 vulnerability`
+   - Look for an EXACT match - same function, same fix
+
+3. **Confirm the match:**
+   - The reference must describe the EXACT same vulnerability
+   - Same function name
+   - Same type of bug
+   - Same file/location
+   - If it's just "similar" but not exact → `synthetic`
+
+4. **DO NOT mark as `1-day` based on:**
+   - ❌ "Similar looking" vulnerabilities
+   - ❌ Same project but different function
+   - ❌ Same bug type but different location
+   - ❌ Guessing or "it might be"
+
+5. **If no EXACT match found → `synthetic`**
+
+**How to check (in order):**
+1. Read patch files - note function names, file paths, fix type
+2. Check if vulnerability ID already in patch content/filename (CVE, OSV, issue #)
+3. Check `.aixcc/meta.yaml` for existing reference
+4. WebSearch: `[project] [function_name] vulnerability` or `CVE` (only if needed)
+5. WebFetch: Get release_date from the reference source
+6. If no exact match → `synthetic`
+
+**release_date**:
+- For 1-day: Fetch from the official reference source (NVD, OSV, GitHub advisory, etc.)
+- For synthetic: Use `02/01/2026`
+
+**references**: List of URLs to vulnerability details (REQUIRED for 1-day)
+- Include all confirmed references (a single vulnerability may have multiple)
+- Valid reference sources:
+  - CVE: `https://nvd.nist.gov/vuln/detail/CVE-XXXX-XXXXX`
+  - OSV: `https://osv.dev/vulnerability/OSV-XXXX-XXXX`
+  - GHSA: `https://github.com/advisories/GHSA-xxxx-xxxx-xxxx`
+  - Project bug tracker: `https://github.com/project/issues/XXX`
+  - Other official security advisories
+- Example: A vulnerability may have both CVE and GHSA references
+
+### Step 7: Identify CWE
+
+Based on the vulnerability type, identify relevant CWEs:
+- Heap buffer overflow -> CWE-122, CWE-787
+- Stack buffer overflow -> CWE-121, CWE-787
+- Use-after-free -> CWE-416
+- NULL pointer dereference -> CWE-476
+- Integer overflow -> CWE-190
+- Command injection -> CWE-77
+- Path traversal -> CWE-22
+- Format string -> CWE-134
+
+## Output Format
+
+Provide a markdown document with this structure:
+
+```markdown
+# Vulnerability Analysis for {cpv_id}
+
+## Summary
+- **CPV ID**: {cpv_id}
+- **Harness**: {harness_name}
+- **Vulnerability Type**: <type from crash log>
+- **Origin**: <1-day or synthetic>
+- **Release Date**: <MM/DD/YYYY>
+- **References**: <list of CVE/OSV/GHSA URLs if available>
+
+## Crash Log Analysis
+- **Error Type**: <AddressSanitizer error type>
+- **Crash Location**: <file>:<line>
+- **Vulnerable Function**: <function name>
+- **DEDUP Token**: <dedup token from crash log>
+
+### Stack Trace
+<relevant stack trace snippet>
+
+## Vulnerable Code Location(s)
+
+### Location 1 (crash_site)
+- **Type**: crash_site
+- **File Path**: <path from project root>
+- **Function**: <function name>
+- **Line Range**: <start>-<end>
+- **Column Range**: <start>-<end>
+
+### Location 2 (root_cause) - if different from crash_site
+- **Type**: root_cause
+- **File Path**: <path from project root>
+- **Function**: <function name>
+- **Line Range**: <start>-<end>
+- **Column Range**: <start>-<end>
+
+### Code Context
+<vulnerable code snippet>
+
+## CWE Classification
+- CWE-XXX: <description>
+- CWE-YYY: <description>
+
+## Vulnerability Description
+<Clear description of the vulnerability, its cause, and impact>
+
+## POV Analysis (if available)
+<Analysis of proof-of-vulnerability test case>
+
+## Patch Analysis (if available)
+<Analysis of how the vulnerability was fixed>
+
+## Recommendations
+- Suggested CWEs: [CWE-XXX, CWE-YYY]
+- Vulnerability name: <concise name>
+```
+
+## Important Notes
+
+- **ALWAYS read and analyze the crash log first** - it contains the most critical information
+- **ONLY analyze crash logs from the specified CPV's logs directory**
+- Use Grep and Glob to find relevant source code files (NOT other CPVs' crash logs)
+- Read actual source code to verify vulnerability locations
+- Cite specific file paths and line numbers
+- Be precise about code locations (line and column numbers)
+- Distinguish between crash_site and root_cause locations
+
+
+
+[Agent Response]
+I'll analyze the vulnerability for cpv_0 in the fuzz_decode_fixed harness. Let me follow the systematic approach outlined in the skill.
+
+## Step 1: Analyze Crash Log
+
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/atlanta-faad2-delta-01/.aixcc/fuzz_decode_fixed/cpv_0/logs/",
+  "description": "List crash log files in cpv_0"
+}
+  Result: total 12
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 .
+drwxrwxr-x 6 acorn421 acorn421 4096 Jan 13 23:50 ..
+-rw-rw-r-- 1 acorn421 acorn421 2851 Dec 22 17:50 pov_0.log
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/atlanta-faad2-delta-01/.aixcc/fuzz_decode_fixed/cpv_0/logs/pov_0.log"
+}
+  Result:      1→INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /home/jhkim/1.AIxCC/oss-fuzz/build/out/aixcc/c/faad2:/out -v /home/jhkim/1.AIxCC/oss-fuzz/projects/aixcc/c/faad2/.aixcc/povs/fuzz_decode_fixed/cpv_0:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.1.0 reproduce fuzz_decode_fixed -runs=100.
+     2→+ FUZZER=fuzz_decode_fixed
+     3→+ shift
+     4→+ '[' '!' -v TESTCASE ']'
+     5→+ TESTCASE=/testcase
+     6→+ ... (truncated)
+
+[Agent Response]
+Excellent! I have the crash log. Let me extract key information:
+
+- **Error Type**: UndefinedBehaviorSanitizer: signed integer overflow
+- **Crash Location**: libfaad/sbr_dct.c:816:17
+- **Vulnerable Function**: DST4_32
+- **DEDUP Token**: DST4_32--sbr_qmf_synthesis_32--sbrDecodeCoupleFrame
+
+## Step 2 & 3: Analyze Patches to Identify Root Cause
+
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/atlanta-faad2-delta-01/.aixcc/fuzz_decode_fixed/cpv_0/patches/",
+  "description": "List patch files in cpv_0"
+}
+  Result: total 12
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 .
+drwxrwxr-x 6 acorn421 acorn421 4096 Jan 13 23:50 ..
+-rw-rw-r-- 1 acorn421 acorn421  519 Dec 22 17:50 patch_0.diff
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/atlanta-faad2-delta-01/.aixcc/fuzz_decode_fixed/cpv_0/patches/patch_0.diff"
+}
+  Result:      1→diff --git a/libfaad/tns.c b/libfaad/tns.c
+     2→index b787645..b698991 100644
+     3→--- a/libfaad/tns.c
+     4→+++ b/libfaad/tns.c
+     5→@@ -196,7 +196,7 @@ static uint8_t tns_decode_coef(uint8_t order, uint8_t coef_res_bits, uint8_t coe
+     6→ {
+     7→     uint8_t i, m;
+     8→     real_t tmp2[TNS_MAX_ORDER+1], b[TNS_MAX_ORDER+1];
+     9→-    uint8_t table_index = 2 * (coef_compress == 0) + (coef_res_bits == 3);
+    10→+    uint8_t table_index = 2 * (coef_compress != 0) + (coef_res... (truncated)
+
+[Agent Response]
+Interesting! The patch is in `libfaad/tns.c`, but the crash is in `libfaad/sbr_dct.c`. This suggests:
+- **Root Cause**: libfaad/tns.c:196 (tns_decode_coef function) - incorrect table_index calculation
+- **Crash Site**: libfaad/sbr_dct.c:816 (DST4_32 function) - where integer overflow manifests
+
+Let me locate and read both source files:
+
+[Tool] Bash
+  Input: {
+  "command": "find .crsbench-repos/cp-c-faad2-2ea4a353 -name \"sbr_dct.c\" -o -name \"tns.c\" | head -10",
+  "description": "Find vulnerable source files"
+}
+  Result: .crsbench-repos/cp-c-faad2-2ea4a353/libfaad/sbr_dct.c
+.crsbench-repos/cp-c-faad2-2ea4a353/libfaad/tns.c
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-c-faad2-2ea4a353/libfaad/sbr_dct.c",
+  "offset": 800,
+  "limit": 40
+}
+  Result:    800→    f273 = f233 + f237;
+   801→    f274 = f235 - f239;
+   802→    f275 = f235 + f239;
+   803→    f276 = f253 - f259;
+   804→    f277 = f253 + f259;
+   805→    f278 = f252 - f258;
+   806→    f279 = f252 + f258;
+   807→    f280 = f241 - f245;
+   808→    f281 = f241 + f245;
+   809→    f282 = f243 - f247;
+   810→    f283 = f243 + f247;
+   811→    f284 = f265 - f271;
+   812→    f285 = f265 + f271;
+   813→    f286 = f264 - f270;
+   814→    f287 = f264 + f270;
+   815→    f288 = f272 - f274;
+   8... (truncated)
+
+[Agent Response]
+The crash is at line 816 which shows `f289 = f272 + f274;` - this is where the integer overflow occurs. Let me read the tns.c file to see the root cause:
+
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-c-faad2-2ea4a353/libfaad/tns.c",
+  "offset": 185,
+  "limit": 30
+}
+  Result:    185→                inc = 1;
+   186→            }
+   187→
+   188→            tns_ma_filter(&spec[(w*nshort)+start], size, inc, lpc, tns_order, exp);
+   189→        }
+   190→    }
+   191→}
+   192→
+   193→/* Decoder transmitted coefficients for one TNS filter */
+   194→static uint8_t tns_decode_coef(uint8_t order, uint8_t coef_res_bits, uint8_t coef_compress,
+   195→                            uint8_t *coef, real_t *a)
+   196→{
+   197→    uint8_t i, m;
+   198→    real_t tmp2[TNS_MAX_ORDER+1], b... (truncated)
+
+[Agent Response]
+Perfect! I can see the vulnerable line 199 where the table_index is calculated incorrectly. Now let me check for POV files and check meta.yaml for any existing references:
+
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/atlanta-faad2-delta-01/.aixcc/fuzz_decode_fixed/cpv_0/blobs/",
+  "description": "Check for POV files"
+}
+  Result: total 12
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 .
+drwxrwxr-x 6 acorn421 acorn421 4096 Jan 13 23:50 ..
+-rw-rw-r-- 1 acorn421 acorn421  106 Dec 22 17:50 pov_0.blob
+[Tool] Bash
+  Input: {
+  "command": "file benchmarks/atlanta-faad2-delta-01/.aixcc/fuzz_decode_fixed/cpv_0/blobs/pov_0.blob && xxd benchmarks/atlanta-faad2-delta-01/.aixcc/fuzz_decode_fixed/cpv_0/blobs/pov_0.blob | head -20",
+  "description": "Examine POV file structure"
+}
+  Result: benchmarks/atlanta-faad2-delta-01/.aixcc/fuzz_decode_fixed/cpv_0/blobs/pov_0.blob: data
+00000000: 0b00 1b00 e411 0030 0000 1000 0000 00f0  .......0........
+00000010: 0040 ff0e 2403 0000 0000 0003 2000 0200  .@..$....... ...
+00000020: 0000 0100 ffdb dbcb d901 6606 e800 e0de  ..........f.....
+00000030: dbc6 fef1 364b f730 00b8 0800 001f 0000  ....6K.0........
+00000040: 0000 1515 3a3f d02f 9f11 e211 2464 2804  ....:?./....$d(.
+00000050: fa2b 3dff fffe ffff ffb5 0000 0000 bac2  .+=.............
+0000... (truncated)
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/atlanta-faad2-delta-01/.aixcc/meta.yaml"
+}
+  Result:      1→patch_exclude_list:
+     2→- build.sh
+     3→- Makefile
+     4→- CMakeLists.txt
+     5→- configure*
+     6→- '*.ac'
+     7→- '*.am'
+     8→- .gitignore
+     9→- .aixcc/**
+    10→- '**/*test*.c'
+    11→- '**/*test*.cc'
+    12→- '**/*test*.cpp'
+    13→- '**/*test*.h'
+    14→- test/**
+    15→- tests/**
+    16→- docs/**
+    17→- '*.md'
+    18→- README*
+    19→delta_mode:
+    20→  base_commit: f3a2fc375d0188271143481086ffac60ca5b0668
+    21→  ref_commit: 2ea4a353da82c5641ca1ae461fdbd3fbb6ec712... (truncated)
+
+[Agent Response]
+Now let me search for any CVE or vulnerability references related to this faad2 issue. I'll search for information about the tns_decode_coef function and table_index bug:
+
+[Tool] WebSearch
+  Input: {
+  "query": "faad2 tns_decode_coef table_index vulnerability CVE"
+}
+  Result: Web search results for query: "faad2 tns_decode_coef table_index vulnerability CVE"
+
+Links: [{"title":"CVE security vulnerability database. Security vulnerabilities, exploits, references and more","url":"https://www.cvedetails.com/"},{"title":"NVD - CVE-2025-68613","url":"https://nvd.nist.gov/vuln/detail/CVE-2025-68613"},{"title":"CVE - CVE","url":"https://cve.mitre.org/cve/"},{"title":"CVE-2012-1675 : The TNS Listener, as used in Oracle Database 11g 11.1.0.7, 11.2.0.2, and 11.2.0.","url":"https... (truncated)
+
+[Agent Response]
+Let me fetch the faad2 changelog to see if I can find more information about this specific fix:
+
+[Tool] WebFetch
+  Input: {
+  "url": "https://github.com/knik0/faad2/blob/master/ChangeLog",
+  "prompt": "Find any mention of tns_decode_coef, table_index fix, or TNS coefficient table selection fix. Also extract the date and release version for this fix."
+}
+  Result: # TNS Coefficient Table Selection Fix
+
+**Version:** 2.11.0
+**Date:** 2023-11-07
+
+**Mention Found:**
+"Fix coefficient table selection in tns_decode_coef"
+
+This fix was attributed to Steveice10 and addressed an issue in the TNS (Temporal Noise Shaping) decoding coefficient function.
+
+[Agent Response]
+Great! Now let me search for the actual commit or issue number on GitHub:
+
+[Tool] WebSearch
+  Input: {
+  "query": "faad2 \"Fix coefficient table selection in tns_decode_coef\" Steveice10 github commit"
+}
+  Result: Web search results for query: "faad2 "Fix coefficient table selection in tns_decode_coef" Steveice10 github commit"
+
+Links: [{"title":"Releases · knik0/faad2","url":"https://github.com/knik0/faad2/releases"},{"title":"Release FAAD2 2.11.0 · knik0/faad2","url":"https://github.com/knik0/faad2/releases/tag/2.11.0"},{"title":"faad2/ChangeLog at master · knik0/faad2","url":"https://github.com/knik0/faad2/blob/master/ChangeLog"}]
+
+I found information about the commit you're looking for. The commit by ... (truncated)
+[Tool] WebSearch
+  Input: {
+  "query": "site:github.com/knik0/faad2 tns_decode_coef coef_compress table_index"
+}
+  Result: Web search results for query: "site:github.com/knik0/faad2 tns_decode_coef coef_compress table_index"
+
+I'll search for that query now.
+
+No links found.
+
+I attempted to search using the site-specific operator you provided, but the search didn't return any results. This could be because:
+
+1. The specific combination of terms (`tns_decode_coef`, `coef_compress`, `table_index`) may not appear together in the faad2 repository
+2. The search engine may have limitations with the `site:` operator in this... (truncated)
+
+[Agent Response]
+Let me search for the actual GitHub commit or pull request:
+
+[Tool] WebSearch
+  Input: {
+  "query": "\"knik0/faad2\" commit \"tns_decode_coef\" 2023"
+}
+  Result: Web search results for query: ""knik0/faad2" commit "tns_decode_coef" 2023"
+
+Links: [{"title":"Releases · knik0/faad2","url":"https://github.com/knik0/faad2/releases"},{"title":"GitHub - knik0/faad2: Freeware Advanced Audio (AAC) Decoder faad2 mirror","url":"https://github.com/knik0/faad2"},{"title":"release FAAD2 2.11.2 · knik0/faad2@673a22a","url":"https://github.com/knik0/faad2/commit/master"},{"title":"faad2/ChangeLog at master · knik0/faad2","url":"https://github.com/knik0/faad2/blob/master... (truncated)
+
+[Agent Response]
+Let me check the delta_mode ref_commit in the meta.yaml to understand which version this is:
+
+[Tool] Bash
+  Input: {
+  "command": "cd .crsbench-repos/cp-c-faad2-2ea4a353 && git log --oneline 2ea4a353da82c5641ca1ae461fdbd3fbb6ec712b | head -5",
+  "description": "Check commit history for this vulnerability"
+}
+  Result: 2ea4a35 introduce: 42527651
+673a22a release FAAD2 2.11.2
+bf781d8 fix project name, sigh
+d1c393d fix install path
+2628b43 upload Windows artifacts
+[Tool] Bash
+  Input: {
+  "command": "cd .crsbench-repos/cp-c-faad2-2ea4a353 && git show 2ea4a353da82c5641ca1ae461fdbd3fbb6ec712b --stat | head -20",
+  "description": "Check what was introduced in commit 2ea4a353"
+}
+  Result: Exit code 1
+(eval):cd:1: no such file or directory: .crsbench-repos/cp-c-faad2-2ea4a353
+[Tool] Bash
+  Input: {
+  "command": "ls -la .crsbench-repos/ | grep faad2",
+  "description": "Find faad2 repository directory"
+}
+  Result: ls: cannot access '.crsbench-repos/': No such file or directory
+[Tool] Bash
+  Input: {
+  "command": "find /home/acorn421/work/team-atlanta/CRSBench -name \"cp-c-faad2-*\" -type d 2>/dev/null | head -5",
+  "description": "Find faad2 repository path"
+}
+  Result: /home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-c-faad2-2ea4a353
+[Tool] Bash
+  Input: {
+  "command": "git log --oneline --grep=\"tns_decode_coef\" 2>&1 | head -10",
+  "description": "Search for tns_decode_coef fix in git log"
+}
+  Result: 388a0f6 Fix coefficient table selection in tns_decode_coef. (#185)
+
+[Agent Response]
+Excellent! I found the commit. Let me check the pull request #185:
+
+[Tool] WebSearch
+  Input: {
+  "query": "faad2 pull request 185 github knik0"
+}
+  Result: Web search results for query: "faad2 pull request 185 github knik0"
+
+Links: [{"title":"GitHub - knik0/faad2: Freeware Advanced Audio (AAC) Decoder faad2 mirror","url":"https://github.com/knik0/faad2"},{"title":"Releases · knik0/faad2","url":"https://github.com/knik0/faad2/releases"},{"title":"release FAAD2 2.11.2 · knik0/faad2@673a22a","url":"https://github.com/knik0/faad2/commit/master"},{"title":"faad2/frontend/faad.man at master · knik0/faad2","url":"https://github.com/knik0/faad2/blob/master... (truncated)
+[Tool] WebFetch
+  Input: {
+  "url": "https://github.com/knik0/faad2/pull/185",
+  "prompt": "Extract information about this pull request: title, description, date created, date merged, author, and any CVE or vulnerability references mentioned."
+}
+  Result: # Pull Request #185 Summary
+
+**Title:** "Fix coefficient table selection in tns_decode_coef."
+
+**Description:** No description was provided with this pull request.
+
+**Author:** Unknown (submitted by ghost user account)
+
+**Date Created:** November 6, 2023
+
+**Date Merged:** November 6, 2023 (merged by fabiangreffrath)
+
+**Commit Hash:** a2df562d63eff10f86480e0449242cbc9601b141
+
+**CVE/Vulnerability References:** None mentioned
+
+**Additional Context:** The fix addresses a bug in coefficient table sel... (truncated)
+
+[Agent Response]
+Perfect! Now I have enough information. Since:
+1. No CVE was assigned to this vulnerability
+2. PR #185 fixed the issue on November 6, 2023
+3. There are no official security advisory references
+
+This should be classified as **synthetic** origin. Let me now check the DST4_32 function to understand the crash site better:
+
+[Tool] Grep
+  Input: {
+  "pattern": "^static\\s+void\\s+DST4_32",
+  "path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-c-faad2-2ea4a353/libfaad/sbr_dct.c",
+  "output_mode": "content",
+  "-n": true
+}
+  Result: No matches found
+[Tool] Grep
+  Input: {
+  "pattern": "DST4_32",
+  "path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-c-faad2-2ea4a353/libfaad/sbr_dct.c",
+  "output_mode": "content",
+  "-n": true
+}
+  Result: 490:void DST4_32(real_t *y, real_t *x)
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-c-faad2-2ea4a353/libfaad/sbr_dct.c",
+  "offset": 490,
+  "limit": 20
+}
+  Result:    490→void DST4_32(real_t *y, real_t *x)
+   491→{
+   492→    real_t f0, f1, f2, f3, f4, f5, f6, f7, f8, f9;
+   493→    real_t f10, f11, f12, f13, f14, f15, f16, f17, f18, f19;
+   494→    real_t f20, f21, f22, f23, f24, f25, f26, f27, f28, f29;
+   495→    real_t f30, f31, f32, f33, f34, f35, f36, f37, f38, f39;
+   496→    real_t f40, f41, f42, f43, f44, f45, f46, f47, f48, f49;
+   497→    real_t f50, f51, f52, f53, f54, f55, f56, f57, f58, f59;
+   498→    real_t f60, f61, f62, f63, f64, f65, f66... (truncated)
+
+[Agent Response]
+Now let me understand what `real_t` is defined as to understand the integer overflow:
+
+[Tool] Grep
+  Input: {
+  "pattern": "typedef.*real_t",
+  "path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-c-faad2-2ea4a353",
+  "output_mode": "content",
+  "-n": true
+}
+  Result: libfaad/fixed.h:56:typedef int32_t real_t;
+libfaad/common.h:259:  typedef double real_t;
+libfaad/common.h:282:  typedef float real_t;
+libfaad/common.h:390:typedef real_t complex_t[2];
+
+[Agent Response]
+Based on the harness name `fuzz_decode_fixed`, this uses the fixed-point arithmetic configuration, so `real_t` is `int32_t`. Now let me understand the full picture by checking what the tns_coef array contains:
+
+[Tool] Grep
+  Input: {
+  "pattern": "all_tns_coefs",
+  "path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-c-faad2-2ea4a353/libfaad/tns.c",
+  "output_mode": "content",
+  "-n": true,
+  "-B": 5,
+  "-A": 5
+}
+  Result: 76-    COEF_CONST(-0.6736956436), COEF_CONST(-0.5264321629), COEF_CONST(-0.3612416662), COEF_CONST(-0.1837495178),
+77-    COEF_CONST(0.9945218954), COEF_CONST(0.9510565163), COEF_CONST(0.8660254038), COEF_CONST(0.7431448255),
+78-    COEF_CONST(-0.6736956436), COEF_CONST(-0.5264321629), COEF_CONST(-0.3612416662), COEF_CONST(-0.1837495178)
+79-};
+80-
+81:static real_t* all_tns_coefs[] = {tns_coef_0_3, tns_coef_0_4, tns_coef_1_3, tns_coef_1_4};
+82-
+83-/* TNS decoding for one channel and frame */
+84-v... (truncated)
+
+[Agent Response]
+Perfect! Now I understand the full picture. The bug is:
+- Line 199 incorrectly calculates `table_index` using `==` operators
+- Should use `!=` operators (as shown in the patch)
+- This leads to selecting the wrong coefficient table
+- Wrong coefficients propagate through TNS decoding
+- Eventually cause integer overflow in DST4_32 during SBR synthesis
+
+Now let me compile the complete analysis report:
+
+# Vulnerability Analysis for cpv_0
+
+## Summary
+- **CPV ID**: cpv_0
+- **Harness**: fuzz_decode_fixed
+- **Vulnerability Type**: Signed integer overflow (manifestation of incorrect coefficient table selection)
+- **Origin**: synthetic
+- **Release Date**: 02/01/2026
+- **References**: 
+  - https://github.com/knik0/faad2/pull/185 (Fix merged November 6, 2023)
+  - Commit: a2df562d63eff10f86480e0449242cbc9601b141
+
+## Crash Log Analysis
+- **Error Type**: UndefinedBehaviorSanitizer: signed integer overflow
+- **Sanitizer**: undefined
+- **Operation**: Addition overflow: `232566383 + 2055740917` cannot be represented in type `real_t` (aka `int`)
+- **Crash Location**: libfaad/sbr_dct.c:816:17
+- **Vulnerable Function**: DST4_32
+- **DEDUP Token**: DST4_32--sbr_qmf_synthesis_32--sbrDecodeCoupleFrame
+
+### Stack Trace
+```
+libfaad/sbr_dct.c:816:17: runtime error: signed integer overflow: 232566383 + 2055740917 cannot be represented in type 'real_t' (aka 'int')
+    #0 DST4_32 (/out/fuzz_decode_fixed+0x1c6cc5)
+    #1 sbr_qmf_synthesis_32 (/out/fuzz_decode_fixed+0x1c035d)
+    #2 sbrDecodeCoupleFrame (/out/fuzz_decode_fixed+0x1adf78)
+    #3 reconstruct_channel_pair (/out/fuzz_decode_fixed+0x1d4e80)
+    #4 decode_cpe syntax.c
+    #5 raw_data_block (/out/fuzz_decode_fixed+0x1ca575)
+    #6 aac_frame_decode decoder.c
+    #7 LLVMFuzzerTestOneInput (/out/fuzz_decode_fixed+0x19e4de)
+```
+
+## Vulnerable Code Location(s)
+
+### Location 1 (root_cause)
+- **Type**: root_cause
+- **File Path**: libfaad/tns.c
+- **Function**: tns_decode_coef
+- **Line Range**: 199-199
+- **Column Range**: 5-70
+
+### Location 2 (crash_site)
+- **Type**: crash_site
+- **File Path**: libfaad/sbr_dct.c
+- **Function**: DST4_32
+- **Line Range**: 816-816
+- **Column Range**: 5-26
+
+### Root Cause Code Context
+```c
+static uint8_t tns_decode_coef(uint8_t order, uint8_t coef_res_bits, uint8_t coef_compress,
+                            uint8_t *coef, real_t *a)
+{
+    uint8_t i, m;
+    real_t tmp2[TNS_MAX_ORDER+1], b[TNS_MAX_ORDER+1];
+    uint8_t table_index = 2 * (coef_compress == 0) + (coef_res_bits == 3);  // BUG: incorrect logic
+    real_t* tns_coef = all_tns_coefs[table_index];
+    uint8_t exp = 0;
+
+    /* Conversion to signed integer */
+    for (i = 0; i < order; i++)
+        tmp2[i] = tns_coef[coef[i]];
+    // ... rest of function
+}
+```
+
+The bug is in the table_index calculation:
+- **Buggy**: `table_index = 2 * (coef_compress == 0) + (coef_res_bits == 3);`
+- **Fixed**: `table_index = 2 * (coef_compress != 0) + (coef_res_bits != 3);`
+
+### Crash Site Code Context
+```c
+void DST4_32(real_t *y, real_t *x)
+{
+    // ... many local variable declarations (f0-f300+) ...
+    
+    f272 = f233 + f237;
+    f274 = f235 - f239;
+    // ...
+    f288 = f272 - f274;
+    f289 = f272 + f274;  // Line 816: INTEGER OVERFLOW HERE
+    // ...
+}
+```
+
+Where `real_t` is `int32_t` in fixed-point mode (fuzz_decode_fixed).
+
+## CWE Classification
+- **CWE-682**: Incorrect Calculation (primary)
+- **CWE-190**: Integer Overflow or Wraparound (manifestation)
+- **CWE-1325**: Improperly Controlled Sequential Memory Allocation (indirect - wrong table selection)
+
+## Vulnerability Description
+
+This vulnerability arises from an incorrect boolean logic condition in the `tns_decode_coef` function that calculates the TNS (Temporal Noise Shaping) coefficient table index. 
+
+**Root Cause Analysis:**
+
+The bug is in line 199 of `libfaad/tns.c`:
+```c
+uint8_t table_index = 2 * (coef_compress == 0) + (coef_res_bits == 3);
+```
+
+This incorrectly uses equality checks (`==`) when it should use inequality checks (`!=`). The correct logic should be:
+```c
+uint8_t table_index = 2 * (coef_compress != 0) + (coef_res_bits != 3);
+```
+
+The `all_tns_coefs` array contains 4 coefficient tables:
+- Index 0: tns_coef_0_3 (coef_compress=0, coef_res_bits≠3)
+- Index 1: tns_coef_0_4 (coef_compress=0, coef_res_bits=3)
+- Index 2: tns_coef_1_3 (coef_compress≠0, coef_res_bits≠3)
+- Index 3: tns_coef_1_4 (coef_compress≠0, coef_res_bits=3)
+
+When the table_index is calculated incorrectly, the wrong coefficient table is selected. These incorrect coefficients propagate through the TNS decoding process and eventually reach the SBR (Spectral Band Replication) synthesis stage.
+
+**Crash Manifestation:**
+
+In fixed-point arithmetic mode (where `real_t` is `int32_t`), the incorrect TNS coefficients lead to accumulated errors in the audio processing pipeline. When these values reach the `DST4_32` function (Discrete Sine Transform type 4 for 32-point transform) in `libfaad/sbr_dct.c`, the mathematical operations on these corrupted values cause a signed integer overflow at line 816:
+```c
+f289 = f272 + f274;  // 232566383 + 2055740917 overflows int32_t
+```
+
+The maximum value for `int32_t` is 2,147,483,647, but this addition attempts to compute 2,288,307,300, causing undefined behavior.
+
+**Impact:**
+
+- In fixed-point builds, this causes integer overflow with undefined behavior
+- May lead to incorrect audio output, crashes, or potential security issues depending on how the overflow is handled
+- The bug affects AAC audio decoding with TNS enabled
+
+## POV Analysis
+
+The POV file (pov_0.blob, 106 bytes) is a crafted AAC audio stream designed to trigger the vulnerability. From the crash log output, we can see:
+```
+order: 6, coef_compress: 0, coef_res_bits: 3, table_index: 3
+order: 7, coef_compress: 1, coef_res_bits: 4, table_index: 0
+order: 7, coef_compress: 1, coef_res_bits: 4, table_index: 0
+```
+
+The POV carefully crafts TNS parameters that, when processed with the incorrect table_index calculation, select wrong coefficient tables leading to values that eventually overflow during DST4_32 computation.
+
+## Patch Analysis
+
+The patch (patch_0.diff) makes a simple but critical fix to the boolean logic in `libfaad/tns.c`:
+
+```diff
+-    uint8_t table_index = 2 * (coef_compress == 0) + (coef_res_bits == 3);
++    uint8_t table_index = 2 * (coef_compress != 0) + (coef_res_bits != 3);
+```
+
+This fix was developed by Steveice10 and merged in GitHub PR #185 on November 6, 2023 (commit a2df562d63eff10f86480e0449242cbc9601b141). The maintainer noted this type of regression could be prevented with more comprehensive roundtrip testing.
+
+The fix ensures the correct TNS coefficient table is selected based on the `coef_compress` and `coef_res_bits` parameters, preventing the propagation of incorrect values through the audio processing pipeline.
+
+## Recommendations
+- **Suggested CWEs**: [CWE-682, CWE-190, CWE-1325]
+- **Vulnerability Name**: Incorrect TNS Coefficient Table Selection Leading to Integer Overflow
+- **Severity**: Medium to High (causes undefined behavior, potential for security impact in fixed-point builds)
+- **Fix Verification**: The patch correctly implements the boolean logic for table selection
+- **Testing**: Comprehensive roundtrip testing should be added to prevent similar regressions
+
+
+
+======================================================================
+Phase: vuln.yaml Generation
+======================================================================
+
+
+[Agent Response]
+I'll use the vuln-yaml-generator skill to help generate the vuln.yaml file with the correct format.
+
+[Tool] Skill
+  Input: {
+  "skill": "vuln-yaml-generator"
+}
+  Result: Launching skill: vuln-yaml-generator
+
+[Agent Response]
+<command-message>The "vuln-yaml-generator" skill is running</command-message>
+<command-name>vuln-yaml-generator</command-name>
+
+
+[Agent Response]
+Base directory for this skill: /home/acorn421/work/team-atlanta/CRSBench/.claude/skills/vuln-yaml-generator
+
+# Vulnerability YAML Generator
+
+Generate a vuln.yaml file from vulnerability analysis results.
+
+## vuln.yaml Format
+
+Generate a valid YAML file with this structure:
+
+```yaml
+id: {cpv_id}
+
+name: <Short, descriptive vulnerability name>
+
+origin: <1-day or synthetic>
+
+release_date: <MM/DD/YYYY>
+
+references:  # List of URLs (required for 1-day, optional for synthetic)
+- <URL to CVE/OSV/advisory>
+- <URL to another reference if available>
+
+cwes:
+- CWE-XXX
+- CWE-YYY
+
+description: |
+  <Clear, multi-line description of the vulnerability.
+  Include what causes it, where it occurs, and potential impact.>
+
+locations:
+- type: <crash_site or root_cause>
+  path_from_root: <relative/path/from/project/root.c>
+  function_name: <vulnerable_function>
+  startLine: <line_number>
+  startColumn: <column_number>
+  endLine: <line_number>
+  endColumn: <column_number>
+```
+
+## Field Guidelines
+
+### id
+- Must be exactly the provided CPV ID (e.g., `cpv_0`)
+
+### origin
+- Valid values: `1-day` or `synthetic`
+- `1-day`: **ONLY if CVE/OSV ID was found in patch files**
+- `synthetic`: **DEFAULT** - use if no CVE ID in patches
+- ⚠️ DO NOT guess based on web search results
+- ⚠️ If analysis says "synthetic" or no CVE found → use `synthetic`
+
+### release_date
+- Format: `MM/DD/YYYY` (e.g., `02/16/2017`)
+- For 1-day: Official CVE/advisory publication date
+- For synthetic: Use `02/01/2026`
+
+### references
+- List of URLs to vulnerability details (required for 1-day, optional for synthetic)
+- A single vulnerability may have multiple references (CVE + GHSA, etc.)
+- Valid reference sources:
+  - CVE: `https://nvd.nist.gov/vuln/detail/CVE-2017-6009`
+  - OSV: `https://osv.dev/vulnerability/OSV-2021-1234`
+  - GHSA: `https://github.com/advisories/GHSA-xxxx-xxxx-xxxx`
+  - Bug tracker: `https://github.com/project/issues/XXX`
+
+### name
+- Short, descriptive name (max 80 characters)
+- Examples:
+  - "Heap buffer overflow in cr_buf_read"
+  - "Use-after-free in HTTP chunk processing"
+  - "NULL pointer dereference in JSON parser"
+- DO NOT use generic names like "MOCK: cpv_0 vulnerability"
+- **CRITICAL**: Avoid special YAML characters in unquoted values:
+  - DO NOT use colons (`:`) in unquoted field values
+  - If you must include special characters, wrap the entire value in quotes
+
+### cwes
+- List of relevant CWE numbers (1-3 most relevant)
+- Common CWEs:
+  - CWE-787: Out-of-bounds Write
+  - CWE-125: Out-of-bounds Read
+  - CWE-416: Use After Free
+  - CWE-476: NULL Pointer Dereference
+  - CWE-190: Integer Overflow
+  - CWE-122: Heap-based Buffer Overflow
+  - CWE-121: Stack-based Buffer Overflow
+
+### description
+- Clear explanation of the vulnerability
+- Use `|` for multi-line strings
+- Include: type, location, cause, and security impact
+
+### locations
+- At least one location (the primary vulnerable code location)
+- **type** (REQUIRED):
+  - `crash_site`: Where the crash/error occurs (from crash log stack trace)
+  - `root_cause`: Where the underlying defect exists (from patch analysis)
+  - If only one location and it's both, use `crash_site`
+- **EXCLUDE these from locations:**
+  - Harness files (`*_fuzzer.c`, `*_fuzzer.cc`, `LLVMFuzzerTestOneInput`)
+  - ASan/sanitizer functions (`__asan_*`, `__msan_*`, `__ubsan_*`)
+  - Standard library functions (`memcpy`, `malloc`, `free`, etc.)
+  - Compiler runtime (`llvm-project/compiler-rt/*`)
+- **path_from_root**: Relative path from project root (NOT absolute path)
+- **function_name**: Exact function name from crash log
+- **startLine/endLine**: Line range of vulnerable code
+- **startColumn/endColumn**: Column range (use 0 if unknown)
+
+## Output
+
+Output ONLY the vuln.yaml content (no markdown fences, no explanation).
+
+## Example Output
+
+```yaml
+id: cpv_0
+
+name: Heap buffer overflow in cr_buf_read
+
+origin: 1-day
+
+release_date: 02/16/2017
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2017-6009
+
+cwes:
+- CWE-122
+- CWE-787
+
+description: |
+  A heap buffer overflow vulnerability exists in the cr_buf_read function
+  in lib/sendf.c. The function reads data into a buffer without properly
+  checking the buffer size, allowing an attacker to write beyond the
+  allocated memory. This can lead to arbitrary code execution or denial
+  of service.
+
+locations:
+- type: crash_site
+  path_from_root: lib/sendf.c
+  function_name: cr_buf_read
+  startLine: 1298
+  startColumn: 5
+  endLine: 1298
+  endColumn: 45
+- type: root_cause
+  path_from_root: lib/sendf.c
+  function_name: allocate_buffer
+  startLine: 1250
+  startColumn: 1
+  endLine: 1255
+  endColumn: 1
+```
+
+## Validation Checklist
+
+Before outputting, verify:
+- [ ] `id` matches the provided CPV ID
+- [ ] `origin` is either `1-day` or `synthetic`
+- [ ] `release_date` is in `MM/DD/YYYY` format
+- [ ] `references` is a list of valid URLs (required for 1-day, optional for synthetic)
+- [ ] `name` has no unquoted special characters
+- [ ] `cwes` is a non-empty list
+- [ ] `description` is non-empty and uses `|` for multiline
+- [ ] `locations` is a non-empty list
+- [ ] Each location has a valid `type` (crash_site or root_cause)
+- [ ] Each location has `path_from_root` (relative path, not absolute)
+- [ ] Each location has `function_name`
+- [ ] Each location has line/column numbers
+
+
+
+[Agent Response]
+```yaml
+id: cpv_0
+
+name: Incorrect TNS Coefficient Table Selection Leading to Integer Overflow
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+references:
+- https://github.com/knik0/faad2/pull/185
+
+cwes:
+- CWE-682
+- CWE-190
+- CWE-1325
+
+description: |
+  A vulnerability exists in the tns_decode_coef function in libfaad/tns.c due to
+  incorrect boolean logic when calculating the TNS coefficient table index. The
+  function uses equality checks (==) instead of inequality checks (!=) when
+  computing table_index from coef_compress and coef_res_bits parameters. This
+  causes the wrong TNS coefficient table to be selected from the all_tns_coefs
+  array. The incorrect coefficients propagate through the TNS decoding process
+  and eventually reach the SBR synthesis stage. In fixed-point arithmetic mode
+  (where real_t is int32_t), these corrupted values cause a signed integer
+  overflow in the DST4_32 function during spectral band replication, resulting
+  in undefined behavior. This can lead to incorrect audio output, crashes, or
+  potential security issues in AAC audio decoding with TNS enabled.
+
+locations:
+- type: root_cause
+  path_from_root: libfaad/tns.c
+  function_name: tns_decode_coef
+  startLine: 199
+  startColumn: 5
+  endLine: 199
+  endColumn: 70
+- type: crash_site
+  path_from_root: libfaad/sbr_dct.c
+  function_name: DST4_32
+  startLine: 816
+  startColumn: 5
+  endLine: 816
+  endColumn: 26
+```
+
+
+
+==================================================
+Fix Attempt 1
+==================================================
+
+======================================================================
+Phase: vuln.yaml Fix
+======================================================================
+
+
+[Agent Response]
+```yaml
+id: cpv_0
+
+name: Incorrect TNS Coefficient Table Selection Leading to Integer Overflow
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+references:
+- https://github.com/knik0/faad2/pull/185
+
+cwes:
+- CWE-682
+- CWE-190
+- CWE-1325
+
+description: |
+  A vulnerability exists in the tns_decode_coef function in libfaad/tns.c due to
+  incorrect boolean logic when calculating the TNS coefficient table index. The
+  function uses equality checks (==) instead of inequality checks (!=) when
+  computing table_index from coef_compress and coef_res_bits parameters. This
+  causes the wrong TNS coefficient table to be selected from the all_tns_coefs
+  array. The incorrect coefficients propagate through the TNS decoding process
+  and eventually reach the SBR synthesis stage. In fixed-point arithmetic mode
+  (where real_t is int32_t), these corrupted values cause a signed integer
+  overflow in the DST4_32 function during spectral band replication, resulting
+  in undefined behavior. This can lead to incorrect audio output, crashes, or
+  potential security issues in AAC audio decoding with TNS enabled.
+
+locations:
+- type: root_cause
+  path_from_root: libfaad/tns.c
+  function_name: tns_decode_coef
+  startLine: 199
+  startColumn: 5
+  endLine: 199
+  endColumn: 70
+- type: crash_site
+  path_from_root: libfaad/sbr_dct.c
+  function_name: DST4_32
+  startLine: 816
+  startColumn: 5
+  endLine: 816
+  endColumn: 26
+```
+
+

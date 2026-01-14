@@ -1,24 +1,34 @@
 id: cpv_1
 
-name: Stack Overflow via Unbounded Recursion in BinaryStreamReader.readToken()
+name: Stack Overflow in XStream BinaryStreamReader via Recursive Token Processing
+
+origin: 1-day
+
+release_date: 11/07/2024
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2024-47072
+- https://github.com/x-stream/xstream/security/advisories/GHSA-hfq9-hggm-c56q
+- https://x-stream.github.io/CVE-2024-47072.html
 
 cwes:
 - CWE-674
-- CWE-770
 - CWE-400
+- CWE-1325
 
 description: |
-  A stack overflow vulnerability caused by unbounded recursion in the BinaryStreamReader.readToken() 
-  method of the XStream library. When processing binary XML stream data, the method recursively calls 
-  itself without any depth limit when encountering TYPE_MAP_ID_TO_VALUE tokens. An attacker can craft 
-  a malicious binary stream containing thousands of consecutive mapping tokens, causing each token to 
-  trigger a recursive call. This exhausts the Java call stack, resulting in a StackOverflowError and 
-  denial of service. The vulnerability occurs at line 158 where the method returns readToken() 
-  recursively after processing a mapping token, with no iteration count check or depth limit to 
-  prevent stack exhaustion.
+  A Denial of Service vulnerability via stack overflow exists in XStream's
+  BinaryStreamReader class (versions up to 1.4.20) when using the
+  BinaryStreamDriver. The readToken() method uses unbounded recursion to
+  process TYPE_MAP_ID_TO_VALUE tokens. An attacker can craft a malicious
+  binary input stream containing a large sequence of consecutive mapping
+  tokens, causing each token to trigger a recursive call. A sufficiently
+  long sequence will exhaust the Java call stack, resulting in a
+  StackOverflowError and complete denial of service.
 
 locations:
-- path_from_root: xstream/src/java/com/thoughtworks/xstream/io/binary/BinaryStreamReader.java
+- type: crash_site
+  path_from_root: xstream/src/java/com/thoughtworks/xstream/io/binary/BinaryStreamReader.java
   function_name: readToken
   startLine: 158
   startColumn: 0

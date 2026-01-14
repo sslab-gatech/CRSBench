@@ -1,29 +1,33 @@
 id: cpv_0
 
-name: OSI Options Dissector Global Buffer Overflow via Type Mismatch
+name: OSI Options Dissector Type Mismatch Global Buffer Overflow
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
-- CWE-125
 - CWE-843
+- CWE-125
 - CWE-787
 
 description: |
-  A global buffer overflow vulnerability caused by a type mismatch between an extern 
-  declaration and its actual definition. The variable `clnp_decode_atn_options` is 
-  defined as a 1-byte `bool` in packet-clnp.c but accessed as a 4-byte `gboolean` 
-  through an extern declaration in packet-osi-options.c. When the dissector processes 
-  OSI option packets with the OSI_OPT_SECURITY option, it evaluates the condition 
-  `if (clnp_decode_atn_options)` at line 519, which attempts to read 4 bytes from a 
-  1-byte variable. This reads 3 bytes beyond the allocated space into adjacent global 
-  memory, potentially causing information disclosure, memory corruption, or denial of 
-  service. The vulnerability was introduced during type modernization from `gboolean` 
-  to C99 `bool`, where the extern declaration was updated but the ABI mismatch was 
-  not properly handled.
+  A global buffer overflow vulnerability exists in Wireshark's OSI options dissector due to a type mismatch between an extern declaration and its actual definition. The clnp_decode_atn_options variable is declared as gboolean (typically 4 bytes) in packet-osi-options.c but defined as bool (1 byte) in packet-clnp.c. When the dissector evaluates this variable at line 519 during OSI security option processing, it attempts to read 4 bytes from a 1-byte variable, causing a 3-byte out-of-bounds read that accesses adjacent global memory.
+  
+  This vulnerability can be triggered when processing specially crafted OSI/ESIS packets with security options (type 0xc5), leading to potential information disclosure through memory leakage or application crashes. The overflow affects the ESIS (End System To Intermediate System) protocol dissector when handling ATN (Aeronautical Telecommunication Network) security label options.
 
 locations:
-- path_from_root: epan/dissectors/packet-osi-options.c
+- type: crash_site
+  path_from_root: epan/dissectors/packet-osi-options.c
   function_name: dissect_osi_options
   startLine: 519
   startColumn: 16
   endLine: 519
   endColumn: 16
+- type: root_cause
+  path_from_root: epan/dissectors/packet-osi-options.c
+  function_name: dissect_osi_options
+  startLine: 108
+  startColumn: 1
+  endLine: 108
+  endColumn: 50

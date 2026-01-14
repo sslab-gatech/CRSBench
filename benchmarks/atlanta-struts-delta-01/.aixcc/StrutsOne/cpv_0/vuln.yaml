@@ -1,37 +1,39 @@
 id: cpv_0
 
-name: Expression Language Injection in Apache Struts Tiles Attribute Handling
+name: Expression Language Injection in Apache Tiles Attribute setValue
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+references: []
 
 cwes:
 - CWE-917
-- CWE-95
 - CWE-94
 
 description: |
-  An Expression Language (EL) Injection vulnerability exists in the Apache Struts Tiles plugin
-  that allows Remote Code Execution (RCE). The vulnerability is located in the Attribute.setValue()
-  method, which automatically converts user-controlled string values into Expression objects.
-  
-  The vulnerable code attempts to sanitize EL expressions by replacing "${" with "\\${", but this
-  sanitization is insufficient because:
-  1. Alternative EL syntax like "#{" completely bypasses the sanitization
-  2. The Expression object is still created and evaluated later in the execution flow
-  3. User-controlled strings are automatically interpreted as executable code
-  
-  When an attacker provides malicious input containing EL expressions (e.g., through the 'name'
-  parameter), the code creates an Expression object, sets the original value to null, and stores
-  the expression in expressionObject. During evaluation by ELAttributeEvaluator, the malicious
-  expression is executed with full Java reflection capabilities, allowing arbitrary code execution.
-  
-  The patch removes the automatic conversion logic entirely, ensuring that user input remains as
-  plain String values and only explicitly set Expression objects are evaluated. This separates
-  trusted expression sources from untrusted user input, following the security principle of never
-  automatically interpreting user input as code.
+  An Expression Language (EL) injection vulnerability exists in the Apache Tiles
+  framework's Attribute.setValue() method. The method automatically converts string
+  values into EL expressions with insufficient escaping, allowing attackers to inject
+  malicious EL code. When the expression is later evaluated by ELAttributeEvaluator.evaluate(),
+  it executes with full application context access, enabling remote code execution.
+  Attackers can use alternative EL syntax (#{...}) to bypass the insufficient escaping
+  mechanism and achieve arbitrary code execution, data exfiltration, and complete
+  system compromise.
 
 locations:
-- path_from_root: plugins/tiles/src/main/java/org/apache/tiles/api/Attribute.java
+- type: root_cause
+  path_from_root: plugins/tiles/src/main/java/org/apache/tiles/api/Attribute.java
   function_name: setValue
-  startLine: 259
-  startColumn: 0
-  endLine: 268
-  endColumn: 0
+  startLine: 235
+  startColumn: 1
+  endLine: 244
+  endColumn: 6
+- type: crash_site
+  path_from_root: plugins/tiles/src/main/java/org/apache/tiles/el/ELAttributeEvaluator.java
+  function_name: evaluate
+  startLine: 82
+  startColumn: 1
+  endLine: 91
+  endColumn: 6

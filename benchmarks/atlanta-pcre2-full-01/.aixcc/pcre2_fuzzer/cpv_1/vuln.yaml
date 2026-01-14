@@ -1,31 +1,38 @@
 id: cpv_1
 
-name: Heap Buffer Overflow in PCRE2 Lookbehind Group Length Calculation
+name: PCRE2 Lookbehind Group Info Buffer Overflow
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-122
 - CWE-787
-- CWE-193
+- CWE-131
 
 description: |
-  A heap-based buffer overflow vulnerability exists in the PCRE2 regular expression
-  compilation library within the get_grouplength() function. The vulnerability is caused
-  by an off-by-one error in the buffer allocation calculation at line 10405 of
-  pcre2_compile.c. When allocating the groupinfo array to store metadata about capturing
-  groups in lookbehind assertions, the code uses the formula (2 * cb.bracount + 1) instead
-  of the correct (2 * (cb.bracount + 1)). Since each group requires 2 uint32_t entries
-  and groups are numbered from 0 to cb.bracount inclusive, this causes the allocation to
-  be 1 element (4 bytes) too small. When processing deeply nested capturing groups in a
-  lookbehind assertion, the function attempts to write to indices 2 * cb.bracount (gi[0])
-  and 2 * cb.bracount + 1 (gi[1]). The write to gi[1] exceeds the allocated buffer by 4
-  bytes, resulting in a heap buffer overflow. This can lead to memory corruption,
-  application crashes, and potential code execution if critical heap metadata or function
-  pointers are overwritten.
+  A heap-based buffer overflow vulnerability exists in PCRE2's regular expression
+  compiler when processing lookbehind assertions with nested groups. The vulnerability
+  arises from an off-by-one error in the buffer size calculation for the groupinfo
+  array. The code allocates space for (2 * cb.bracount + 1) elements but can access
+  cb.groupinfo[2*N + 1] when group == cb.bracount, writing 4 bytes beyond the
+  allocated buffer. This can lead to heap corruption and potential arbitrary code
+  execution when processing specially crafted regex patterns with nested capturing
+  groups in lookbehind assertions.
 
 locations:
-- path_from_root: src/pcre2_compile.c
+- type: crash_site
+  path_from_root: src/pcre2_compile.c
   function_name: get_grouplength
-  startLine: 9278
-  startColumn: 9
+  startLine: 9277
+  startColumn: 3
   endLine: 9278
-  endColumn: 9
+  endColumn: 22
+- type: root_cause
+  path_from_root: src/pcre2_compile.c
+  function_name: pcre2_compile_8
+  startLine: 10404
+  startColumn: 5
+  endLine: 10405
+  endColumn: 70

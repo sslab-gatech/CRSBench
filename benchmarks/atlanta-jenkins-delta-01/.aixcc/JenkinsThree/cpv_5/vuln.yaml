@@ -1,26 +1,28 @@
 id: cpv_5
 
-name: SQL Injection in Jenkins Toy Plugin UserNameAction.doGetName Method
+name: SQL Injection in UserNameAction.doGetName via unsanitized request parameters
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-89
 - CWE-943
 
 description: |
-  A SQL injection vulnerability exists in the doGetName method of the UserNameAction class
-  in the Jenkins toy-plugin. The method accepts user-controlled parameters (ID and PW) from
-  HTTP request parameters and directly concatenates them into a SQL query without sanitization
-  or parameterization. This allows attackers to inject malicious SQL commands by supplying
-  special characters like single quotes in the ID parameter, breaking out of the SQL string
-  literal context. The vulnerability can be exploited to bypass authentication, extract
-  sensitive data including user credentials, modify or delete database records, and potentially
-  execute arbitrary SQL commands depending on database permissions. The vulnerability is fixed
-  by replacing string concatenation with parameterized queries using PreparedStatement.
+  A SQL injection vulnerability exists in the doGetName method of the UserNameAction
+  class. The vulnerability occurs because user-supplied input from HTTP request
+  parameters (ID and PW) is directly concatenated into a SQL query string without
+  proper sanitization or parameterization. An attacker can manipulate these parameters
+  to inject arbitrary SQL code, potentially leading to unauthorized data access,
+  authentication bypass, data modification, or complete database compromise.
 
 locations:
-- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java
+- type: crash_site
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java
   function_name: doGetName
-  startLine: 71
-  endLine: 71
+  startLine: 74
   startColumn: 0
+  endLine: 74
   endColumn: 0

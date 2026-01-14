@@ -1,29 +1,19 @@
-I'll analyze the vulnerability for cpv_11 in the JenkinsThreeFDP harness. Let me start by examining the crash logs from the specified CPV directory.Now let me read the crash log file:Great! I found the crash log. Now let me also check the vuln.yaml file and explore the other directories for more context:Now let me read the POV blob and patch to understand the vulnerability better:Now let me locate and read the vulnerable source file to understand the full context:The file appears to be the patched version. Let me check if there are other versions or search for the actual vulnerable code. Let me also check the meta.yaml to understand the project structure:Let me search the benchmarks directory for the OSS-Fuzz configuration:Good! Now let me look for git history or the base version to understand what the vulnerable code looked like before the patch. Let me check the git commits mentioned in meta.yaml:This is still incomplete. Let me check the vulnerable commit that includes cpv_11:Perfect! Let me check the commit that adds the vulnerability (between df052da and 43fac74):Excellent! Now I have the vulnerable code. Let me also read the harness to understand how it's being tested:Perfect! Now I have all the information I need. Let me analyze the POV blob content more carefully to understand the input format:
-
-The POV blob contains: `ip * skip TrueM   `
-
-Based on the harness code (line 289), the input is split by null bytes (`\0`) into 4 parts. Looking at lines 295-296, these parts are used as:
-- parts[0] = parameter name 1 (likely "ip")
-- parts[1] = parameter value 1 (likely "*")
-- parts[2] = parameter name 2 (likely "skip")
-- parts[3] = parameter value 2 (likely "True")
-
-Now I have all the information needed to write the comprehensive vulnerability analysis:
-
 # Vulnerability Analysis for cpv_11
 
 ## Summary
 - **CPV ID**: cpv_11
 - **Harness**: JenkinsThreeFDP
 - **Vulnerability Type**: Regular Expression Injection (ReDoS)
-- **Severity**: Low (as classified by Jazzer sanitizer)
+- **Origin**: synthetic
+- **Release Date**: 02/01/2026
+- **References**: None (synthetic vulnerability)
 
 ## Crash Log Analysis
 - **Error Type**: FuzzerSecurityIssueLow: Regular Expression Injection
-- **Crash Location**: io/jenkins/plugins/toyplugin/AccessFilter.java:87
-- **Vulnerable Function**: doGet
+- **Crash Location**: `io/jenkins/plugins/toyplugin/AccessFilter.java:87`
+- **Vulnerable Function**: `doGet`
 - **DEDUP Token**: cc0343168b8888d0
-- **Root Cause**: PatternSyntaxException - Dangling meta character '*'
+- **Root Cause**: Caused by `java.util.regex.PatternSyntaxException: Dangling meta character '*' near index 3`
 
 ### Stack Trace
 ```
@@ -40,130 +30,119 @@ Pattern.quote(...).
 Caused by: java.util.regex.PatternSyntaxException: Dangling meta character '*' near index 3
 .*(*).*
    ^
+	at java.base/java.util.regex.Pattern.error(Pattern.java:2028)
+	at java.base/java.util.regex.Pattern.sequence(Pattern.java:2203)
+	at java.base/java.util.regex.Pattern.expr(Pattern.java:2069)
+	at java.base/java.util.regex.Pattern.group0(Pattern.java:3050)
+	at java.base/java.util.regex.Pattern.sequence(Pattern.java:2124)
+	at java.base/java.util.regex.Pattern.expr(Pattern.java:2069)
+	at java.base/java.util.regex.Pattern.compile(Pattern.java:1783)
+	at java.base/java.util.regex.Pattern.<init>(Pattern.java:1430)
+	at java.base/java.util.regex.Pattern.compile(Pattern.java:1069)
 ```
 
-## Vulnerable Code Location
-- **File Path**: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AccessFilter.java
-- **Function**: doGet
-- **Line Range**: 87
-- **Commit**: Between df052da588e9f49f9815f540fc75e72c9369f411 and 43fac74cc136c5c3b7446c0bd0bf125a9f4856da
+## Vulnerable Code Location(s)
+
+### Location 1 (crash_site)
+- **Type**: crash_site
+- **File Path**: `plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AccessFilter.java`
+- **Function**: `doGet`
+- **Line Range**: 87-87
+- **Column Range**: 1-60
+
+### Location 2 (root_cause)
+- **Type**: root_cause
+- **File Path**: `plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AccessFilter.java`
+- **Function**: `doGet`
+- **Line Range**: 79-79
+- **Column Range**: 1-60
 
 ### Code Context
-```java
-@RequirePOST
-public void doGet(StaplerRequest request, StaplerResponse response) throws IOException {
-    if (!request.hasParameter("ip")) {
-        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-        return;
-    }
-    String ip = request.getParameter("ip");
-    boolean skip = false;
-    boolean admin = getJenkins().hasPermission(Jenkins.ADMINISTER);
-    if (admin || request.hasParameter("skip")) {  // Line 79 - VULNERABLE AUTHORIZATION
-        skip = Boolean.parseBoolean(request.getParameter("skip"));
-    }
-    if (!isValidIPFormat(ip) && !skip) {
-        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-        return;
-    }
 
-    Pattern pattern = Pattern.compile(".*(" + ip + ").*");  // Line 87 - VULNERABLE REGEX INJECTION
-    List<String> result = new ArrayList<>();
-    for (String data : access) {
-        if (!pattern.matcher(data).matches()) {
-            continue;
-        }
-        result.add(data);
-    }
-    Gson gson = new Gson();
-    response.getWriter().write(gson.toJson(result));
-}
-```
-
-## CWE Classification
-- **CWE-1333**: Inefficient Regular Expression Complexity (Primary)
-- **CWE-400**: Uncontrolled Resource Consumption
-- **CWE-20**: Improper Input Validation
-- **CWE-862**: Missing Authorization (Secondary - related to the bypass allowing the injection)
-
-## Vulnerability Description
-
-This vulnerability involves **two distinct security issues** that work together:
-
-### 1. Regular Expression Injection (Primary Vulnerability)
-At line 87 in `AccessFilter.java`, user-controlled input from the `ip` parameter is directly concatenated into a regular expression pattern without sanitization:
-
+**Crash Site (Line 87):**
 ```java
 Pattern pattern = Pattern.compile(".*(" + ip + ").*");
 ```
 
-An attacker can inject regex metacharacters (such as `*`, `+`, `(`, `)`, `[`, `]`, etc.) that cause:
-- **PatternSyntaxException**: Malformed regex patterns crash the application
-- **ReDoS (Regular Expression Denial of Service)**: Carefully crafted patterns can cause catastrophic backtracking, consuming excessive CPU time
-
-The proof-of-vulnerability demonstrates this with the input `*`, which creates the invalid pattern `.*(*).*`, causing a PatternSyntaxException due to a "dangling meta character."
-
-### 2. Authorization Bypass (Secondary Vulnerability)
-At line 79, there is a logical flaw in the authorization check:
-
+**Root Cause (Line 79):**
 ```java
 if (admin || request.hasParameter("skip")) {
     skip = Boolean.parseBoolean(request.getParameter("skip"));
 }
 ```
 
-The condition uses **OR logic** (`||`) instead of **AND logic** (`&&`), which means:
-- **Non-admin users** can bypass IP validation by simply including a `skip` parameter in their request
-- This allows attackers to supply arbitrary `ip` values (including regex metacharacters) without them being validated by `isValidIPFormat()`
+The vulnerability has two components:
+1. **Authorization Bypass (Line 79)**: The logic uses `||` (OR) instead of `&&` (AND), allowing non-admin users to bypass IP validation by simply providing a "skip" parameter
+2. **Regex Injection (Line 87)**: Unsanitized user input (`ip` parameter) is directly concatenated into a regex pattern, allowing injection of malicious regex metacharacters
 
-The patch changes this to:
+## CWE Classification
+- **CWE-185**: Incorrect Regular Expression
+- **CWE-1333**: Inefficient Regular Expression Complexity (ReDoS)
+- **CWE-862**: Missing Authorization (for the skip bypass)
+
+## Vulnerability Description
+
+This vulnerability consists of two related security issues in the `AccessFilter.doGet()` method:
+
+### 1. Authorization Bypass
+The code at line 79 uses an OR condition (`admin || request.hasParameter("skip")`) which allows any non-admin user to bypass IP validation by simply providing a "skip" parameter. The intended logic (shown in the patch) should use AND (`admin && request.hasParameter("skip")`) to ensure only admins can skip validation.
+
+### 2. Regular Expression Injection
+At line 87, the user-controlled `ip` parameter is directly concatenated into a regex pattern without sanitization:
 ```java
-if (admin && request.hasParameter("skip")) {  // Requires BOTH admin AND skip parameter
+Pattern pattern = Pattern.compile(".*(" + ip + ").*");
 ```
 
-### Attack Flow
-1. Attacker sends request with parameters: `ip=*&skip=true`
-2. Authorization check passes due to OR logic (non-admin with `skip` parameter)
-3. IP validation is bypassed (skip=true)
-4. Malicious `ip` value is concatenated into regex pattern
-5. Pattern.compile() attempts to compile `.*(*).*`
-6. PatternSyntaxException occurs, or worse, ReDoS attack succeeds
+When a non-admin attacker provides a malicious input containing regex metacharacters (e.g., `*`, `(`, `)`, etc.) and sets `skip=True`, the authorization bypass allows them to skip IP validation, and their malicious input gets compiled as a regex pattern. This can cause:
+- **PatternSyntaxException**: If the input contains invalid regex syntax (as seen in the crash)
+- **ReDoS (Regular Expression Denial of Service)**: Crafted patterns can cause catastrophic backtracking, consuming excessive CPU time
+- **Logic bypass**: Malicious patterns can match unintended data
+
+**Attack Vector:**
+The POV blob shows the attack payload:
+```
+ip=*&skip=True
+```
+
+This exploits both vulnerabilities:
+1. The `skip=True` parameter bypasses IP validation due to the authorization logic flaw
+2. The `*` character in the IP parameter causes a regex syntax error when compiled
 
 ## POV Analysis
-The proof-of-vulnerability input demonstrates the vulnerability:
-- **Input**: `ip * skip TrueM   ` (split by null bytes into 4 parts)
-- **Parsed as**:
-  - Parameter name: `ip`
-  - Parameter value: `*` (regex metacharacter)
-  - Parameter name: `skip`
-  - Parameter value: `True` (bypasses admin check)
-- **Result**: Creates invalid regex pattern `.*(*).*`, triggering PatternSyntaxException
 
-This POV demonstrates both:
-1. The authorization bypass (non-admin can set skip=True)
-2. The regex injection (unescaped `*` causes syntax error)
+The POV file (`pov_0.blob`) contains the following parameters (decoded from hex):
+- `ip=*` (hex: `69 70 00 2a`)
+- `skip=True` (hex: `73 6b 69 70 00 54 72 75 65`)
+
+This payload:
+1. Sets `ip` to `*`, a regex metacharacter that will cause a PatternSyntaxException
+2. Sets `skip` to `True` to bypass the IP validation check (exploiting the authorization flaw)
+3. Results in the pattern `.*(*).* ` being compiled, which contains a dangling metacharacter
 
 ## Patch Analysis
-The patch addresses **only the authorization bypass**:
+
+The patch file shows the fix at line 79 (within the root_cause location):
 
 ```diff
 -        if (admin || request.hasParameter("skip")) {
 +        if (admin && request.hasParameter("skip")) {
 ```
 
-**Important Note**: This patch does NOT fix the regex injection vulnerability. It only prevents non-admin users from exploiting it. The proper fix should also sanitize the `ip` parameter:
+This changes the logic from OR to AND, ensuring that:
+- Only administrators can use the "skip" parameter
+- Non-admin users cannot bypass IP validation regardless of what parameters they provide
 
-```java
-Pattern pattern = Pattern.compile(".*(" + Pattern.quote(ip) + ").*");
-```
+**Note**: The patch does NOT add `Pattern.quote()` to sanitize the regex input. This means:
+- The authorization bypass is fixed (non-admins can't skip validation)
+- The regex injection at line 87 still exists for admin users
+- However, line 82 validation (`!isValidIPFormat(ip)`) now executes for non-admins, preventing malicious regex input from reaching line 87
 
-or validate/sanitize the input to remove regex metacharacters before compilation.
+The fix is effective because:
+1. Non-admins must pass `isValidIPFormat(ip)` check (line 82)
+2. The `isValidIPFormat()` method uses `InetAddress.getByName(ip)` which rejects regex metacharacters
+3. Only admins (trusted users) can skip validation and potentially inject regex patterns
 
 ## Recommendations
-- **Primary CWEs**: CWE-1333 (Inefficient Regular Expression Complexity), CWE-400 (Uncontrolled Resource Consumption), CWE-20 (Improper Input Validation)
-- **Secondary CWE**: CWE-862 (Missing Authorization)
-- **Vulnerability Name**: Regular Expression Injection with Authorization Bypass in Jenkins AccessFilter
-- **Suggested Complete Fix**:
-  1. Apply the authorization patch (admin && skip)
-  2. Sanitize regex input using `Pattern.quote(ip)` or validate input to reject regex metacharacters
-  3. Implement input validation to ensure `ip` parameter contains only valid IP address characters
+- **Suggested CWEs**: [CWE-185, CWE-1333, CWE-862]
+- **Vulnerability Name**: Regular Expression Injection via Authorization Bypass in AccessFilter
+- **Additional Hardening**: Consider using `Pattern.quote(ip)` at line 87 to escape all regex metacharacters, even for admin users: `Pattern pattern = Pattern.compile(".*(" + Pattern.quote(ip) + ").*");`

@@ -1,32 +1,38 @@
 id: cpv_1
 
-name: Apache ActiveMQ OpenWire Protocol Arbitrary Class Instantiation
+name: Apache ActiveMQ OpenWire Unsafe Deserialization Remote Code Execution
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://github.com/advisories/GHSA-crg9-44h2-xw35
+- https://osv.dev/vulnerability/BIT-activemq-2023-46604
+- https://activemq.apache.org/news/cve-2023-46604
 
 cwes:
-- CWE-470
 - CWE-502
-- CWE-94
+- CWE-470
+- CWE-094
 
 description: |
-  The vulnerability exists in the createThrowable() method within BaseDataStreamMarshaller.java
-  across multiple OpenWire protocol versions. The method accepts an attacker-controlled className
-  string from network data and uses it directly in a Class.forName() call without validation.
-  
-  When an OpenWire protocol message containing an ExceptionResponse is unmarshalled, the exception's
-  class name is read from untrusted input. The code then uses Class.forName() to load the specified
-  class and invokes its constructor with an attacker-controlled message string. This allows an
-  attacker to instantiate arbitrary classes that have a constructor accepting a single String
-  parameter, potentially achieving Remote Code Execution (RCE) depending on available classes on
-  the classpath.
-  
-  The attack vector is through network-accessible OpenWire protocol endpoints, requiring no
-  authentication or user interaction. Successful exploitation could lead to complete server
-  compromise, data theft or manipulation, lateral movement in the network, or denial of service.
+  A critical remote code execution vulnerability exists in Apache ActiveMQ's
+  OpenWire protocol implementation. The createThrowable method in
+  BaseDataStreamMarshaller.java accepts an externally-controlled class name
+  and instantiates it using reflection without validating that the class is
+  actually a subclass of Throwable. An attacker with network access can send
+  a malicious OpenWire ExceptionResponse message specifying an arbitrary class
+  name and constructor argument, causing the system to instantiate that class
+  with attacker-controlled parameters. This allows complete system compromise
+  through remote code execution without requiring authentication.
 
 locations:
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v2/BaseDataStreamMarshaller.java
+- type: root_cause
+  path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v2/BaseDataStreamMarshaller.java
   function_name: createThrowable
   startLine: 229
-  endLine: 240
-  startColumn: 0
-  endColumn: 0
+  startColumn: 1
+  endLine: 239
+  endColumn: 6

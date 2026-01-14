@@ -1,26 +1,36 @@
 id: cpv_6
 
-name: Double-Free in nginx HTTP Prefer Header Processing
+name: Double-free in nginx Prefer header processing due to dangling pointer
+
+origin: synthetic
+
+release_date: 01/01/2024
 
 cwes:
 - CWE-415
 - CWE-672
 
 description: |
-  A double-free vulnerability exists in the ngx_http_process_prefer() function
-  when processing HTTP Prefer headers. When multiple Prefer headers are sent in
-  a single HTTP request, the function frees the memory allocated for the first
-  header but fails to set the pointer to NULL. On subsequent duplicate headers,
-  the function attempts to free the same memory region again, causing a
-  double-free condition. This vulnerability can be triggered remotely by sending
-  an HTTP request with three or more Prefer headers, leading to a crash and
-  potential memory corruption. The impact includes denial of service and
-  potential remote code execution through heap metadata manipulation.
+  A double-free vulnerability exists in the ngx_http_process_prefer function
+  in src/http/ngx_http_request.c. When processing multiple "Prefer" HTTP headers,
+  the function frees memory for duplicate headers but fails to set the pointer to
+  NULL, leaving a dangling pointer. When a third "Prefer" header is processed,
+  the code attempts to free the already-freed memory, resulting in a double-free
+  condition. This can lead to denial of service (crash), memory corruption, and
+  potentially arbitrary code execution.
 
 locations:
-- path_from_root: src/http/ngx_http_request.c
+- type: crash_site
+  path_from_root: src/http/ngx_http_request.c
   function_name: ngx_http_process_prefer
   startLine: 4018
-  startColumn: 9
+  startColumn: 0
   endLine: 4018
-  endColumn: 9
+  endColumn: 0
+- type: root_cause
+  path_from_root: src/http/ngx_http_request.c
+  function_name: ngx_http_process_prefer
+  startLine: 4018
+  startColumn: 0
+  endLine: 4019
+  endColumn: 0

@@ -1,32 +1,37 @@
 id: cpv_0
 
-name: Out-of-bounds write in track_set_index due to missing negative index validation
+name: Out-of-bounds array write via negative index in track_set_index
+
+origin: 1-day
+
+release_date: 10/09/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-43641
+- https://github.com/advisories/GHSA-5982-x7hv-r9cj
+- https://securitylab.github.com/advisories/GHSL-2023-197_libcue/
+- https://github.com/lipnitsk/libcue/commit/fdf72c8bded8d24cfa0608b8e97f2eed210a920e
 
 cwes:
 - CWE-787
 - CWE-129
-- CWE-120
 
 description: |
-  An out-of-bounds write vulnerability exists in the libcue library's CUE sheet parser.
-  The vulnerability occurs in the track_set_index() function in cd.c at line 347.
-  
-  The function accepts an integer index parameter but only validates that it doesn't exceed
-  MAXINDEX (99), failing to check if the index is negative. This allows an attacker to provide
-  a malicious large or negative index value that bypasses the bounds check.
-  
-  When parsing a CUE file with an extremely large INDEX value (e.g., INDEX 4294567296),
-  the array access track->index[i] writes to memory far outside the bounds of the allocated
-  100-element array. This causes a segmentation fault due to writing to an invalid memory address.
-  
-  Impact includes memory corruption, potential arbitrary code execution if the attacker can
-  control the write location, and denial of service through application crashes when processing
-  untrusted CUE files.
+  An out-of-bounds array write vulnerability exists in the track_set_index
+  function in cd.c. The function accepts an integer index parameter but only
+  validates that it doesn't exceed MAXINDEX (99), failing to check for negative
+  values. When parsing malicious CUE files with large INDEX values, atoi()
+  converts them to negative integers due to integer overflow. These negative
+  indices bypass the bounds check and cause out-of-bounds memory writes to
+  track->index[i]. This vulnerability allows for one-click Remote Code Execution
+  on GNOME Linux systems when malicious .cue files are automatically scanned by
+  tracker-miners. CVSS Score: 8.8 (HIGH).
 
 locations:
-- path_from_root: cd.c
+- type: root_cause
+  path_from_root: cd.c
   function_name: track_set_index
-  startLine: 347
-  startColumn: 18
+  startLine: 342
+  startColumn: 1
   endLine: 347
-  endColumn: 18
+  endColumn: 23

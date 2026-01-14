@@ -1,28 +1,35 @@
 id: cpv_0
 
-name: Regular Expression Denial of Service in Template Expression Parser
+name: ReDoS via Regex Stack Overflow in Expression Parsing
+
+origin: 1-day
+
+release_date: 09/05/2023
+
+references:
+- https://github.com/OpenFeign/feign/pull/2150
 
 cwes:
-- CWE-1333
 - CWE-400
+- CWE-1333
 - CWE-674
 
 description: |
-  A Regular Expression Denial of Service (ReDoS) vulnerability exists in the Feign HTTP client
-  library's template expression parser. The vulnerability is in the VARIABLE_LIST_PATTERN regex
-  used to validate URI template variable names according to RFC 6570. The pattern contains nested
-  quantifiers and overlapping character classes that create exponential backtracking behavior when
-  processing malicious input. When an attacker provides an extremely long input string (e.g., 65,539
-  characters) consisting of characters that match the pattern, the regex engine enters catastrophic
-  backtracking, causing excessive CPU consumption and ultimately a StackOverflowError due to deep
-  recursion in the regex matching algorithm. This results in a denial of service as the application
-  becomes unresponsive or crashes. The vulnerability is triggered through the BodyTemplate.create()
-  API when parsing user-controlled template strings.
+  A Regular Expression Denial of Service (ReDoS) vulnerability exists in the
+  Expressions.create method in core/src/main/java/feign/template/Expressions.java.
+  The EXPRESSION_PATTERN and VARIABLE_LIST_PATTERN regex patterns contain complex
+  structures with repetitive alternative paths and nested quantifiers. When applied
+  to very long input strings (especially crafted malicious inputs), the Java regex
+  engine's backtracking algorithm consumes excessive stack space, leading to a
+  StackOverflowError. An attacker can trigger this by providing a maliciously crafted
+  expression template with a very long string of repeated characters, causing the
+  application to crash and resulting in denial of service.
 
 locations:
-- path_from_root: core/src/main/java/feign/template/Expressions.java
-  function_name: isSimpleExpression
-  startLine: 220
-  endLine: 225
-  startColumn: 0
-  endColumn: 0
+- type: root_cause
+  path_from_root: core/src/main/java/feign/template/Expressions.java
+  function_name: create
+  startLine: 63
+  startColumn: 1
+  endLine: 75
+  endColumn: 80

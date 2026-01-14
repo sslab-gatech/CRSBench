@@ -1,34 +1,41 @@
 id: cpv_1
 
-name: Integer Overflow in Fixed-Point Power-of-Two Calculation
+name: Illegal Instruction in pow2_fix Due to Excessive Left Shift
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
+- CWE-1335
 - CWE-190
-- CWE-681
-- CWE-704
+- CWE-758
 
 description: |
-  This vulnerability occurs in the pow2_fix function in libfaad/common.c when processing
-  fixed-point arithmetic in the FAAD2 AAC decoder with DRM support. The function computes
-  2^val using fixed-point arithmetic and extracts the integer part by right-shifting by
-  REAL_BITS (14 bits). When the whole number part is greater than or equal to 17, the
-  subsequent left shift operation (retval = 1 << whole) causes undefined behavior on
-  32-bit integers. For 32-bit signed integers, shifting left by 17 or more positions can
-  result in overflow beyond the sign bit or undefined behavior per the C standard.
-  
-  The vulnerability is triggered through the AAC/DRM audio decoding path when malformed
-  AAC audio data with DRM encoding is processed. The SBR (Spectral Band Replication)
-  decoder's hf_adjustment function computes gain values (G_lim, G_boost) that are passed
-  to pow2_fix without proper bounds checking. An attacker can craft audio data that
-  produces gain values resulting in whole >= 17, causing an illegal instruction and
-  immediate program termination (denial of service). In builds without the fuzzing trap
-  instruction, the underlying integer overflow could potentially be exploited to cause
-  memory corruption.
+  A vulnerability exists in the pow2_fix function in libfaad/common.c when
+  processing AAC audio data with specific parameters. The issue involves
+  undefined behavior in a left shift operation where the function calculates
+  whole = (val >> REAL_BITS) to extract the integer portion of a fixed-point
+  value. When whole >= 17 (or larger values approaching 31), the subsequent
+  operation retval = 1 << whole causes undefined behavior because left-shifting
+  a 32-bit integer by 31 or more bits is undefined in C. The original fuzzing
+  build mode check used __builtin_trap() to immediately crash the program,
+  which triggered an illegal instruction (SIGILL). This can lead to denial of
+  service in audio decoding applications when processing malformed AAC audio
+  files during SBR (Spectral Band Replication) processing.
 
 locations:
-- path_from_root: libfaad/common.c
+- type: crash_site
+  path_from_root: libfaad/common.c
+  function_name: pow2_fix
+  startLine: 388
+  startColumn: 9
+  endLine: 388
+  endColumn: 27
+- type: root_cause
+  path_from_root: libfaad/common.c
   function_name: pow2_fix
   startLine: 367
-  endColumn: 0
+  startColumn: 5
   endLine: 367
-  startColumn: 0
+  endColumn: 42

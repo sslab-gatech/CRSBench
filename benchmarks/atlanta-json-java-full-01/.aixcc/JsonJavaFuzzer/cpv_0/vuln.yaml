@@ -1,38 +1,44 @@
 id: cpv_0
 
-name: JSON Deep Nesting Denial of Service via Malformed Object Keys
+name: JSON-Java Nested Object Key Memory Exhaustion
+
+origin: 1-day
+
+release_date: 10/12/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-5072
+- https://github.com/advisories/GHSA-4jq9-2xhw-jpx7
+- https://github.com/stleary/JSON-java/issues/505
 
 cwes:
-- CWE-674
-- CWE-400
 - CWE-770
+- CWE-400
+- CWE-674
 
 description: |
-  This vulnerability is a deeply nested JSON object parsing attack that leads to 
-  uncontrolled recursion and excessive memory consumption, resulting in denial of service.
-  
-  The vulnerability exists in the JSON parsing logic where malformed JSON input can bypass
-  inadequate nesting depth checks using semicolon separators instead of commas. The vulnerable
-  code in JSONObject's constructor calls nextValue().toString() when parsing object keys,
-  which triggers recursive object creation and immediate serialization. Each nested object
-  repeats this cycle, causing exponential string concatenation in the StringBuilder backing
-  the StringBuilderWriter, eventually exhausting heap memory.
-  
-  An attacker can craft minimal input (1208 bytes) with deeply nested structures like
-  {"a":1; {"a":1; {...}:1}:1}:1} to cause complete memory exhaustion and application crash
-  with OutOfMemoryError. This affects any service accepting user-provided JSON input and
-  requires no authentication to exploit.
+  A Denial of Service vulnerability in the JSON-Java library allows attackers
+  to cause memory exhaustion through specially crafted JSON input. The parser
+  incorrectly allows JSON objects to be used as dictionary keys, violating the
+  JSON specification. When nested objects become keys, the parser converts them
+  to strings via toString() and quote() methods. Each nesting level causes
+  escape characters to multiply exponentially, leading to OutOfMemoryError.
+  A modest 367-character input can trigger indefinite memory consumption,
+  crashing the application. Unauthenticated remote attackers can exploit this
+  without user interaction (CVSS 7.5 HIGH).
 
 locations:
-- path_from_root: src/main/java/org/json/JSONObject.java
+- type: root_cause
+  path_from_root: src/main/java/org/json/JSONObject.java
   function_name: JSONObject
   startLine: 233
-  startColumn: 0
+  startColumn: 1
   endLine: 240
-  endColumn: 0
-- path_from_root: src/main/java/org/json/JSONTokener.java
-  function_name: nextValue
-  startLine: 463
-  startColumn: 0
-  endLine: 466
-  endColumn: 0
+  endColumn: 1
+- type: crash_site
+  path_from_root: src/main/java/org/json/JSONObject.java
+  function_name: quote
+  startLine: 2308
+  startColumn: 1
+  endLine: 2316
+  endColumn: 1

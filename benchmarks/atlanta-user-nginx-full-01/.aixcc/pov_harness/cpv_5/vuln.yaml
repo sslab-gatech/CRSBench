@@ -1,6 +1,10 @@
 id: cpv_5
 
-name: Nginx HTTP Header Name Heap Buffer Overflow
+name: HTTP Header Name Heap Buffer Overflow Due to Fixed-Size Allocation
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-122
@@ -8,20 +12,28 @@ cwes:
 - CWE-131
 
 description: |
-  A heap buffer overflow vulnerability exists in nginx's HTTP request header processing.
-  In the ngx_http_process_request_headers() function, a fixed-size buffer of 32 bytes
-  (NGX_HTTP_LC_HEADER_LEN) is allocated to store the lowercase version of an HTTP header name.
-  However, the code then copies h->key.len bytes into this buffer without validating that
-  the header name length does not exceed 32 bytes. When an HTTP request contains a header
-  name longer than 32 characters, the ngx_strlow() function writes beyond the allocated
-  buffer boundary, causing a heap buffer overflow. This can lead to memory corruption,
-  denial of service, and potentially arbitrary code execution depending on what heap data
-  is overwritten.
+  A heap buffer overflow vulnerability exists in nginx's HTTP header processing
+  code. When processing HTTP request headers, the ngx_http_process_request_headers
+  function allocates a fixed-size buffer of 32 bytes (NGX_HTTP_LC_HEADER_LEN) to
+  store the lowercase version of an HTTP header name. However, it does not verify
+  that the actual header name length is within this limit before calling ngx_strlow
+  to convert the header to lowercase. When a header name exceeds 32 bytes, ngx_strlow
+  writes beyond the allocated buffer boundary, causing a heap buffer overflow. This
+  can lead to memory corruption, denial of service through worker process crashes,
+  and potentially arbitrary code execution.
 
 locations:
-- path_from_root: src/http/ngx_http_request.c
+- type: crash_site
+  path_from_root: src/core/ngx_string.c
+  function_name: ngx_strlow
+  startLine: 26
+  startColumn: 14
+  endLine: 26
+  endColumn: 14
+- type: root_cause
+  path_from_root: src/http/ngx_http_request.c
   function_name: ngx_http_process_request_headers
   startLine: 1483
-  startColumn: 0
-  endLine: 1493
-  endColumn: 0
+  startColumn: 30
+  endLine: 1483
+  endColumn: 30

@@ -1,0 +1,1028 @@
+# vuln.yaml Generation Agent Log
+Generated: 2026-01-14T06:02:12.789314
+Benchmark: atlanta-gpac-delta-01
+Harness: fuzz_probe_analyze
+CPV: cpv_0
+Project Directory: .crsbench-repos/cp-c-gpac-f85c2ee9
+
+
+Validation: PASSED
+
+
+======================================================================
+Phase: Vulnerability Analysis
+======================================================================
+
+
+[Agent Response]
+I'll analyze the vulnerability for cpv_0 in the fuzz_probe_analyze harness. Let me start by using the vuln-yaml-analyzer skill for guidance.
+
+[Tool] Skill
+  Input: {
+  "skill": "vuln-yaml-analyzer"
+}
+  Result: Launching skill: vuln-yaml-analyzer
+
+[Agent Response]
+<command-message>The "vuln-yaml-analyzer" skill is running</command-message>
+<command-name>vuln-yaml-analyzer</command-name>
+
+
+[Agent Response]
+Base directory for this skill: /home/acorn421/work/team-atlanta/CRSBench/.claude/skills/vuln-yaml-analyzer
+
+# Vulnerability Analyzer
+
+Analyze a vulnerability from crash logs, POV files, patches, and source code to prepare for vuln.yaml generation.
+
+## Analysis Strategy
+
+### Step 1: Analyze Crash Log (CRITICAL - Start Here)
+
+The crash log is the primary source of vulnerability information.
+
+**CRITICAL**:
+- **ONLY** read crash log files from the CPV's logs directory
+- **DO NOT** search for crash logs from other CPVs
+
+Find and read crash log files (e.g., `pov_0.log`, `crash.log`).
+
+Extract key information:
+- **Error type**: AddressSanitizer error (heap-buffer-overflow, use-after-free, etc.)
+- **Vulnerable function**: The function where the crash occurred (from stack trace)
+- **Vulnerable file**: The source file path (from stack trace)
+- **Line number**: Exact line where crash happened
+- **DEDUP_TOKEN**: Unique identifier for this crash
+- **Stack trace**: Full call stack for understanding control flow
+
+Example crash log parsing:
+```
+ERROR: AddressSanitizer: heap-buffer-overflow
+READ of size 45 at 0x50400000033c
+#0 __asan_memcpy /src/llvm-project/compiler-rt/lib/asan/...
+#1 cr_buf_read /src/curl/lib/sendf.c:1298:5    <-- Vulnerable function
+#2 Curl_creader_read /src/curl/lib/sendf.c:542:10
+...
+SUMMARY: AddressSanitizer: heap-buffer-overflow /src/curl/lib/sendf.c:1298:5 in cr_buf_read
+```
+
+From this, extract:
+- Error type: heap-buffer-overflow
+- File: lib/sendf.c (relative to project root)
+- Function: cr_buf_read
+- Line: 1298
+
+### Step 2: Identify Location Types
+
+For each vulnerability location, determine its type:
+
+**crash_site**: The point where the program crashes or error is detected
+- This is typically the location from the crash log stack trace
+- MUST be in project code
+- Example: The function where buffer overflow READ occurs
+
+**root_cause**: The underlying defect that enables the vulnerability
+- This is where the actual bug/defect exists
+- May be different from crash site (e.g., missing bounds check, incorrect allocation)
+- Example: Where buffer is allocated too small, or where bounds check is missing
+- **IMPORTANT: Analyze patches to identify root_cause** - patches show exactly what was fixed
+
+**EXCLUDE from both crash_site and root_cause:**
+- Harness files (fuzzing harness code, e.g., `*_fuzzer.c`, `*_fuzzer.cc`, `LLVMFuzzerTestOneInput`)
+- ASan/sanitizer functions (`__asan_*`, `__msan_*`, `__ubsan_*`)
+- Standard library functions (`memcpy`, `malloc`, `free`, `strlen`, etc.)
+- Compiler runtime functions (`__interceptor_*`, `llvm-project/compiler-rt/*`)
+- Only include actual project source code locations
+
+### Step 3: Locate Vulnerable Code
+
+- Use the file path from crash log to find the vulnerable source file
+- Read the vulnerable file around the crash line number
+- Identify the exact vulnerability location
+- Note the function name, line numbers, and code context
+
+### Step 4: Analyze POV (if available)
+
+- Check the CPV's blobs/ directory for POV files
+- These are test inputs that trigger the vulnerability
+- Note if POV structure provides hints about vulnerability type
+
+### Step 5: Analyze Patches (CRITICAL for root_cause)
+
+- Check the CPV's patches/ directory for patch files
+- **Patches are the primary source for identifying root_cause location**
+- Analyze what was changed to fix the vulnerability:
+  - Which file(s) were modified?
+  - Which function(s) were changed?
+  - What line(s) were added/removed?
+- The patch location typically indicates the root_cause location
+- If patch differs from crash site, you likely have separate crash_site and root_cause
+
+### Step 6: Identify Vulnerability Origin and Reference
+
+**⚠️ CRITICAL: DO NOT GUESS. ONLY USE CONCRETE EVIDENCE. ⚠️**
+
+**origin**: Source of the vulnerability
+- `1-day`: Real-world vulnerability with confirmed official reference (CVE, OSV, GHSA, bug tracker, etc.)
+- `synthetic`: Everything else (DEFAULT)
+
+**🚨 RULES FOR 1-day CLASSIFICATION 🚨**
+
+1. **Start with patch files** - Extract key information:
+   - Function name(s) being patched
+   - File path(s) being modified
+   - Type of fix (bounds check, null check, etc.)
+   - Any vulnerability ID already mentioned in patch (CVE, OSV, GHSA, issue #)
+
+2. **Search based on patch content:**
+   - Use WebSearch with: project name + function name + vulnerability keywords
+   - Example: `libtiff TIFFReadRawStrip1 CVE` or `libtiff TIFFReadRawStrip1 vulnerability`
+   - Look for an EXACT match - same function, same fix
+
+3. **Confirm the match:**
+   - The reference must describe the EXACT same vulnerability
+   - Same function name
+   - Same type of bug
+   - Same file/location
+   - If it's just "similar" but not exact → `synthetic`
+
+4. **DO NOT mark as `1-day` based on:**
+   - ❌ "Similar looking" vulnerabilities
+   - ❌ Same project but different function
+   - ❌ Same bug type but different location
+   - ❌ Guessing or "it might be"
+
+5. **If no EXACT match found → `synthetic`**
+
+**How to check (in order):**
+1. Read patch files - note function names, file paths, fix type
+2. Check if vulnerability ID already in patch content/filename (CVE, OSV, issue #)
+3. Check `.aixcc/meta.yaml` for existing reference
+4. WebSearch: `[project] [function_name] vulnerability` or `CVE` (only if needed)
+5. WebFetch: Get release_date from the reference source
+6. If no exact match → `synthetic`
+
+**release_date**:
+- For 1-day: Fetch from the official reference source (NVD, OSV, GitHub advisory, etc.)
+- For synthetic: Use `02/01/2026`
+
+**references**: List of URLs to vulnerability details (REQUIRED for 1-day)
+- Include all confirmed references (a single vulnerability may have multiple)
+- Valid reference sources:
+  - CVE: `https://nvd.nist.gov/vuln/detail/CVE-XXXX-XXXXX`
+  - OSV: `https://osv.dev/vulnerability/OSV-XXXX-XXXX`
+  - GHSA: `https://github.com/advisories/GHSA-xxxx-xxxx-xxxx`
+  - Project bug tracker: `https://github.com/project/issues/XXX`
+  - Other official security advisories
+- Example: A vulnerability may have both CVE and GHSA references
+
+### Step 7: Identify CWE
+
+Based on the vulnerability type, identify relevant CWEs:
+- Heap buffer overflow -> CWE-122, CWE-787
+- Stack buffer overflow -> CWE-121, CWE-787
+- Use-after-free -> CWE-416
+- NULL pointer dereference -> CWE-476
+- Integer overflow -> CWE-190
+- Command injection -> CWE-77
+- Path traversal -> CWE-22
+- Format string -> CWE-134
+
+## Output Format
+
+Provide a markdown document with this structure:
+
+```markdown
+# Vulnerability Analysis for {cpv_id}
+
+## Summary
+- **CPV ID**: {cpv_id}
+- **Harness**: {harness_name}
+- **Vulnerability Type**: <type from crash log>
+- **Origin**: <1-day or synthetic>
+- **Release Date**: <MM/DD/YYYY>
+- **References**: <list of CVE/OSV/GHSA URLs if available>
+
+## Crash Log Analysis
+- **Error Type**: <AddressSanitizer error type>
+- **Crash Location**: <file>:<line>
+- **Vulnerable Function**: <function name>
+- **DEDUP Token**: <dedup token from crash log>
+
+### Stack Trace
+<relevant stack trace snippet>
+
+## Vulnerable Code Location(s)
+
+### Location 1 (crash_site)
+- **Type**: crash_site
+- **File Path**: <path from project root>
+- **Function**: <function name>
+- **Line Range**: <start>-<end>
+- **Column Range**: <start>-<end>
+
+### Location 2 (root_cause) - if different from crash_site
+- **Type**: root_cause
+- **File Path**: <path from project root>
+- **Function**: <function name>
+- **Line Range**: <start>-<end>
+- **Column Range**: <start>-<end>
+
+### Code Context
+<vulnerable code snippet>
+
+## CWE Classification
+- CWE-XXX: <description>
+- CWE-YYY: <description>
+
+## Vulnerability Description
+<Clear description of the vulnerability, its cause, and impact>
+
+## POV Analysis (if available)
+<Analysis of proof-of-vulnerability test case>
+
+## Patch Analysis (if available)
+<Analysis of how the vulnerability was fixed>
+
+## Recommendations
+- Suggested CWEs: [CWE-XXX, CWE-YYY]
+- Vulnerability name: <concise name>
+```
+
+## Important Notes
+
+- **ALWAYS read and analyze the crash log first** - it contains the most critical information
+- **ONLY analyze crash logs from the specified CPV's logs directory**
+- Use Grep and Glob to find relevant source code files (NOT other CPVs' crash logs)
+- Read actual source code to verify vulnerability locations
+- Cite specific file paths and line numbers
+- Be precise about code locations (line and column numbers)
+- Distinguish between crash_site and root_cause locations
+
+
+
+[Agent Response]
+I'll analyze the vulnerability for cpv_0 in the fuzz_probe_analyze harness. Let me follow the analysis strategy step by step.
+
+## Step 1: Analyze Crash Log
+
+Let me first explore the CPV directory structure and read the crash log:
+
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/atlanta-gpac-delta-01/.aixcc/fuzz_probe_analyze/cpv_0/",
+  "description": "List CPV directory contents"
+}
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/atlanta-gpac-delta-01/.aixcc/fuzz_probe_analyze/cpv_0/logs/",
+  "description": "List crash log files"
+}
+  Result: total 40
+drwxrwxr-x 6 acorn421 acorn421 4096 Jan 13 23:50 .
+drwxrwxr-x 3 acorn421 acorn421 4096 Dec 22 17:50 ..
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 blobs
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 hints
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 logs
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 patches
+-rw-rw-r-- 1 acorn421 acorn421 9990 Dec 22 17:50 vuln_analysis.md.old
+-rw-rw-r-- 1 acorn421 acorn421 1076 Dec 22 17:50 vuln.yaml.old
+  Result: total 16
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 .
+drwxrwxr-x 6 acorn421 acorn421 4096 Jan 13 23:50 ..
+-rw-rw-r-- 1 acorn421 acorn421 4704 Dec 22 17:50 pov_0.log
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/atlanta-gpac-delta-01/.aixcc/fuzz_probe_analyze/cpv_0/logs/pov_0.log"
+}
+  Result:      1→+ FUZZER=fuzz_probe_analyze
+     2→+ shift
+     3→+ '[' '!' -v TESTCASE ']'
+     4→+ TESTCASE=/testcase
+     5→+ '[' '!' -f /testcase ']'
+     6→+ export RUN_FUZZER_MODE=interactive
+     7→+ RUN_FUZZER_MODE=interactive
+     8→+ export FUZZING_ENGINE=libfuzzer
+     9→+ FUZZING_ENGINE=libfuzzer
+    10→+ export SKIP_SEED_CORPUS=1
+    11→+ SKIP_SEED_CORPUS=1
+    12→+ run_fuzzer fuzz_probe_analyze -runs=100 /testcase
+    13→vm.mmap_rnd_bits = 28
+    14→/out/fuzz_probe_analyze -rss_limit_mb=256... (truncated)
+
+[Agent Response]
+Excellent! Now let me check the patches and POV files:
+
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/atlanta-gpac-delta-01/.aixcc/fuzz_probe_analyze/cpv_0/patches/",
+  "description": "List patch files"
+}
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/atlanta-gpac-delta-01/.aixcc/fuzz_probe_analyze/cpv_0/blobs/",
+  "description": "List POV files"
+}
+  Result: total 12
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 .
+drwxrwxr-x 6 acorn421 acorn421 4096 Jan 13 23:50 ..
+-rw-rw-r-- 1 acorn421 acorn421  511 Dec 22 17:50 patch_0.diff
+  Result: total 12
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 .
+drwxrwxr-x 6 acorn421 acorn421 4096 Jan 13 23:50 ..
+-rw-rw-r-- 1 acorn421 acorn421   27 Dec 22 17:50 pov_0.blob
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/atlanta-gpac-delta-01/.aixcc/fuzz_probe_analyze/cpv_0/patches/patch_0.diff"
+}
+  Result:      1→diff --git a/src/media_tools/av_parsers.c b/src/media_tools/av_parsers.c
+     2→index 9923a4673..f147c0546 100644
+     3→--- a/src/media_tools/av_parsers.c
+     4→+++ b/src/media_tools/av_parsers.c
+     5→@@ -4520,6 +4520,10 @@ u32 gf_mp3_bit_rate(u32 hdr)
+     6→ 		GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, ("[MPEG-1/2 Audio] layer index not valid\n"));
+     7→ 		return 0;
+     8→ 	}
+     9→+	if (bitRateIndex>14) {
+    10→+		GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, ("[MPEG-1/2 Audio] Bitrate index n... (truncated)
+
+[Agent Response]
+Now let me locate and read the vulnerable source code:
+
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-c-gpac-f85c2ee9/src/media_tools/av_parsers.c",
+  "offset": 4500,
+  "limit": 50
+}
+  Result:   4500→
+  4501→u32 gf_mp3_bit_rate(u32 hdr)
+  4502→{
+  4503→	u8 version = gf_mp3_version(hdr);
+  4504→	u8 layer = gf_mp3_layer(hdr);
+  4505→	u8 bitRateIndex = (hdr >> 12) & 0xF;
+  4506→	u32 lidx;
+  4507→	/*MPEG-1*/
+  4508→	if (version & 1) {
+  4509→		if (!layer) {
+  4510→			GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, ("[MPEG-1/2 Audio] layer index not valid\n"));
+  4511→			return 0;
+  4512→		}
+  4513→		lidx = layer - 1;
+  4514→	}
+  4515→	/*MPEG-2/2.5*/
+  4516→	else {
+  4517→		lidx = 3 + (layer >> 1);
+  ... (truncated)
+
+[Agent Response]
+Now let me check the bitrate_table definition to understand the buffer overflow:
+
+[Tool] Grep
+  Input: {
+  "pattern": "bitrate_table\\[",
+  "path": ".crsbench-repos/cp-c-gpac-f85c2ee9/src/media_tools/av_parsers.c",
+  "output_mode": "content",
+  "-C": 3
+}
+  Result: 4476-/*aligned bitrate parsing with libMAD*/
+4477-
+4478-static
+4479:u32 const bitrate_table[5][15] = {
+4480-	/* MPEG-1 */
+4481-	{	0,  32000,  64000,  96000, 128000, 160000, 192000, 224000,  /* Layer I   */
+4482-		256000, 288000, 320000, 352000, 384000, 416000, 448000
+--
+4520-		GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, ("[MPEG-1/2 Audio] layer index not valid\n"));
+4521-		return 0;
+4522-	}
+4523:	return bitrate_table[lidx][bitRateIndex];
+4524-}
+4525-
+4526-
+
+[Agent Response]
+Let me see the full bitrate_table definition:
+
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-c-gpac-f85c2ee9/src/media_tools/av_parsers.c",
+  "offset": 4476,
+  "limit": 30
+}
+  Result:   4476→/*aligned bitrate parsing with libMAD*/
+  4477→
+  4478→static
+  4479→u32 const bitrate_table[5][15] = {
+  4480→	/* MPEG-1 */
+  4481→	{	0,  32000,  64000,  96000, 128000, 160000, 192000, 224000,  /* Layer I   */
+  4482→		256000, 288000, 320000, 352000, 384000, 416000, 448000
+  4483→	},
+  4484→	{	0,  32000,  48000,  56000,  64000,  80000,  96000, 112000,  /* Layer II  */
+  4485→		128000, 160000, 192000, 224000, 256000, 320000, 384000
+  4486→	},
+  4487→	{	0,  32000,  40000,  48000,  56000,  ... (truncated)
+
+[Agent Response]
+Now let me check if there's a meta.yaml file or any existing reference information:
+
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/atlanta-gpac-delta-01/.aixcc/",
+  "description": "Check for meta.yaml"
+}
+  Result: total 16
+drwxrwxr-x 3 acorn421 acorn421 4096 Jan  9 23:50 .
+drwxrwxr-x 4 acorn421 acorn421 4096 Jan  9 23:50 ..
+drwxrwxr-x 3 acorn421 acorn421 4096 Dec 22 17:50 fuzz_probe_analyze
+-rw-rw-r-- 1 acorn421 acorn421  763 Jan  9 23:50 meta.yaml
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/atlanta-gpac-delta-01/.aixcc/meta.yaml"
+}
+  Result:      1→patch_exclude_list:
+     2→- build.sh
+     3→- Makefile
+     4→- CMakeLists.txt
+     5→- configure*
+     6→- '*.ac'
+     7→- '*.am'
+     8→- .gitignore
+     9→- .aixcc/**
+    10→- '**/*test*.c'
+    11→- '**/*test*.cc'
+    12→- '**/*test*.cpp'
+    13→- '**/*test*.h'
+    14→- test/**
+    15→- tests/**
+    16→- docs/**
+    17→- '*.md'
+    18→- README*
+    19→delta_mode:
+    20→  base_commit: 9efb5977c5b7a45e52acd83533076c18bc8f294a
+    21→  ref_commit: f85c2ee9cfea581ee4e12123eb3bb2c574f0e8b... (truncated)
+
+[Agent Response]
+Now let me search for any CVE/vulnerability references for this issue. Based on the patch, it's adding a bounds check for `bitRateIndex>14` in the `gf_mp3_bit_rate` function:
+
+[Tool] WebSearch
+  Input: {
+  "query": "GPAC gf_mp3_bit_rate bitRateIndex vulnerability CVE"
+}
+  Result: Web search results for query: "GPAC gf_mp3_bit_rate bitRateIndex vulnerability CVE"
+
+Links: [{"title":"Gpac Gpac : Security vulnerabilities, CVEs","url":"https://www.cvedetails.com/vulnerability-list/vendor_id-18664/product_id-47755/Gpac-Gpac.html"},{"title":"Gpac : Security vulnerabilities, CVEs Overflow","url":"https://www.cvedetails.com/vulnerability-list/vendor_id-18664/opov-1/Gpac.html"},{"title":"Gpac : Security vulnerabilities","url":"https://www.cvedetails.com/vulnerability-list/vendor_i... (truncated)
+
+[Agent Response]
+Let me search more specifically in the GPAC GitHub issues:
+
+[Tool] WebSearch
+  Input: {
+  "query": "GPAC av_parsers.c bitrate_table buffer overflow github issue"
+}
+  Result: Web search results for query: "GPAC av_parsers.c bitrate_table buffer overflow github issue"
+
+Links: [{"title":"buffer overflow in gf_hevc_read_sps_bs_internal function of media_tools/av_parsers.c:8261 · Issue #2350 · gpac/gpac","url":"https://github.com/gpac/gpac/issues/2350"},{"title":"Buffer overflow in gf_vvc_read_pps_bs_internal function of media_tools/av_parsers.c · Issue #2339 · gpac/gpac","url":"https://github.com/gpac/gpac/issues/2339"},{"title":"Another Buffer overflow in gf_vvc_read_p... (truncated)
+
+[Agent Response]
+Let me try searching for the specific commit that this vulnerability is related to. From the meta.yaml, the ref_commit is f85c2ee9cfea581ee4e12123eb3bb2c574f0e8b0:
+
+[Tool] WebSearch
+  Input: {
+  "query": "GPAC commit f85c2ee9cfea581ee4e12123eb3bb2c574f0e8b0"
+}
+  Result: Web search results for query: "GPAC commit f85c2ee9cfea581ee4e12123eb3bb2c574f0e8b0"
+
+Links: [{"title":"Commits · gpac/gpac","url":"https://github.com/gpac/gpac/commits/master"},{"title":"Download GPAC - gpac.io","url":"https://gpac.io/downloads/gpac-nightly-builds/"},{"title":"GitHub - gpac/gpac: GPAC Ultramedia OSS for Video Streaming & Next-Gen Multimedia Transcoding, Packaging & Delivery","url":"https://github.com/gpac/gpac"},{"title":"gpac / Code / Commit [r4959]","url":"https://sourceforge... (truncated)
+
+[Agent Response]
+Let me try to fetch that specific commit URL:
+
+[Tool] WebFetch
+  Input: {
+  "url": "https://github.com/gpac/gpac/commit/f85c2ee9cfea581ee4e12123eb3bb2c574f0e8b0",
+  "prompt": "What is this commit about? Does it mention any CVE, issue number, or vulnerability description? What files were changed and what was fixed?"
+}
+  Result: Request failed with status code 404
+
+[Agent Response]
+The commit doesn't exist or isn't publicly accessible. Based on my analysis, this appears to be a **synthetic** vulnerability (not a real-world 1-day CVE) since:
+
+1. No CVE or public vulnerability reference found
+2. The commit hash doesn't exist in the public GPAC repository
+3. No GitHub issues found specifically referencing this bitrate_table vulnerability
+
+Now let me complete the vulnerability analysis. Let me also check the POV file quickly:
+
+[Tool] Bash
+  Input: {
+  "command": "file benchmarks/atlanta-gpac-delta-01/.aixcc/fuzz_probe_analyze/cpv_0/blobs/pov_0.blob",
+  "description": "Check POV file type"
+}
+  Result: benchmarks/atlanta-gpac-delta-01/.aixcc/fuzz_probe_analyze/cpv_0/blobs/pov_0.blob: MPEG sequence, v1, system multiplex
+
+[Agent Response]
+Perfect! Now I have all the information I need. Let me create the complete vulnerability analysis:
+
+# Vulnerability Analysis for cpv_0
+
+## Summary
+- **CPV ID**: cpv_0
+- **Harness**: fuzz_probe_analyze
+- **Vulnerability Type**: Global buffer overflow
+- **Origin**: synthetic
+- **Release Date**: 02/01/2026
+- **References**: None (synthetic vulnerability)
+
+## Crash Log Analysis
+- **Error Type**: AddressSanitizer: global-buffer-overflow
+- **Crash Location**: src/media_tools/av_parsers.c:4523:9
+- **Vulnerable Function**: gf_mp3_bit_rate
+- **DEDUP Token**: gf_mp3_bit_rate--get_info_from_frame--get_info_for_all_streams
+- **Operation**: READ of size 4
+- **Address Details**: 0 bytes after global variable 'bitrate_table' (300 bytes total)
+
+### Stack Trace
+```
+#0 0x557918471603 in gf_mp3_bit_rate /src/gpac/src/media_tools/av_parsers.c:4523:9
+#1 0x5579185c1100 in get_info_from_frame /src/gpac/src/media_tools/mpeg2_ps.c:1014:19
+#2 0x5579185c1100 in get_info_for_all_streams /src/gpac/src/media_tools/mpeg2_ps.c:1206:4
+#3 0x5579185c1100 in mpeg2ps_scan_file /src/gpac/src/media_tools/mpeg2_ps.c:1371:2
+#4 0x5579185c1100 in mpeg2ps_init /src/gpac/src/media_tools/mpeg2_ps.c:1628:2
+#5 0x557917927afd in m2psdmx_process /src/gpac/src/filters/dmx_mpegps.c:327:13
+#6 0x5579177f4878 in gf_filter_process_task /src/gpac/src/filter_core/filter.c:3027:7
+```
+
+## Vulnerable Code Location(s)
+
+### Location 1 (crash_site)
+- **Type**: crash_site
+- **File Path**: src/media_tools/av_parsers.c
+- **Function**: gf_mp3_bit_rate
+- **Line Range**: 4523-4523
+- **Column Range**: 9-9
+
+### Location 2 (root_cause)
+- **Type**: root_cause
+- **File Path**: src/media_tools/av_parsers.c
+- **Function**: gf_mp3_bit_rate
+- **Line Range**: 4505-4523
+- **Column Range**: 1-40
+
+### Code Context
+
+The vulnerable code in `gf_mp3_bit_rate` function (line 4501-4524):
+
+```c
+u32 gf_mp3_bit_rate(u32 hdr)
+{
+	u8 version = gf_mp3_version(hdr);
+	u8 layer = gf_mp3_layer(hdr);
+	u8 bitRateIndex = (hdr >> 12) & 0xF;  // Line 4505: Extract 4-bit index (0-15)
+	u32 lidx;
+	/*MPEG-1*/
+	if (version & 1) {
+		if (!layer) {
+			GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, ("[MPEG-1/2 Audio] layer index not valid\n"));
+			return 0;
+		}
+		lidx = layer - 1;
+	}
+	/*MPEG-2/2.5*/
+	else {
+		lidx = 3 + (layer >> 1);
+	}
+	if (lidx>4) {
+		GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, ("[MPEG-1/2 Audio] layer index not valid\n"));
+		return 0;
+	}
+	return bitrate_table[lidx][bitRateIndex];  // Line 4523: VULNERABLE - No bounds check on bitRateIndex
+}
+```
+
+The `bitrate_table` definition (lines 4478-4498):
+
+```c
+static
+u32 const bitrate_table[5][15] = {  // 5 rows, 15 columns (indices 0-14)
+	/* MPEG-1 */
+	{	0,  32000,  64000,  96000, 128000, 160000, 192000, 224000,  /* Layer I   */
+		256000, 288000, 320000, 352000, 384000, 416000, 448000
+	},
+	{	0,  32000,  48000,  56000,  64000,  80000,  96000, 112000,  /* Layer II  */
+		128000, 160000, 192000, 224000, 256000, 320000, 384000
+	},
+	{	0,  32000,  40000,  48000,  56000,  64000,  80000,  96000,  /* Layer III */
+		112000, 128000, 160000, 192000, 224000, 256000, 320000
+	},
+	/* MPEG-2 LSF */
+	{	0,  32000,  48000,  56000,  64000,  80000,  96000, 112000,  /* Layer I   */
+		128000, 144000, 160000, 176000, 192000, 224000, 256000
+	},
+	{	0,   8000,  16000,  24000,  32000,  40000,  48000,  56000,  /* Layers    */
+		64000,  80000,  96000, 112000, 128000, 144000, 160000
+	} /* II & III  */
+};
+```
+
+## CWE Classification
+- **CWE-125**: Out-of-bounds Read - Reading data past the end of a buffer
+- **CWE-787**: Out-of-bounds Write (related) - Memory access violations
+- **CWE-129**: Improper Validation of Array Index - Missing bounds check on array index
+
+## Vulnerability Description
+
+This is a **global buffer overflow** vulnerability in the `gf_mp3_bit_rate` function in GPAC's MP3 audio parser. The vulnerability occurs due to insufficient bounds checking on the `bitRateIndex` parameter before using it as an array index.
+
+### Root Cause
+
+At line 4505, the function extracts a 4-bit value from the MP3 header to use as `bitRateIndex`:
+```c
+u8 bitRateIndex = (hdr >> 12) & 0xF;  // Can be 0-15
+```
+
+This 4-bit value can range from 0 to 15. However, the `bitrate_table` array is defined with only 15 columns (indices 0-14). The code validates the row index (`lidx`) to ensure it doesn't exceed 4, but **fails to validate `bitRateIndex`** before using it at line 4523:
+
+```c
+return bitrate_table[lidx][bitRateIndex];  // Out-of-bounds when bitRateIndex == 15
+```
+
+When a malformed MP3 file contains a bitrate index value of 15, the code attempts to access `bitrate_table[lidx][15]`, which is out of bounds, resulting in a 4-byte READ past the end of the global `bitrate_table` buffer.
+
+### Impact
+
+- **Confidentiality**: Potential information disclosure by reading 4 bytes past the buffer
+- **Availability**: Crash/denial of service (as demonstrated by the POV)
+- **Integrity**: No direct integrity impact, but could be part of a larger exploit chain
+- **Attack Vector**: Remote - Can be triggered by processing a malicious MPEG file
+
+### Severity Assessment
+- **SCARINESS Score**: 17 (from crash log)
+- **Type**: 4-byte-read-global-buffer-overflow
+- **Exploitability**: Medium - Requires crafted MPEG input file
+- **Reliability**: High - Consistently triggered with specific bitrate index
+
+## POV Analysis
+
+The proof-of-vulnerability test case (`pov_0.blob`) is an MPEG sequence file (MPEG-1 system multiplex format) that has been crafted to trigger this vulnerability. The file contains:
+
+- XML header: `<?xml version="1.0" encoding="UTF-8"?><GPACInspect>`
+- A malformed MP3 audio frame with:
+  - Invalid samplerate index (logged as: `[MPEG-1/2 Audio] Samplerate index not valid`)
+  - Bitrate index set to 15 (0xF), which exceeds the valid range of 0-14
+
+When GPAC's probe/analyze functionality processes this file, it:
+1. Detects it as an MPEG-2 PS (program stream) format
+2. Calls `mpeg2ps_init` → `mpeg2ps_scan_file` → `get_info_for_all_streams` → `get_info_from_frame`
+3. Attempts to parse MP3 frame information by calling `gf_mp3_bit_rate`
+4. Triggers the out-of-bounds read when accessing `bitrate_table[lidx][15]`
+
+## Patch Analysis
+
+The patch adds a bounds check for `bitRateIndex` before the array access:
+
+```diff
+@@ -4520,6 +4520,10 @@ u32 gf_mp3_bit_rate(u32 hdr)
+ 		GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, ("[MPEG-1/2 Audio] layer index not valid\n"));
+ 		return 0;
+ 	}
++	if (bitRateIndex>14) {
++		GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, ("[MPEG-1/2 Audio] Bitrate index not valid\n"));
++		return 0;
++	}
+ 	return bitrate_table[lidx][bitRateIndex];
+ }
+```
+
+### Fix Analysis
+
+The patch correctly addresses the root cause by:
+
+1. **Adding validation** for `bitRateIndex` before array access
+2. **Checking the upper bound** - Rejects values > 14 (valid range is 0-14 for 15 elements)
+3. **Logging the error** - Provides diagnostic information for debugging
+4. **Safe failure** - Returns 0 to indicate an invalid bitrate instead of crashing
+
+This is a **defensive programming fix** that validates input before using it as an array index, which is the proper way to prevent this class of vulnerabilities.
+
+### Location Analysis
+
+- **Crash Site**: Line 4523 (where the out-of-bounds read occurs)
+- **Root Cause**: Lines 4505-4523 (missing validation after extracting bitRateIndex)
+- **Fix Location**: Between line 4522 and 4523 (added validation before array access)
+
+The patch location matches the root cause location, as it adds the necessary validation check immediately before the vulnerable array access.
+
+## Recommendations
+
+### For vuln.yaml Generation:
+- **Suggested CWEs**: [CWE-125, CWE-787, CWE-129]
+- **Vulnerability Name**: "Global buffer overflow in gf_mp3_bit_rate due to unchecked bitrate index"
+- **Origin**: synthetic
+- **Release Date**: 02/01/2026
+- **Locations**:
+  - crash_site: `src/media_tools/av_parsers.c:4523:9` (function: gf_mp3_bit_rate)
+  - root_cause: `src/media_tools/av_parsers.c:4505-4523:1-40` (function: gf_mp3_bit_rate, specifically the missing validation)
+
+### Additional Security Considerations:
+1. All array indices extracted from untrusted input should be validated before use
+2. Consider using safe array access functions that perform bounds checking
+3. Review other instances of similar patterns in the codebase (parsing functions that extract indices from headers)
+4. Add fuzzing tests that specifically target boundary values in media format headers
+
+---
+
+**Analysis Complete**: This vulnerability is a classic example of improper input validation leading to out-of-bounds memory access. The fix is straightforward and effective, adding the missing bounds check that should have been present from the start.
+
+
+
+======================================================================
+Phase: vuln.yaml Generation
+======================================================================
+
+
+[Agent Response]
+I'll use the vuln-yaml-generator skill to generate the YAML file with proper format guidance.
+
+[Tool] Skill
+  Input: {
+  "skill": "vuln-yaml-generator"
+}
+  Result: Launching skill: vuln-yaml-generator
+
+[Agent Response]
+<command-message>The "vuln-yaml-generator" skill is running</command-message>
+<command-name>vuln-yaml-generator</command-name>
+
+
+[Agent Response]
+Base directory for this skill: /home/acorn421/work/team-atlanta/CRSBench/.claude/skills/vuln-yaml-generator
+
+# Vulnerability YAML Generator
+
+Generate a vuln.yaml file from vulnerability analysis results.
+
+## vuln.yaml Format
+
+Generate a valid YAML file with this structure:
+
+```yaml
+id: {cpv_id}
+
+name: <Short, descriptive vulnerability name>
+
+origin: <1-day or synthetic>
+
+release_date: <MM/DD/YYYY>
+
+references:  # List of URLs (required for 1-day, optional for synthetic)
+- <URL to CVE/OSV/advisory>
+- <URL to another reference if available>
+
+cwes:
+- CWE-XXX
+- CWE-YYY
+
+description: |
+  <Clear, multi-line description of the vulnerability.
+  Include what causes it, where it occurs, and potential impact.>
+
+locations:
+- type: <crash_site or root_cause>
+  path_from_root: <relative/path/from/project/root.c>
+  function_name: <vulnerable_function>
+  startLine: <line_number>
+  startColumn: <column_number>
+  endLine: <line_number>
+  endColumn: <column_number>
+```
+
+## Field Guidelines
+
+### id
+- Must be exactly the provided CPV ID (e.g., `cpv_0`)
+
+### origin
+- Valid values: `1-day` or `synthetic`
+- `1-day`: **ONLY if CVE/OSV ID was found in patch files**
+- `synthetic`: **DEFAULT** - use if no CVE ID in patches
+- ⚠️ DO NOT guess based on web search results
+- ⚠️ If analysis says "synthetic" or no CVE found → use `synthetic`
+
+### release_date
+- Format: `MM/DD/YYYY` (e.g., `02/16/2017`)
+- For 1-day: Official CVE/advisory publication date
+- For synthetic: Use `02/01/2026`
+
+### references
+- List of URLs to vulnerability details (required for 1-day, optional for synthetic)
+- A single vulnerability may have multiple references (CVE + GHSA, etc.)
+- Valid reference sources:
+  - CVE: `https://nvd.nist.gov/vuln/detail/CVE-2017-6009`
+  - OSV: `https://osv.dev/vulnerability/OSV-2021-1234`
+  - GHSA: `https://github.com/advisories/GHSA-xxxx-xxxx-xxxx`
+  - Bug tracker: `https://github.com/project/issues/XXX`
+
+### name
+- Short, descriptive name (max 80 characters)
+- Examples:
+  - "Heap buffer overflow in cr_buf_read"
+  - "Use-after-free in HTTP chunk processing"
+  - "NULL pointer dereference in JSON parser"
+- DO NOT use generic names like "MOCK: cpv_0 vulnerability"
+- **CRITICAL**: Avoid special YAML characters in unquoted values:
+  - DO NOT use colons (`:`) in unquoted field values
+  - If you must include special characters, wrap the entire value in quotes
+
+### cwes
+- List of relevant CWE numbers (1-3 most relevant)
+- Common CWEs:
+  - CWE-787: Out-of-bounds Write
+  - CWE-125: Out-of-bounds Read
+  - CWE-416: Use After Free
+  - CWE-476: NULL Pointer Dereference
+  - CWE-190: Integer Overflow
+  - CWE-122: Heap-based Buffer Overflow
+  - CWE-121: Stack-based Buffer Overflow
+
+### description
+- Clear explanation of the vulnerability
+- Use `|` for multi-line strings
+- Include: type, location, cause, and security impact
+
+### locations
+- At least one location (the primary vulnerable code location)
+- **type** (REQUIRED):
+  - `crash_site`: Where the crash/error occurs (from crash log stack trace)
+  - `root_cause`: Where the underlying defect exists (from patch analysis)
+  - If only one location and it's both, use `crash_site`
+- **EXCLUDE these from locations:**
+  - Harness files (`*_fuzzer.c`, `*_fuzzer.cc`, `LLVMFuzzerTestOneInput`)
+  - ASan/sanitizer functions (`__asan_*`, `__msan_*`, `__ubsan_*`)
+  - Standard library functions (`memcpy`, `malloc`, `free`, etc.)
+  - Compiler runtime (`llvm-project/compiler-rt/*`)
+- **path_from_root**: Relative path from project root (NOT absolute path)
+- **function_name**: Exact function name from crash log
+- **startLine/endLine**: Line range of vulnerable code
+- **startColumn/endColumn**: Column range (use 0 if unknown)
+
+## Output
+
+Output ONLY the vuln.yaml content (no markdown fences, no explanation).
+
+## Example Output
+
+```yaml
+id: cpv_0
+
+name: Heap buffer overflow in cr_buf_read
+
+origin: 1-day
+
+release_date: 02/16/2017
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2017-6009
+
+cwes:
+- CWE-122
+- CWE-787
+
+description: |
+  A heap buffer overflow vulnerability exists in the cr_buf_read function
+  in lib/sendf.c. The function reads data into a buffer without properly
+  checking the buffer size, allowing an attacker to write beyond the
+  allocated memory. This can lead to arbitrary code execution or denial
+  of service.
+
+locations:
+- type: crash_site
+  path_from_root: lib/sendf.c
+  function_name: cr_buf_read
+  startLine: 1298
+  startColumn: 5
+  endLine: 1298
+  endColumn: 45
+- type: root_cause
+  path_from_root: lib/sendf.c
+  function_name: allocate_buffer
+  startLine: 1250
+  startColumn: 1
+  endLine: 1255
+  endColumn: 1
+```
+
+## Validation Checklist
+
+Before outputting, verify:
+- [ ] `id` matches the provided CPV ID
+- [ ] `origin` is either `1-day` or `synthetic`
+- [ ] `release_date` is in `MM/DD/YYYY` format
+- [ ] `references` is a list of valid URLs (required for 1-day, optional for synthetic)
+- [ ] `name` has no unquoted special characters
+- [ ] `cwes` is a non-empty list
+- [ ] `description` is non-empty and uses `|` for multiline
+- [ ] `locations` is a non-empty list
+- [ ] Each location has a valid `type` (crash_site or root_cause)
+- [ ] Each location has `path_from_root` (relative path, not absolute)
+- [ ] Each location has `function_name`
+- [ ] Each location has line/column numbers
+
+
+
+[Agent Response]
+Based on the vulnerability analysis provided, here is the vuln.yaml file:
+
+```yaml
+id: cpv_0
+
+name: Global buffer overflow in gf_mp3_bit_rate due to unchecked bitrate index
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+cwes:
+- CWE-125
+- CWE-787
+- CWE-129
+
+description: |
+  A global buffer overflow vulnerability exists in the gf_mp3_bit_rate function
+  in src/media_tools/av_parsers.c. The function extracts a 4-bit bitRateIndex
+  value (0-15) from an MP3 header but fails to validate it before using it as
+  an array index into bitrate_table, which only has 15 columns (indices 0-14).
+  When a malformed MP3 file contains a bitrate index of 15, the code attempts
+  to access bitrate_table[lidx][15], resulting in a 4-byte out-of-bounds read
+  past the end of the global buffer. This can lead to information disclosure
+  or denial of service.
+
+locations:
+- type: crash_site
+  path_from_root: src/media_tools/av_parsers.c
+  function_name: gf_mp3_bit_rate
+  startLine: 4523
+  startColumn: 9
+  endLine: 4523
+  endColumn: 9
+- type: root_cause
+  path_from_root: src/media_tools/av_parsers.c
+  function_name: gf_mp3_bit_rate
+  startLine: 4505
+  startColumn: 1
+  endLine: 4523
+  endColumn: 40
+```
+
+
+
+==================================================
+Fix Attempt 1
+==================================================
+
+======================================================================
+Phase: vuln.yaml Fix
+======================================================================
+
+
+[Agent Response]
+id: cpv_0
+
+name: Global buffer overflow in gf_mp3_bit_rate due to unchecked bitrate index
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+cwes:
+- CWE-125
+- CWE-787
+- CWE-129
+
+description: |
+  A global buffer overflow vulnerability exists in the gf_mp3_bit_rate function
+  in src/media_tools/av_parsers.c. The function extracts a 4-bit bitRateIndex
+  value (0-15) from an MP3 header but fails to validate it before using it as
+  an array index into bitrate_table, which only has 15 columns (indices 0-14).
+  When a malformed MP3 file contains a bitrate index of 15, the code attempts
+  to access bitrate_table[lidx][15], resulting in a 4-byte out-of-bounds read
+  past the end of the global buffer. This can lead to information disclosure
+  or denial of service.
+
+locations:
+- type: crash_site
+  path_from_root: src/media_tools/av_parsers.c
+  function_name: gf_mp3_bit_rate
+  startLine: 4523
+  startColumn: 9
+  endLine: 4523
+  endColumn: 9
+- type: root_cause
+  path_from_root: src/media_tools/av_parsers.c
+  function_name: gf_mp3_bit_rate
+  startLine: 4505
+  startColumn: 1
+  endLine: 4523
+  endColumn: 40
+
+

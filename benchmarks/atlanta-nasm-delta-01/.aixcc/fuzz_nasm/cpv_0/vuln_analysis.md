@@ -1,227 +1,188 @@
-I'll analyze the vulnerability for cpv_0 in the fuzz_nasm harness. Let me start by examining the crash logs from the specified CPV directory.Great! I found a stack-use-after-return vulnerability. Now let me examine the vulnerable code in the source file and check for any patches or POV files.Now let me examine the expand_mmac_params function more closely and the tokenize function where the patch was applied:Let me look at the expand_mmac_params function more completely to understand the context:Now let me get the complete function signature and understand the structure better:Now let me check what the patch is actually fixing by reading the old version around line 1677-1680:Now let me check what the OSS-Fuzz meta.yaml says:Perfect! Now I have all the information I need. Let me analyze the vulnerability in detail. Based on the crash log and patch, I can see:
-
-1. The crash is a **stack-use-after-return** in `expand_mmac_params` at line 5373
-2. The stack memory being accessed is from `dup_tlist` function (frame offset 32, `newlist` variable at line 892)
-3. The patch fixes the `tokenize` function to prevent creating tokens with zero length
-4. The issue is that `dup_tlist` returns a local stack variable `newlist` which goes out of scope when the function returns
-
-Let me create the comprehensive vulnerability analysis:
-
 # Vulnerability Analysis for cpv_0
 
 ## Summary
 - **CPV ID**: cpv_0
 - **Harness**: fuzz_nasm
-- **Vulnerability Type**: Stack-use-after-return
-- **Severity**: High
+- **Vulnerability Type**: Stack-use-after-return (AddressSanitizer)
+- **Origin**: synthetic
+- **Release Date**: 02/01/2026
+- **References**: None (synthetic vulnerability)
 
 ## Crash Log Analysis
 - **Error Type**: AddressSanitizer: stack-use-after-return
-- **Crash Location**: asm/preproc.c:5373:11
+- **Crash Location**: asm/preproc.c:5373
 - **Vulnerable Function**: expand_mmac_params
 - **DEDUP Token**: expand_mmac_params--pp_tokline--pp_getline
-- **SCARINESS Score**: 62 (8-byte-write-stack-use-after-return)
 
 ### Stack Trace
 ```
-#0 expand_mmac_params /src/cp-c-nasm-src/asm/preproc.c:5373:11
-#1 pp_tokline /src/cp-c-nasm-src/asm/preproc.c:7258:21
-#2 pp_getline /src/cp-c-nasm-src/asm/preproc.c:7328:17
-#3 assemble_file fuzz_nasm.c
+#0 0x5564acc566cd in expand_mmac_params /src/cp-c-nasm-src/asm/preproc.c:5373:11
+#1 0x5564acc3d8df in pp_tokline /src/cp-c-nasm-src/asm/preproc.c:7258:21
+#2 0x5564acc3d8df in pp_getline /src/cp-c-nasm-src/asm/preproc.c:7328:17
+#3 0x5564acc0068e in assemble_file fuzz_nasm.c
+#4 0x5564acbfe2ca in nasm_main (/out/fuzz_nasm+0x2d82ca)
 ```
 
-### Memory Access Details
-```
-WRITE of size 8 at 0x7f1aedf59f60 thread T0
-Address is located in stack of thread T0 at offset 32 in frame:
-  #0 dup_tlist /src/cp-c-nasm-src/asm/preproc.c:891
-  This frame has 1 object(s):
-    [32, 40) 'newlist' (line 892) <== Memory access at offset 32 is inside this variable
-```
+### Key Details from Crash Log
+- **WRITE of size 8** at address 0x7f1aedf59f60
+- **Frame information**: Address is located in stack of thread T0 at offset 32 in frame of `dup_tlist` function (line 891)
+- **Variable**: The memory access is inside the 'newlist' variable (line 892) which has gone out of scope
+- **SCARINESS**: 62 (8-byte-write-stack-use-after-return)
 
-## Vulnerable Code Location
+## Vulnerable Code Location(s)
 
-### Primary Crash Site
+### Location 1 (crash_site)
+- **Type**: crash_site
 - **File Path**: asm/preproc.c
 - **Function**: expand_mmac_params
-- **Line**: 5373
-- **Column**: 11
+- **Line Range**: 5373-5373
+- **Column Range**: 11-11
 
-### Code Context at Crash Site (lines 5336-5348)
+### Location 2 (root_cause)
+- **Type**: root_cause
+- **File Path**: asm/preproc.c
+- **Function**: tokenize
+- **Line Range**: 1677-1682
+- **Column Range**: 9-22
+
+### Code Context
+
+**Crash Site (asm/preproc.c:5373):**
 ```c
-case TOKEN_INDIRECT:
-{
-    Token *tt;
-
-    tt = tokenize(tok_text(t));
-    tt = expand_mmac_params(tt);
-    tt = expand_smacro(tt);
-    /* Why dup_tlist() here? We should own tt... */
-    dup_tlist(tt, &tail);  // Line 5344 - tail is modified
-    text = NULL;
-    change = true;
-    break;
-}
-```
-
-### After Breaking from Switch (lines 5361-5374)
-```c
-if (change) {
-    if (!text) {
-        delete_Token(t);
-    } else {
-        *tail = t;        // Line 5365
-        tail = &t->next;  // Line 5366
-        set_text(t, text, tok_strlen(text));  // Line 5367
-        t->type = type;   // Line 5368
-    }
-    changed = true;
-} else {
-    *tail = t;
-    tail = &t->next;  // Line 5373 - CRASH HERE
-}
-```
-
-### Root Cause Function: dup_tlist (lines 890-908)
-```c
-static Token *dup_tlist(const Token *list, Token ***tailp)
-{
-    Token *newlist = NULL;  // Line 892 - Local stack variable
-    Token **tailpp = &newlist;
-    const Token *t;
-
-    list_for_each(t, list) {
-        Token *nt;
-        *tailpp = nt = dup_Token(NULL, t);
-        tailpp = &nt->next;
     }
 
-    if (tailp) {
-        **tailp = newlist;
-        *tailp = tailpp;  // Line 904 - Returns pointer to local stack variable!
-    }
+    *tail = NULL;  // <-- Line 5373: Writing to tail pointer that may reference freed stack memory
 
-    return newlist;
-}  // Line 908 - newlist goes out of scope here
+    if (changed) {
+        const struct concat_mask t[] = {
 ```
 
-### Patched Code: tokenize function (lines 1677-1686)
-The patch adds a length check to prevent creating zero-length tokens:
-
-**Before (vulnerable):**
+**Root Cause (asm/preproc.c:1677-1682 - BEFORE patch):**
 ```c
-if (!ep)
-    ep = p;
+        if (!ep)
+            ep = p;
+        *tail = t = new_Token(NULL, type, line, ep - line);  // <-- Creates token even if toklen is 0
+        *tok_text_buf(t) = firstchar; /* E.g. %{foo} -> {foo -> %foo */
+        tail = &t->next;
+
+        line = p;
+```
+
+**Root Cause (asm/preproc.c:1677-1690 - AFTER patch):**
+```c
+        if (!ep)
+            ep = p;
+        toklen = ep - line;
+
+        if (toklen) {  // <-- NEW: Only create token if length is non-zero
+            *tail = t = new_Token(NULL, type, line, toklen);
+            *tok_text_buf(t) = firstchar; /* E.g. %{foo} -> {foo -> %foo */
+            tail = &t->next;
+        }
+
+        line = p;
+```
+
+## CWE Classification
+- **CWE-825**: Expired Pointer Dereference
+- **CWE-416**: Use After Free (related - stack-use-after-return is similar to use-after-free but on stack)
+- **CWE-119**: Improper Restriction of Operations within the Bounds of a Memory Buffer
+
+## Vulnerability Description
+
+This vulnerability is a **stack-use-after-return** issue in NASM's preprocessor. The root cause is in the `tokenize` function, which can create zero-length tokens when parsing certain malformed assembly input.
+
+### Root Cause
+In the `tokenize` function (asm/preproc.c, lines 1677-1682), the code calculates token length as `ep - line`. In certain edge cases with malformed input, this can result in a zero-length token. The original code unconditionally called `new_Token()` even when `toklen` was 0, creating invalid token structures.
+
+### Trigger Mechanism
+When a zero-length token is created, it can cause issues in downstream processing. The token list gets passed through various macro expansion functions including:
+1. `tokenize` creates an invalid zero-length token
+2. Token list gets passed to `pp_getline` 
+3. `pp_getline` calls `pp_tokline`
+4. `pp_tokline` calls `expand_mmac_params`
+5. During macro parameter expansion, `expand_mmac_params` manipulates the token list
+6. At line 5373, it writes `*tail = NULL` to terminate the list
+7. The `tail` pointer may reference memory from `dup_tlist`'s stack frame which has already returned
+8. This causes a stack-use-after-return error when writing to the dangling pointer
+
+### The Chain of Events
+The vulnerability manifests as a stack-use-after-return because:
+1. The `dup_tlist` function creates a local variable `newlist` on its stack frame (line 892)
+2. It returns a pointer that references this stack memory
+3. When `dup_tlist` returns, its stack frame becomes invalid
+4. Later, `expand_mmac_params` uses the returned pointer chain
+5. Writing through `tail` pointer at line 5373 accesses the freed stack memory
+
+The zero-length token creation in `tokenize` is the root cause that triggers this chain of events, leading to memory corruption.
+
+## POV Analysis
+
+The POV file (`pov_0.blob`) contains crafted assembly input designed to trigger the tokenization edge case. The crash log shows NASM parser errors during processing:
+- Multiple "parser: instruction expected" errors
+- "label or instruction expected at start of line" errors
+- "unterminated %[ construct" warning
+
+These errors indicate the POV contains malformed assembly syntax specifically crafted to trigger the zero-length token condition in the tokenizer.
+
+## Patch Analysis
+
+The patch adds a critical safety check in the `tokenize` function:
+
+**Before patch:**
+```c
 *tail = t = new_Token(NULL, type, line, ep - line);
 *tok_text_buf(t) = firstchar;
 tail = &t->next;
 ```
 
-**After (patched):**
+**After patch:**
 ```c
-if (!ep)
-    ep = p;
 toklen = ep - line;
 
-if (toklen) {  // Only create token if length > 0
+if (toklen) {  // Only create token if non-zero length
     *tail = t = new_Token(NULL, type, line, toklen);
     *tok_text_buf(t) = firstchar;
     tail = &t->next;
 }
 ```
 
-## CWE Classification
-- **CWE-825**: Expired Pointer Dereference
-- **CWE-562**: Return of Stack Variable Address
-- **CWE-416**: Use After Free (related - using memory after it's been freed/goes out of scope)
+**Fix explanation:**
+1. Calculate `toklen = ep - line` explicitly
+2. Only create the token if `toklen` is non-zero
+3. This prevents invalid zero-length tokens from entering the token stream
+4. By not creating invalid tokens, the downstream chain of events that leads to stack-use-after-return is prevented
 
-## Vulnerability Description
+This is a defensive programming fix that validates token length before creating token structures, preventing the root cause that triggers the vulnerability chain.
 
-This is a **stack-use-after-return** vulnerability in NASM's preprocessor macro expansion code. The vulnerability occurs in the `expand_mmac_params` function when processing `TOKEN_INDIRECT` tokens.
+## Vulnerability Origin Investigation
 
-### Root Cause
-The `dup_tlist` function at line 891-908 has a critical flaw: when the `tailp` parameter is provided (non-NULL), it sets `*tailp = tailpp` at line 904. The problem is that `tailpp` points to the address of the local stack variable `newlist` (specifically `tailpp = &newlist` at line 893). When the function returns, `newlist` goes out of scope, but the caller (`expand_mmac_params`) retains a pointer to this now-invalid stack location through the `tail` variable.
+I searched extensively for CVE references matching this vulnerability:
+- Searched for NASM tokenize vulnerabilities
+- Searched for stack-use-after-return in NASM preproc.c
+- Searched for expand_mmac_params vulnerabilities
+- Searched for zero-length token issues
+- Checked commit 4d9b23c34bfb12e32d1e158d6c90852c00cca229
 
-### Triggering the Vulnerability
-1. The `expand_mmac_params` function processes a `TOKEN_INDIRECT` token (line 5336-5348)
-2. It calls `tokenize(tok_text(t))` which may create an empty or malformed token list
-3. The tokenized result goes through `expand_mmac_params` and `expand_smacro`
-4. `dup_tlist(tt, &tail)` is called at line 5344, which updates `tail` to point to a stack address from `dup_tlist`'s frame
-5. When `dup_tlist` returns, that stack frame is deallocated
-6. Later, at line 5373, the code attempts to write through `tail` (`tail = &t->next`), which is a dangling pointer to freed stack memory
-7. This results in a stack-use-after-return write
+**Finding**: No exact CVE match found. While NASM has had similar vulnerabilities (CVE-2018-8881 in tokenize, stack-use-after-scope in expand_mmac_params), none match the exact characteristics of this vulnerability:
+- The specific fix (toklen check in tokenize function)
+- The specific error type (stack-use-after-return)
+- The specific location and function combination
 
-### The Patch
-The patch prevents the issue by ensuring that `tokenize` never creates zero-length tokens. When `toklen` (token length) is 0, no token is created and `tail` is not updated. This prevents the chain of events that leads to `dup_tlist` being called with a malformed token list, thereby avoiding the dangling pointer scenario.
-
-### Impact
-- **Memory corruption**: Writing to freed stack memory can corrupt other stack frames
-- **Arbitrary code execution**: An attacker could potentially control the corrupted memory to hijack control flow
-- **Denial of Service**: The crash can be triggered reliably with specially crafted assembly input
-- **Information disclosure**: Stack memory contents could potentially be leaked
-
-## POV Analysis
-
-The proof-of-vulnerability file (`pov_0.blob`) contains a malformed NASM assembly file with:
-- Malformed section directives (e.g., `seUtion` instead of `section`)
-- Invalid syntax that triggers parser errors
-- Unterminated preprocessor constructs (`%[`)
-- Repeated labels and syntax violations
-
-These malformations trigger the edge case in the `tokenize` function where zero-length tokens could be created, leading to the chain of calls that exposes the stack-use-after-return vulnerability in `dup_tlist`/`expand_mmac_params`.
-
-Key trigger from the log:
-```
-/tmp/libfuzzer.18: warning: unterminated %[ construct [-w+other]
-```
-
-This unterminated `%[` construct causes the tokenizer to create malformed tokens that expose the vulnerability.
-
-## Patch Analysis
-
-The patch (patch_0.diff) fixes the vulnerability at its source in the `tokenize` function:
-
-```diff
-@@ -1677,9 +1677,13 @@ static Token *tokenize(const char *line)
- 
-         if (!ep)
-             ep = p;
--        *tail = t = new_Token(NULL, type, line, ep - line);
--        *tok_text_buf(t) = firstchar;
--        tail = &t->next;
-+        toklen = ep - line;
-+
-+        if (toklen) {
-+            *tail = t = new_Token(NULL, type, line, toklen);
-+            *tok_text_buf(t) = firstchar;
-+            tail = &t->next;
-+        }
- 
-         line = p;
-     }
-```
-
-**Fix Strategy:**
-1. Calculate token length explicitly (`toklen = ep - line`)
-2. Only create a new token if the length is non-zero
-3. This prevents empty/malformed tokens from entering the token stream
-4. Avoids the downstream issue in `dup_tlist` that causes the stack-use-after-return
-
-**Why This Works:**
-By preventing zero-length tokens, the patch ensures that token lists passed to `dup_tlist` are well-formed. This prevents the scenario where `dup_tlist` returns a pointer to deallocated stack memory that is later dereferenced in `expand_mmac_params`.
+**Conclusion**: This appears to be a **synthetic vulnerability** created for benchmarking purposes, possibly based on real NASM vulnerabilities but not an exact 1-day reproduction.
 
 ## Recommendations
 
 ### Suggested CWEs
-- Primary: **CWE-562** (Return of Stack Variable Address)
-- Secondary: **CWE-825** (Expired Pointer Dereference)
-- Related: **CWE-416** (Use After Free)
+1. **Primary**: CWE-825 (Expired Pointer Dereference)
+2. **Secondary**: CWE-416 (Use After Free - conceptually similar for stack memory)
+3. **Tertiary**: CWE-119 (Improper Restriction of Operations within the Bounds of a Memory Buffer)
 
 ### Vulnerability Name
-"NASM Preprocessor Stack-Use-After-Return in Token List Duplication"
+**"NASM Preprocessor Zero-Length Token Stack-Use-After-Return"**
 
-### Additional Security Considerations
-1. The `dup_tlist` function should be reviewed - returning pointers to local stack variables through output parameters is dangerous
-2. Consider refactoring `dup_tlist` to return both the list head and tail pointer in a struct, or use a different mechanism that doesn't involve returning stack addresses
-3. Add validation for token lengths throughout the tokenizer to prevent similar issues
-4. Consider using static analysis tools to detect other instances of returning stack variable addresses
+### Severity Assessment
+- **Type**: Memory corruption vulnerability
+- **Impact**: Denial of service (crash), potential for code execution depending on exploitability
+- **Attack Vector**: Malformed assembly file input
+- **Complexity**: Requires crafted input to trigger specific tokenization edge case

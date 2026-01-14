@@ -1,28 +1,43 @@
 id: cpv_2
 
-name: Zip Slip Path Traversal in ZipUtil.writeEntry()
+name: Zip Slip Path Traversal in RDF4J ZipUtil
+
+origin: 1-day
+
+release_date: 12/19/2018
+
+references:
+- https://nvd.nist.gov/vuln/detail/cve-2018-20227
+- https://github.com/eclipse/rdf4j/issues/1210
+- https://github.com/eclipse/rdf4j/pull/1211
 
 cwes:
 - CWE-22
 - CWE-23
 
 description: |
-  A Zip Slip vulnerability exists in the ZipUtil.writeEntry() method where zip entry names
-  are used directly to construct file paths without validation. At line 97, the code creates
-  a File object using the entry name without verifying that the resolved path stays within
-  the intended destination directory: `File outFile = new File(destDir, entry.getName())`.
-  
-  An attacker can craft a malicious zip file with entries containing path traversal sequences
-  (e.g., "../../../../evil.txt"). When extracted, these entries resolve to paths outside the
-  destination directory, allowing arbitrary file writes to any location writable by the
-  application. This can lead to code execution by overwriting executable files, configuration
-  files, or system files, as well as data exfiltration by writing files to web-accessible
-  directories.
+  A Zip Slip vulnerability exists in the ZipUtil.writeEntry() method which
+  extracts entries from ZIP archives without validating that the entry names
+  don't contain path traversal sequences. The code creates a File object by
+  concatenating the destination directory with the entry name from the ZIP file
+  without checking if the resulting path escapes the intended directory. An
+  attacker can craft a malicious ZIP file with entries containing relative path
+  traversal sequences (e.g., ../../../../malicious-file), allowing them to write
+  files to arbitrary locations on the filesystem, potentially overwriting critical
+  system files or placing malicious files in sensitive locations.
 
 locations:
-- path_from_root: util/src/main/java/org/eclipse/rdf4j/common/io/ZipUtil.java
+- type: root_cause
+  path_from_root: util/src/main/java/org/eclipse/rdf4j/common/io/ZipUtil.java
   function_name: writeEntry
   startLine: 97
-  startColumn: 0
+  startColumn: 1
   endLine: 97
-  endColumn: 0
+  endColumn: 46
+- type: crash_site
+  path_from_root: util/src/main/java/org/eclipse/rdf4j/common/io/IOUtil.java
+  function_name: writeStream
+  startLine: 387
+  startColumn: 1
+  endLine: 387
+  endColumn: 46

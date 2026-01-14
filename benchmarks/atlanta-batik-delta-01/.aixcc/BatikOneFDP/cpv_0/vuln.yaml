@@ -1,25 +1,39 @@
 id: cpv_0
 
-name: JAR Protocol SSRF Bypass in DefaultExternalResourceSecurity
+name: Apache Batik JAR Protocol SSRF Bypass
+
+origin: 1-day
+
+release_date: 09/22/2022
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2022-38398
+- https://issues.apache.org/jira/browse/BATIK-1331
 
 cwes:
 - CWE-918
-- CWE-610
-- CWE-441
 
 description: |
-  Server-Side Request Forgery (SSRF) vulnerability in Apache Batik's DefaultExternalResourceSecurity class.
-  The security check fails to properly handle JAR protocol URLs (format: jar:http://host/file.jar!/resource).
-  When a JAR protocol URL is parsed, the getHost() method returns null because the host information is embedded 
-  within the path component. The security validation at lines 85-96 only makes exceptions for the data: protocol,
-  allowing JAR URLs to bypass same-origin checks. An attacker can craft a malicious SVG file with an image element 
-  using a JAR protocol URL pointing to an attacker-controlled server. This allows SSRF attacks that can expose 
-  internal services, enable port scanning, or exfiltrate sensitive data. The vulnerability occurs because the 
-  code does not extract and validate the embedded host information from JAR protocol URLs before making network 
-  connections.
+  A Server-Side Request Forgery (SSRF) vulnerability exists in Apache Batik
+  versions 1.0 through 1.14 in the DefaultExternalResourceSecurity class.
+  The security validation logic uses ParsedURL.getHost() to compare the
+  document host with the external resource host. However, for JAR protocol
+  URLs (e.g., jar:http://attacker.com/malicious.jar!/), the getHost()
+  method returns null, bypassing the same-origin security check. An attacker
+  can craft a malicious SVG file with a JAR protocol URL to make unauthorized
+  HTTP requests to arbitrary servers, potentially exfiltrating sensitive data
+  or accessing internal services.
 
 locations:
-- path_from_root: batik-bridge/src/main/java/org/apache/batik/bridge/DefaultExternalResourceSecurity.java
+- type: crash_site
+  path_from_root: batik-util/src/main/java/org/apache/batik/util/ParsedURLData.java
+  function_name: openStreamInternal
+  startLine: 554
+  startColumn: 0
+  endLine: 554
+  endColumn: 0
+- type: root_cause
+  path_from_root: batik-bridge/src/main/java/org/apache/batik/bridge/DefaultExternalResourceSecurity.java
   function_name: DefaultExternalResourceSecurity
   startLine: 82
   startColumn: 0

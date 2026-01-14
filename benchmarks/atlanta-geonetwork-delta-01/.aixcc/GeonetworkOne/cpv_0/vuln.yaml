@@ -1,30 +1,43 @@
 id: cpv_0
 
-name: GeoNetwork LocalFilesystem Harvester OS Command Injection via beforeScript
+name: OS Command Injection in Local Filesystem Harvester Before-Script
+
+origin: 1-day
+
+release_date: 09/05/2022
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2021-28398
+- https://github.com/geonetwork/core-geonetwork/security/advisories/GHSA-cf8p-c88c-h9jf
 
 cwes:
 - CWE-78
-- CWE-88
-- CWE-74
+- CWE-94
+- CWE-676
 
 description: |
-  Critical OS Command Injection vulnerability in the GeoNetwork LocalFilesystem harvester component.
-  The vulnerability exists in the runBeforeScript() method which executes arbitrary shell commands
-  based on user-controlled XML input without proper validation or sanitization.
-  
-  The vulnerable code extracts a <beforeScript> element from XML configuration, naively splits it
-  by spaces, and passes it directly to ProcessBuilder for execution. An attacker can craft malicious
-  XML input to inject arbitrary OS commands, leading to remote code execution with the privileges
-  of the GeoNetwork application.
-  
-  This enables attackers to execute system commands, exfiltrate sensitive data, compromise the host
-  system, perform lateral movement, or cause denial of service. The vulnerability is exploitable
-  through harvester configuration without requiring authentication to the underlying system.
+  An OS Command Injection vulnerability exists in the runBeforeScript() method
+  of the LocalFilesystemHarvester class. The method takes user-controlled input
+  from params.beforeScript, performs a simple split on spaces, and directly
+  passes the resulting array to ProcessBuilder.start() without any validation
+  or sanitization. An authenticated administrator can craft malicious XML input
+  containing arbitrary OS commands in the <beforeScript> element, which will be
+  executed on the server with the privileges of the GeoNetwork process. This
+  can lead to remote code execution, complete system compromise, data theft,
+  or denial of service.
 
 locations:
-- path_from_root: harvesters/src/main/java/org/fao/geonet/kernel/harvest/harvester/localfilesystem/LocalFilesystemHarvester.java
+- type: crash_site
+  path_from_root: harvesters/src/main/java/org/fao/geonet/kernel/harvest/harvester/localfilesystem/LocalFilesystemHarvester.java
   function_name: runBeforeScript
-  startLine: 242
-  startColumn: 5
+  startLine: 239
+  startColumn: 1
   endLine: 242
-  endColumn: 5
+  endColumn: 50
+- type: root_cause
+  path_from_root: harvesters/src/main/java/org/fao/geonet/kernel/harvest/harvester/localfilesystem/LocalFilesystemHarvester.java
+  function_name: runBeforeScript
+  startLine: 237
+  startColumn: 1
+  endLine: 242
+  endColumn: 50

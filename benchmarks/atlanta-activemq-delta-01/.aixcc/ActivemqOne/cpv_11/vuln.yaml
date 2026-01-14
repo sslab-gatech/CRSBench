@@ -1,34 +1,43 @@
 id: cpv_11
 
-name: Apache ActiveMQ OpenWire Arbitrary Class Instantiation via Exception Unmarshaling
+name: Apache ActiveMQ OpenWire Protocol Remote Code Execution via Unsafe Deserialization
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://github.com/advisories/GHSA-crg9-44h2-xw35
+- https://activemq.apache.org/security-advisories.data/CVE-2023-46604-announcement.txt
 
 cwes:
 - CWE-502
 - CWE-470
-- CWE-913
+- CWE-94
 
 description: |
-  Remote Code Execution vulnerability in Apache ActiveMQ's OpenWire protocol implementation.
-  The createThrowable method in BaseDataStreamMarshaller accepts an externally-controlled
-  className parameter from untrusted network data and uses it to instantiate arbitrary classes
-  via reflection without validation. An attacker can craft a malicious OpenWire message
-  containing an ExceptionResponse object with a specially chosen class name. When the ActiveMQ
-  client unmarshals this message, it loads and instantiates the arbitrary class using
-  Class.forName() and constructor.newInstance(), potentially executing malicious code.
-  The vulnerability exists in both v11 and v12 implementations and can lead to remote code
-  execution, denial of service, or information disclosure depending on available classes
-  on the classpath.
+  A critical remote code execution vulnerability exists in Apache ActiveMQ's OpenWire
+  protocol implementation. The createThrowable method in BaseDataStreamMarshaller
+  accepts an attacker-controlled className parameter and uses reflection to instantiate
+  any class on the classpath without verifying that the class is actually a Throwable
+  type. When deserializing ExceptionResponse messages, an attacker can specify a
+  malicious class that executes arbitrary code when instantiated. This vulnerability
+  has a CVSS score of 10.0 CRITICAL and allows complete system compromise through
+  arbitrary code execution with no authentication required.
 
 locations:
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
+- type: crash_site
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
   function_name: createThrowable
   startLine: 230
   startColumn: 0
-  endLine: 234
+  endLine: 240
   endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
+- type: root_cause
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
   function_name: createThrowable
-  startLine: 230
+  startLine: 232
   startColumn: 0
-  endLine: 234
+  endLine: 232
   endColumn: 0

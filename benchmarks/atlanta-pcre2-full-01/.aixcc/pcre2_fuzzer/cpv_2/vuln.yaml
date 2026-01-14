@@ -1,31 +1,40 @@
 id: cpv_2
 
-name: PCRE2 Lookbehind Length Integer Overflow in Quantifier Processing
+name: PCRE2 Lookbehind Integer Overflow Due to Incorrect Overflow Check
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-190
 - CWE-682
 
 description: |
-  A signed integer overflow vulnerability exists in PCRE2's get_branchlength() function
-  during lookbehind assertion length calculation. The vulnerability occurs when processing
-  regular expressions with lookbehind assertions containing repetition quantifiers.
-  
-  The root cause is an incorrect overflow check at line 9657 that validates 'min' instead
-  of 'max' before calculating itemlength = (max - 1) * lastitemlength at line 9665. When
-  'max' is large and 'min' is small, the check passes but the calculation overflows,
-  producing a negative value. This negative value is later used in arithmetic at line 9683
-  (INT_MAX - branchlength < itemlength), causing further signed integer overflow.
-  
-  The vulnerability can be triggered with patterns like (?<!( {65054}){9,44965}) where
-  the product (44965-1) * 65054 exceeds INT_MAX. This undefined behavior could lead to
-  incorrect length calculations, potentially causing buffer overflows, memory corruption,
-  or denial of service in regex compilation and matching operations.
+  A signed integer overflow vulnerability exists in the get_branchlength()
+  function of PCRE2's pattern compilation code. The function calculates the
+  length of lookbehind assertions in regular expressions. At line 9657, the
+  code performs an incorrect overflow check using the 'min' variable instead
+  of 'max' before computing itemlength = (max - 1) * lastitemlength. This
+  allows specially crafted regex patterns with lookbehind assertions containing
+  large quantifiers to bypass the overflow protection. When a minimum quantifier
+  is small but the maximum is very large, the check passes incorrectly, allowing
+  a massive value to be computed. Later, when adding this value to branchlength,
+  a signed integer overflow occurs, triggering undefined behavior that could
+  lead to incorrect lookbehind length calculations or denial of service.
 
 locations:
-- path_from_root: src/pcre2_compile.c
+- type: root_cause
+  path_from_root: src/pcre2_compile.c
   function_name: get_branchlength
   startLine: 9657
-  startColumn: 7
+  startColumn: 1
   endLine: 9657
+  endColumn: 40
+- type: crash_site
+  path_from_root: src/pcre2_compile.c
+  function_name: get_branchlength
+  startLine: 9683
+  startColumn: 1
+  endLine: 9683
   endColumn: 45

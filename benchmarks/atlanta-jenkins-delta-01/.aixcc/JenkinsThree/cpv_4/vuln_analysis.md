@@ -1,18 +1,20 @@
-I'll analyze the vulnerability for cpv_4 in the JenkinsThree harness. Let me start by examining the crash logs from the specified directory.Now let me read the crash log to understand the vulnerability:Let me read the crash log in sections to find the key information:Let me read the beginning of the log file to see the crash information:Let me search for the actual error or exception in the log:Excellent! Now let me get more context around the vulnerability:Now let me read the patch and POV files to understand the vulnerability better:Now let me find and read the vulnerable source code file:Now let me read the CompatibleObjectInputStream class to understand the vulnerability:Interesting! The current file already has the fix. Let me check the git history to see the vulnerable version:Perfect! Now let me also check the harness code to understand the complete picture:Let me check the OSS-Fuzz directory for more context:Perfect! Now I have all the information I need. Let me compile the vulnerability analysis report.
-
 # Vulnerability Analysis for cpv_4
 
 ## Summary
 - **CPV ID**: cpv_4
 - **Harness**: JenkinsThree
-- **Vulnerability Type**: Insecure Deserialization / Unsafe Object Deserialization
-- **Severity**: High
-- **Error Token**: FuzzerSecurityIssueHigh: Remote Code Execution
+- **Vulnerability Type**: Insecure Deserialization / Remote Code Execution
+- **Origin**: 1-day
+- **Release Date**: 08/31/2021
+- **References**: 
+  - https://nvd.nist.gov/vuln/detail/CVE-2021-21677
+  - https://www.jenkins.io/security/advisory/2021-08-31/
 
 ## Crash Log Analysis
 - **Error Type**: FuzzerSecurityIssueHigh: Remote Code Execution
-- **Crash Location**: io.jenkins.plugins.coverage.CoverageProcessor.java:733
-- **Vulnerable Function**: `recoverCoverageResult()`
+- **Error Message**: "Unrestricted class/object creation based on externally controlled data may allow remote code execution depending on available classes on the classpath."
+- **Crash Location**: `io.jenkins.plugins.coverage.CoverageProcessor.recoverCoverageResult()` at line 733
+- **Detection Point**: `jaz.Zer.readObject()` - Jazzer's deserialization hook detected the unsafe deserialization
 - **DEDUP Token**: b0414edf4dd428ff
 
 ### Stack Trace
@@ -35,111 +37,100 @@ remote code execution depending on available classes on the classpath.
 	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:472)
 	at io.jenkins.plugins.coverage.CoverageProcessor.recoverCoverageResult(CoverageProcessor.java:733)
 	at com.aixcc.jenkins.harnesses.three.JenkinsThree.testRecoverCoverage(JenkinsThree.java:184)
+	at com.aixcc.jenkins.harnesses.three.JenkinsThree.fuzz(JenkinsThree.java:112)
+	at com.aixcc.jenkins.harnesses.three.JenkinsThree.fuzzerTestOneInput(JenkinsThree.java:79)
 ```
 
-## Vulnerable Code Location
+## Vulnerable Code Location(s)
 
-### Primary Vulnerability
-- **File Path**: `plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CoverageProcessor.java`
-- **Function**: `recoverCoverageResult`
-- **Line**: 733
-- **Column**: N/A
+### Location 1 (crash_site)
+- **Type**: crash_site
+- **File Path**: plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CoverageProcessor.java
+- **Function**: recoverCoverageResult
+- **Line Range**: 733-733
+- **Column Range**: 1-50
 
-### Code Context (CoverageProcessor.java lines 729-735)
+**Code Context (CoverageProcessor.java:729-735)**:
 ```java
 public static CoverageResult recoverCoverageResult(final Run<?, ?> run) throws IOException, ClassNotFoundException {
     File reportFile = new File(run.getRootDir(), DEFAULT_REPORT_SAVE_NAME);
 
     try (ObjectInputStream ois = new CompatibleObjectInputStream(new BufferedInputStream(new FileInputStream(reportFile)))) {
-        return (CoverageResult) ois.readObject();  // Line 733 - Vulnerable deserialization
+        return (CoverageResult) ois.readObject();  // Line 733 - Crash site
     }
 }
 ```
 
-### Secondary Vulnerability (Missing Security Check)
-- **File Path**: `plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CompatibleObjectInputStream.java`
-- **Function**: `CompatibleObjectInputStream` constructor & missing `resolveClass()` override
-- **Line Range**: 11-30 (vulnerable version)
+### Location 2 (root_cause)
+- **Type**: root_cause
+- **File Path**: plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CompatibleObjectInputStream.java
+- **Function**: CompatibleObjectInputStream (class implementation - missing resolveClass override)
+- **Line Range**: 10-52
+- **Column Range**: 1-1
 
-### Vulnerable Code Context (CompatibleObjectInputStream.java - Original Version)
+**Code Context (CompatibleObjectInputStream.java:10-52)**:
 ```java
-public class CompatibleObjectInputStream extends ObjectInputStreamEx {
+public class CompatibleObjectInputStream extends ObjectInputStream {
+
+    final static List<String> allowList = List.of(
+        "io.jenkins.plugins.coverage.targets.CoverageResult",
+        "java.util.HashMap",
+        "java.util.TreeMap",
+        // ... more allowed classes
+    );
 
     public CompatibleObjectInputStream(InputStream in) throws IOException {
-        // TODO Use a classloader in this plugin, or uberClassLoader?
-        super(in, CoverageProcessor.class.getClassLoader(), ClassFilter.DEFAULT);
+        super(in);
     }
 
-    // Only has readClassDescriptor() override, but NO resolveClass() override
-    // This allows arbitrary classes to be deserialized if they pass ClassFilter.DEFAULT
+    // MISSING: resolveClass() override to validate against allowList
+    
+    @Override
+    protected ObjectStreamClass readClassDescriptor() throws IOException, ClassNotFoundException {
+        // Only handles serialVersionUID compatibility, NOT security validation
+        // ...
+    }
 }
 ```
+
+**Root Cause Explanation**: The `CompatibleObjectInputStream` class defines an `allowList` of safe classes but never validates deserialized objects against it. The class only overrides `readClassDescriptor()` to handle serialVersionUID mismatches, but does not override `resolveClass()` to enforce the allowlist. This allows arbitrary classes on the classpath to be deserialized, leading to remote code execution.
 
 ## CWE Classification
 - **CWE-502**: Deserialization of Untrusted Data
-- **CWE-913**: Improper Control of Dynamically-Managed Code Resources
+- **CWE-470**: Use of Externally-Controlled Input to Select Classes or Code ('Unsafe Reflection')
 
 ## Vulnerability Description
 
-This vulnerability is an **insecure deserialization** issue that allows **remote code execution** through the deserialization of untrusted data. 
+This is **CVE-2021-21677**, an insecure deserialization vulnerability in Jenkins Code Coverage API Plugin version 1.4.0 and earlier.
 
-### Root Cause
-The `CoverageProcessor.recoverCoverageResult()` method deserializes a `CoverageResult` object from a file using `CompatibleObjectInputStream`. In the vulnerable version, the `CompatibleObjectInputStream` class extends `ObjectInputStreamEx` and relies solely on `ClassFilter.DEFAULT` for security, but critically **lacks an explicit allowlist check in the `resolveClass()` method**.
+**Vulnerability Details**:
+The Code Coverage API plugin fails to apply Jenkins JEP-200 deserialization protection when deserializing Java objects from disk. The `CompatibleObjectInputStream` class extends `ObjectInputStream` and defines an allowlist of safe classes, but crucially **fails to enforce this allowlist during deserialization**.
 
-While the parent class `ObjectInputStreamEx` provides some protection through `ClassFilter.DEFAULT`, this is insufficient to prevent all deserialization attacks. An attacker can craft a malicious serialized object payload that, when deserialized, can execute arbitrary code by exploiting available gadget chains in the Jenkins classpath (e.g., commons-collections, xstream, etc.).
+**Attack Vector**:
+1. The `CoverageProcessor.recoverCoverageResult()` method deserializes coverage data from a file on disk using `CompatibleObjectInputStream`
+2. An attacker who can control the contents of the serialized coverage file can inject malicious serialized objects
+3. Since `CompatibleObjectInputStream` doesn't validate classes against the allowlist during deserialization, any class on the classpath can be instantiated
+4. Using gadget chains available on the classpath, an attacker can achieve remote code execution
 
-### Attack Vector
-1. An attacker can control or replace the coverage report file (`DEFAULT_REPORT_SAVE_NAME`) in the build directory
-2. The attacker crafts a malicious Java serialized object containing a gadget chain
-3. When Jenkins attempts to recover the coverage result, it deserializes the malicious payload
-4. The deserialization triggers the gadget chain, leading to arbitrary code execution
+**Impact**: 
+- Remote Code Execution (RCE)
+- Compromise of Jenkins server
+- Potential lateral movement to connected systems
 
-### Why This is Dangerous
-- **Remote Code Execution**: Successful exploitation allows an attacker to execute arbitrary code on the Jenkins server
-- **Privilege Escalation**: The code runs with the privileges of the Jenkins process
-- **System Compromise**: Full control over the Jenkins instance and potentially the underlying system
+**Detection**:
+Jazzer's deserialization sanitizer (part of the fuzzing framework) detected this vulnerability by monitoring `ObjectInputStream.readObject()` calls and identifying when arbitrary classes are being deserialized without proper validation.
 
 ## POV Analysis
 
-The POV (Proof of Vulnerability) test case contains a serialized Java object that triggers the vulnerability:
-
-**POV Blob** (`pov_0.blob`):
-- Header: `coverage-report` (mimics legitimate coverage report)
-- Payload: `rO0ABXNyAAdqYXouWmVyAAAAAAAAACoCAAFCAAlzYW5pdGl6ZXJ4cAIK`
-  - This is Base64-encoded serialized Java data
-  - Decoded header shows: `ac ed 00 05` (Java serialization magic)
-  - Contains serialized object of class `jaz.Zer` 
-  - The `jaz.Zer` class is part of Jazzer fuzzing framework's security hooks
-  - When deserialized, it triggers the security issue detection
-
-The POV demonstrates that arbitrary classes can be deserialized, which in a real attack scenario could be replaced with malicious gadget chains.
+A POV file exists at `benchmarks/atlanta-jenkins-delta-01/.aixcc/JenkinsThree/cpv_4/blobs/pov_0.blob` (76 bytes). This is a crafted serialized Java object that triggers the vulnerability when deserialized by `CoverageProcessor.recoverCoverageResult()`. The POV demonstrates that an attacker-controlled serialized object can bypass the intended class restrictions and trigger the security issue.
 
 ## Patch Analysis
 
-The patch introduces a **strict allowlist-based deserialization filter** in the `CompatibleObjectInputStream` class:
+The patch adds the missing `resolveClass()` method to `CompatibleObjectInputStream`:
 
-### Key Changes (patch_0.diff)
+**Patch Location**: `plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CompatibleObjectInputStream.java`
 
-1. **Switched Parent Class**: Changed from `ObjectInputStreamEx` to `ObjectInputStream`
-   - Removes dependency on external class filtering
-   - Provides direct control over deserialization
-
-2. **Added Explicit Allowlist**: 
-```java
-final static List<String> allowList = List.of(
-    "io.jenkins.plugins.coverage.targets.CoverageResult",
-    "java.util.HashMap",
-    "java.util.TreeMap",
-    "io.jenkins.plugins.coverage.targets.CoverageElement",
-    "io.jenkins.plugins.coverage.targets.Ratio",
-    "java.util.HashSet",
-    "io.jenkins.plugins.coverage.targets.CoveragePaint",
-    "gnu.trove.map.hash.TIntObjectHashMap",
-    // ... other trusted classes
-);
-```
-
-3. **Override `resolveClass()` Method** (Lines 9-15 of patch):
+**What Changed**:
 ```java
 @Override
 protected Class<?> resolveClass(ObjectStreamClass desc) throws ClassNotFoundException, IOException {
@@ -150,34 +141,31 @@ protected Class<?> resolveClass(ObjectStreamClass desc) throws ClassNotFoundExce
 }
 ```
 
-### Security Improvement
-- **Positive Security Model**: Only explicitly allowlisted classes can be deserialized
-- **Defense in Depth**: Even if an attacker can write to the coverage file, they cannot deserialize arbitrary malicious classes
-- **Fails Secure**: Any attempt to deserialize a non-allowlisted class throws a `SecurityException`
+**Fix Explanation**:
+- Overrides `resolveClass()` which is called before each class is deserialized
+- Validates the class name against the predefined `allowList`
+- Throws a `SecurityException` if an unauthorized class is encountered
+- This implements the JEP-200 deserialization protection that was previously missing
+
+**Why This Fixes the Vulnerability**:
+By validating all classes during deserialization against the allowlist, the fix prevents arbitrary classes from being instantiated. This blocks exploitation via gadget chains, as attackers can no longer deserialize classes they control.
 
 ## Recommendations
 
-### Suggested CWEs
-- **Primary**: CWE-502 (Deserialization of Untrusted Data)
-- **Secondary**: CWE-913 (Improper Control of Dynamically-Managed Code Resources)
+### Vulnerability Metadata for vuln.yaml:
+- **Suggested CWEs**: [CWE-502, CWE-470]
+- **Vulnerability Name**: "Insecure Deserialization in Code Coverage API Plugin"
+- **Severity**: High (allows Remote Code Execution)
+- **Origin**: 1-day (CVE-2021-21677)
+- **Release Date**: 08/31/2021
 
-### Vulnerability Name
-**"Insecure Deserialization in Jenkins Code Coverage API Plugin - Remote Code Execution via Malicious Coverage Report"**
+### Location Information:
+1. **crash_site**: 
+   - File: `plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CoverageProcessor.java`
+   - Function: `recoverCoverageResult`
+   - Lines: 733
 
-### Additional Security Measures
-1. **Input Validation**: Validate the integrity of coverage report files before deserialization (e.g., cryptographic signatures)
-2. **Least Privilege**: Run Jenkins with minimal privileges to limit impact of successful exploitation
-3. **File Permissions**: Restrict write access to the build directory where coverage reports are stored
-4. **Monitoring**: Log and alert on deserialization security exceptions
-5. **Alternative Serialization**: Consider using safer serialization formats (JSON, XML with schema validation) instead of Java serialization
-
-### Impact Assessment
-- **CVSS v3.1 Estimate**: High (7.5-8.5)
-  - Attack Vector: Network (if attacker can upload/modify files)
-  - Attack Complexity: Low (requires minimal skill)
-  - Privileges Required: Low (requires some access to Jenkins)
-  - User Interaction: None
-  - Scope: Unchanged
-  - Confidentiality Impact: High
-  - Integrity Impact: High
-  - Availability Impact: High
+2. **root_cause**:
+   - File: `plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CompatibleObjectInputStream.java`
+   - Class: `CompatibleObjectInputStream`
+   - Lines: 10-52 (entire class - missing security validation in resolveClass)

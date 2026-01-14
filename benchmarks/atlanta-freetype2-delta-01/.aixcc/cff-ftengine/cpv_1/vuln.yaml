@@ -1,34 +1,36 @@
 id: cpv_1
 
-name: Integer Overflow on Negation of Minimum Signed Value in CFF flex1 Operator
+name: Integer Negation Overflow in CFF CharStrings Decoder
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-190
-- CWE-681
+- CWE-191
 
 description: |
-  An integer overflow vulnerability exists in the CFF (Compact Font Format) decoder's
-  flex1 operator handling code. The vulnerability occurs when attempting to compute the
-  absolute value of delta coordinates (dx/dy) using direct negation operators. When the
-  accumulated delta values equal the minimum representable signed long value (LONG_MIN),
-  negating this value causes undefined behavior because the positive equivalent exceeds
-  the maximum representable value for signed types. This affects the
-  cff_decoder_parse_charstrings function in src/psaux/cffdecode.c at lines 1562 and 1564.
-  
-  The vulnerability can be triggered by a specially crafted CFF font file that causes
-  the flex1 operator to accumulate delta values equal to LONG_MIN. The direct negation
-  operation (-dy and -dx) invokes undefined behavior, which could lead to incorrect
-  rendering calculations, program crashes, or potential security vulnerabilities in
-  non-sanitized builds.
-  
-  The fix replaces direct negation with the NEG_LONG() macro, which safely performs
-  negation by casting to unsigned, performing subtraction from zero in the unsigned
-  domain (where wraparound is well-defined), and casting back to signed.
+  An integer negation overflow vulnerability exists in the cff_decoder_parse_charstrings
+  function in src/psaux/cffdecode.c. When processing CFF font glyph data, the code
+  attempts to compute absolute values using direct negation (-dx or -dy). This fails
+  with undefined behavior when the value is LONG_MIN (-9223372036854775808 on 64-bit
+  systems), as negating LONG_MIN exceeds LONG_MAX. The vulnerability is triggered when
+  processing specially crafted CFF fonts with extreme coordinate values, potentially
+  causing crashes or incorrect font rendering.
 
 locations:
-- path_from_root: src/psaux/cffdecode.c
+- type: crash_site
+  path_from_root: src/psaux/cffdecode.c
   function_name: cff_decoder_parse_charstrings
   startLine: 1564
   startColumn: 20
+  endLine: 1564
+  endColumn: 20
+- type: root_cause
+  path_from_root: src/psaux/cffdecode.c
+  function_name: cff_decoder_parse_charstrings
+  startLine: 1562
+  startColumn: 15
   endLine: 1564
   endColumn: 20

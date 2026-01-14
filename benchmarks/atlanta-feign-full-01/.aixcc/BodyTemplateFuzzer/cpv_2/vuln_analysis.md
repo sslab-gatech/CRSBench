@@ -1,18 +1,17 @@
-I'll analyze the vulnerability for cpv_2 in the BodyTemplateFuzzer harness. Let me start by examining the crash logs from the specified directory.Now let me check for POV files and patches:Now let me examine the vulnerable source code file:Now let me examine the Expression.java file where the pattern is actually compiled:Let me also check the BodyTemplateFuzzer to understand how the vulnerability is triggered:Now let me look at the BodyTemplate.java to understand the full call chain:Now I have enough information to provide a comprehensive vulnerability analysis. Let me create the markdown document:
-
 # Vulnerability Analysis for cpv_2
 
 ## Summary
 - **CPV ID**: cpv_2
 - **Harness**: BodyTemplateFuzzer
-- **Vulnerability Type**: Regular Expression Injection (ReDoS)
-- **Severity**: Low to Medium (Can lead to Denial of Service via excessive CPU consumption)
+- **Vulnerability Type**: Regular Expression Injection
+- **Origin**: synthetic
+- **Release Date**: 02/01/2026
+- **References**: None (synthetic vulnerability)
 
 ## Crash Log Analysis
-- **Error Type**: FuzzerSecurityIssueLow: Regular Expression Injection
-- **Root Cause**: PatternSyntaxException: Illegal repetition near index 1
+- **Error Type**: Java Exception: com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow: Regular Expression Injection
 - **Crash Location**: feign/template/Expression.java:35
-- **Vulnerable Function**: Expression constructor / Pattern.compile()
+- **Vulnerable Function**: `Expression` constructor / `Pattern.compile()`
 - **DEDUP Token**: c01aa23ef05bf739
 
 ### Stack Trace
@@ -37,108 +36,144 @@ Pattern.quote(...).
 Caused by: java.util.regex.PatternSyntaxException: Illegal repetition near index 1
 {str2
  ^
+	at java.base/java.util.regex.Pattern.error(Pattern.java:2028)
+	at java.base/java.util.regex.Pattern.closure(Pattern.java:3309)
+	at java.base/java.util.regex.Pattern.sequence(Pattern.java:2214)
+	at java.base/java.util.regex.Pattern.expr(Pattern.java:2069)
+	at java.base/java.util.regex.Pattern.compile(Pattern.java:1783)
+	at java.base/java.util.regex.Pattern.<init>(Pattern.java:1430)
+	at java.base/java.util.regex.Pattern.compile(Pattern.java:1069)
 ```
 
-## Vulnerable Code Location
+## Vulnerable Code Location(s)
+
+### Location 1 (crash_site)
+- **Type**: crash_site
+- **File Path**: core/src/main/java/feign/template/Expression.java
+- **Function**: `Expression` (constructor)
+- **Line Range**: 35-35
+- **Column Range**: 1-999
+
+### Location 2 (root_cause)
+- **Type**: root_cause
 - **File Path**: core/src/main/java/feign/template/Expressions.java
-- **Function**: `create()`
-- **Line**: 86
-- **Related Vulnerable Code**: core/src/main/java/feign/template/Expression.java:35
+- **Function**: `create`
+- **Line Range**: 82-87
+- **Column Range**: 1-999
 
-### Code Context - Expressions.java (lines 82-87)
-```java
-if (variableName.contains(":")) {
-  /* split on the colon */
-  String[] parts = variableName.split(":");
-  variableName = parts[0];
-  variablePattern = parts[1];  // Line 86 - Untrusted input used as regex pattern
-}
-```
+### Code Context
 
-### Code Context - Expression.java (lines 33-36)
+**Crash Site (Expression.java:35):**
 ```java
 Expression(String name, String pattern) {
-  this.name = name;
-  Optional.ofNullable(pattern).ifPresent(s -> this.pattern = Pattern.compile(s));  // Line 35 - Pattern compilation without sanitization
+    this.name = name;
+    Optional.ofNullable(pattern).ifPresent(s -> this.pattern = Pattern.compile(s));  // Line 35
 }
 ```
 
+The vulnerability occurs when `Pattern.compile()` is called with an unsanitized user-controlled pattern string.
+
+**Root Cause (Expressions.java:82-87):**
+```java
+if (variableName.contains(":")) {
+    /* split on the colon */
+    String[] parts = variableName.split(":");
+    variableName = parts[0];
+    variablePattern = parts[1];  // Line 86 - unsanitized pattern passed directly
+}
+```
+
+The code extracts a pattern from the expression string (e.g., `{str1:{str2:}}`) and passes it directly to the Expression constructor without sanitization. When the input contains regex metacharacters like `{`, it causes a `PatternSyntaxException`.
+
 ## CWE Classification
-- **CWE-1333**: Inefficient Regular Expression Complexity (Primary)
-- **CWE-400**: Uncontrolled Resource Consumption
-- **CWE-185**: Incorrect Regular Expression (Secondary)
-- **CWE-94**: Improper Control of Generation of Code ('Code Injection') - specifically regex pattern injection
+- **CWE-185**: Incorrect Regular Expression
+- **CWE-400**: Uncontrolled Resource Consumption (related to potential ReDoS)
+- **CWE-20**: Improper Input Validation
 
 ## Vulnerability Description
 
-This vulnerability is a **Regular Expression Injection** (ReDoS) flaw in the Feign template parsing library. The vulnerability occurs when user-controlled input is used directly as a regular expression pattern without proper sanitization or validation.
+This vulnerability occurs in the Feign template expression parser when processing variable patterns. The code allows users to specify patterns in the format `{variable:pattern}`. However, the pattern portion is not sanitized before being passed to `Pattern.compile()`.
 
-### Root Cause
-In the `Expressions.create()` method (Expressions.java:86), when parsing template expressions with the format `{variable:pattern}`, the code extracts the `pattern` portion after the colon and passes it directly to `Pattern.compile()` without any sanitization. This allows attackers to inject malicious or malformed regular expression patterns.
+**Attack Vector:**
+When a malicious input like `{str1:{str2:}}` is provided:
+1. The parser extracts `{str2:` as the pattern for the outer variable
+2. This pattern contains the regex metacharacter `{` which has special meaning
+3. When `Pattern.compile("{str2:")` is called, it throws `PatternSyntaxException: Illegal repetition`
+4. This can be detected by Jazzer's RegexInjection sanitizer as a security issue
 
-### Attack Vector
-The proof-of-vulnerability input `{str1:{str2:}}` demonstrates this vulnerability:
-1. The outer expression `{str1:{str2:}}` is parsed
-2. After the colon in `str2:`, the pattern portion is `}}`
-3. When split on ":", the pattern becomes `{str2` (from the inner expression)
-4. This malformed pattern `{str2` is passed to `Pattern.compile()`
-5. The regex compiler encounters `{` without proper context, causing a `PatternSyntaxException: Illegal repetition`
+**Impact:**
+- **Denial of Service**: Malicious patterns could cause PatternSyntaxException or, with carefully crafted inputs, cause ReDoS (Regular Expression Denial of Service) by creating exponential-time regex matching
+- **Application Crash**: Unhandled exceptions can crash the application
+- **Resource Exhaustion**: Complex regex patterns can consume excessive CPU time
 
-### Security Impact
-1. **Denial of Service (DoS)**: Attackers can craft regex patterns that cause catastrophic backtracking, consuming excessive CPU time
-2. **Application Crash**: Malformed patterns cause exceptions that can crash the application if not properly handled
-3. **Resource Exhaustion**: Pathological regex patterns can hang threads and exhaust system resources
+The vulnerability is triggered when untrusted user input is used in template expressions without proper validation or escaping.
 
 ## POV Analysis
 
-**POV Input**: `{str1:{str2:}}`
+**POV Input:** `{str1:{str2:}}`
 
-This cleverly crafted input demonstrates the vulnerability by:
-- Creating a nested expression structure where the inner expression `{str2:}` has an empty pattern after the colon
-- When the outer expression is processed, the pattern extraction logic incorrectly captures `{str2` as the pattern string
-- The `{` character in `{str2` is a special regex metacharacter for repetition quantifiers
-- Without a preceding element to repeat, this causes a `PatternSyntaxException`
+This input demonstrates the vulnerability by:
+1. Creating a nested template expression structure
+2. The inner expression `{str2:}` is interpreted as having an empty pattern after the colon
+3. When the parser processes the outer variable, it extracts `{str2:` as the pattern (everything after the first colon)
+4. The unescaped `{` character is a regex metacharacter for repetition quantifiers
+5. `Pattern.compile("{str2:")` fails with "Illegal repetition" because `{` expects a numeric quantifier but finds `s` instead
 
-The input is minimal but effective in demonstrating that arbitrary regex patterns can be injected through template expressions.
+This is a minimal test case that triggers the regex injection detection.
 
 ## Patch Analysis
 
-The patch in `patch_0.diff` fixes the vulnerability by:
+**Patch File:** patch_0.diff
 
-**Location**: core/src/main/java/feign/template/Expressions.java (lines 9-14)
+The patch adds proper sanitization using `Pattern.quote()`:
 
-**Changes**:
-```java
-// BEFORE (vulnerable):
-variablePattern = parts[1];
-
-// AFTER (fixed):
-String rawPattern = parts[1];
-if (rawPattern.isEmpty()) {
-  variablePattern = null;
-} else {
-  variablePattern = Pattern.quote(rawPattern);
-}
+```diff
+@@ -83,7 +83,12 @@ public final class Expressions {
+         /* split on the colon */
+         String[] parts = variableName.split(":");
+         variableName = parts[0];
+-        variablePattern = parts[1];
++        String rawPattern = parts[1];
++        if (rawPattern.isEmpty()) {
++          variablePattern = null;
++        } else {
++          variablePattern = Pattern.quote(rawPattern);
++        }
+       }
 ```
 
-**Security Improvements**:
-1. **Sanitization**: Uses `Pattern.quote()` to escape all special regex metacharacters in the user input
-2. **Empty Pattern Handling**: Explicitly checks for empty patterns and sets them to `null` instead of passing empty strings
-3. **Defense in Depth**: Ensures that user input is treated as a literal string rather than a regex pattern
+**Fix Analysis:**
+1. **Pattern.quote() wrapper**: The patch wraps the user-provided pattern with `Pattern.quote()`, which escapes all regex metacharacters. This converts the pattern into a literal string match rather than a regex.
+2. **Empty pattern handling**: If the pattern is empty (e.g., `{variable:}`), it sets `variablePattern` to `null` instead of passing an empty string to Pattern.compile()
+3. **Location**: The fix is applied at the root cause location in `Expressions.java` where the pattern is extracted, preventing malicious patterns from ever reaching `Pattern.compile()`
 
-The use of `Pattern.quote()` is the standard Java approach to sanitize untrusted input before using it in regular expressions. It wraps the input in `\Q...\E` escape sequences, ensuring all characters are treated literally.
+**Security Impact:**
+This fix completely mitigates the regex injection vulnerability by ensuring that all user-provided patterns are treated as literal strings rather than regex patterns. This prevents both PatternSyntaxException errors and potential ReDoS attacks.
+
+## Origin Classification Reasoning
+
+This vulnerability is classified as **synthetic** because:
+
+1. **No official CVE or security advisory found**: Extensive web searches did not reveal any CVE, OSV, GHSA, or official security advisory for this specific vulnerability
+2. **No matching GitHub issue**: While similar issues exist (#1464, #1512, #1231), they describe related but different problems (JSON header truncation, header value parsing)
+3. **No matching commit**: The GitHub commit history for Expressions.java does not show a commit specifically adding Pattern.quote() for regex injection mitigation in the exact location shown in the patch
+4. **Different fix approach**: Real-world fixes in the Feign repository (like #1776) took different approaches focused on expression validation rather than Pattern.quote() sanitization
+5. **Synthetic nature of the POV**: The test input `{str1:{str2:}}` appears to be a crafted fuzzing input rather than a real-world exploit
+
+While the vulnerability pattern (regex injection via unsanitized Pattern.compile()) is well-documented in security literature (CERT IDS08-J, CWE-185), this specific instance in Feign does not have a published 1-day reference.
 
 ## Recommendations
 
-### Primary CWEs
-1. **CWE-1333**: Inefficient Regular Expression Complexity
-2. **CWE-400**: Uncontrolled Resource Consumption
+### Suggested CWEs
+- **Primary**: CWE-185 (Incorrect Regular Expression)
+- **Secondary**: CWE-400 (Uncontrolled Resource Consumption)
+- **Tertiary**: CWE-20 (Improper Input Validation)
 
 ### Vulnerability Name
-"Regular Expression Injection in Feign Template Variable Pattern Parsing"
+"Regex Injection in Feign Template Expression Pattern Parsing"
 
-### Additional Recommendations
-1. **Input Validation**: Validate template expressions before processing to reject suspicious patterns
-2. **Regex Complexity Limits**: Implement timeouts or complexity limits when compiling/matching patterns
-3. **Security Testing**: Add fuzzing tests specifically targeting regex injection vulnerabilities
-4. **Documentation**: Clearly document that variable patterns should not accept untrusted input, or if they must, ensure proper sanitization
+### Additional Security Considerations
+1. Input validation should be performed before pattern extraction
+2. Consider limiting the complexity of allowed patterns to prevent ReDoS
+3. Add unit tests with malicious regex patterns to prevent regression
+4. Consider using a safer pattern matching approach that doesn't require regex compilation for user-provided patterns

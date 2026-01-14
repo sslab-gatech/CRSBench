@@ -1,29 +1,38 @@
 id: cpv_0
 
-name: Stack Buffer Underflow in RPN Calculator Wide Character Print
+name: Stack Buffer Underflow in RPN Calculator Wide Character Print Command
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-787
 - CWE-125
-- CWE-823
+- CWE-121
 
 description: |
-  A stack buffer underflow vulnerability exists in the main_loop function when handling
-  the 'pw' (print wide character) command. The vulnerability occurs when copying stack
-  values into a wide character buffer in reverse order. The loop condition at lines 237-246
-  only checks if the value is non-zero but fails to check if the array index 'widx' goes
-  negative. When the stack index 'a.idx' is negative (which can be set via the 'c' command
-  with negative numbers), the loop continues indefinitely, decrementing 'widx' below zero.
-  This causes out-of-bounds writes to negative array indices (wcs[widx]), corrupting
-  adjacent stack memory including return addresses and saved frame pointers. It also causes
-  out-of-bounds reads from values[i] when 'i' decrements beyond valid bounds. The
-  vulnerability can lead to memory corruption, information disclosure, arbitrary code
-  execution, or denial of service.
+  A stack buffer underflow vulnerability exists in the main_loop function's
+  handling of the 'pw' (print wide character) command. The code iterates
+  backwards through the values array without proper bounds checking, allowing
+  the loop index to become negative. This causes out-of-bounds reads from the
+  values array and out-of-bounds writes to the wcs array, leading to stack
+  memory corruption and stack-use-after-return conditions. An attacker can
+  trigger this by crafting input that fills the stack with non-zero values,
+  causing the loop to continue past valid array boundaries.
 
 locations:
-- path_from_root: cp-tkctf-rpn-calculator-source/stackmachine.c
+- type: crash_site
+  path_from_root: cp-tkctf-rpn-calculator-source/stackmachine.c
+  function_name: dump
+  startLine: 123
+  startColumn: 20
+  endLine: 123
+  endColumn: 20
+- type: root_cause
+  path_from_root: cp-tkctf-rpn-calculator-source/stackmachine.c
   function_name: main_loop
-  startLine: 237
-  startColumn: 0
-  endLine: 246
-  endColumn: 0
+  startLine: 247
+  startColumn: 1
+  endLine: 249
+  endColumn: 50

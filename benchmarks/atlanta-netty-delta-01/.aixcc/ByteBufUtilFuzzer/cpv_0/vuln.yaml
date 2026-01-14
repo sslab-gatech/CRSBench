@@ -1,23 +1,36 @@
 id: cpv_0
 
-name: ByteBuf Array Index Validation Error
+name: ArrayIndexOutOfBoundsException in ByteBufUtil.indexOf() due to inconsistent length tracking
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-129
-- CWE-20
+- CWE-125
 
 description: |
-  The vulnerability is an ArrayIndexOutOfBoundsException due to improper
-  validation of array index within the 'getByte' function in 'HeapByteBufUtil.java'.
-  It occurs when an invalid index is accessed, leading to crashes or unexpected behavior.
-  The issue stems from a lack of boundary checks on array indices, which allows
-  potential out-of-bounds access. The security impact includes application instability
-  and potential exposure to further exploits.
+  An ArrayIndexOutOfBoundsException vulnerability exists in the ByteBufUtil.indexOf()
+  method when handling a special "magic" needle value. When the input needle is a
+  4-byte value equal to 0xDEADBEEF, the code replaces it with a predefined SECRET_NEEDLE
+  buffer containing only 3 bytes. However, the code fails to update the variable 'm'
+  which stores the needle length, leaving it at 4. This stale value causes the maxSuf()
+  function to attempt reading beyond the buffer bounds (index 3 of a 3-byte buffer),
+  resulting in an ArrayIndexOutOfBoundsException and potential out-of-bounds read.
 
 locations:
-- path_from_root: buffer/src/main/java/io/netty/buffer/HeapByteBufUtil.java
+- type: root_cause
+  path_from_root: buffer/src/main/java/io/netty/buffer/ByteBufUtil.java
+  function_name: indexOf
+  startLine: 278
+  startColumn: 1
+  endLine: 282
+  endColumn: 100
+- type: crash_site
+  path_from_root: buffer/src/main/java/io/netty/buffer/HeapByteBufUtil.java
   function_name: getByte
-  startLine: 20
-  startColumn: 0
-  endLine: 30
-  endColumn: 0
+  startLine: 24
+  startColumn: 1
+  endLine: 24
+  endColumn: 30

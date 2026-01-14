@@ -1,34 +1,37 @@
 id: cpv_0
 
-name: XPath Injection in FuzzyWuzzy Configuration Retrieval
+name: XPath Injection in Config.getTagXPath via Unsanitized Tag Parameter
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-643
 - CWE-91
+- CWE-74
 
 description: |
-  An XPath injection vulnerability exists in the FuzzyWuzzy library's configuration
-  retrieval mechanism. The vulnerability is located in the Config.getTagXPath() method
-  at line 63 of Config.java, where user-controlled input is directly concatenated into
-  an XPath expression without validation or sanitization. The attack flow begins when
-  DiffUtils.getRatio() accepts user input with a crafted "xcost:" prefix (e.g., "xcost-':a b").
-  The getConfigValue() method then uses reflection to call Config.getTagXPath() with the
-  unsanitized prefix, which is concatenated into an XPath query as "//" + tag. This allows
-  attackers to inject malicious XPath expressions that can extract sensitive configuration
-  data from XML documents, bypass application logic, cause denial of service, or probe XML
-  document structure. The vulnerability was demonstrated with the proof-of-vulnerability
-  input "xcost-':a b" which injected a single quote to break out of the XPath query context.
+  An XPath injection vulnerability exists in the Config.getTagXPath() method
+  which constructs XPath expressions through simple string concatenation without
+  proper input validation or sanitization. When the tag parameter contains special
+  XPath characters (like single quotes), it breaks the XPath syntax and allows
+  injection of malicious XPath expressions. This can allow attackers to extract
+  sensitive data from XML documents, bypass authentication/authorization checks,
+  or potentially cause denial of service through malformed queries.
 
 locations:
-- path_from_root: src/me/xdrop/fuzzywuzzy/Config.java
+- type: crash_site
+  path_from_root: src/me/xdrop/fuzzywuzzy/Config.java
   function_name: getTagXPath
-  startLine: 63
-  endLine: 63
-  startColumn: 0
-  endColumn: 0
-- path_from_root: diffutils/src/me/xdrop/diffutils/DiffUtils.java
+  startLine: 84
+  startColumn: 13
+  endLine: 84
+  endColumn: 45
+- type: root_cause
+  path_from_root: diffutils/src/me/xdrop/diffutils/DiffUtils.java
   function_name: getConfigValue
   startLine: 855
+  startColumn: 13
   endLine: 855
-  startColumn: 0
-  endColumn: 0
+  endColumn: 140

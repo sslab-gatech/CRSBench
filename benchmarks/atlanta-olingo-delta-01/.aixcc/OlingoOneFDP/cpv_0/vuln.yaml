@@ -2,25 +2,40 @@ id: cpv_0
 
 name: Server-Side Request Forgery via Unvalidated Location Header
 
+origin: 1-day
+
+release_date: 01/09/2020
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2020-1925
+- https://blog.gypsyengineer.com/en/security/cve-2020-1925-ssrf-in-apache-olingo.html
+
 cwes:
 - CWE-918
+- CWE-20
 - CWE-601
 
 description: |
-  Server-Side Request Forgery (SSRF) vulnerability in Apache Olingo OData client library's 
-  asynchronous request handling. The AsyncRequestWrapperImpl class accepts an untrusted 
-  Location header from HTTP 202 responses and uses it to make subsequent HTTP requests 
-  without validation. In retrieveMonitorDetails(), the application extracts the Location 
-  header value and creates a URI directly using URI.create(headers[0].getValue()) at line 
-  261, then passes it to checkMonitor() which makes an HTTP request to the attacker-controlled 
-  URL. This allows attackers to force the application to make requests to arbitrary internal 
-  or external hosts, potentially leading to data exfiltration, access to internal services, 
-  cloud metadata credential theft, internal network scanning, and bypassing access controls.
+  A Server-Side Request Forgery (SSRF) vulnerability exists in Apache Olingo
+  versions 4.0.0 to 4.7.0 in the AsyncRequestWrapperImpl class. When handling
+  asynchronous OData requests, the client reads the Location header from HTTP
+  responses without validation and uses it to make subsequent HTTP requests.
+  An attacker can control the Location header to redirect requests to arbitrary
+  URLs, including internal services, cloud metadata endpoints, or external hosts,
+  potentially leading to data exfiltration or exposure of internal resources.
 
 locations:
-- path_from_root: lib/client-core/src/main/java/org/apache/olingo/client/core/communication/request/v4/AsyncRequestWrapperImpl.java
+- type: root_cause
+  path_from_root: lib/client-core/src/main/java/org/apache/olingo/client/core/communication/request/v4/AsyncRequestWrapperImpl.java
   function_name: retrieveMonitorDetails
-  startLine: 261
+  startLine: 262
   startColumn: 0
-  endLine: 261
+  endLine: 262
+  endColumn: 0
+- type: crash_site
+  path_from_root: lib/client-core/src/main/java/org/apache/olingo/client/core/communication/request/v4/AsyncRequestWrapperImpl.java
+  function_name: checkMonitor
+  startLine: 295
+  startColumn: 0
+  endLine: 297
   endColumn: 0

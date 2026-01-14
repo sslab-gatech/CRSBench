@@ -1,27 +1,40 @@
 id: cpv_3
 
-name: Nginx FLV Module NULL Pointer Dereference via Invalid Start Parameter
+name: nginx FLV Module NULL Pointer Dereference via Invalid Start Parameter
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+references: []
 
 cwes:
 - CWE-476
-- CWE-690
 - CWE-703
 
 description: |
-  A NULL pointer dereference vulnerability exists in the nginx FLV (Flash Video) module handler.
-  When processing HTTP requests for FLV files with a 'start' query parameter value that is greater
-  than or equal to the file size, the code in ngx_http_flv_handler() sets the request pointer 'r'
-  to NULL at line 180 to mark the request as invalid. However, the function continues executing
-  without returning, and subsequently attempts to access r->headers_out.status at line 192, causing
-  a NULL pointer dereference and segmentation fault. This can be exploited by an attacker sending
-  a malicious HTTP GET request with an oversized start parameter (e.g., GET /videos/sample.flv?start=10000000),
-  resulting in a denial of service by crashing the nginx worker process. The vulnerability has a
-  scariness level of 10 (null-deref) and causes a SEGV signal with write access to address 0x000000000238.
+  A NULL pointer dereference vulnerability exists in the nginx FLV module's
+  request handler (ngx_http_flv_handler). When processing HTTP requests with
+  a 'start' query parameter for FLV pseudo-streaming, if the start value is
+  greater than or equal to the file length, the code sets the request pointer
+  to NULL to mark the request as invalid. However, execution continues without
+  checking if the pointer is NULL, and subsequently attempts to access
+  r->headers_out.status, causing a segmentation fault. This can be exploited
+  by a remote attacker to crash nginx worker processes, leading to denial of
+  service.
 
 locations:
-- path_from_root: src/http/modules/ngx_http_flv_module.c
+- type: crash_site
+  path_from_root: src/http/modules/ngx_http_flv_module.c
   function_name: ngx_http_flv_handler
-  startLine: 180
-  startColumn: 13
+  startLine: 192
+  startColumn: 27
   endLine: 192
+  endColumn: 27
+- type: root_cause
+  path_from_root: src/http/modules/ngx_http_flv_module.c
+  function_name: ngx_http_flv_handler
+  startLine: 178
+  startColumn: 13
+  endLine: 181
   endColumn: 27

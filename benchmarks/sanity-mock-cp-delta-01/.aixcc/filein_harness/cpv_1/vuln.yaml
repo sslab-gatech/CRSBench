@@ -1,27 +1,38 @@
 id: cpv_1
 
-name: Out-of-bounds Array Access in func_b due to Missing Input Validation
+name: Out-of-bounds array access in func_b
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
+- CWE-129
+- CWE-787
 - CWE-125
-- CWE-20
-- CWE-823
 
 description: |
-  An out-of-bounds array access vulnerability exists in the func_b() function in mock_vp.c.
-  The function reads an integer value from user input via scanf() without performing bounds
-  checking, then directly uses this value as an index to access the global items[3][10] array.
-  When the input value is outside the valid range [0-2], the program attempts to access memory
-  outside the array bounds, leading to a segmentation fault. The vulnerability is triggered when
-  an attacker provides an out-of-range index (e.g., 501), causing the program to dereference
-  an invalid memory address when attempting to print the array contents. This can result in
-  application crash (denial of service), potential information disclosure through out-of-bounds
-  reads, or in certain scenarios could be chained with other vulnerabilities for code execution.
+  An out-of-bounds array access vulnerability exists in the func_b function
+  in mock_vp.c. The function accepts user input for an array index without
+  performing bounds validation before using it to access the items array.
+  When an out-of-bounds index is provided (e.g., 501 for a 3-element array),
+  the code computes a wild pointer that points to unmapped memory, leading
+  to a segmentation fault when dereferenced. This can lead to information
+  disclosure, denial of service, or potentially arbitrary code execution
+  depending on the context.
 
 locations:
-- path_from_root: mock-cp-src/mock_vp.c
+- type: root_cause
+  path_from_root: mock-cp-src/mock_vp.c
   function_name: func_b
-  startLine: 24
-  startColumn: 0
+  startLine: 26
+  startColumn: 5
+  endLine: 26
+  endColumn: 27
+- type: crash_site
+  path_from_root: mock-cp-src/mock_vp.c
+  function_name: func_b
+  startLine: 27
+  startColumn: 5
   endLine: 27
-  endColumn: 0
+  endColumn: 32

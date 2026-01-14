@@ -1,36 +1,42 @@
 id: cpv_1
 
-name: XML External Entity (XXE) Injection in RDF4J RDFXMLParser leading to SSRF
+name: XML External Entity Injection in RDF/XML Parser Leading to SSRF
+
+origin: 1-day
+
+release_date: 08/20/2018
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2018-1000644
+- https://github.com/eclipse-rdf4j/rdf4j/issues/1056
+- https://github.com/eclipse/rdf4j/pull/1146
+- https://0dd.zone/2018/08/05/rdf4j-XXE/
 
 cwes:
 - CWE-611
 - CWE-918
-- CWE-776
 
 description: |
-  The RDF4J RDFXMLParser suffers from an XML External Entity (XXE) vulnerability 
-  that can lead to Server-Side Request Forgery (SSRF) attacks. The vulnerability 
-  exists because the XML parser does not properly restrict external entity 
-  resolution in XML documents.
-  
-  The root cause is that the parser's default configuration only enables 
-  SECURE_PROCESSING but fails to disable DOCTYPE declarations and external 
-  entity processing. This allows attackers to craft malicious RDF/XML documents 
-  containing XML entity declarations that reference external URLs.
-  
-  When the parser processes a document with external entity references (e.g., 
-  <!ENTITY xxe SYSTEM "http://attacker.com">), it attempts to resolve the 
-  external entity by making an HTTP connection to the attacker-controlled URL.
-  
-  Impact includes information disclosure through reading local files or internal 
-  network resources, SSRF attacks against internal services, port scanning of 
-  internal networks, denial of service through entity expansion attacks, and 
-  potential data exfiltration to attacker-controlled servers.
+  An XML External Entity (XXE) injection vulnerability exists in Eclipse RDF4J's
+  RDF/XML and TriX parsers. The XML parser configuration did not disable external
+  entity processing by default, allowing DOCTYPE declarations and external entity
+  references to be processed. An attacker can craft a malicious RDF/XML document
+  containing external entity references, causing the parser to make HTTP connections
+  to attacker-controlled servers (SSRF), access local files, or perform denial of
+  service attacks through entity expansion.
 
 locations:
-- path_from_root: rio/rdfxml/src/main/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParser.java
-  function_name: parse
-  startLine: 328
+- type: root_cause
+  path_from_root: rio/api/src/main/java/org/eclipse/rdf4j/rio/helpers/XMLParserSettings.java
+  function_name: XMLParserSettings
+  startLine: 35
   startColumn: 0
-  endLine: 328
+  endLine: 46
+  endColumn: 0
+- type: crash_site
+  path_from_root: rio/rdfxml/src/main/java/org/eclipse/rdf4j/rio/rdfxml/RDFXMLParser.java
+  function_name: parse
+  startLine: 242
+  startColumn: 0
+  endLine: 295
   endColumn: 0

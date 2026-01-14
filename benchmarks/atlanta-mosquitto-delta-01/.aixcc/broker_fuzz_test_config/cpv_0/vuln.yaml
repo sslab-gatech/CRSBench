@@ -1,32 +1,35 @@
 id: cpv_0
 
-name: Heap buffer overflow in config__add_listener via off-by-one indexing error
+name: Off-by-one heap buffer overflow in config__add_listener
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
-- CWE-122
 - CWE-787
-- CWE-131
+- CWE-122
 
 description: |
-  A heap-based buffer overflow vulnerability exists in the Mosquitto MQTT broker's configuration
-  parser within the config__add_listener() function in src/conf.c. The vulnerability is caused by
-  an off-by-one indexing error when adding a new listener to the configuration.
-  
-  After reallocating the listeners array to accommodate listener_count+1 elements, the code
-  incorrectly accesses the new slot using index (listener_count-1) instead of the correct index
-  (listener_count). When listener_count is 0 (adding the first listener), this results in accessing
-  index -1, which wraps to a large unsigned value or accesses memory before the allocated buffer.
-  
-  The subsequent memset() call then writes 224 bytes (sizeof struct mosquitto__listener) to this
-  incorrect memory location, causing a heap buffer overflow that writes past the bounds of the
-  allocated region. This can corrupt adjacent heap structures, crash the broker during configuration
-  parsing, and potentially be exploited for arbitrary code execution.
-  
-  The vulnerability is triggered when configuration options like psk_hint appear before any explicit
-  listener definition, causing automatic default listener creation with listener_count at 0.
+  A heap-based buffer overflow vulnerability exists in the config__add_listener
+  function in src/conf.c due to an off-by-one indexing error. When adding a new
+  listener to the configuration, the code reallocates the listeners array to size
+  config->listener_count+1 but incorrectly calculates the pointer to the new
+  listener as &config->listeners[config->listener_count-1], which points to the
+  last existing element instead of the newly allocated slot. This causes memset
+  to write 224 bytes (size of struct mosquitto__listener) beyond the allocated
+  buffer, leading to heap memory corruption and potential arbitrary code execution.
 
 locations:
-- path_from_root: src/conf.c
+- type: root_cause
+  path_from_root: src/conf.c
+  function_name: config__add_listener
+  startLine: 165
+  startColumn: 1
+  endLine: 165
+  endColumn: 1
+- type: crash_site
+  path_from_root: src/conf.c
   function_name: config__add_listener
   startLine: 166
   startColumn: 2

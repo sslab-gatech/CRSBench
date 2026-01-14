@@ -1,28 +1,36 @@
 id: cpv_3
 
-name: Apache POI HDGF Parser Uncontrolled Recursion Leading to Out-of-Memory
+name: Apache POI HDGF Uncontrolled Recursion in PointerContainingStream
+
+origin: synthetic
+
+release_date: 04/06/2025
+
+references:
+- https://bz.apache.org/bugzilla/show_bug.cgi?id=66425
+- https://www.mail-archive.com/commits@poi.apache.org/msg16820.html
+- https://poi.apache.org/changes.html
 
 cwes:
 - CWE-674
-- CWE-770
 - CWE-400
+- CWE-770
 
 description: |
-  Uncontrolled recursion vulnerability in Apache POI's HDGF (Visio) document parser 
-  that leads to resource exhaustion. The vulnerability exists in the 
-  PointerContainingStream.findChildren() method, which recursively processes nested 
-  pointer structures within Visio document streams. While the code implements a 
-  MAX_CHILDREN_NESTING limit of 500 levels, when this limit is exceeded, it only 
-  logs a warning and returns silently instead of throwing an exception. A maliciously 
-  crafted Visio document with deeply nested or circular pointer structures can trigger 
-  excessive memory allocation through recursive descent, causing the parser to allocate 
-  thousands of Stream and Pointer objects until the JVM heap is exhausted, resulting 
-  in an OutOfMemoryError and denial of service.
+  An uncontrolled recursion vulnerability exists in Apache POI's HDGF (Visio file format)
+  parsing component. When processing maliciously crafted Visio (.vsd) files with deeply
+  nested pointer-containing streams, the PointerContainingStream.findChildren() method
+  recursively processes child streams without effectively enforcing the MAX_CHILDREN_NESTING
+  limit. The vulnerable code checks if nesting exceeds the limit and logs a warning, but
+  only returns from the current recursion level after memory has already been allocated for
+  all nested calls. This leads to GC overhead from managing deeply nested objects, causing
+  an OutOfMemoryError and denial of service.
 
 locations:
-- path_from_root: poi-scratchpad/src/main/java/org/apache/poi/hdgf/streams/PointerContainingStream.java
+- type: root_cause
+  path_from_root: poi-scratchpad/src/main/java/org/apache/poi/hdgf/streams/PointerContainingStream.java
   function_name: findChildren
   startLine: 70
   startColumn: 0
-  endLine: 98
+  endLine: 76
   endColumn: 0

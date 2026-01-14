@@ -1,29 +1,38 @@
 id: cpv_10
 
-name: Arbitrary Native Library Loading via Authorization Bypass
+name: Authorization Bypass Enabling Arbitrary Native Library Loading
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
-- CWE-829
 - CWE-863
-- CWE-114
+- CWE-434
+- CWE-94
 
 description: |
-  An arbitrary native library loading vulnerability exists in the SecretMessage.doPerform() method
-  due to an incorrect authorization check. The vulnerability is caused by using an OR operator (||)
-  instead of an AND operator (&&) in the authorization logic on line 88. This allows non-admin users
-  to bypass security controls by simply including a "freeload" parameter in their request, enabling
-  them to set freeload=true and load arbitrary native libraries from attacker-controlled paths.
-  
-  When freeload is set to true, the absolute path validation check is bypassed, and the path variable
-  is set directly from user input. On line 98, Runtime.getRuntime().load(path) loads the attacker-
-  controlled native library, enabling remote code execution. This critical vulnerability allows
-  attackers to load malicious native libraries (.so, .dll, .dylib files), achieve privilege
-  escalation, and completely compromise the system through arbitrary native code execution.
+  An authorization bypass vulnerability exists in the SecretMessage plugin's
+  doPerform method. The code uses a logical OR operator instead of AND when
+  checking authorization, allowing any user to set the 'freeload' parameter
+  by simply including it in their request. This bypasses the absolute path
+  restriction and enables loading arbitrary native libraries into the Jenkins
+  process, leading to remote code execution. An attacker can exploit this by
+  sending a request with freeload=True to load a malicious library without
+  requiring administrative privileges.
 
 locations:
-- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/SecretMessage.java
+- type: root_cause
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/SecretMessage.java
   function_name: doPerform
   startLine: 88
-  startColumn: 0
+  startColumn: 1
+  endLine: 90
+  endColumn: 10
+- type: crash_site
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/SecretMessage.java
+  function_name: doPerform
+  startLine: 98
+  startColumn: 13
   endLine: 98
-  endColumn: 0
+  endColumn: 41

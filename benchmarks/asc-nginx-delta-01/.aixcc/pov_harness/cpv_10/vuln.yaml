@@ -1,36 +1,38 @@
 id: cpv_10
 
-name: Out-of-bounds read in nginx userid filter module cookie processing
+name: NGINX userid filter module cookie length constraint bypass leading to out-of-bounds read
+
+origin: synthetic
+
+release_date: 01/01/2024
 
 cwes:
 - CWE-125
-- CWE-805
 - CWE-787
+- CWE-823
 
 description: |
-  An out-of-bounds read vulnerability exists in the nginx HTTP userid filter module
-  when processing user-supplied cookies. The vulnerability occurs in the
-  ngx_http_userid_set_uid function at line 446 in
-  src/http/modules/ngx_http_userid_filter_module.c.
-  
-  The root cause is a missing length validation that allows cookies longer than
-  the expected 22-character base64 format to pass initial checks. While the code
-  at line 350 validates that cookies are at least 22 bytes long, it does not
-  enforce a maximum length. When a cookie with ctx->uid_got[3] != 0 is processed,
-  the code attempts to copy exactly 22 bytes from ctx->cookie.data using ngx_cpymem,
-  but the cookie data pointer may be invalid or point to memory that cannot be
-  safely accessed, resulting in a wild address read.
-  
-  An attacker can exploit this by sending an HTTP request with a crafted Cookie
-  header containing a userid value longer than expected (e.g., 64 base64 characters).
-  This triggers a segmentation fault, crashing the nginx worker process and causing
-  a denial of service. There is also potential for information disclosure through
-  reading sensitive memory beyond the cookie buffer bounds.
+  A vulnerability exists in the NGINX userid filter module where the cookie
+  length validation is insufficient. The ngx_http_userid_get_uid function
+  checks if the cookie length is at least 22 bytes but does not constrain
+  it to exactly 22 bytes. When a cookie longer than 22 bytes is provided,
+  the ngx_http_userid_set_uid function attempts to copy exactly 22 bytes
+  from ctx->cookie.data, resulting in a wild pointer dereference and
+  out-of-bounds read. This leads to a segmentation fault and denial of
+  service.
 
 locations:
-- path_from_root: src/http/modules/ngx_http_userid_filter_module.c
+- type: crash_site
+  path_from_root: src/http/modules/ngx_http_userid_filter_module.c
   function_name: ngx_http_userid_set_uid
   startLine: 446
   startColumn: 13
   endLine: 446
   endColumn: 13
+- type: root_cause
+  path_from_root: src/http/modules/ngx_http_userid_filter_module.c
+  function_name: ngx_http_userid_get_uid
+  startLine: 357
+  startColumn: 1
+  endLine: 357
+  endColumn: 1

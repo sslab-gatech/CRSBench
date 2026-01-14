@@ -1,33 +1,40 @@
 id: cpv_1
 
-name: nginx HTTP From Header Email Validation Heap Buffer Out-of-bounds Read
+name: Heap Buffer Underflow in Email Address Validation
+
+origin: synthetic
+
+release_date: 01/01/2024
 
 cwes:
+- CWE-122
 - CWE-125
-- CWE-823
-- CWE-119
+- CWE-787
 
 description: |
-  A heap buffer out-of-bounds read vulnerability exists in nginx's HTTP request header 
-  processing code, specifically in the ngx_http_validate_from() function which validates 
-  email addresses from HTTP "From" headers. The function uses a state machine to parse 
-  email addresses character by character. When processing consecutive dots in the username 
-  portion of an email address, the code attempts to find the previous dot by searching 
-  backward through the buffer without proper bounds checking. When a dot is encountered 
-  while already in the sw_username_dot state (two consecutive dots), the code decrements 
-  the pointer by 2 positions (u -= 2) and enters an infinite loop searching backward for 
-  a dot character. If this occurs at the beginning of the buffer, the pointer can be 
-  decremented below the buffer's start address, causing an out-of-bounds read of heap 
-  memory. This vulnerability can be triggered remotely by sending a crafted HTTP request 
-  with a malicious "From" header containing dots at the beginning (e.g., From: ..user@domain.com). 
-  The impact includes information disclosure through reading adjacent heap memory, denial 
-  of service through process crashes, and potential for exploitation when chained with 
-  other vulnerabilities.
+  A heap buffer underflow vulnerability exists in the synthetically added
+  ngx_http_validate_from function, which validates email addresses in HTTP
+  "From" headers. When processing consecutive dots in the username portion
+  of an email address, the parser performs an unbounded backward pointer
+  traversal without bounds checking. The code decrements the pointer by 2
+  and enters a loop searching for a previous dot character, but if the input
+  contains dots at the beginning or early in the string, the pointer underflows
+  past the allocated buffer's start address. This causes an out-of-bounds read
+  when checking the character at the underflowed address, potentially leading
+  to information disclosure, denial of service, or further exploitation.
 
 locations:
-- path_from_root: src/http/ngx_http_request.c
+- type: crash_site
+  path_from_root: src/http/ngx_http_request.c
   function_name: ngx_http_validate_from
   startLine: 4093
   startColumn: 25
   endLine: 4093
   endColumn: 25
+- type: root_cause
+  path_from_root: src/http/ngx_http_request.c
+  function_name: ngx_http_validate_from
+  startLine: 4091
+  startColumn: 1
+  endLine: 4099
+  endColumn: 18

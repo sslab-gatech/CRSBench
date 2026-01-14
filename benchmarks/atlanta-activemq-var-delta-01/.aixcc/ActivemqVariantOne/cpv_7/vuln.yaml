@@ -1,32 +1,35 @@
 id: cpv_7
 
-name: Apache ActiveMQ OpenWire Unsafe Exception Deserialization RCE
+name: Apache ActiveMQ OpenWire Protocol Remote Code Execution
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://activemq.apache.org/news/cve-2023-46604
 
 cwes:
 - CWE-502
 - CWE-470
-- CWE-913
+- CWE-94
 
 description: |
-  Unsafe deserialization vulnerability in Apache ActiveMQ's OpenWire protocol implementation
-  allows remote code execution through arbitrary class instantiation. The vulnerability exists
-  in the BaseDataStreamMarshaller.createThrowable() method, which deserializes exception objects
-  from untrusted network input without proper validation.
-  
-  The method reads a class name directly from network data and uses reflection to instantiate
-  arbitrary classes via Class.forName() and Constructor.newInstance(). The only validation is
-  a weak check that the class name starts with "j", which is trivially bypassed. The code
-  instantiates the class before validating it extends Throwable, allowing attackers to
-  instantiate any class on the classpath with a constructor accepting a String parameter.
-  
-  An attacker can craft a malicious OpenWire ExceptionResponse message containing a gadget
-  class name (e.g., "jaz.Zer") and arbitrary constructor parameters, leading to remote code
-  execution, denial of service, or information disclosure depending on available classpath classes.
+  A critical remote code execution vulnerability in Apache ActiveMQ's OpenWire
+  protocol marshaller allows an attacker with network access to run arbitrary
+  shell commands. The createThrowable method in BaseDataStreamMarshaller fails
+  to validate that a deserialized class extends Throwable before instantiation.
+  This allows instantiation of arbitrary classes with attacker-controlled
+  constructor parameters, enabling remote code execution via classes like
+  ClassPathXmlApplicationContext. The vulnerability has a CVSS score of 10.0
+  (CRITICAL) and is listed in CISA KEV as actively exploited in the wild.
 
 locations:
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
+- type: crash_site
+  path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
   function_name: createThrowable
-  startLine: 228
+  startLine: 231
   startColumn: 0
-  endLine: 239
+  endLine: 233
   endColumn: 0

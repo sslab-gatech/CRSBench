@@ -1,40 +1,41 @@
 id: cpv_0
 
-name: Jenkins UtilPlug Backdoor Authentication Bypass with Command Injection
+name: Authentication Bypass via Hardcoded Backdoor Leading to OS Command Injection
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+references: []
 
 cwes:
 - CWE-78
-- CWE-306
-- CWE-798
+- CWE-77
+- CWE-912
 
 description: |
-  A critical authentication bypass backdoor exists in the Jenkins UtilPlug plugin that enables
-  remote OS command injection. The vulnerability consists of two components:
-  
-  1. Authentication Bypass: The doexecCommandUtils() function contains a hidden backdoor that
-  allows attackers to bypass administrator permission checks by sending a request with the
-  'x-evil-backdoor' header containing the hardcoded password 'breakin the law' (verified via
-  SHA-256 hash comparison).
-  
-  2. OS Command Injection: Once the backdoor is activated, the createUtils() function receives
-  attacker-controlled input via the cmdSeq2 parameter and passes it directly to ProcessBuilder
-  without any validation or sanitization, resulting in arbitrary command execution on the
-  Jenkins server.
-  
-  The attack flow allows an unauthenticated attacker to execute arbitrary OS commands with
-  Jenkins server privileges, leading to complete system compromise, data exfiltration, and
-  potential supply chain attacks through malicious build injection.
+  An authentication bypass combined with OS command injection vulnerability exists
+  through a hardcoded backdoor mechanism in the Jenkins UtilPlug plugin. The
+  doexecCommandUtils method contains a backdoor that checks for a specific HTTP
+  header (x-evil-backdoor) with a known password hash. If the header value matches
+  the SHA-256 hash of "breakin the law", it bypasses normal Jenkins permission
+  checks and directly calls createUtils() with user-supplied command input. The
+  createUtils method then executes user-controlled input via ProcessBuilder without
+  any sanitization or validation, allowing arbitrary OS command execution with
+  Jenkins process privileges.
 
 locations:
-- path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
-  function_name: doexecCommandUtils
-  startLine: 142
-  startColumn: 0
-  endLine: 162
-  endColumn: 0
-- path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
+- type: crash_site
+  path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
   function_name: createUtils
   startLine: 194
-  startColumn: 0
+  startColumn: 1
   endLine: 194
-  endColumn: 0
+  endColumn: 50
+- type: root_cause
+  path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
+  function_name: doexecCommandUtils
+  startLine: 151
+  startColumn: 1
+  endLine: 165
+  endColumn: 100

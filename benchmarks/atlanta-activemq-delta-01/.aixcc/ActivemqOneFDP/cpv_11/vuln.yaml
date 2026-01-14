@@ -1,6 +1,15 @@
 id: cpv_11
 
-name: Apache ActiveMQ OpenWire Unsafe Deserialization Remote Code Execution
+name: Apache ActiveMQ OpenWire Deserialization Remote Code Execution
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://github.com/advisories/GHSA-crg9-44h2-xw35
+- https://activemq.apache.org/security-advisories.data/CVE-2023-46604-announcement.txt
 
 cwes:
 - CWE-502
@@ -8,94 +17,27 @@ cwes:
 - CWE-94
 
 description: |
-  This is a critical unsafe deserialization vulnerability in Apache ActiveMQ's OpenWire 
-  protocol marshallers that allows remote code execution. The vulnerability exists in the 
-  createThrowable() method of BaseDataStreamMarshaller classes across all OpenWire protocol 
-  versions (v1-v12).
-  
-  The root cause is that the code uses reflection to instantiate arbitrary classes based on 
-  untrusted data from the wire protocol without validating that the loaded class actually 
-  extends Throwable. An attacker can craft a malicious OpenWire message containing an 
-  ExceptionResponse with an arbitrary class name. During deserialization, the code uses 
-  Class.forName() to load the attacker-specified class and instantiates it via reflection 
-  without any validation.
-  
-  This allows an unauthenticated attacker to instantiate arbitrary classes on the classpath 
-  that have a single-String constructor, leading to potential remote code execution depending 
-  on available gadget chains. The vulnerability was triggered by instantiating the jaz.Zer 
-  class (a Jazzer security probe) which is not a Throwable, demonstrating that arbitrary 
-  non-exception classes can be instantiated through this deserialization pathway.
+  A critical remote code execution vulnerability exists in Apache ActiveMQ's OpenWire
+  protocol deserialization mechanism. The BaseDataStreamMarshaller.createThrowable()
+  method accepts an arbitrary class name from externally-controlled data and instantiates
+  it using reflection without validating that the class extends Throwable. An attacker
+  with network access to the broker can send a specially crafted OpenWire packet
+  containing an ExceptionResponse with a malicious class name, triggering instantiation
+  of any class on the classpath that has a String constructor. This allows remote code
+  execution by instantiating classes that execute commands in their constructors.
 
 locations:
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
+- type: crash_site
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 234
+  startColumn: 1
+  endLine: 234
+  endColumn: 80
+- type: root_cause
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
   function_name: createThrowable
   startLine: 230
-  endLine: 241
-  startColumn: 0
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v1/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 230
-  endLine: 241
-  startColumn: 0
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v2/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 230
-  endLine: 241
-  startColumn: 0
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v3/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 230
-  endLine: 241
-  startColumn: 0
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 230
-  endLine: 241
-  startColumn: 0
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v5/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 230
-  endLine: 241
-  startColumn: 0
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v6/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 230
-  endLine: 241
-  startColumn: 0
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 230
-  endLine: 241
-  startColumn: 0
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 230
-  endLine: 241
-  startColumn: 0
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 230
-  endLine: 241
-  startColumn: 0
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v10/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 230
-  endLine: 241
-  startColumn: 0
-  endColumn: 0
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
-  function_name: createThrowable
-  startLine: 230
-  endLine: 241
-  startColumn: 0
-  endColumn: 0
+  startColumn: 1
+  endLine: 240
+  endColumn: 80

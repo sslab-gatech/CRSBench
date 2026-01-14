@@ -1,33 +1,44 @@
 id: cpv_0
 
-name: GNU Binutils GAS do_repeat Heap Buffer Over-read due to Missing Null Termination
+name: GNU Binutils gas heap-buffer-overflow via missing null termination in .rept directive processing
+
+origin: synthetic
+
+release_date: 06/20/2024
+
+references:
+- https://www.mail-archive.com/bug-binutils@gnu.org/msg47256.html
+- https://www.mail-archive.com/bug-binutils@gnu.org/msg47297.html
 
 cwes:
 - CWE-170
-- CWE-125
 - CWE-122
+- CWE-125
 
 description: |
-  A heap buffer over-read vulnerability exists in the GNU Assembler (GAS) component
-  of binutils in the do_repeat() function. When processing .REPT (repeat) directives,
-  the function fails to null-terminate the string buffer (sb structure) populated by
-  buffer_and_nest() before passing it to strstr(). Since strstr() expects a
-  null-terminated C string and will continue reading memory until it finds a null
-  byte, this causes the function to read beyond the allocated 240-byte heap buffer.
-  
-  The vulnerability is triggered when the assembler processes crafted assembly source
-  files containing .REPT directives with malformed content. The strstr() call at line
-  3140 searches for the string "\\+" in the non-terminated buffer, causing it to read
-  past the buffer boundary into adjacent heap memory.
-  
-  This vulnerability can lead to information disclosure by exposing sensitive data from
-  adjacent heap memory, denial of service by crashing the assembler, and potentially
-  could be chained with other vulnerabilities for more severe exploitation.
+  A heap-buffer-overflow (read) vulnerability exists in the GNU Binutils assembler (gas)
+  component, specifically in the .rept directive processing code within the do_repeat()
+  function. The vulnerability occurs when processing assembler repeat directives (.rept).
+  The code uses a string buffer structure (sb) to store the repeated code block. The sb
+  structure maintains an explicit length field (len) but does not guarantee null termination
+  of its internal buffer (ptr). At line 3140, the code calls strstr(one.ptr, "\\+") to
+  search for the escape sequence without first calling sb_terminate(). Since strstr()
+  requires null-terminated strings, it continues reading beyond the allocated buffer boundary,
+  causing a heap-buffer-overflow. This can lead to information disclosure, denial of service,
+  or potential chaining with other vulnerabilities for more severe exploitation.
 
 locations:
-- path_from_root: gas/read.c
+- type: crash_site
+  path_from_root: gas/read.c
   function_name: do_repeat
   startLine: 3140
   startColumn: 41
   endLine: 3140
-  endColumn: 41
+  endColumn: 73
+- type: root_cause
+  path_from_root: gas/read.c
+  function_name: do_repeat
+  startLine: 3132
+  startColumn: 1
+  endLine: 3140
+  endColumn: 73

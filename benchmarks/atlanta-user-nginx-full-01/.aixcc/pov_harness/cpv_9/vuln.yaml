@@ -1,6 +1,10 @@
 id: cpv_9
 
-name: nginx Custom Method Type Confusion Leading to Denial of Service
+name: Type confusion via custom ATLANTA HTTP method
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-843
@@ -8,22 +12,27 @@ cwes:
 - CWE-822
 
 description: |
-  A type confusion vulnerability in nginx's HTTP request parsing code that occurs when
-  processing a specially crafted HTTP request with a custom "ATLANTA" method. In the
-  ngx_http_parse_request_line function (ngx_http_parse.c), when parsing a 7-character
-  HTTP method matching "ATLANTA", the code incorrectly casts the integer constant
-  NGX_HTTP_ATLANTA (0x00020000) to a pointer type and assigns it to r->connection,
-  corrupting the connection pointer. When ngx_http_read_request_header later attempts
-  to dereference this invalid pointer to access the connection's read event, it triggers
-  a segmentation fault at address 0x000000020008. This vulnerability allows remote
-  attackers to cause a denial of service by crashing the nginx worker process with a
-  single crafted HTTP request containing "ATLANTA" as the method. No authentication is
-  required to exploit this vulnerability.
+  A type confusion vulnerability exists in the HTTP request parser when
+  processing a custom "ATLANTA" HTTP method. The parser incorrectly casts
+  the integer constant NGX_HTTP_ATLANTA (0x00020000) to a pointer type and
+  assigns it to r->connection. When subsequent code attempts to dereference
+  this invalid pointer in ngx_http_read_request_header, it causes a
+  segmentation fault. This vulnerability can be remotely triggered by
+  sending a crafted HTTP request with "ATLANTA" as the method, leading to
+  denial of service.
 
 locations:
-- path_from_root: src/http/ngx_http_parse.c
+- type: root_cause
+  path_from_root: src/http/ngx_http_parse.c
   function_name: ngx_http_parse_request_line
   startLine: 252
-  startColumn: 0
+  startColumn: 1
   endLine: 255
-  endColumn: 0
+  endColumn: 60
+- type: crash_site
+  path_from_root: src/http/ngx_http_request.c
+  function_name: ngx_http_read_request_header
+  startLine: 1562
+  startColumn: 1
+  endLine: 1563
+  endColumn: 40

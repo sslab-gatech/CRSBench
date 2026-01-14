@@ -1,6 +1,15 @@
 id: cpv_3
 
-name: Apache ActiveMQ OpenWire Unsafe Throwable Deserialization RCE
+name: Apache ActiveMQ OpenWire Deserialization Remote Code Execution
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://github.com/advisories/GHSA-crg9-44h2-xw35
+- https://osv.dev/vulnerability/CVE-2023-46604
 
 cwes:
 - CWE-502
@@ -8,23 +17,20 @@ cwes:
 - CWE-94
 
 description: |
-  Unsafe deserialization vulnerability in Apache ActiveMQ's OpenWire protocol 
-  implementation. The BaseDataStreamMarshaller.createThrowable() method accepts 
-  an externally-controlled className parameter from the wire protocol and uses 
-  it to instantiate arbitrary classes via reflection without validation. An 
-  attacker can craft a malicious OpenWire ExceptionResponse message specifying 
-  any class name on the classpath, which will be instantiated through 
-  Class.forName() and Constructor.newInstance(). This enables remote code 
-  execution by instantiating malicious classes or exploiting gadget chains, 
-  similar to Java deserialization attacks. The vulnerability was introduced in 
-  commit a1766fc to support adaptive throwable creation and affects multiple 
-  OpenWire protocol versions (v4, v11, etc.). The fix adds validation to ensure 
-  only classes assignable to Throwable can be instantiated.
+  A critical remote code execution vulnerability exists in Apache ActiveMQ's
+  OpenWire protocol marshaller. The createThrowable method in
+  BaseDataStreamMarshaller allows arbitrary class instantiation without proper
+  validation. An attacker with network access can send a malicious
+  ExceptionResponse message containing an arbitrary class name and parameter,
+  causing the application to load and instantiate any class with a String
+  constructor. This enables remote code execution by exploiting classes like
+  ClassPathXmlApplicationContext to load malicious XML configurations.
 
 locations:
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java
+- type: crash_site
+  path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java
   function_name: createThrowable
-  startLine: 233
-  startColumn: 0
-  endLine: 233
-  endColumn: 0
+  startLine: 229
+  startColumn: 1
+  endLine: 239
+  endColumn: 5

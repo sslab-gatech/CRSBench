@@ -1,27 +1,36 @@
 id: cpv_0
 
-name: Off-by-One Heap Buffer Overflow in buffer_write Function
+name: Off-by-one heap buffer overflow in buffer_write
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-193
-- CWE-122
 - CWE-787
+- CWE-122
 
 description: |
-  A classic off-by-one heap buffer overflow vulnerability exists in the buffer_write 
-  function in utils.c. The bounds check on line 21 uses an incorrect comparison operator 
-  (>) that allows writing at index equal to the buffer size, which is out of bounds. 
-  For a buffer of size N, valid indices are 0 to N-1, but the condition "if (index > buf->size)" 
-  allows index == buf->size to pass through, resulting in a one-byte write beyond the 
-  allocated heap buffer at line 24. This can corrupt heap metadata or adjacent heap objects, 
-  potentially leading to crashes, privilege escalation, or arbitrary code execution. 
-  The vulnerability is triggered when buffer_write is called with an index value equal to 
-  the buffer's size (e.g., index 300 for a 300-byte buffer).
+  A heap buffer overflow vulnerability exists in the buffer_write function
+  in utils.c due to an off-by-one error in the bounds check. The function
+  uses an incorrect comparison operator (> instead of >=) when validating
+  the index parameter, allowing writes at index equal to the buffer size.
+  This results in writing one byte past the end of the allocated heap buffer,
+  which can corrupt heap metadata or adjacent allocations.
 
 locations:
-- path_from_root: utils.c
+- type: root_cause
+  path_from_root: utils.c
   function_name: buffer_write
   startLine: 21
   startColumn: 9
+  endLine: 21
+  endColumn: 28
+- type: crash_site
+  path_from_root: utils.c
+  function_name: buffer_write
+  startLine: 24
+  startColumn: 21
   endLine: 24
-  endColumn: 27
+  endColumn: 21

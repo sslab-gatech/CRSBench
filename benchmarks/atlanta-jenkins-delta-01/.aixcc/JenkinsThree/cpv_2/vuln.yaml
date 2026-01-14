@@ -1,33 +1,37 @@
 id: cpv_2
 
-name: Jenkins PluginManager Path Traversal in Plugin Upload
+name: Path Traversal in Jenkins Plugin Upload
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-22
-- CWE-73
-- CWE-434
+- CWE-23
 
 description: |
-  A critical path traversal vulnerability exists in the Jenkins PluginManager's doPerformUpload method.
-  The vulnerability occurs at line 1636 in hudson/PluginManager.java where the uploadPath parameter from
-  an HTTP request is used directly without validation or sanitization to create a File object:
-  `File uploadDir = new File(req.getParameter("uploadPath"))`. This user-controlled path is then used
-  to create directories and write uploaded files without checking for path traversal sequences like '../'.
-  
-  An attacker can exploit this by sending a POST request with a malicious uploadPath parameter containing
-  path traversal sequences (e.g., '../../../home/target'), allowing arbitrary file writes to any location
-  where the Jenkins process has write permissions. This can lead to privilege escalation, code execution
-  through malicious plugin uploads, data exfiltration, or complete system compromise by overwriting
-  critical system files.
-  
-  The vulnerability was detected by Jazzer's FileSystemTraversal sanitizer when processing the path
-  '/tmp/plugins/../../home/jazzer-traversal', demonstrating successful directory traversal escaping
-  the intended upload directory.
+  A path traversal vulnerability exists in the doPerformUpload method in
+  hudson/PluginManager.java. The method accepts file upload requests and
+  constructs the destination file path by directly concatenating a base
+  directory with unsanitized user input from the uploadPath parameter.
+  An attacker can provide malicious input containing path traversal
+  sequences (e.g., ../../) to write files outside the intended /tmp/plugins
+  directory, potentially achieving arbitrary file write, code execution,
+  or data corruption on the Jenkins controller filesystem.
 
 locations:
-- path_from_root: jenkins/core/src/main/java/hudson/PluginManager.java
+- type: root_cause
+  path_from_root: jenkins/core/src/main/java/hudson/PluginManager.java
   function_name: doPerformUpload
-  startLine: 1636
-  startColumn: 0
-  endLine: 1639
-  endColumn: 0
+  startLine: 1638
+  startColumn: 13
+  endLine: 1638
+  endColumn: 72
+- type: crash_site
+  path_from_root: jenkins/core/src/main/java/hudson/PluginManager.java
+  function_name: doPerformUpload
+  startLine: 1640
+  startColumn: 13
+  endLine: 1640
+  endColumn: 57

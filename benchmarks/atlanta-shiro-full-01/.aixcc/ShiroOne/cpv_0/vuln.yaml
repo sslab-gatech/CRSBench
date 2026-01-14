@@ -1,26 +1,34 @@
 id: cpv_0
 
-name: Apache Shiro RememberMe Insecure Deserialization RCE
+name: Apache Shiro RememberMe Deserialization RCE
+
+origin: 1-day
+
+release_date: 06/07/2016
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2016-4437
+- https://shiro.apache.org/security-reports.html
 
 cwes:
 - CWE-502
 - CWE-78
-- CWE-321
 
 description: |
-  Critical insecure deserialization vulnerability in Apache Shiro's "Remember Me" functionality.
-  The DefaultSerializer.deserialize() method uses Java's native ObjectInputStream.readObject() to
-  deserialize untrusted data from HTTP cookies without validation or filtering. An attacker can
-  craft a malicious serialized Java object containing a gadget chain (e.g., using commons-beanutils
-  and TemplatesImpl), encrypt it using Shiro's hardcoded default AES key, and send it in the
-  "rememberMe" cookie. When Shiro decrypts and deserializes the payload, the gadget chain executes,
-  triggering arbitrary OS commands via Runtime.exec(). This allows remote, unauthenticated attackers
-  to achieve complete server compromise. The vulnerability is also known as CVE-2016-4437 (SHIRO-550).
+  An insecure deserialization vulnerability exists in Apache Shiro's "Remember Me"
+  functionality in the convertBytesToPrincipals method of AbstractRememberMeManager.
+  The method blindly deserializes untrusted user-controlled data from the rememberMe
+  cookie without proper validation using Java's native ObjectInputStream.readObject().
+  This allows attackers to execute arbitrary code through deserialization gadget chains
+  (e.g., PriorityQueue -> BeanComparator -> TemplatesImpl) present in the classpath,
+  leading to remote code execution via OS command injection. The vulnerability enables
+  authentication bypass and complete system compromise.
 
 locations:
-- path_from_root: core/src/main/java/org/apache/shiro/io/DefaultSerializer.java
-  function_name: deserialize
-  startLine: 77
-  startColumn: 0
-  endLine: 77
-  endColumn: 0
+- type: crash_site
+  path_from_root: core/src/main/java/org/apache/shiro/mgt/AbstractRememberMeManager.java
+  function_name: convertBytesToPrincipals
+  startLine: 427
+  startColumn: 1
+  endLine: 432
+  endColumn: 5

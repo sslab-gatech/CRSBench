@@ -1,31 +1,39 @@
 id: cpv_0
 
-name: Path Traversal via URL-Encoded Filenames in Archive Extraction
+name: URL-Encoded Path Traversal in TikaCLI Embedded File Extraction
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-22
 - CWE-23
-- CWE-706
+- CWE-73
 
 description: |
-  A path traversal vulnerability exists in Apache Tika's TikaCLI.java file extraction
-  functionality. The vulnerability occurs because URLDecoder.decode() is called AFTER
-  FilenameUtils.normalize() when processing embedded document filenames during archive
-  extraction. This incorrect order of operations allows attackers to bypass path
-  normalization by using URL-encoded path separators (e.g., %2F for /). 
-  
-  When processing a malicious archive containing a filename like 
-  "..%2F..%2F..%2F..%2F..%2Fjazzer-traversal", the normalize() function does not
-  recognize the encoded %2F as path separators and treats it as a safe filename. 
-  Subsequently, URLDecoder.decode() converts %2F to /, resulting in 
-  "./../../../../../jazzer-traversal", which enables writing files outside the intended
-  extraction directory. This can lead to arbitrary file write, code execution, data
-  corruption, and potential privilege escalation if Tika runs with elevated permissions.
+  A path traversal vulnerability exists in the TikaCLI FileEmbeddedDocumentExtractor
+  class in the getOutputFile method. The vulnerability occurs due to incorrect order
+  of input sanitization operations: the code normalizes the filename first to remove
+  path traversal sequences, then URL-decodes it afterward. This allows an attacker
+  to bypass path normalization by providing URL-encoded traversal sequences (e.g.,
+  ..%2F for ../) in embedded file names within archives. After decoding, these
+  sequences become valid path traversal patterns, allowing arbitrary file write
+  operations outside the intended extraction directory. This can lead to file
+  overwrite, remote code execution, or denial of service.
 
 locations:
-- path_from_root: tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
+- type: crash_site
+  path_from_root: tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
+  function_name: parseEmbedded
+  startLine: 1103
+  startColumn: 1
+  endLine: 1103
+  endColumn: 80
+- type: root_cause
+  path_from_root: tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
   function_name: getOutputFile
-  startLine: 1147
-  startColumn: 0
-  endLine: 1147
-  endColumn: 0
+  startLine: 1133
+  startColumn: 1
+  endLine: 1148
+  endColumn: 80

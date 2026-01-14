@@ -2,6 +2,10 @@ id: cpv_15
 
 name: Reflection-Based OS Command Injection via Unsafe Private Method Access
 
+origin: synthetic
+
+release_date: 02/01/2026
+
 cwes:
 - CWE-78
 - CWE-470
@@ -9,27 +13,27 @@ cwes:
 
 description: |
   A critical OS command injection vulnerability exists in the Jenkins Email Extension Plugin
-  through a chain of security flaws involving unsafe reflection and insufficient access controls.
-  
-  The vulnerability occurs in the EmailConfig class where the constructor() method uses
-  getDeclaredMethod() with attacker-controlled input (emailAddress field) to invoke arbitrary
-  methods via reflection. When publishReady is true, setAccessible(true) bypasses Java access
-  controls, allowing invocation of private methods including debugOnlyAndPrivate().
-  
-  The debugOnlyAndPrivate() method executes Runtime.getRuntime().exec() with the optCache field
-  value directly, without any sanitization. An attacker can exploit this by:
-  1. Setting emailAddress to "debugEnable" and calling constructor() to enable debug mode
-  2. Setting optCache to a malicious command and emailAddress to "debugOnlyAndPrivate"
-  3. Calling constructor() again to execute the arbitrary command
-  
-  This leads to remote code execution, complete system compromise, data exfiltration, and
-  potential lateral movement within the network. The vulnerability combines improper use of
-  reflection (CWE-470), OS command injection (CWE-78), and unsafe code generation (CWE-94).
+  that exploits unsafe reflection and insufficient access controls. The constructor() method
+  uses getDeclaredMethod() with attacker-controlled input from the emailAddress field to
+  dynamically invoke methods via reflection. When publishReady is true, the code bypasses
+  Java's access control mechanisms by calling setAccessible(true), allowing invocation of
+  private methods. An attacker can exploit this by first enabling debug mode through
+  reflection, then invoking the private debugOnlyAndPrivate() method which executes OS
+  commands from the optCache field without sanitization. This leads to remote code execution
+  with Jenkins process privileges.
 
 locations:
-- path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
+- type: crash_site
+  path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
   function_name: debugOnlyAndPrivate
   startLine: 37
   startColumn: 0
   endLine: 37
+  endColumn: 0
+- type: root_cause
+  path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
+  function_name: constructor
+  startLine: 96
+  startColumn: 0
+  endLine: 96
   endColumn: 0

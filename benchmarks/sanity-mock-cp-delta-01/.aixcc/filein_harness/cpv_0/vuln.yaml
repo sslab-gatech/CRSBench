@@ -1,30 +1,29 @@
 id: cpv_0
 
-name: Global buffer overflow in func_a via strcspn index
+name: Global buffer overflow in func_a via oversized fgets
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-787
 - CWE-120
-- CWE-119
+- CWE-131
 
 description: |
-  A global buffer overflow vulnerability exists in the func_a() function of mock_vp.c.
-  The vulnerability occurs when processing user input through fgets() and strcspn() functions.
-  
-  The global array items[3][5] allocates only 15 bytes of memory, but the code reads input
-  using fgets(buff, 4, stdin) and then attempts to remove newline characters using
-  buff[strcspn(buff, "\n")] = 0. When the input does not contain a newline character within
-  the buffer boundaries, strcspn() may search beyond the allocated buffer and return a large
-  offset value. This large offset is then used as an array index for writing a null terminator,
-  causing an out-of-bounds write of up to 38 bytes.
-  
-  The overflow corrupts adjacent global variables (specifically the pipefd array) and can lead
-  to memory corruption, arbitrary code execution, denial of service, and data integrity issues.
-  AddressSanitizer detected the vulnerability as a multi-byte write global buffer overflow with
-  a scariness score of 45.
+  A global buffer overflow vulnerability exists in the func_a function in
+  mock_vp.c. The items array is declared as char items[3][10], providing
+  3 items of 10 bytes each. However, at line 14, fgets(buff, 40, stdin)
+  attempts to read up to 40 bytes into a buffer that can only hold 10 bytes.
+  This buffer size mismatch creates a 30-byte overflow potential. When input
+  exceeds 10 bytes, it overflows into adjacent memory, potentially corrupting
+  other global variables or causing crashes. This can lead to denial of
+  service or arbitrary code execution.
 
 locations:
-- path_from_root: mock-cp-src/mock_vp.c
+- type: crash_site
+  path_from_root: mock_vp.c
   function_name: func_a
   startLine: 14
   startColumn: 9

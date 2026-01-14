@@ -1,38 +1,37 @@
 id: cpv_13
 
-name: Authorization Bypass Leading to RCE via Insecure Deserialization in Jenkins BFA Plugin
+name: Permission Bypass Leading to Unsafe Deserialization in LocalFileKnowledgeBase
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-502
-- CWE-285
+- CWE-284
 - CWE-863
 
 description: |
-  Critical remote code execution vulnerability combining two security flaws in the Jenkins Build Failure Analyzer Plugin.
-  
-  The primary vulnerability is an authorization bypass in LocalFileKnowledgeBase.doLoad() at line 325, where the permission 
-  check uses AND (&&) instead of OR (||). This logic error allows access if a user has EITHER REMOVE_PERMISSION or 
-  UPDATE_PERMISSION, when it should require BOTH permissions.
-  
-  The secondary vulnerability is insecure deserialization in LocalFileKnowledgeBase.load() at line 131, where the method 
-  performs unsafe Java deserialization using ObjectInputStream.readObject() without validation or filtering. This reads 
-  serialized FailureCause objects from files in the knowledge base directory.
-  
-  An attacker with limited permissions can exploit the authorization bypass to trigger the doLoad() method via POST request, 
-  which calls load() to deserialize files. By placing a malicious serialized object in the knowledge base directory, the 
-  attacker can trigger arbitrary code execution through Java deserialization gadget chains. This leads to complete system 
-  compromise, data breach, and potential lateral movement to connected systems.
+  A permission bypass vulnerability exists in the doLoad method of LocalFileKnowledgeBase
+  at line 327, where a logic error in the authorization check uses AND (&&) instead of OR (||).
+  This allows users with only one of the required permissions (REMOVE_PERMISSION or
+  UPDATE_PERMISSION) to bypass the authorization check and trigger unsafe deserialization.
+  The doLoad method calls load() which deserializes untrusted data using ObjectInputStream
+  at line 131 without proper validation. An attacker with insufficient permissions can
+  exploit this to achieve Remote Code Execution by crafting malicious serialized Java objects.
 
 locations:
-- path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/db/LocalFileKnowledgeBase.java
-  function_name: doLoad
-  startLine: 325
-  endLine: 325
-  startColumn: 0
-  endColumn: 0
-- path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/db/LocalFileKnowledgeBase.java
-  function_name: load
+- type: crash_site
+  path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/db/LocalFileKnowledgeBase.java
+  function_name: lambda$load$1
   startLine: 131
+  startColumn: 1
   endLine: 131
-  startColumn: 0
-  endColumn: 0
+  endColumn: 100
+- type: root_cause
+  path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/db/LocalFileKnowledgeBase.java
+  function_name: doLoad
+  startLine: 327
+  startColumn: 1
+  endLine: 329
+  endColumn: 100

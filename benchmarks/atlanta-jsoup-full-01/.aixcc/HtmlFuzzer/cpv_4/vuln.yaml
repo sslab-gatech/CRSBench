@@ -1,32 +1,34 @@
 id: cpv_4
 
-name: ReDoS in URL Path Normalization via Nested Quantifiers
+name: Regular Expression Denial of Service in jsoup URL Resolution
+
+origin: 1-day
+
+release_date: 08/18/2021
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2021-37714
+- https://github.com/jhy/jsoup/security/advisories/GHSA-m72m-mhq2-9p6c
 
 cwes:
 - CWE-1333
+- CWE-835
 - CWE-400
-- CWE-674
 
 description: |
-  A Regular Expression Denial of Service (ReDoS) vulnerability exists in the jsoup HTML parser
-  library's StringUtil.resolve() method. The vulnerability is caused by a poorly designed regular
-  expression pattern "^/((\\.{1,2}/)+)" used to normalize URL paths. This pattern contains nested
-  quantifiers that lead to catastrophic backtracking when processing malicious input.
-  
-  When an attacker provides HTML containing a base tag with a URL having hundreds of path traversal
-  segments (e.g., "/../../../..."), the regex engine enters exponential backtracking, consuming
-  excessive CPU and stack space. This ultimately causes a StackOverflowError, leading to application
-  crash and denial of service.
-  
-  The vulnerability is triggered during HTML parsing when jsoup resolves absolute URLs via the
-  Node.absUrl() method, which calls StringUtil.resolve(). The attack requires only crafted HTML
-  input with no authentication, making it easily exploitable in applications that parse untrusted
-  HTML from external sources.
+  A Regular Expression Denial of Service (ReDoS) vulnerability exists in the
+  extraDotSegmentsPattern regex used by the StringUtil.resolve() method in
+  jsoup. The vulnerable pattern ^/((\\.{1,2}/)+) contains nested quantifiers
+  with a capturing group that causes catastrophic backtracking when processing
+  malicious URL paths with long sequences of /../ segments. An attacker can
+  craft HTML input with a base tag containing such paths to cause stack overflow
+  and denial of service through resource exhaustion.
 
 locations:
-- path_from_root: src/main/java/org/jsoup/internal/StringUtil.java
+- type: root_cause
+  path_from_root: src/main/java/org/jsoup/internal/StringUtil.java
   function_name: resolve
   startLine: 284
-  startColumn: 0
+  startColumn: 47
   endLine: 284
-  endColumn: 0
+  endColumn: 80

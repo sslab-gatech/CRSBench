@@ -1,34 +1,37 @@
 id: cpv_1
 
-name: Script Engine Injection via Insufficient Input Validation in doCheckScriptCompile
+name: Script Engine Injection via Insecure Eval in Jenkins Toy Plugin
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-94
 - CWE-95
-- CWE-74
 
 description: |
-  A Script Engine Injection vulnerability exists in the Jenkins toy-plugin's Script class. The
-  doCheckScriptCompile method accepts user input via a QueryParameter and passes it directly to
-  the secureEval method, which evaluates it using the Groovy script engine without proper
-  sanitization. While the code attempts to implement security controls through a custom
-  GroovySecurityManager that blacklists certain instructions, this approach is fundamentally
-  flawed as it relies on simple string matching that can be easily bypassed using techniques
-  like string concatenation. This allows attackers to execute arbitrary code on the Jenkins
-  server, potentially leading to remote code execution, sandbox escape, and full system
-  compromise. The vulnerability was fixed by completely removing the vulnerable functionality
-  including the secureEval method and custom security manager classes.
+  A Script Engine Injection vulnerability exists in the secureEval method
+  of the Jenkins toy plugin. The method directly evaluates user-provided
+  Groovy script content using groovyEngine.eval() without proper validation
+  during the compilation phase. While a custom GroovySecurityManager attempts
+  to blacklist certain instructions through AST analysis, the eval() method
+  can execute scripts that bypass these security checks. This allows attackers
+  to potentially execute arbitrary code on the Jenkins server, escape the
+  security sandbox, and escalate privileges.
 
 locations:
-- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/Script.java
+- type: crash_site
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/Script.java
   function_name: secureEval
   startLine: 84
-  startColumn: 0
+  startColumn: 9
   endLine: 84
-  endColumn: 0
-- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/Script.java
-  function_name: doCheckScriptCompile
-  startLine: 93
-  startColumn: 0
-  endLine: 93
-  endColumn: 0
+  endColumn: 31
+- type: root_cause
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/Script.java
+  function_name: secureEval
+  startLine: 84
+  startColumn: 9
+  endLine: 84
+  endColumn: 31

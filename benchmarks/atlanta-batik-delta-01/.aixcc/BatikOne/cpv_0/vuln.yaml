@@ -1,32 +1,44 @@
 id: cpv_0
 
-name: Apache Batik jar. Protocol SSRF via Same-Origin Policy Bypass
+name: Apache Batik Jar Protocol SSRF in DefaultExternalResourceSecurity
+
+origin: 1-day
+
+release_date: 09/22/2022
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2022-38398
+- https://issues.apache.org/jira/browse/BATIK-1331
+- https://seclists.org/oss-sec/2022/q3/221
 
 cwes:
 - CWE-918
-- CWE-601
-- CWE-863
+- CWE-610
+- CWE-20
 
 description: |
-  Server-Side Request Forgery (SSRF) vulnerability in Apache Batik's external resource
-  security mechanism. The DefaultExternalResourceSecurity class fails to properly validate
-  jar: protocol URLs when checking same-origin policy for external resources in SVG documents.
-  
-  The vulnerability occurs because ParsedURL.getHost() returns null for jar: URLs like
-  "jar:http://attacker.example.com/malicious.jar!/", causing the security check in the
-  DefaultExternalResourceSecurity constructor to be bypassed. An attacker can craft a
-  malicious SVG file with an image element using a jar: URL pointing to an attacker-controlled
-  server, allowing the application to make unauthorized external network requests.
-  
-  This can lead to data exfiltration, internal network scanning, credential theft, or
-  denial of service attacks. The vulnerability is triggered when Batik processes SVG files
-  containing image elements with jar: protocol URLs that reference external resources from
-  different origins than the document.
+  A Server-Side Request Forgery (SSRF) vulnerability exists in Apache Batik 1.14
+  that allows attackers to bypass DefaultExternalResourceSecurity controls and make
+  unauthorized network requests. The vulnerability occurs when processing SVG files
+  containing image elements with xlink:href attributes using the jar protocol. The
+  jar protocol URL wrapping causes ParsedURL.getHost() to return null, which allows
+  the URL to bypass the same-origin security check in the DefaultExternalResourceSecurity
+  constructor. An attacker can craft a malicious SVG file with a jar protocol URL
+  pointing to an external server to exfiltrate sensitive information or access
+  internal services.
 
 locations:
-- path_from_root: batik-bridge/src/main/java/org/apache/batik/bridge/DefaultExternalResourceSecurity.java
-  function_name: DefaultExternalResourceSecurity
-  startLine: 82
+- type: crash_site
+  path_from_root: batik-bridge/src/main/java/org/apache/batik/bridge/SVGImageElementBridge.java
+  function_name: openStream
+  startLine: 409
   startColumn: 0
-  endLine: 86
+  endLine: 416
+  endColumn: 0
+- type: root_cause
+  path_from_root: batik-bridge/src/main/java/org/apache/batik/bridge/DefaultExternalResourceSecurity.java
+  function_name: DefaultExternalResourceSecurity
+  startLine: 73
+  startColumn: 0
+  endLine: 98
   endColumn: 0

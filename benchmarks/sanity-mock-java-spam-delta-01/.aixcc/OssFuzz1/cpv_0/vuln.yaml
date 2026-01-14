@@ -1,27 +1,36 @@
 id: cpv_0
 
-name: OS Command Injection in executeCommand Method
+name: OS Command Injection in executeCommand
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-78
 - CWE-77
 
 description: |
-  A critical OS Command Injection vulnerability exists in the executeCommand method
-  of the App class. The method accepts untrusted user input and passes it directly
-  to ProcessBuilder.command() without any validation or sanitization. Despite a
-  comment claiming "Only 'ls', 'pwd', and 'echo' commands are allowed," the code
-  performs no actual validation to enforce this restriction. This allows an attacker
-  to execute arbitrary system commands, leading to remote code execution, full system
-  compromise, data exfiltration, and potential lateral movement. The vulnerability
-  is triggered when attacker-controlled input from the fuzzer is passed to the
-  executeCommand method, which then executes the malicious command through
-  ProcessBuilder.start().
+  An OS Command Injection vulnerability exists in the executeCommand method
+  in App.java. The function accepts user-controlled input and directly passes
+  it to ProcessBuilder.command() without any validation or sanitization,
+  despite a comment indicating only "ls", "pwd", and "echo" commands should
+  be allowed. This allows an attacker to execute arbitrary system commands
+  with the privileges of the Java application, potentially leading to remote
+  code execution, data exfiltration, or system compromise.
 
 locations:
-- path_from_root: src/main/java/com/aixcc/mock_java/App.java
+- type: crash_site
+  path_from_root: src/main/java/com/aixcc/mock_java/App.java
   function_name: executeCommand
   startLine: 17
-  startColumn: 0
+  startColumn: 13
   endLine: 17
-  endColumn: 0
+  endColumn: 42
+- type: root_cause
+  path_from_root: src/main/java/com/aixcc/mock_java/App.java
+  function_name: executeCommand
+  startLine: 12
+  startColumn: 5
+  endLine: 17
+  endColumn: 42
