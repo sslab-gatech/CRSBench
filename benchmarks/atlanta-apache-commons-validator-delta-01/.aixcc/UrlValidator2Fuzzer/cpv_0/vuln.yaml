@@ -1,30 +1,37 @@
 id: cpv_0
 
-name: Regular Expression Denial of Service via Catastrophic Backtracking in URL Domain Validation
+name: ReDoS via Nested Quantifiers in URL Domain Validation
+
+origin: synthetic
+
+release_date: 01/01/2024
 
 cwes:
 - CWE-1333
 - CWE-400
-- CWE-697
 
 description: |
-  A Regular Expression Denial of Service (ReDoS) vulnerability exists in the UrlValidator
-  class due to catastrophic backtracking in the SPEACIAL_URL_STRING_REGEX pattern. The
-  vulnerable regex "([a-z0-9]+)+" uses nested quantifiers, where both the inner and outer
-  quantifiers apply to the same character class. When processing URLs with long sequences
-  of alphanumeric characters followed by a non-matching character, the regex engine attempts
-  exponentially many matching combinations (2^N for N characters), causing the application
-  to hang. This occurs in the isValidAuthority method when validating domain names against
-  the DOMAIN_PATTERN. An attacker can craft a malicious URL containing approximately 25,000
-  'a' characters in the domain portion (e.g., "http://trk-us-aaa...aaaX-prod.example.com")
-  to trigger timeouts exceeding 25 seconds, resulting in complete service disruption and
-  CPU resource exhaustion. The vulnerability allows a single malicious URL to cause a
-  denial of service with minimal attacker effort.
+  A Regular Expression Denial of Service (ReDoS) vulnerability exists in the
+  SPEACIAL_URL_STRING_REGEX pattern. The regex "([a-z0-9]+)+" contains nested
+  quantifiers that cause catastrophic backtracking when matching fails. The
+  inner quantifier matches one or more alphanumeric characters, while the outer
+  quantifier matches one or more groups, resulting in exponential time complexity
+  O(2^n). When DOMAIN_PATTERN.matcher(hostIP).matches() is called during URL
+  validation, a crafted input can trigger excessive CPU consumption, causing
+  timeouts and denial of service.
 
 locations:
-- path_from_root: src/main/java/org/apache/commons/validator/UrlValidator.java
-  function_name: isValidAuthority
+- type: root_cause
+  path_from_root: src/main/java/org/apache/commons/validator/UrlValidator.java
+  function_name: N/A
   startLine: 167
-  endColumn: 0
-  endLine: 167
   startColumn: 0
+  endLine: 167
+  endColumn: 0
+- type: crash_site
+  path_from_root: src/main/java/org/apache/commons/validator/UrlValidator.java
+  function_name: isValidAuthority
+  startLine: 326
+  startColumn: 0
+  endLine: 326
+  endColumn: 0

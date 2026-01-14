@@ -1,29 +1,32 @@
 id: cpv_0
 
-name: libssh2 Double-Free in Diffie-Hellman Key Exchange
+name: Double-free in Diffie-Hellman hostkey handling during SSH key exchange
+
+origin: 1-day
+
+release_date: 09/10/2024
+
+references:
+- https://github.com/libssh2/libssh2/pull/1452
 
 cwes:
 - CWE-415
-- CWE-416
 - CWE-672
 
 description: |
-  A double-free vulnerability exists in libssh2's Diffie-Hellman key exchange
-  implementation. The vulnerability occurs in the diffie_hellman_sha_algo function
-  in src/kex.c at line 473. When processing SSH key exchange, the function frees
-  the existing session->server_hostkey pointer before copying a new host key, but
-  fails to set the pointer to NULL after freeing. If the function is called again
-  during the same session (e.g., when burning an optimistic KEX packet or during
-  key exchange retries), the check if(session->server_hostkey) evaluates to true
-  with the dangling pointer, causing the code to attempt freeing the already-freed
-  memory. This results in a double-free condition that can lead to memory corruption,
-  denial of service, or potential arbitrary code execution. A malicious SSH server
-  can trigger this by crafting packets that cause multiple key exchange attempts.
+  A double-free vulnerability exists in the diffie_hellman_sha_algo function
+  in src/kex.c. The function frees session->server_hostkey but fails to set
+  the pointer to NULL and reset the length field. When the key exchange function
+  is called multiple times during SSH session negotiation, the same memory
+  address gets freed again, causing a double-free condition. This can lead to
+  heap metadata corruption and potentially arbitrary code execution by remote
+  unauthenticated attackers during SSH handshake.
 
 locations:
-- path_from_root: src/kex.c
+- type: crash_site
+  path_from_root: src/kex.c
   function_name: diffie_hellman_sha_algo
-  startLine: 473
-  startColumn: 0
+  startLine: 472
+  startColumn: 13
   endLine: 473
-  endColumn: 0
+  endColumn: 13

@@ -1,42 +1,42 @@
 id: cpv_2
 
-name: Apache CXF WADL Generator Server-Side Request Forgery via Stylesheet Reference
+name: SSRF via WADL Stylesheet Parameter
+
+origin: 1-day
+
+release_date: 07/19/2024
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2024-29736
+- https://github.com/advisories/GHSA-5m3j-pxh7-455p
+- https://cxf.apache.org/security-advisories.data/CVE-2024-29736.txt
 
 cwes:
 - CWE-918
-- CWE-20
-- CWE-601
 
 description: |
-  Server-Side Request Forgery (SSRF) vulnerability in Apache CXF's WadlGenerator component.
-  The vulnerability exists in the doFilter() method due to a logic flaw in operator precedence
-  when checking conditional statements for stylesheet references. When stylesheetReference is
-  set and a path ends with ".xsl", the user-controlled path is passed directly to
-  getExistingResource(), which then calls ResourceUtils.getResourceStream(). This causes the
-  server to make HTTP/HTTPS requests to attacker-controlled URLs without validation.
-  
-  An attacker can exploit this by sending a GET request with a malicious URL path ending in
-  ".xsl" (e.g., https://attacker.com/secret.xsl). The server will attempt to connect to the
-  attacker-specified destination, enabling potential exfiltration of sensitive data, access
-  to internal services bypassing firewalls, port scanning of internal networks, and attacks
-  against internal infrastructure leveraging the server's trust relationships.
+  A Server-Side Request Forgery (SSRF) vulnerability exists in Apache CXF's 
+  WADL service description functionality. The vulnerability allows an attacker 
+  to force the server to make HTTP/HTTPS requests to arbitrary URLs. The root 
+  cause is in the doFilter method of WadlGenerator.java which improperly 
+  validates user-supplied path parameters when stylesheetReference is configured. 
+  The code checks if a path ends with .xsl but fails to validate that the path 
+  refers only to legitimate local resources, allowing attackers to specify 
+  arbitrary external URLs. This can lead to data exfiltration, internal network 
+  scanning, credential theft, and bypass of access controls.
 
 locations:
-- path_from_root: rt/rs/description/src/main/java/org/apache/cxf/jaxrs/model/wadl/WadlGenerator.java
+- type: root_cause
+  path_from_root: rt/rs/description/src/main/java/org/apache/cxf/jaxrs/model/wadl/WadlGenerator.java
   function_name: doFilter
   startLine: 245
-  startColumn: 0
-  endLine: 247
-  endColumn: 0
-- path_from_root: rt/rs/description/src/main/java/org/apache/cxf/jaxrs/model/wadl/WadlGenerator.java
-  function_name: getExistingResource
-  startLine: 1375
-  startColumn: 0
-  endLine: 1377
-  endColumn: 0
-- path_from_root: rt/frontend/jaxrs/src/main/java/org/apache/cxf/jaxrs/utils/ResourceUtils.java
+  startColumn: 1
+  endLine: 248
+  endColumn: 50
+- type: crash_site
+  path_from_root: rt/frontend/jaxrs/src/main/java/org/apache/cxf/jaxrs/utils/ResourceUtils.java
   function_name: getResourceStream
-  startLine: 575
-  startColumn: 0
+  startLine: 577
+  startColumn: 1
   endLine: 577
-  endColumn: 0
+  endColumn: 50

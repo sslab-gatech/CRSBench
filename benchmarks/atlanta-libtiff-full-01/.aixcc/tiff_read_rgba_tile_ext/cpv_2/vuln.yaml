@@ -1,30 +1,40 @@
 id: cpv_2
 
-name: Integer Underflow in TIFFReadRGBATileExt Leading to Out-of-Bounds Access
+name: Missing Bounds Check in TIFFReadRGBATileExt Leading to Heap Buffer Overflow
+
+origin: 1-day
+
+release_date: 01/25/2024
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-52356
 
 cwes:
-- CWE-191
 - CWE-787
+- CWE-122
 - CWE-125
 
 description: |
-  An integer underflow vulnerability exists in the TIFFReadRGBATileExt function
-  in libtiff's tif_getimage.c. The function fails to validate that the row and
-  col parameters are within image bounds before performing unsigned integer
-  subtraction operations. When called with row >= img.height or col >= img.width,
-  the calculations 'read_ysize = img.height - row' and 'read_xsize = img.width - col'
-  produce underflowed values that wrap around to near UINT32_MAX. These underflowed
-  values are subsequently used as loop bounds and array offsets in memmove operations,
-  resulting in wild pointer dereferences that access memory far outside the allocated
-  raster buffer. This can lead to denial of service (segmentation fault), potential
-  information disclosure through out-of-bounds reads, and memory corruption through
-  out-of-bounds writes. The vulnerability is triggered by malformed TIFF files with
-  invalid tile configurations and out-of-bounds row/column parameters.
+  A heap buffer overflow vulnerability exists in the TIFFReadRGBATileExt function
+  in libtiff/tif_getimage.c. The function fails to validate that the caller-provided
+  row and col parameters are within the bounds of the actual image dimensions before
+  performing memory operations. When row or col exceed the image dimensions, integer
+  underflow occurs during read_ysize/read_xsize calculation, leading to invalid memory
+  access during memmove operations. This can result in denial of service through
+  segmentation fault or potential arbitrary code execution through heap buffer overflow.
 
 locations:
-- path_from_root: libtiff/tif_getimage.c
+- type: crash_site
+  path_from_root: libtiff/tif_getimage.c
   function_name: TIFFReadRGBATileExt
-  startLine: 3028
-  startColumn: 0
-  endLine: 3063
-  endColumn: 0
+  startLine: 3061
+  startColumn: 9
+  endLine: 3061
+  endColumn: 9
+- type: root_cause
+  path_from_root: libtiff/tif_getimage.c
+  function_name: TIFFReadRGBATileExt
+  startLine: 3015
+  startColumn: 1
+  endLine: 3019
+  endColumn: 20

@@ -1,32 +1,29 @@
 id: cpv_1
 
-name: HTTP Header-Based OS Command Injection via Backdoor Trigger
+name: OS Command Injection via Backdoor Header in HttpRequestDecoder
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-78
 - CWE-77
-- CWE-94
 
 description: |
-  A critical OS command injection vulnerability exists in the HttpRequestDecoder class's
-  splitHeaderName() method. The vulnerable code checks if an HTTP header name starts with
-  the special prefix "Backd00r" and, when detected, extracts everything after this 8-character
-  prefix and executes it as a shell command via ProcessBuilder.start() without any validation
-  or sanitization.
-  
-  An attacker can exploit this by sending a malicious HTTP request with a header name starting
-  with "Backd00r" followed by arbitrary system commands (e.g., "Backd00rmalicious_command: value").
-  This allows remote code execution with the privileges of the server process, potentially
-  leading to full system compromise, data exfiltration, lateral movement, or denial of service.
-  
-  The vulnerability is triggered during HTTP request parsing when the decoder processes header
-  names byte-by-byte. The backdoor functionality was intentionally introduced and subsequently
-  removed in the patch.
+  A synthetic OS command injection vulnerability exists in the splitHeaderName
+  method of the HttpRequestDecoder class. The code checks for HTTP header names
+  starting with "Backd00r" and extracts everything after this prefix as a command
+  string, which is then executed directly using ProcessBuilder.start() without
+  any sanitization or validation. An attacker can execute arbitrary OS commands
+  by crafting HTTP requests with specially-formatted header names, leading to
+  remote code execution.
 
 locations:
-- path_from_root: codec-http/src/main/java/io/netty/handler/codec/http/HttpRequestDecoder.java
+- type: crash_site
+  path_from_root: codec-http/src/main/java/io/netty/handler/codec/http/HttpRequestDecoder.java
   function_name: splitHeaderName
-  startLine: 254
+  startLine: 265
   startColumn: 0
   endLine: 265
   endColumn: 0

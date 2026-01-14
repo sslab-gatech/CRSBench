@@ -1,27 +1,34 @@
 id: cpv_5
 
-name: SQL Injection in UserNameAction.doGetName method
+name: SQL Injection in UserNameAction.doGetName()
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-89
 
 description: |
-  A SQL injection vulnerability exists in the doGetName method of the UserNameAction class
-  in the Jenkins toy-plugin. The vulnerability occurs at line 74 of UserNameAction.java where
-  user-supplied input parameters (ID and PW) are directly concatenated into a SQL query string
-  without sanitization or parameterization. The code constructs the query as:
-  "SELECT name FROM users WHERE id = '" + id + "' AND password = '" + pw + "'"
-  
-  This allows attackers to inject arbitrary SQL code by including special characters (particularly
-  single quotes) in the ID or PW parameters obtained from the HTTP request. An attacker could
-  bypass authentication, extract sensitive data from the database, modify or delete records, or
-  execute arbitrary SQL commands. The vulnerability was detected by Jazzer's SQL injection
-  sanitizer and can be triggered with simple payloads containing single quotes.
+  A SQL injection vulnerability exists in the doGetName method of the
+  UserNameAction class. The method constructs a SQL query by directly
+  concatenating user-supplied input from HTTP request parameters (ID and PW)
+  without proper sanitization or use of prepared statements. An attacker can
+  inject malicious SQL code through these parameters to bypass authentication,
+  read sensitive data from the database, or manipulate database records.
 
 locations:
-- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java
+- type: crash_site
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java
   function_name: doGetName
   startLine: 74
-  startColumn: 0
+  startColumn: 13
   endLine: 74
-  endColumn: 0
+  endColumn: 109
+- type: root_cause
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java
+  function_name: doGetName
+  startLine: 74
+  startColumn: 13
+  endLine: 74
+  endColumn: 109

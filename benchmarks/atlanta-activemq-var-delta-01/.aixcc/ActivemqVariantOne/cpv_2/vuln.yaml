@@ -1,35 +1,36 @@
 id: cpv_2
 
-name: Apache ActiveMQ OpenWire Unsafe Exception Deserialization RCE
+name: Apache ActiveMQ OpenWire Deserialization Remote Code Execution
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://github.com/advisories/GHSA-crg9-44h2-xw35
+- https://activemq.apache.org/news/cve-2023-46604
 
 cwes:
 - CWE-502
 - CWE-470
-- CWE-94
+- CWE-913
 
 description: |
-  The Apache ActiveMQ OpenWire protocol implementation contains a remote code execution 
-  vulnerability in the BaseDataStreamMarshaller.createThrowable() method. The vulnerable 
-  code uses Class.forName() and reflection to instantiate arbitrary classes based on 
-  externally-controlled className parameters received from untrusted OpenWire protocol data.
-  
-  When processing OpenWire protocol messages (specifically exception responses), the 
-  looseUnmarshalThrowable() method extracts a class name from the input stream and passes 
-  it to createThrowable(). The method then loads the specified class, obtains a constructor 
-  accepting a String parameter, and instantiates the class via reflection with attacker-controlled 
-  data. While the code includes a weak check requiring the class name to start with "j", 
-  this is insufficient protection and can be easily bypassed.
-  
-  An attacker can craft malicious OpenWire messages containing exception data with carefully 
-  chosen class names that pass the weak validation check, leading to arbitrary class instantiation. 
-  This can result in remote code execution through gadget chains or malicious constructors, 
-  denial of service through resource-intensive class instantiation, or information disclosure 
-  through error messages from instantiated classes.
+  A critical remote code execution vulnerability exists in Apache ActiveMQ's
+  OpenWire protocol implementation. The BaseDataStreamMarshaller.createThrowable()
+  method accepts an arbitrary class name from untrusted network input and uses
+  reflection to instantiate any class with a String constructor, without validating
+  that the instantiated class is actually a Throwable. This allows an attacker to
+  instantiate arbitrary classes on the classpath, leading to remote code execution.
+  An unauthenticated attacker can send a crafted OpenWire packet to instantiate
+  malicious classes and achieve code execution.
 
 locations:
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v3/BaseDataStreamMarshaller.java
+- type: root_cause
+  path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v3/BaseDataStreamMarshaller.java
   function_name: createThrowable
-  startLine: 233
-  endColumn: 0
-  endLine: 233
-  startColumn: 0
+  startLine: 229
+  startColumn: 1
+  endLine: 240
+  endColumn: 5

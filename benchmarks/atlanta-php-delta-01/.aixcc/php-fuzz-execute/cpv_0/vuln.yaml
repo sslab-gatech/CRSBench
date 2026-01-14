@@ -1,30 +1,29 @@
 id: cpv_0
 
-name: PHP PCRE Delimiter Mapping Global Buffer Overflow
+name: Global buffer overflow in PCRE delimiter mapping
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-125
-- CWE-787
-- CWE-120
+- CWE-119
 
 description: |
-  A global buffer overflow vulnerability exists in the PHP PCRE extension's 
-  pcre_get_compiled_regex_cache_ex() function when parsing regex pattern delimiters.
-  The function attempts to map opening delimiters (like '(', '[', '{', '<') to their 
-  corresponding closing delimiters (')', ']', '}', '>') by searching a hardcoded string 
-  and then indexing 5 positions forward. However, the string literal "([{< )]}>)" is 
-  malformed and too short (only 10 characters), causing an out-of-bounds read when 
-  certain delimiters (particularly ')') are encountered. When ')' is found at index 5, 
-  accessing pp[5] reads 5 bytes beyond that position, extending past the string's end 
-  into adjacent global variable memory. This can lead to information disclosure through 
-  memory leakage, crashes, or unexpected behavior. The vulnerability can be triggered 
-  by providing crafted regex patterns to preg_replace() or preg_replace_callback() 
-  functions using ')' as a delimiter.
+  A global buffer overflow vulnerability exists in the pcre_get_compiled_regex_cache_ex
+  function in ext/pcre/php_pcre.c. When processing PCRE regular expression delimiters,
+  the function uses a hardcoded string "([{< )]}>)" for delimiter mapping. If the
+  delimiter is a closing parenthesis ')', strchr() returns a pointer to index 5,
+  and then pp[5] attempts to access index 10, which is out of bounds (the string
+  is only 10 characters, indices 0-9). This results in a 1-byte out-of-bounds read,
+  potentially leading to information disclosure or denial of service.
 
 locations:
-- path_from_root: ext/pcre/php_pcre.c
+- type: crash_site
+  path_from_root: ext/pcre/php_pcre.c
   function_name: pcre_get_compiled_regex_cache_ex
   startLine: 649
-  startColumn: 15
+  startColumn: 3
   endLine: 649
-  endColumn: 15
+  endColumn: 20

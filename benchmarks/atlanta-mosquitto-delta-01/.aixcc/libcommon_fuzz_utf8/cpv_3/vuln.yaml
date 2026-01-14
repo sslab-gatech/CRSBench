@@ -1,32 +1,36 @@
 id: cpv_3
 
-name: UTF-8 Validation Heap Buffer Over-read due to Insufficient Boundary Check
+name: Off-by-one Error in UTF-8 Validation Leading to Heap Buffer Overflow
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
-- CWE-125
-- CWE-787
+- CWE-193
 - CWE-122
+- CWE-787
 
 description: |
-  A heap buffer overflow vulnerability exists in the mosquitto_validate_utf8() function
-  in libcommon/utf8_common.c at line 72. The vulnerability is caused by an insufficient
-  boundary check that uses an equality comparison (==) instead of a greater-than-or-equal
-  comparison (>=) when validating that enough bytes remain in the buffer to complete a
-  multi-byte UTF-8 sequence.
-  
-  When processing a malformed UTF-8 sequence where the first byte indicates a multi-byte
-  sequence (e.g., 4-byte sequence starting with 0xF1) but the actual buffer length is
-  insufficient (e.g., only 1 byte), the boundary check fails to catch the overflow
-  condition. This allows the subsequent loop to read beyond the allocated buffer
-  boundaries when attempting to validate continuation bytes, resulting in a 1-byte
-  out-of-bounds read.
-  
-  The vulnerability can lead to information disclosure through memory leaks, denial of
-  service through crashes, and potential remote exploitation if the function is used to
-  validate user-supplied UTF-8 data in network protocols.
+  An off-by-one error exists in the mosquitto_validate_utf8 function in
+  libcommon/utf8_common.c. The bounds checking logic at line 67 uses an
+  equality comparison (==) instead of greater-than-or-equal (>=) when
+  validating UTF-8 multi-byte sequences. This allows the function to proceed
+  when there is insufficient data remaining in the buffer. The subsequent loop
+  that reads continuation bytes increments the index beyond buffer bounds,
+  causing a heap-buffer-overflow READ of size 1. This can lead to information
+  disclosure or denial of service.
 
 locations:
-- path_from_root: libcommon/utf8_common.c
+- type: root_cause
+  path_from_root: libcommon/utf8_common.c
+  function_name: mosquitto_validate_utf8
+  startLine: 67
+  startColumn: 5
+  endLine: 67
+  endColumn: 25
+- type: crash_site
+  path_from_root: libcommon/utf8_common.c
   function_name: mosquitto_validate_utf8
   startLine: 72
   startColumn: 8

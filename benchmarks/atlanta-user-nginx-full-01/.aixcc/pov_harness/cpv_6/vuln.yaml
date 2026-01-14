@@ -1,31 +1,38 @@
 id: cpv_6
 
-name: nginx HTTP Chunked Transfer Encoding NULL Pointer Dereference
+name: nginx chunked transfer encoding NULL pointer dereference in request body discard filter
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-476
-- CWE-252
 
 description: |
-  A NULL pointer dereference vulnerability in nginx's HTTP chunked transfer encoding parser.
-  When processing HTTP requests with Transfer-Encoding: chunked headers, the
-  ngx_http_discard_request_body_filter function allocates a new request body structure but
-  explicitly sets rb->chunked to NULL instead of properly initializing it. This NULL pointer
-  is then passed to ngx_http_parse_chunked, which immediately dereferences it by accessing
-  ctx->state, causing a segmentation fault. An attacker can trigger this vulnerability by
-  sending specially crafted HTTP requests with chunked transfer encoding, leading to denial
-  of service by crashing nginx worker processes.
+  A NULL pointer dereference vulnerability exists in nginx's HTTP request body
+  discard filter when handling chunked transfer encoding. In the
+  ngx_http_discard_request_body_filter function, when a new request body
+  structure is allocated for handling chunked requests, the rb->chunked field
+  is set to NULL instead of being properly initialized. When
+  ngx_http_parse_chunked is subsequently called with this NULL pointer, it
+  attempts to access ctx->state, causing a segmentation fault. This can be
+  triggered remotely by sending specially crafted HTTP POST requests with
+  chunked transfer encoding, leading to worker process crashes and denial of
+  service.
 
 locations:
-- path_from_root: src/http/ngx_http_parse.c
+- type: crash_site
+  path_from_root: src/http/ngx_http_parse.c
   function_name: ngx_http_parse_chunked
   startLine: 2171
   startColumn: 18
   endLine: 2171
   endColumn: 18
-- path_from_root: src/http/ngx_http_request_body.c
+- type: root_cause
+  path_from_root: src/http/ngx_http_request_body.c
   function_name: ngx_http_discard_request_body_filter
   startLine: 863
-  startColumn: 0
-  endLine: 870
-  endColumn: 0
+  startColumn: 1
+  endLine: 863
+  endColumn: 1

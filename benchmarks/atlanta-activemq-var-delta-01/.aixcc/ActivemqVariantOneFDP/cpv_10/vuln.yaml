@@ -1,31 +1,45 @@
 id: cpv_10
 
-name: Apache ActiveMQ OpenWire Unsafe Deserialization Remote Code Execution
+name: Apache ActiveMQ OpenWire Protocol Unsafe Deserialization RCE
+
+origin: 1-day
+
+release_date: 11/03/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://activemq.apache.org/news/cve-2023-46604
+- https://github.com/advisories/GHSA-crg9-44h2-xw35
+- https://osv.dev/vulnerability/CVE-2023-46604
 
 cwes:
 - CWE-502
 - CWE-470
-- CWE-913
+- CWE-94
 
 description: |
-  An unsafe deserialization vulnerability exists in the Apache ActiveMQ OpenWire protocol 
-  implementation that allows remote code execution. The vulnerability is located in the 
-  createThrowable method of BaseDataStreamMarshaller, which accepts a className parameter 
-  from untrusted input during OpenWire message deserialization. The method dynamically 
-  loads and instantiates classes via reflection using Class.forName() and 
-  constructor.newInstance() with only a weak validation check (verifying the class name 
-  starts with "j"). An attacker can craft a malicious OpenWire ExceptionResponse message 
-  containing a carefully chosen class name and constructor parameters to instantiate 
-  arbitrary classes on the classpath, enabling gadget chain exploitation and full remote 
-  code execution. The vulnerability is triggered when ExceptionResponseMarshaller 
-  unmarshals malicious messages, calling looseUnmarsalThrowable which invokes the 
-  vulnerable createThrowable method without validating that the loaded class actually 
-  extends Throwable before instantiation.
+  A critical remote code execution vulnerability exists in Apache ActiveMQ's
+  OpenWire protocol marshaller. The BaseDataStreamMarshaller.createThrowable()
+  method accepts arbitrary class names from untrusted input and instantiates
+  them via reflection without proper validation. The method only checks if the
+  class name starts with "j", which is easily bypassed by malicious classes
+  like ClassPathXmlApplicationContext. Attackers can send crafted OpenWire
+  messages containing ExceptionResponse payloads to achieve unauthenticated
+  remote code execution. This vulnerability has a CVSS score of 10.0 and has
+  been actively exploited in the wild.
 
 locations:
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
+- type: root_cause
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
   function_name: createThrowable
   startLine: 228
   startColumn: 0
   endLine: 239
+  endColumn: 0
+- type: crash_site
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
+  function_name: looseUnmarsalThrowable
+  startLine: 517
+  startColumn: 0
+  endLine: 517
   endColumn: 0

@@ -1,34 +1,38 @@
 id: cpv_2
 
-name: KVX Disassembler NULL Pointer Dereference due to Incomplete Initialization
+name: NULL pointer dereference in KVX disassembler due to incomplete initialization
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-476
 - CWE-665
-- CWE-754
 
 description: |
-  A NULL pointer dereference vulnerability exists in the KVX disassembler's decode_insn() 
-  function. The vulnerability occurs when kvx_dis_init() encounters an unsupported 
-  architecture or machine type and returns early with an error, leaving the global 
-  env.opc_table pointer as NULL. Despite this initialization failure, subsequent calls 
-  to decode_insn() proceed to dereference the NULL opc_table pointer when accessing 
-  op->codewords[i].flags at line 566.
-  
-  The root cause is missing validation in decode_insn() to ensure the disassembler 
-  environment was properly initialized before use. The function assumes env.opc_table 
-  is always valid and attempts to iterate over it, resulting in a NULL pointer 
-  dereference when initialization failed.
-  
-  This can be triggered by providing input with a valid KVX architecture (bfd_arch_kvx) 
-  but an unsupported machine type (e.g., mach=0), or an unsupported architecture type. 
-  The vulnerability allows for denial of service through segmentation fault in 
-  security-critical disassembly functionality.
+  A NULL pointer dereference vulnerability exists in the KVX disassembler
+  component of GNU binutils. The vulnerability occurs when the kvx_dis_init
+  function returns an error without initializing the global env structure,
+  leaving env.opc_table as NULL. The calling function print_insn_kvx does
+  not check the return value and proceeds to call decode_insn, which
+  immediately dereferences the NULL pointer in a for-loop condition. This
+  can be triggered by providing crafted input with unsupported architecture
+  or machine type values, resulting in a segmentation fault and denial of
+  service.
 
 locations:
-- path_from_root: opcodes/kvx-dis.c
+- type: crash_site
+  path_from_root: opcodes/kvx-dis.c
   function_name: decode_insn
   startLine: 566
   startColumn: 12
   endLine: 566
   endColumn: 12
+- type: root_cause
+  path_from_root: opcodes/kvx-dis.c
+  function_name: kvx_dis_init
+  startLine: 210
+  startColumn: 1
+  endLine: 260
+  endColumn: 1

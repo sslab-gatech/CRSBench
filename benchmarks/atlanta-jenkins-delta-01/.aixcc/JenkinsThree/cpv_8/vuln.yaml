@@ -1,30 +1,28 @@
 id: cpv_8
 
-name: LDAP Injection in Jenkins Authentication via Unsanitized User Input
+name: LDAP Injection in AuthAction.authenticateAsAdmin
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-90
-- CWE-943
+- CWE-20
 
 description: |
-  This is a critical LDAP Injection vulnerability in the Jenkins toy-plugin's authentication mechanism.
-  The vulnerability exists in the authenticateAsAdmin method of the AuthAction class, where user-supplied
-  input from HTTP request parameters (username and key) is directly concatenated into an LDAP search
-  filter string without proper sanitization or escaping. This violates RFC 4515, which specifies proper
-  format and escaping rules for LDAP search filters.
-  
-  An attacker can craft malicious input containing special LDAP characters (such as *, (, ), \, |, &)
-  to bypass authentication, extract sensitive information from the LDAP directory, or cause denial of
-  service. The vulnerable code constructs the filter as:
-  "(&(objectClass=inetOrgPerson)(cn=" + username + ")(userPassword=" + key + "))"
-  
-  Impact includes authentication bypass, information disclosure, privilege escalation, and potential
-  unauthorized access to the system as administrator or other privileged users.
+  An LDAP Injection vulnerability exists in the authenticateAsAdmin method
+  of the AuthAction class. User-controlled input (username and key parameters)
+  is directly concatenated into an LDAP search filter without proper sanitization
+  or parameterization. This allows an attacker to inject malicious LDAP filter
+  syntax to bypass authentication checks, extract sensitive information from the
+  LDAP directory, or gain unauthorized admin-level access.
 
 locations:
-- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AuthAction.java
+- type: root_cause
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AuthAction.java
   function_name: authenticateAsAdmin
-  startLine: 229
-  startColumn: 1
-  endLine: 229
-  endColumn: 1
+  startLine: 228
+  startColumn: 0
+  endLine: 230
+  endColumn: 0

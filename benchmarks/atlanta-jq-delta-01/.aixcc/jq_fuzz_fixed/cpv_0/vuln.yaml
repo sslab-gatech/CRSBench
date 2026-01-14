@@ -1,39 +1,45 @@
 id: cpv_0
 
-name: Stack Buffer Overflow via NaN Payload in Decimal Number Comparison
+name: Stack Buffer Overflow via NaN with Payload in jq Number Comparison
+
+origin: 1-day
+
+release_date: 03/28/2025
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2024-53427
+- https://github.com/jqlang/jq/security/advisories/GHSA-x6c3-qv5r-7q22
 
 cwes:
 - CWE-121
 - CWE-787
-- CWE-131
+- CWE-843
 
 description: |
-  A stack-based buffer overflow vulnerability exists in jq's decimal number handling code.
-  When jq parses a NaN (Not-a-Number) value with a large payload (e.g., "nan6000000005"),
-  it stores the payload digits in a decimal number structure. During number comparison
-  operations such as array grouping, the jvp_number_cmp function allocates a local structure
-  'res' with minimal capacity (DECNUMDIGITS=1, approximately 2 units). When handling NaN
-  values with payloads exceeding this capacity, the decNumberCopy function writes beyond
-  the allocated buffer while copying the NaN payload, corrupting the stack.
-  
-  The vulnerability occurs because the stack-allocated buffer size calculation does not
-  account for NaN values with large payloads. A NaN with a 10-digit payload requires
-  approximately 4 units (with DECDPUN=3), but the local 'res' structure only provides
-  space for about 2 units, causing an out-of-bounds write during the copy operation.
-  
-  Impact: Memory corruption, denial of service (crash), and potential arbitrary code
-  execution through stack corruption.
+  A stack-based buffer overflow vulnerability exists in jq versions 1.7 and 1.7.1,
+  representing an incomplete fix for CVE-2023-50268. The vulnerability occurs when
+  comparing NaN values with payloads containing 10 or more decimal digits. When such
+  values are parsed through jvp_literal_number_new(), they create decNumber structures
+  with multiple digits stored in the payload. During comparison operations in
+  jvp_number_cmp(), a stack-allocated result buffer with space for only 2 decNumberUnits
+  (16 bytes) is created. However, when decNumberCompare() processes NaN values with
+  large payloads, it requires more Units to store intermediate results. The
+  decNumberCopy() function then writes beyond the allocated stack buffer, causing a
+  2-byte out-of-bounds write. This can lead to memory corruption, potential code
+  execution, or denial of service.
 
 locations:
-- path_from_root: src/jv.c
-  function_name: jvp_number_cmp
-  startLine: 743
-  startColumn: 0
-  endLine: 746
-  endColumn: 0
-- path_from_root: src/decNumber/decNumber.c
+- type: crash_site
+  path_from_root: src/decNumber/decNumber.c
   function_name: decNumberCopy
   startLine: 3375
   startColumn: 45
   endLine: 3375
   endColumn: 45
+- type: root_cause
+  path_from_root: src/jv.c
+  function_name: jvp_literal_number_new
+  startLine: 586
+  startColumn: 1
+  endLine: 594
+  endColumn: 3

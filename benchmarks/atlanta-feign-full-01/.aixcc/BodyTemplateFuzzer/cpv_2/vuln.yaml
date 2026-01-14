@@ -1,33 +1,38 @@
 id: cpv_2
 
-name: Regular Expression Injection in Feign Template Variable Pattern Parsing
+name: Regex Injection in Feign Template Expression Pattern Parsing
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
-- CWE-1333
+- CWE-185
 - CWE-400
-- CWE-94
+- CWE-20
 
 description: |
-  Regular Expression Injection vulnerability in the Feign template parsing library.
-  When parsing template expressions with the format {variable:pattern}, the code in
-  Expressions.create() extracts the pattern portion after the colon and passes it
-  directly to Pattern.compile() without sanitization. This allows attackers to inject
-  malicious or malformed regular expression patterns that can cause catastrophic
-  backtracking (ReDoS), leading to excessive CPU consumption, application crashes via
-  PatternSyntaxException, and potential denial of service. The vulnerability is
-  triggered when user-controlled input containing special regex metacharacters is used
-  as a pattern in template expressions.
+  A regular expression injection vulnerability exists in the Feign template
+  expression parser when processing variable patterns. The code allows users
+  to specify patterns in the format {variable:pattern}, but the pattern portion
+  is not sanitized before being passed to Pattern.compile(). When malicious
+  input like {str1:{str2:}} is provided, the unescaped regex metacharacter {
+  causes a PatternSyntaxException. This can lead to denial of service through
+  application crashes or resource exhaustion via ReDoS (Regular Expression
+  Denial of Service) attacks.
 
 locations:
-- path_from_root: core/src/main/java/feign/template/Expressions.java
-  function_name: create
-  startLine: 86
-  startColumn: 0
-  endLine: 86
-  endColumn: 0
-- path_from_root: core/src/main/java/feign/template/Expression.java
+- type: crash_site
+  path_from_root: core/src/main/java/feign/template/Expression.java
   function_name: Expression
   startLine: 35
-  startColumn: 0
+  startColumn: 1
   endLine: 35
-  endColumn: 0
+  endColumn: 999
+- type: root_cause
+  path_from_root: core/src/main/java/feign/template/Expressions.java
+  function_name: create
+  startLine: 82
+  startColumn: 1
+  endLine: 87
+  endColumn: 999

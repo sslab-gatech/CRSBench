@@ -1,33 +1,42 @@
 id: cpv_2
 
-name: Uncontrolled Recursion in HTML Template Parser Leading to Stack Overflow
+name: jsoup Template Parsing Stack Overflow via Uncontrolled Recursion
+
+origin: 1-day
+
+release_date: 08/18/2021
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2021-37714
+- https://github.com/jhy/jsoup/security/advisories/GHSA-m72m-mhq2-9p6c
 
 cwes:
 - CWE-674
 - CWE-400
+- CWE-835
 
 description: |
-  An uncontrolled recursion vulnerability exists in jsoup's HTML parser when handling
-  deeply nested template elements with EOF tokens. The vulnerability occurs due to a
-  circular recursion between the InTemplate and InBody parser states. When an EOF token
-  is encountered in the InTemplate state, it pops a template from the stack, calls
-  resetInsertionMode(), and recursively processes the token if the state changes. The
-  InBody state, upon receiving an EOF with remaining templates, recursively calls back
-  to InTemplate. This creates an infinite recursion loop (InTemplate → InBody → InTemplate)
-  that continues until the Java call stack is exhausted, resulting in a StackOverflowError.
-  The vulnerability can be triggered by malformed HTML with deeply nested template structures,
-  leading to a denial of service condition.
+  A stack overflow vulnerability exists in jsoup's HTML template parsing logic.
+  When processing EOF (end-of-file) tokens in the InTemplate state, the parser
+  attempts to clean up the template mode stack and recursively processes the token
+  again. The original code only checked if the state changed away from InTemplate,
+  without verifying the template stack depth. With specially crafted HTML input
+  containing deeply nested <template> tags, the parser enters an infinite recursion
+  loop, causing a stack overflow exception and denial of service. The vulnerability
+  was fixed by adding a recursion depth limit check (templateModeSize() < 12).
 
 locations:
-- path_from_root: src/main/java/org/jsoup/parser/HtmlTreeBuilderState.java
-  function_name: process
+- type: crash_site
+  path_from_root: src/main/java/org/jsoup/parser/HtmlTreeBuilderState.java
+  function_name: InTemplate.process
   startLine: 1556
-  startColumn: 0
+  startColumn: 1
   endLine: 1557
-  endColumn: 0
-- path_from_root: src/main/java/org/jsoup/parser/HtmlTreeBuilderState.java
-  function_name: process
-  startLine: 311
-  startColumn: 0
-  endLine: 311
-  endColumn: 0
+  endColumn: 40
+- type: root_cause
+  path_from_root: src/main/java/org/jsoup/parser/HtmlTreeBuilderState.java
+  function_name: InTemplate.process
+  startLine: 1556
+  startColumn: 1
+  endLine: 1557
+  endColumn: 40

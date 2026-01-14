@@ -1,6 +1,10 @@
 id: cpv_4
 
-name: Heap Buffer Overflow in ngx_http_set_browser_cookie via Oversized Safari Cookie
+name: Heap Buffer Overflow in nginx Browser Cookie Handler due to Insufficient Buffer Allocation
+
+origin: synthetic
+
+release_date: 01/01/2024
 
 cwes:
 - CWE-122
@@ -8,26 +12,26 @@ cwes:
 - CWE-131
 
 description: |
-  A heap-based buffer overflow vulnerability exists in the ngx_http_set_browser_cookie 
-  function of nginx's HTTP core module. The vulnerability occurs when processing HTTP 
-  requests from Safari browsers that include a Cookie header. The function allocates a 
-  fixed-size buffer of approximately 43 bytes (NGX_OFF_T_LEN + NGX_TIME_T_LEN + 3) but 
-  fails to account for the length of the cookie value when copying it via ngx_sprintf. 
-  When a Safari user-agent sends a cookie value longer than the remaining buffer space, 
-  the sprintf operation writes beyond the allocated heap buffer, causing memory corruption.
-  
-  The vulnerable code path is triggered when:
-  - The request contains a User-Agent header identifying as Safari
-  - The request includes a Cookie header with a value exceeding buffer capacity
-  - The ngx_sprintf call attempts to format the cookie data into the undersized buffer
-  
-  This can lead to denial of service through crashes and potentially arbitrary code 
-  execution depending on heap layout and the ability to corrupt adjacent heap structures.
+  A heap-based buffer overflow vulnerability exists in the ngx_http_set_browser_cookie
+  function in src/http/ngx_http_core_module.c. The function allocates a fixed-size
+  buffer that only accounts for timestamp and content length format strings, but fails
+  to include space for the cookie value length when Safari browser is detected. When
+  ngx_sprintf writes the cookie data into this undersized buffer, it causes a heap
+  buffer overflow. This can lead to memory corruption, denial of service, and potential
+  arbitrary code execution through heap metadata corruption.
 
 locations:
-- path_from_root: src/http/ngx_http_core_module.c
+- type: root_cause
+  path_from_root: src/http/ngx_http_core_module.c
   function_name: ngx_http_set_browser_cookie
-  startLine: 5289
-  startColumn: 37
-  endLine: 5289
-  endColumn: 37
+  startLine: 5281
+  startColumn: 34
+  endLine: 5281
+  endColumn: 34
+- type: crash_site
+  path_from_root: src/core/ngx_string.c
+  function_name: ngx_sprintf_str
+  startLine: 581
+  startColumn: 24
+  endLine: 581
+  endColumn: 24

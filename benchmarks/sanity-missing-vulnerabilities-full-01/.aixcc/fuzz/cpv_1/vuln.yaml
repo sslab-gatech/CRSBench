@@ -1,26 +1,34 @@
 id: cpv_1
 
-name: Stack-use-after-scope due to returning pointer to local array in parse_message()
+name: Stack Variable Address Return in parse_message
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-562
 - CWE-825
-- CWE-416
 
 description: |
-  A stack-use-after-scope vulnerability exists in the parse_message() function in message.c.
-  The function allocates a local array 'decoded_data[256]' on the stack (line 21) to store
-  decoded message data. However, it returns a pointer to this stack-allocated array (line 36),
-  which goes out of scope when the function returns. When the returned pointer is subsequently
-  dereferenced in process_message() at line 44 (in a printf() call), it accesses memory that
-  is no longer valid, causing a stack-use-after-scope condition. This can lead to crashes,
-  memory corruption, information disclosure (exposing residual stack data), and potentially
-  arbitrary code execution depending on the stack state after the function returns.
+  A stack-use-after-scope vulnerability exists in the parse_message function
+  in message.c. The function returns a pointer to a local stack variable
+  (decoded_data) that is deallocated when the function returns. When the
+  caller attempts to use this pointer, it accesses invalid memory, leading
+  to undefined behavior, potential information disclosure, or crashes.
 
 locations:
-- path_from_root: message.c
+- type: crash_site
+  path_from_root: message.c
+  function_name: process_message
+  startLine: 44
+  startColumn: 9
+  endLine: 44
+  endColumn: 9
+- type: root_cause
+  path_from_root: message.c
   function_name: parse_message
   startLine: 36
-  startColumn: 0
+  startColumn: 5
   endLine: 36
-  endColumn: 0
+  endColumn: 26

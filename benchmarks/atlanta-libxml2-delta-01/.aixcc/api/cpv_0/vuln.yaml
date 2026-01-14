@@ -1,30 +1,40 @@
 id: cpv_0
 
-name: Uninitialized Pointer in xmlSearchNsByHref Namespace Search
+name: Use of uninitialized value in xmlSearchNsByHref namespace lookup
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+references: []
 
 cwes:
 - CWE-457
 - CWE-908
-- CWE-824
 
 description: |
-  Use-of-uninitialized-value vulnerability in libxml2's namespace search functionality.
-  The xmlSearchNsByHref function declares a local pointer variable 'cur' without initialization
-  and passes it by reference to xmlSearchNsByHrefSafe. Due to improper control flow in
-  xmlSearchNsByHrefSafe, when certain error conditions are met (NULL node or XML_NAMESPACE_DECL
-  node type), the function returns early without initializing the output parameter. This causes
-  xmlSearchNsByHref to return an uninitialized pointer value, leading to undefined behavior.
-  
-  The vulnerability can result in information disclosure through uninitialized memory contents,
-  potential crashes if the caller dereferences the pointer, and possible exploitation to leak
-  memory addresses that could bypass ASLR protections. The issue is triggered when
-  xmlSearchNsByHref is called with a NULL node parameter or a node of type XML_NAMESPACE_DECL,
-  causing early return before the output parameter initialization.
+  A use-of-uninitialized-value vulnerability exists in libxml2's namespace
+  handling code. The xmlSearchNsByHrefSafe function has a logic error in its
+  parameter validation where it returns early without initializing the output
+  parameter when node validation fails. The caller function xmlSearchNsByHref
+  declares a local variable without initialization and passes it to
+  xmlSearchNsByHrefSafe. If the function returns early due to invalid node
+  conditions, the variable remains uninitialized, leading to unpredictable
+  behavior, potential crashes, or information disclosure when the
+  uninitialized pointer is returned and used.
 
 locations:
-- path_from_root: tree.c
+- type: crash_site
+  path_from_root: tree.c
   function_name: xmlSearchNsByHref
-  startLine: 6056
+  startLine: 6055
   startColumn: 5
   endLine: 6056
   endColumn: 5
+- type: root_cause
+  path_from_root: tree.c
+  function_name: xmlSearchNsByHrefSafe
+  startLine: 5969
+  startColumn: 5
+  endLine: 5972
+  endColumn: 20

@@ -1,27 +1,32 @@
 id: cpv_0
 
-name: Heap buffer over-read in UTF-8 lookbehind assertion matching
+name: Heap-buffer-overflow in PCRE2 OP_VREVERSE UTF-8 handling
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
-- CWE-125
 - CWE-122
 - CWE-787
+- CWE-125
 
 description: |
-  A heap buffer over-read vulnerability exists in the PCRE2 pattern matching engine
-  when processing lookbehind assertions with variable length in UTF-8 mode. The
-  vulnerability occurs in the match() function at src/pcre2_match.c:5795 in the
-  OP_VREVERSE case handler. After incrementing the subject pointer, the FORWARDCHAR
-  macro attempts to skip UTF-8 continuation bytes without checking buffer boundaries.
-  The macro dereferences the pointer while checking for continuation bytes (0x80),
-  potentially reading beyond the allocated heap buffer when the input ends with a
-  partial or malformed UTF-8 sequence. This can lead to information disclosure through
-  out-of-bounds memory reads and denial of service through crashes. The vulnerability
-  is triggered by crafted regex patterns containing negative lookbehind assertions
-  such as (?<!(|l )).
+  A heap buffer overflow vulnerability exists in the match function in
+  src/pcre2_match.c during the handling of variable-length reverse lookbehind
+  assertions (OP_VREVERSE opcode) when processing UTF-8 encoded input. The
+  FORWARDCHAR macro used at line 5795 advances the pointer through UTF-8
+  continuation bytes without performing bounds checking against the end of
+  the subject string. When the regular expression matching algorithm moves
+  forward character-by-character after a failed match attempt in a lookbehind
+  assertion, it can read past the end of the allocated buffer if the pointer
+  is already at or near the end of the subject string. This out-of-bounds
+  read could lead to information disclosure, denial of service, or potential
+  use in exploit chains.
 
 locations:
-- path_from_root: src/pcre2_match.c
+- type: crash_site
+  path_from_root: src/pcre2_match.c
   function_name: match
   startLine: 5795
   startColumn: 18

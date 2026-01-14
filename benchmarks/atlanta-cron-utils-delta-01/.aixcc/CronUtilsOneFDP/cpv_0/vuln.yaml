@@ -1,28 +1,35 @@
 id: cpv_0
 
-name: Expression Language Injection via Error Message Leading to Remote Code Execution
+name: Expression Language Injection via Error Message Template in CronParser
+
+origin: 1-day
+
+release_date: 11/15/2021
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2021-41269
+- https://github.com/advisories/GHSA-p9m8-27x8-rg87
 
 cwes:
-- CWE-1336
-- CWE-917
 - CWE-94
+- CWE-917
+- CWE-78
 
 description: |
-  An Expression Language (EL) Injection vulnerability exists in the CronParser.parse() method
-  that leads to Remote Code Execution. The vulnerability occurs when user-controlled input from
-  the cron expression parameter is directly embedded into an exception message without sanitization.
-  When a parsing error occurs, the error message containing the malicious expression is processed
-  by Hibernate Validator's message interpolation system, which evaluates Expression Language syntax.
-  This allows an attacker to inject EL expressions that can access the Nashorn JavaScript engine
-  via ScriptEngineManager, ultimately executing arbitrary OS commands through Runtime.exec().
-  The exploitation chain: malicious input → exception message → Hibernate Validator EL processing
-  → JavaScript engine access → OS command execution. This results in complete system compromise
-  with the ability to execute arbitrary commands on the host system.
+  An Expression Language (EL) injection vulnerability exists in the CronParser.parse()
+  method in cron-utils. When parsing an invalid cron expression, the error message
+  includes the user-controlled expression value which is later interpolated by
+  Hibernate Validator's EL engine. An attacker can craft a malicious cron expression
+  containing EL injection payloads that, when processed, execute arbitrary code through
+  the JavaScript engine, leading to OS command injection and remote code execution.
+  This vulnerability affects cron-utils versions prior to 9.1.6 and has a CVSS score
+  of 10.0 (Critical).
 
 locations:
-- path_from_root: src/main/java/com/cronutils/parser/CronParser.java
+- type: root_cause
+  path_from_root: src/main/java/com/cronutils/parser/CronParser.java
   function_name: parse
   startLine: 165
-  startColumn: 0
+  startColumn: 23
   endLine: 165
-  endColumn: 0
+  endColumn: 106

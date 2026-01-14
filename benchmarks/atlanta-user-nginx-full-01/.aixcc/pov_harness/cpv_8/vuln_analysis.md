@@ -1,170 +1,136 @@
-I'll analyze the vulnerability for cpv_8 in the pov_harness. Let me start by examining the crash logs from this specific CPV.Now let me check for POV files and patches:Now let me examine the vulnerable source code:Let me get more context around the function to understand the data types:Let me check the http_minor field type in the request structure:Perfect! Now I have all the information I need. Let me also check the POV input to understand how it triggers the vulnerability:Excellent! Now I have all the information. The POV input is "HTTP/1.1110" which causes `http_minor` to be 1110, which is a 4-digit number. When sprintf tries to format this into a 3-byte buffer, it causes a stack buffer overflow.
-
-Let me create the comprehensive vulnerability analysis:
-
 # Vulnerability Analysis for cpv_8
 
 ## Summary
 - **CPV ID**: cpv_8
 - **Harness**: pov_harness
 - **Vulnerability Type**: Stack Buffer Overflow
-- **Severity**: High
+- **Origin**: synthetic
+- **Release Date**: 02/01/2026
+- **References**: None (synthetic vulnerability)
 
 ## Crash Log Analysis
 - **Error Type**: AddressSanitizer: stack-buffer-overflow
-- **Crash Location**: /src/nginx/src/http/ngx_http_parse.c:765:17
+- **Crash Location**: src/http/ngx_http_parse.c:765
 - **Vulnerable Function**: ngx_http_parse_request_line
 - **DEDUP Token**: `__interceptor_vsprintf--__interceptor_sprintf--ngx_http_parse_request_line`
+- **Operation**: WRITE of size 4 at stack address
+- **Scariness Score**: 51 (4-byte-write-stack-buffer-overflow)
 
 ### Stack Trace
 ```
-#0 0x55674c6b1cdb in vsprintf /src/llvm-project/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:1671:1
-#1 0x55674c6b2daa in sprintf /src/llvm-project/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:1714:1
-#2 0x55674c861f43 in ngx_http_parse_request_line /src/nginx/src/http/ngx_http_parse.c:765:17
-#3 0x55674c857733 in ngx_http_process_request_line /src/nginx/src/http/ngx_http_request.c:1116:14
-#4 0x55674c7de689 in ngx_event_process_posted /src/nginx/src/event/ngx_event_posted.c:34:9
-#5 0x55674c7656a4 in LLVMFuzzerTestOneInput /src/nginx/src/fuzz/pov_harness.cc:295:5
+#0 vsprintf - sanitizer interceptor
+#1 sprintf - sanitizer interceptor  
+#2 ngx_http_parse_request_line /src/nginx/src/http/ngx_http_parse.c:765:17 [CRASH SITE]
+#3 ngx_http_process_request_line /src/nginx/src/http/ngx_http_request.c:1116:14
+#4 ngx_event_process_posted /src/nginx/src/event/ngx_event_posted.c:34:9
+#5 LLVMFuzzerTestOneInput (harness code)
 ```
 
-### Memory Access Details
-```
-WRITE of size 4 at 0x7ff2208504a3 thread T0
-SCARINESS: 51 (4-byte-write-stack-buffer-overflow)
+### Memory Details
+From AddressSanitizer output:
+- **Buffer**: `minor_version_temp` at line 764, size 3 bytes (offset 32-35 in stack frame)
+- **Overflow**: Write at offset 35 overflows the 3-byte buffer
+- The buffer can hold at most 2 digit characters plus null terminator ("99\0")
+- When `r->http_minor` has 4 digits (e.g., 1110), `sprintf` writes 5 bytes ("1110\0"), overflowing by 2 bytes
 
-Address 0x7ff2208504a3 is located in stack of thread T0 at offset 35 in frame
-  This frame has 1 object(s):
-    [32, 35) 'minor_version_temp' (line 764) <== Memory access at offset 35 overflows this variable
-```
+## Vulnerable Code Location(s)
 
-## Vulnerable Code Location
+### Location 1 (crash_site and root_cause - same location)
+- **Type**: Both crash_site and root_cause
 - **File Path**: src/http/ngx_http_parse.c
 - **Function**: ngx_http_parse_request_line
-- **Line Range**: 763-768
-- **Vulnerable Line**: 765
+- **Line Range**: 764-765
+- **Column Range**: 17 (line 765)
 
 ### Code Context
 ```c
 if (r->http_minor > 99) {
-    char minor_version_temp[3] = {};
-    sprintf(minor_version_temp, "%u", r->http_minor);
+    char minor_version_temp[3] = {};        // Line 764: Only 3 bytes allocated
+    sprintf(minor_version_temp, "%u", r->http_minor);  // Line 765: CRASH SITE - overflows when value > 999
     //ngx_record_wrong_minor_version(minor_version_temp);
     return NGX_HTTP_PARSE_INVALID_REQUEST;
 }
+
+r->http_minor = r->http_minor * 10 + (ch - '0');  // Line 770: accumulates digits
 ```
 
-### Root Cause Analysis
-
-The vulnerability occurs in the HTTP request parsing logic. The code allocates a 3-byte buffer (`minor_version_temp[3]`) to store the string representation of `r->http_minor`, but the check `if (r->http_minor > 99)` is insufficient to prevent buffer overflow.
-
-**Key Issues:**
-1. **Insufficient buffer size**: A 3-byte buffer can only safely hold a 2-digit number plus null terminator (e.g., "99\0")
-2. **TOCTOU (Time-of-Check-Time-of-Use) vulnerability**: The check happens AFTER entering the conditional block where `r->http_minor` is already > 99
-3. **Logic error**: The check verifies that `http_minor > 99`, then immediately tries to format it into a buffer that can't hold numbers >= 100
-
-**Data Type Context:**
-- `http_minor` is defined as `unsigned http_minor:16` (16-bit unsigned integer, max value 65535)
-- The POV input "HTTP/1.1110" sets `http_minor = 1110` (4 digits)
-- `sprintf(minor_version_temp, "%u", 1110)` writes "1110\0" (5 bytes) into a 3-byte buffer
-- This causes a 2-byte overflow beyond the buffer boundary
+### Vulnerability Flow
+1. **Input**: HTTP request line with minor version digits (e.g., "HTTP/1.1110")
+2. **Parsing**: Each digit in minor version is processed in state `sw_minor_digit`
+3. **Accumulation**: `r->http_minor = r->http_minor * 10 + (ch - '0')` accumulates value
+4. **Check**: When `r->http_minor > 99`, code checks if value exceeds expected range
+5. **Bug**: Allocates only 3-byte buffer but `sprintf` writes 4+ bytes for values ≥ 1000
+6. **Crash**: Stack buffer overflow occurs at `sprintf` call (line 765)
 
 ## CWE Classification
-- **CWE-121**: Stack-based Buffer Overflow
-- **CWE-787**: Out-of-bounds Write
-- **CWE-131**: Incorrect Calculation of Buffer Size
-- **CWE-805**: Buffer Access with Incorrect Length Value
+- **CWE-121**: Stack-based Buffer Overflow - Writing to a stack buffer beyond its bounds
+- **CWE-787**: Out-of-bounds Write - Memory write outside allocated buffer
+- **CWE-120**: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')
 
 ## Vulnerability Description
 
-This is a **stack-based buffer overflow** vulnerability in nginx's HTTP request parser. When processing HTTP version strings with invalid minor version numbers greater than 99, the parser allocates a 3-byte buffer to store the string representation but fails to account for multi-digit numbers.
+This is a **stack-based buffer overflow** vulnerability in the HTTP request line parser. The vulnerability occurs in the `ngx_http_parse_request_line` function when parsing the HTTP minor version number.
 
-**Attack Vector:**
-An attacker sends a malformed HTTP request with an invalid HTTP version string (e.g., "HTTP/1.1110"). The parser:
-1. Parses "1110" as the HTTP minor version number
-2. Checks if it's greater than 99 (it is)
-3. Allocates a 3-byte buffer `minor_version_temp[3]`
-4. Calls `sprintf()` to format 1110 as a string
-5. `sprintf()` writes "1110\0" (5 bytes) into the 3-byte buffer
-6. This overflows 2 bytes beyond the buffer boundary on the stack
+**Root Cause**: 
+The code allocates a 3-byte stack buffer (`minor_version_temp[3]`) to store a string representation of the HTTP minor version number, but uses unsafe `sprintf` without bounds checking. The buffer can only safely hold 2-digit numbers ("99\0"), but the code can reach this point with values much larger than 99 (the check happens at line 763, but the multiplication at line 770 occurs after).
 
-**Impact:**
-- **Memory Corruption**: Stack memory corruption that can overwrite adjacent variables or return addresses
-- **Crash/DoS**: Immediate crash due to memory safety violation (as detected by AddressSanitizer)
-- **Potential Code Execution**: In non-hardened builds without stack protections, this could potentially be exploited for arbitrary code execution by overwriting return addresses
-- **Information Disclosure**: Stack memory corruption could leak sensitive information
+**Trigger Condition**:
+When an HTTP request contains a minor version with 4 or more digits (e.g., "HTTP/1.1110"), the `r->http_minor` value becomes >= 1000. The subsequent `sprintf` call attempts to write "1110\0" (5 bytes) into the 3-byte buffer, causing a stack buffer overflow.
 
-**Severity Factors:**
-- Remotely triggerable via crafted HTTP request
-- No authentication required
-- Affects core HTTP parsing functionality
-- Stack overflow with potential for control-flow hijacking
+**Impact**:
+- Memory corruption on the stack
+- Potential for arbitrary code execution if attacker can control overwritten data
+- Crash/DoS is guaranteed when overflow occurs
+
+**Note**: This vulnerability appears to be synthetic (intentionally injected for testing). The code pattern (checking `r->http_minor > 99` but then allowing it to grow larger, plus the commented-out logging function) suggests this was added to create a controlled vulnerability scenario rather than being a real-world bug.
 
 ## POV Analysis
 
-**POV Input**: `GET / HTTP/1.1110\r\nHost: localhost\r\n\r\n`
+**POV File**: pov_0.blob
+```
+GET / HTTP/1.1110
+Host: localhost
+```
 
-The proof-of-vulnerability crafts an HTTP/1.1 request with an intentionally malformed version string "HTTP/1.1110" where the minor version is "1110" (a 4-digit number). 
-
-**Exploitation Mechanism:**
-1. The parser reads "HTTP/1." and sets `http_major = 1`
-2. It then reads "1110" digit by digit: `http_minor = 1 * 10 + 1 = 11`, then `111`, then `1110`
-3. After reaching 1110 (> 99), the vulnerable code path is triggered
-4. The 4-digit number "1110" requires 5 bytes including null terminator
-5. Writing to a 3-byte buffer causes 2-byte overflow
-
-This minimal test case reliably triggers the vulnerability, demonstrating that the bug is easily exploitable by any client capable of sending HTTP requests.
+**Analysis**:
+- The POV triggers the vulnerability by specifying HTTP version "1.1110"
+- The minor version "1110" (4 digits) requires 5 bytes to store as string ("1110\0")
+- This exceeds the 3-byte buffer capacity, triggering the overflow
+- The POV is minimal and focused, demonstrating clear understanding of the vulnerability
 
 ## Patch Analysis
 
-**Patch Summary**: The fix removes the problematic code entirely:
+**Patch File**: patch_0.diff
 
+The patch **removes** the vulnerable code entirely:
 ```diff
- if (r->http_minor > 99) {
+if (r->http_minor > 99) {
 -    char minor_version_temp[3] = {};
 -    sprintf(minor_version_temp, "%u", r->http_minor);
 -    //ngx_record_wrong_minor_version(minor_version_temp);
      return NGX_HTTP_PARSE_INVALID_REQUEST;
- }
+}
 ```
 
-**Fix Strategy:**
-The patch simply deletes the three lines that:
-1. Allocate the undersized buffer
-2. Perform the unsafe sprintf operation
-3. Reference an undefined function (commented out)
+**Fix Strategy**:
+- Eliminates the stack buffer allocation and unsafe `sprintf` call
+- Maintains the check for `r->http_minor > 99`
+- Simply returns error without attempting to log the invalid value
+- This is a complete fix that removes the vulnerability by eliminating the unsafe code path
 
-This is the correct fix because:
-- The code was attempting to log/record invalid minor versions, but the logging function was never implemented (commented out)
-- The validation logic (return `NGX_HTTP_PARSE_INVALID_REQUEST`) is preserved
-- Removing dead code eliminates the vulnerability entirely
-- No legitimate functionality is lost since the recording feature was non-functional
-
-**Security Impact:**
-After the patch, malformed HTTP version strings are still properly rejected, but without the dangerous buffer overflow. The validation check remains effective while eliminating the security risk.
+**Why This Works**:
+- No buffer allocation means no buffer overflow possible
+- The validation logic (returning error for minor version > 99) remains intact
+- Removes unnecessary logging code that was vulnerable
 
 ## Recommendations
 
-### CWE Classification
-**Primary CWEs:**
-- **CWE-121**: Stack-based Buffer Overflow (most specific)
-- **CWE-787**: Out-of-bounds Write (general category)
+### Classification
+- **CWEs**: [CWE-121, CWE-787, CWE-120]
+- **Vulnerability Name**: "Stack Buffer Overflow in HTTP Version Parsing"
+- **Origin**: synthetic
+- **Release Date**: 02/01/2026
 
-**Contributing CWEs:**
-- **CWE-131**: Incorrect Calculation of Buffer Size
-- **CWE-805**: Buffer Access with Incorrect Length Value
-
-### Vulnerability Name
-**"nginx HTTP Version Parser Stack Buffer Overflow"**
-
-### Security Best Practices Violated
-1. **Unsafe string formatting**: Using `sprintf()` without bounds checking
-2. **Incorrect buffer sizing**: Allocating buffer based on incorrect size calculation
-3. **Dead code**: Implementing security-sensitive operations for non-functional features
-4. **Missing input validation**: Not validating input size before formatting operations
-
-### Mitigation Strategies (General)
-For similar vulnerabilities in other contexts:
-- Use safe string functions (`snprintf()` with explicit size limits)
-- Calculate buffer sizes correctly accounting for all digits plus null terminator
-- Validate input ranges before string conversion operations
-- Remove dead/unused code paths, especially in security-sensitive areas
-- Use static analysis tools to detect buffer overflow vulnerabilities
+### Location Details for vuln.yaml
+- **crash_site**: src/http/ngx_http_parse.c, function `ngx_http_parse_request_line`, line 765, column 17
+- **root_cause**: Same as crash_site (the vulnerable `sprintf` call is both where the bug exists and where it manifests)

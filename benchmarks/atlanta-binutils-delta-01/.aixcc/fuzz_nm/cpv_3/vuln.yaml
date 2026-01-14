@@ -1,32 +1,51 @@
 id: cpv_3
 
-name: BFD Cache LRU Use-After-Free in bfd_close_all_done
+name: Heap Use-After-Free in BFD Cache Management for IA-64 VMS ELF Files
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-416
 - CWE-672
 
 description: |
-  A heap-use-after-free vulnerability in the BFD library's cache management system.
-  The vulnerability occurs in bfd_close_all_done when handling malformed binary files.
-  When _close_and_cleanup returns false for a read-only file, the bclose function is
-  not called, leaving the BFD object in the LRU cache. However, _bfd_delete_bfd still
-  frees the BFD structure, creating a dangling pointer in the global bfd_last_cache
-  linked list. When bfd_cache_init is subsequently called, the insert function attempts
-  to access bfd_last_cache->lru_prev, triggering a use-after-free on freed memory.
-  This can lead to process crashes, memory corruption, or potential code execution when
-  processing untrusted binary files with binutils tools (nm, objdump, readelf, etc.).
+  A heap use-after-free vulnerability exists in the Binary File Descriptor (BFD)
+  library when processing malformed IA-64 OpenVMS ELF files. The vulnerability
+  occurs due to a logic flaw in the error handling path during BFD closure.
+  
+  The root cause has two components:
+  1. The elf64_vms_close_and_cleanup function attempts to perform write operations
+     on a BFD opened for reading only, causing the cleanup to fail.
+  2. The bfd_close_all_done function incorrectly handles cleanup failures,
+     freeing the BFD structure (_bfd_delete_bfd) while it remains referenced
+     in the global cache linked list (bfd_last_cache).
+  
+  When a subsequent bfd_fopen call triggers cache initialization, the insert
+  function dereferences the freed BFD pointer (bfd_last_cache->lru_prev),
+  resulting in a heap use-after-free read. This can lead to memory corruption,
+  information disclosure, or potential code execution.
 
 locations:
-- path_from_root: bfd/cache.c
+- type: crash_site
+  path_from_root: bfd/cache.c
   function_name: insert
   startLine: 137
   startColumn: 40
   endLine: 137
   endColumn: 40
-- path_from_root: bfd/opncls.c
+- type: root_cause
+  path_from_root: bfd/opncls.c
   function_name: bfd_close_all_done
-  startLine: 892
-  startColumn: 0
-  endLine: 905
-  endColumn: 0
+  startLine: 895
+  startColumn: 1
+  endLine: 909
+  endColumn: 1
+- type: root_cause
+  path_from_root: bfd/elf64-ia64-vms.c
+  function_name: elf64_vms_close_and_cleanup
+  startLine: 4713
+  startColumn: 1
+  endLine: 4716
+  endColumn: 1

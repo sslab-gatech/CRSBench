@@ -1,6 +1,10 @@
 id: cpv_1
 
-name: Nginx HTTP URI Parser Heap Buffer Overflow
+name: nginx HTTP Request URI Heap Buffer Overflow
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-122
@@ -8,22 +12,28 @@ cwes:
 - CWE-131
 
 description: |
-  A heap-based buffer overflow vulnerability exists in nginx's HTTP request URI parsing
-  functionality within the ngx_http_parse_complex_uri function. When processing HTTP requests
-  with complex URIs containing percent-encoded characters, the code allocates a fixed 128-byte
-  buffer to store the processed URI. However, the parsing function does not validate that the
-  output buffer has sufficient space before writing decoded characters, allowing URIs longer
-  than 128 bytes to trigger an out-of-bounds write. An attacker can exploit this by sending
-  a crafted HTTP request with a URI exceeding 128 bytes, causing memory corruption that could
-  lead to denial of service, arbitrary code execution, or security bypass. The root cause is
-  the fixed-size buffer allocation in ngx_http_process_request_uri (line 1259) combined with
-  lack of bounds checking during URI processing at line 1298 where characters are written
-  beyond the allocated buffer boundary.
+  A heap buffer overflow vulnerability exists in nginx's HTTP request processing code.
+  When processing HTTP requests with complex URIs containing URL-encoded characters,
+  the ngx_http_process_request_uri function allocates a fixed 128-byte buffer for URI
+  data, regardless of the actual URI length. When a URI exceeds 128 bytes, the
+  ngx_http_parse_complex_uri function writes past the allocated buffer boundary during
+  decoding, causing a heap buffer overflow. An unauthenticated remote attacker can send
+  a specially crafted HTTP request with a long URI containing URL-encoded characters to
+  trigger memory corruption, potentially leading to denial of service or arbitrary code
+  execution.
 
 locations:
-- path_from_root: src/http/ngx_http_parse.c
+- type: crash_site
+  path_from_root: src/http/ngx_http_parse.c
   function_name: ngx_http_parse_complex_uri
   startLine: 1298
   startColumn: 22
   endLine: 1298
   endColumn: 22
+- type: root_cause
+  path_from_root: src/http/ngx_http_request.c
+  function_name: ngx_http_process_request_uri
+  startLine: 1259
+  startColumn: 1
+  endLine: 1259
+  endColumn: 1

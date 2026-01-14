@@ -1,34 +1,44 @@
 id: cpv_7
 
-name: Apache ActiveMQ OpenWire Unsafe Class Instantiation RCE
+name: Apache ActiveMQ OpenWire Arbitrary Class Instantiation RCE
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://github.com/advisories/GHSA-crg9-44h2-xw35
+- https://osv.dev/vulnerability/CVE-2023-46604
+- https://activemq.apache.org/security-advisories.data/CVE-2023-46604-announcement.txt
 
 cwes:
 - CWE-502
 - CWE-470
-- CWE-94
+- CWE-913
 
 description: |
-  Remote Code Execution vulnerability in Apache ActiveMQ's OpenWire protocol 
-  implementation. The createThrowable method in BaseDataStreamMarshaller accepts 
-  a className parameter from untrusted wire protocol data during deserialization 
-  of exception responses and uses it to dynamically load and instantiate a class 
-  via reflection without validating that the class is actually a Throwable. 
-  
-  An attacker can send a malicious OpenWire ExceptionResponse message with an 
-  arbitrary className string. During unmarshalling, the vulnerable createThrowable 
-  method uses Class.forName() to load the attacker-controlled class and invokes 
-  its constructor via newInstance() with attacker-controlled parameters. If a 
-  malicious class with a suitable String constructor exists on the classpath 
-  (e.g., gadget classes), arbitrary code execution occurs.
-  
-  The vulnerability affects all OpenWire protocol versions (v1-v12) in both 
-  activemq-client and activemq-openwire-legacy modules. It was introduced in 
-  commit 9e13431 when implementing adaptive throwable creation (AMQ-9438).
+  A critical remote code execution vulnerability exists in Apache ActiveMQ's OpenWire
+  protocol marshaller. The createThrowable method in BaseDataStreamMarshaller accepts
+  an arbitrary class name from untrusted network data and instantiates it using
+  reflection without validating that the class is actually a subclass of Throwable.
+  This allows a remote attacker with network access to instantiate any class on the
+  classpath with a String constructor, leading to arbitrary code execution. The
+  vulnerability has been actively exploited in the wild to deploy ransomware and
+  cryptominers. CVSS Score: 9.8/10.0 (CRITICAL).
 
 locations:
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
+- type: root_cause
+  path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  startColumn: 1
+  endLine: 238
+  endColumn: 6
+- type: crash_site
+  path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
   function_name: createThrowable
   startLine: 232
+  startColumn: 1
   endLine: 232
-  startColumn: 0
-  endColumn: 0
+  endColumn: 80

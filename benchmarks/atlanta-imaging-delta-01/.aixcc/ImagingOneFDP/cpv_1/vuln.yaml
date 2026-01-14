@@ -1,27 +1,31 @@
 id: cpv_1
 
-name: Regular Expression Injection in GIF Application Extension Parsing
+name: Regular Expression Injection in Apache Commons Imaging GIF ApplicationExtension Parser
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+references: []
 
 cwes:
 - CWE-1333
 - CWE-400
-- CWE-20
+- CWE-730
 
 description: |
-  A Regular Expression Injection vulnerability exists in the ApplicationExtension class constructor
-  when processing GIF image files. The vulnerability occurs when untrusted input from a GIF file's
-  application extension label field is directly concatenated into a regular expression pattern
-  without proper sanitization or escaping. An attacker can craft a malicious GIF file containing
-  special regex metacharacters (such as unclosed groups, quantifiers, or character classes) in the
-  label field, which can cause a PatternSyntaxException or trigger Regular Expression Denial of
-  Service (ReDoS) through catastrophic backtracking. This results in application crashes or
-  excessive CPU consumption, leading to a Denial of Service condition. The vulnerability is
-  triggered when the Apache Commons Imaging library attempts to parse the malicious GIF file
-  through the Imaging.getBufferedImage() method, which calls the vulnerable ApplicationExtension
-  constructor that compiles the unsanitized input as a regex pattern.
+  A Regular Expression Injection (ReDoS) vulnerability exists in the ApplicationExtension
+  class constructor in the Apache Commons Imaging library's GIF image parser. The vulnerability
+  occurs at line 34 where untrusted user input from GIF file parsing is directly concatenated
+  into a regular expression pattern without sanitization. When processing a malicious GIF file,
+  an attacker can inject special regex metacharacters in the application extension label field
+  that cause PatternSyntaxException crashes or catastrophic backtracking leading to CPU exhaustion.
+  This can result in denial of service through resource exhaustion and application crashes in
+  server-side image processing systems.
 
 locations:
-- path_from_root: src/main/java/org/apache/commons/imaging/formats/gif/ApplicationExtension.java
+- type: crash_site
+  path_from_root: src/main/java/org/apache/commons/imaging/formats/gif/ApplicationExtension.java
   function_name: ApplicationExtension
   startLine: 34
   startColumn: 0

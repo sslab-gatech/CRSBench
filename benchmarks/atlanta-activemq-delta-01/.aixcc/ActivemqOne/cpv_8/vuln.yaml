@@ -1,28 +1,38 @@
 id: cpv_8
 
-name: Apache ActiveMQ OpenWire Unsafe Deserialization Remote Code Execution
+name: Apache ActiveMQ OpenWire Protocol Arbitrary Class Instantiation RCE
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://activemq.apache.org/security-advisories.data/CVE-2023-46604-announcement.txt
+- https://www.cisa.gov/known-exploited-vulnerabilities-catalog
 
 cwes:
 - CWE-502
 - CWE-470
-- CWE-094
+- CWE-94
 
 description: |
-  Remote Code Execution vulnerability in Apache ActiveMQ's OpenWire protocol implementation.
-  The BaseDataStreamMarshaller.createThrowable() method uses unsafe reflection to instantiate
-  arbitrary classes based on externally-controlled data from OpenWire messages. When unmarshalling
-  ExceptionResponse messages, the method calls Class.forName() with an attacker-controlled class
-  name and instantiates it via Constructor.newInstance() without any validation. This allows an
-  attacker to instantiate arbitrary classes available on the classpath that have a String
-  constructor, enabling gadget chain attacks similar to Java deserialization vulnerabilities.
-  The vulnerability exists across multiple OpenWire protocol versions (v1, v9, v10, v11, v12)
-  and can be exploited remotely without authentication, potentially leading to complete system
-  compromise.
+  A critical remote code execution vulnerability exists in Apache ActiveMQ's
+  OpenWire protocol implementation. The createThrowable method in
+  BaseDataStreamMarshaller allows arbitrary class instantiation during
+  deserialization of ExceptionResponse objects. An attacker can send a malicious
+  OpenWire message containing attacker-controlled className and message strings,
+  which are passed to Class.forName() and instantiated without validation. This
+  enables loading and instantiating arbitrary classes on the classpath (such as
+  ClassPathXmlApplicationContext), leading to unauthenticated remote code execution
+  with ActiveMQ server privileges. This vulnerability is actively exploited in the
+  wild and is listed in CISA's Known Exploited Vulnerabilities Catalog.
 
 locations:
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java
+- type: crash_site
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java
   function_name: createThrowable
-  startLine: 232
-  endLine: 232
+  startLine: 228
   startColumn: 0
+  endLine: 238
   endColumn: 0

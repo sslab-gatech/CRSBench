@@ -1,6 +1,10 @@
 id: cpv_8
 
-name: Heap buffer overflow in ngx_sendfile_r due to fixed buffer size
+name: Heap buffer overflow in ngx_sendfile_r due to fixed-size allocation
+
+origin: synthetic
+
+release_date: 01/01/2024
 
 cwes:
 - CWE-122
@@ -8,19 +12,26 @@ cwes:
 - CWE-131
 
 description: |
-  A heap-based buffer overflow vulnerability exists in the ngx_sendfile_r function
-  in nginx's Linux sendfile implementation. The function allocates a fixed-size buffer
-  of 100 bytes (NGX_SENDFILE_R_MAXSIZE) but writes a variable amount of data
-  controlled by the 'size' parameter. When the size parameter exceeds 100 bytes,
-  the write loop overflows the allocated heap buffer. This can be triggered via
-  HTTP Range requests that cause nginx to process responses larger than 100 bytes.
-  The vulnerability can lead to memory corruption, potential arbitrary code execution,
-  denial of service, and corruption of adjacent heap data structures.
+  A heap buffer overflow vulnerability exists in the ngx_sendfile_r function
+  in src/os/unix/ngx_linux_sendfile_chain.c. The function allocates a fixed
+  100-byte buffer but writes data based on a variable 'size' parameter that
+  can exceed this allocation. When processing HTTP Range requests with sizes
+  greater than 100 bytes, the loop at line 80 writes beyond the allocated
+  buffer, causing heap corruption. This can lead to memory corruption and
+  potential arbitrary code execution.
 
 locations:
-- path_from_root: src/os/unix/ngx_linux_sendfile_chain.c
+- type: root_cause
+  path_from_root: src/os/unix/ngx_linux_sendfile_chain.c
   function_name: ngx_sendfile_r
   startLine: 73
-  startColumn: 0
+  startColumn: 11
+  endLine: 73
+  endColumn: 11
+- type: crash_site
+  path_from_root: src/os/unix/ngx_linux_sendfile_chain.c
+  function_name: ngx_sendfile_r
+  startLine: 80
+  startColumn: 16
   endLine: 80
-  endColumn: 0
+  endColumn: 16

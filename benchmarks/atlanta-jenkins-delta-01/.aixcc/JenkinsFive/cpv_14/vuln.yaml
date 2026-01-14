@@ -1,28 +1,37 @@
 id: cpv_14
 
-name: Unsafe Reflection Leading to OS Command Injection in Email Extension
+name: OS Command Injection via Unsafe Reflection in EmailConfig
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
+- CWE-77
 - CWE-78
 - CWE-470
-- CWE-77
 
 description: |
-  A critical OS command injection vulnerability exists in the EmailConfig class through
-  unsafe reflection combined with dangerous debugging methods. The constructor() method
-  uses Java reflection to dynamically invoke methods based on the emailAddress field,
-  which can be controlled by attackers through input data. In the unpatched version,
-  this allowed invocation of the debugOnlyAndPrivate() method, which executed arbitrary
-  system commands via Runtime.exec(). An attacker can provide malicious input that sets
-  emailAddress to "debugOnlyAndPrivate" or similar dangerous method names, causing the
-  reflection API to invoke these methods and execute arbitrary OS commands. This results
-  in remote code execution, complete system compromise, data exfiltration, and potential
-  lateral movement within the CI/CD pipeline.
+  A command injection vulnerability exists in the EmailConfig class through
+  unsafe reflection. The constructor() method at line 96 uses attacker-controlled
+  input (emailAddress) to reflectively invoke methods without validation. An
+  attacker can invoke debugOnlyAndPrivate(), which directly passes user-controlled
+  data (optCache) to Runtime.getRuntime().exec() at line 37 without sanitization.
+  This allows arbitrary OS command execution with Jenkins process privileges,
+  potentially leading to complete system compromise.
 
 locations:
-- path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
+- type: crash_site
+  path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
+  function_name: debugOnlyAndPrivate
+  startLine: 37
+  startColumn: 1
+  endLine: 37
+  endColumn: 999
+- type: root_cause
+  path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
   function_name: constructor
-  startLine: 55
-  endLine: 55
-  startColumn: 0
-  endColumn: 0
+  startLine: 96
+  startColumn: 1
+  endLine: 96
+  endColumn: 999

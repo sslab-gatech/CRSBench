@@ -1,32 +1,29 @@
 id: cpv_2
 
-name: XPath Injection in JPEG PAT Segment Key Processing
+name: XPath Injection in PatSegment instruction parsing
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-643
 - CWE-91
-- CWE-74
 
 description: |
-  An XPath injection vulnerability exists in the PatSegment class of Apache Commons Imaging
-  library's JPEG parsing functionality. The vulnerability occurs in the getEntryPointFromSegmentData()
-  method at line 93, where user-controlled input from the 'key' parameter is directly concatenated
-  into an XPath expression without proper validation or sanitization. When processing custom PAT
-  segments in JPEG files, an attacker can craft a malicious key value containing special characters
-  (such as single quotes) to break out of the string literal context and inject arbitrary XPath code.
-  
-  The vulnerable code constructs an XPath query as: xpath.compile("//entry[@key='" + key + "']")
-  
-  When a malicious JPEG file contains a PAT segment with a key like "A'" (containing a single quote),
-  it produces a malformed XPath expression "//entry[@key='A'']", causing an XPathExpressionException.
-  This vulnerability can lead to information disclosure through unauthorized data extraction from XML
-  documents, denial of service via parsing errors, or logic bypass in authentication/access control
-  mechanisms that rely on XPath queries.
+  An XPath injection vulnerability exists in the PatSegment class within
+  the Apache Commons Imaging library. The parseInstructions method at line
+  93 directly uses user-controlled input from the instruction parameter in
+  an XPath expression without proper sanitization or validation. An attacker
+  can inject malicious XPath syntax through crafted instruction values in
+  image metadata, potentially leading to unauthorized data access or
+  manipulation of the XML document processing.
 
 locations:
-- path_from_root: src/main/java/org/apache/commons/imaging/formats/jpeg/segments/PatSegment.java
-  function_name: getEntryPointFromSegmentData
+- type: crash_site
+  path_from_root: src/main/java/org/apache/commons/imaging/formats/png/chunks/PatSegment.java
+  function_name: parseInstructions
   startLine: 93
-  startColumn: 0
+  startColumn: 1
   endLine: 93
-  endColumn: 0
+  endColumn: 100

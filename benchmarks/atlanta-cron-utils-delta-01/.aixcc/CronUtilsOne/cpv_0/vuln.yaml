@@ -1,28 +1,40 @@
 id: cpv_0
 
-name: Expression Language Injection via Unsanitized Cron Expression in Error Messages
+name: Expression Language Injection in CronParser error messages
+
+origin: 1-day
+
+release_date: 11/24/2020
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2020-26238
+- https://github.com/advisories/GHSA-pfj3-56hm-jwq5
+- https://securitylab.github.com/advisories/GHSL-2020-212-cron-utils-ssti/
+- https://github.com/jmrozanec/cron-utils/issues/461
 
 cwes:
+- CWE-74
 - CWE-917
 - CWE-94
-- CWE-78
 
 description: |
-  An Expression Language (EL) Injection vulnerability exists in the CronParser.parse() method
-  that allows attackers to execute arbitrary OS commands. When parsing fails at line 165 in
-  CronParser.java, the error message includes the raw, unsanitized user-provided cron expression.
-  This error message is then passed to Hibernate Validator's constraint violation template in
-  CronValidator.isValid(), which processes it through EL interpolation. Attackers can inject
-  EL expressions (e.g., ${...}) that access Java reflection to load ScriptEngineManager, obtain
-  a JavaScript engine, and execute arbitrary commands via Runtime.exec(). The vulnerability was
-  introduced in commit 0c815ec when the error message format was changed to include the raw
-  expression string. This leads to remote code execution, full system compromise, data breaches,
-  and potential lateral movement to other systems.
+  A template injection vulnerability exists in the CronParser.parse() method
+  in src/main/java/com/cronutils/parser/CronParser.java. When parsing fails,
+  the error handler at line 165 constructs an exception message that includes
+  the user-controlled cron expression without sanitization. When used with
+  Hibernate Validator's @Cron annotation, this unsanitized expression is
+  passed to the constraint violation message interpolator, which evaluates
+  it as an Expression Language (EL) expression. Attackers can inject malicious
+  EL expressions containing JavaScript code that executes arbitrary OS commands,
+  leading to unauthenticated Remote Code Execution (RCE). This vulnerability
+  affects applications that validate untrusted user-supplied cron expressions
+  using the @Cron annotation with Hibernate Validator versions prior to 6.2.0/7.0.0.
 
 locations:
-- path_from_root: src/main/java/com/cronutils/parser/CronParser.java
+- type: root_cause
+  path_from_root: src/main/java/com/cronutils/parser/CronParser.java
   function_name: parse
   startLine: 165
-  startColumn: 0
+  startColumn: 17
   endLine: 165
-  endColumn: 0
+  endColumn: 112

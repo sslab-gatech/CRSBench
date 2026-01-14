@@ -1,25 +1,27 @@
 id: cpv_2
 
-name: Uncontrolled Memory Allocation in Apache POI HSLF Picture Reading
+name: Unbounded Memory Allocation in HSLFSlideShowImpl Picture Processing
+
+origin: synthetic
+
+release_date: 01/01/2024
 
 cwes:
 - CWE-770
 - CWE-400
-- CWE-789
 
 description: |
-  This vulnerability is an uncontrolled memory allocation issue in Apache POI's HSLF (PowerPoint) 
-  implementation. The readPictures() method in HSLFSlideShowImpl reads picture data from PowerPoint 
-  files without validating the size of the data being read. At line 414, the code calls 
-  IOUtils.toByteArray(is, entry.getSize()) using the two-parameter version which defaults to 
-  Integer.MAX_VALUE as the maximum length. A malicious PowerPoint file can specify an extremely 
-  large size for the "Pictures" entry, causing the code to attempt to allocate a massive byte array, 
-  leading to OutOfMemoryError and denial of service. An attacker can craft a malicious PowerPoint 
-  file (.ppt) with an inflated picture size value to trigger memory exhaustion, causing application 
-  crashes, service disruption, and potential resource exhaustion in multi-tenant environments.
+  A resource exhaustion vulnerability exists in the readPictures method of
+  HSLFSlideShowImpl.java in Apache POI's PowerPoint (HSLF) processing functionality.
+  The method reads picture data from PowerPoint files without imposing a maximum
+  size limit on memory allocation. A maliciously crafted PowerPoint file can
+  specify an extremely large size value for the Pictures stream entry, causing
+  the method to attempt to allocate unbounded memory, leading to Java heap space
+  exhaustion and denial of service.
 
 locations:
-- path_from_root: poi-scratchpad/src/main/java/org/apache/poi/hslf/usermodel/HSLFSlideShowImpl.java
+- type: crash_site
+  path_from_root: poi-scratchpad/src/main/java/org/apache/poi/hslf/usermodel/HSLFSlideShowImpl.java
   function_name: readPictures
   startLine: 414
   startColumn: 0

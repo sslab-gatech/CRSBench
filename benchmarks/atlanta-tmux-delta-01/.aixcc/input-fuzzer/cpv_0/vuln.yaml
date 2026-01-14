@@ -1,31 +1,39 @@
 id: cpv_0
 
-name: Stack buffer overflow in tmux OSC 52 clipboard handler
+name: Stack Buffer Overflow in tmux input_osc_52 Function Due to Incorrect sizeof Usage
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-121
-- CWE-787
-- CWE-682
+- CWE-131
+- CWE-467
 
 description: |
-  A stack-based buffer overflow occurs in the input_osc_52 function when handling
-  OSC 52 escape sequences for clipboard operations. The vulnerability is caused by
-  incorrect use of the sizeof operator on a pointer instead of a string literal,
-  resulting in an 8-byte buffer allocation instead of the required 13 bytes.
-  
-  The vulnerable code allocates a flags buffer using sizeof(allow) where allow is
-  a pointer, yielding only 8 bytes on 64-bit systems. However, the allowed character
-  set "cpqs01234567" contains 12 characters, allowing up to 12 bytes plus a null
-  terminator to be written into the undersized buffer.
-  
-  When a malicious OSC 52 sequence containing more than 8 unique target specifiers
-  is processed, the code writes beyond the allocated buffer bounds, corrupting the
-  stack. This can lead to crashes, potential code execution, or information disclosure.
+  A stack buffer overflow vulnerability exists in the input_osc_52 function
+  in input.c. The vulnerability is caused by incorrect use of the sizeof
+  operator on a pointer variable instead of a string literal. The flags
+  buffer is allocated with only 8 bytes (sizeof pointer) instead of 13 bytes
+  (sizeof string "cpqs01234567"). When processing OSC 52 escape sequences
+  with selection parameters containing more than 8 unique allowed characters,
+  the validation loop writes beyond the allocated buffer, causing stack
+  corruption. This can lead to denial of service or potentially arbitrary
+  code execution.
 
 locations:
-- path_from_root: input.c
+- type: root_cause
+  path_from_root: input.c
   function_name: input_osc_52
-  startLine: 2699
-  startColumn: 0
-  endLine: 2717
-  endColumn: 0
+  startLine: 2697
+  startColumn: 1
+  endLine: 2697
+  endColumn: 45
+- type: crash_site
+  path_from_root: input.c
+  function_name: input_osc_52
+  startLine: 2716
+  startColumn: 38
+  endLine: 2716
+  endColumn: 69

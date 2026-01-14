@@ -1,32 +1,36 @@
 id: cpv_0
 
-name: Heap Use-After-Free in Note Management via Dangling Pointer
+name: Use-After-Free in drop_note Due to Improper Pointer Nullification
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-416
-- CWE-825
 - CWE-672
 
 description: |
-  A heap use-after-free vulnerability exists in the note management system due to
-  improper cleanup of freed memory pointers. In the drop_note() function, after
-  freeing a note structure and its associated page memory, the code incorrectly
-  sets only a local pointer variable to NULL instead of clearing the corresponding
-  entry in the global note_list array. This leaves a dangling pointer that can be
-  dereferenced later.
-  
-  When view_note() is subsequently called with the index of a freed note, it
-  retrieves the dangling pointer from note_list and attempts to access fields of
-  the freed memory (such as ptr->len), triggering a heap use-after-free condition.
-  
-  This vulnerability can lead to memory corruption, crashes, information disclosure
-  if the freed memory is reallocated, or potentially arbitrary code execution in
-  sophisticated exploit scenarios.
+  A use-after-free vulnerability exists in the drop_note function in mock_vp.c.
+  After freeing a note structure, the function sets a local pointer variable to NULL
+  instead of clearing the entry in the global note_list array. This leaves a dangling
+  pointer in note_list that points to freed memory. When view_note is subsequently
+  called with the same index, it dereferences the freed memory, leading to a
+  heap-use-after-free condition. This vulnerability can potentially lead to arbitrary
+  memory read/write operations and code execution in non-ASAN builds.
 
 locations:
-- path_from_root: mock_vp.c
+- type: root_cause
+  path_from_root: cp-user-babynote-src/mock_vp.c
+  function_name: drop_note
+  startLine: 162
+  startColumn: 3
+  endLine: 162
+  endColumn: 10
+- type: crash_site
+  path_from_root: cp-user-babynote-src/mock_vp.c
   function_name: view_note
-  startLine: 120
-  startColumn: 21
-  endLine: 120
-  endColumn: 21
+  startLine: 122
+  startColumn: 3
+  endLine: 122
+  endColumn: 29

@@ -1,31 +1,42 @@
 id: cpv_6
 
-name: ActiveMQ OpenWire Unsafe Exception Deserialization RCE
+name: Apache ActiveMQ OpenWire Unsafe Deserialization RCE
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://github.com/advisories/GHSA-crg9-44h2-xw35
 
 cwes:
 - CWE-502
 - CWE-470
-- CWE-913
 
 description: |
-  Critical Remote Code Execution vulnerability in Apache ActiveMQ's OpenWire protocol
-  implementation. The createThrowable() method in BaseDataStreamMarshaller accepts
-  externally-controlled className parameters from wire protocol messages and uses
-  unsafe reflection to instantiate arbitrary classes. The vulnerability occurs during
-  deserialization of ExceptionResponse objects where the method loads arbitrary classes
-  via Class.forName(), obtains their constructors, and instantiates them with
-  attacker-controlled data. The only validation is a weak check that className starts
-  with "j", allowing attackers to instantiate any class on the classpath with a
-  String-parameter constructor. This enables Remote Code Execution by instantiating
-  classes with dangerous side effects in their constructors. Attack requires no
-  authentication and has low complexity - simply sending crafted OpenWire messages
-  containing malicious ExceptionResponse objects. Impact includes complete system
-  compromise via arbitrary code execution.
+  A critical remote code execution vulnerability exists in Apache ActiveMQ's
+  OpenWire protocol marshaller. The createThrowable method in
+  BaseDataStreamMarshaller.java accepts an externally-controlled className
+  parameter from network data and uses reflection to instantiate it without
+  properly validating that the class is actually a Throwable subclass. This
+  allows an attacker to instantiate arbitrary classes on the classpath by
+  sending a specially-crafted OpenWire packet containing an EXCEPTION_RESPONSE
+  with a malicious class name. If the class constructor has side effects, this
+  leads to unauthenticated remote code execution with CVSS score 10.0.
 
 locations:
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java
+- type: crash_site
+  path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 232
+  startColumn: 1
+  endLine: 233
+  endColumn: 93
+- type: root_cause
+  path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java
   function_name: createThrowable
   startLine: 231
-  startColumn: 0
-  endLine: 233
-  endColumn: 0
+  startColumn: 1
+  endLine: 231
+  endColumn: 100

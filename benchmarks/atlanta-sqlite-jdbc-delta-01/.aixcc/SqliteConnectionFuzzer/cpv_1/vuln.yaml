@@ -1,28 +1,32 @@
 id: cpv_1
 
-name: UTF-8 Canonicalization Heap Buffer Overflow in Connection Handling
+name: Heap Buffer Overflow in UTF-8 Canonicalization
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-122
 - CWE-787
-- CWE-590
+- CWE-131
 
 description: |
-  A heap buffer overflow vulnerability occurs in the sqlite-jdbc native library's
-  utf8JavaByteArrayToUtf8Bytes function when processing JDBC connection URLs containing
-  multi-byte UTF-8 characters. The vulnerable code allocates a buffer sized for the
-  original UTF-8 byte array length, but then calls canonicalize_string_to_ascii which
-  expands multi-byte UTF-8 sequences (such as φ or ß) into longer ASCII representations.
-  When the expanded string is copied back via memcpy, it overflows the fixed-size heap
-  buffer, corrupting heap metadata. This leads to an invalid free operation when the
-  corrupted memory is later freed, triggering AddressSanitizer detection. The vulnerability
-  can cause application crashes (denial of service) and potentially enables arbitrary code
-  execution through heap corruption exploitation.
+  A heap buffer overflow vulnerability exists in the utf8JavaByteArrayToUtf8Bytes
+  function in src/main/java/org/sqlite/core/NativeDB.c. The function allocates a
+  buffer sized for UTF-8 input but fails to account for character expansion during
+  ASCII canonicalization. Certain Unicode characters (φ, ß, €, etc.) expand from
+  single UTF-8 characters to multiple ASCII characters. When the input contains many
+  such characters, writing the expanded output overflows the undersized temporary
+  buffer, corrupting heap metadata and causing a crash. This can lead to denial of
+  service and potential memory corruption when processing JDBC connection strings
+  containing expanding Unicode characters.
 
 locations:
-- path_from_root: src/main/java/org/sqlite/core/NativeDB.c
+- type: root_cause
+  path_from_root: src/main/java/org/sqlite/core/NativeDB.c
   function_name: utf8JavaByteArrayToUtf8Bytes
-  startLine: 230
+  startLine: 265
   startColumn: 0
-  endLine: 246
+  endLine: 280
   endColumn: 0

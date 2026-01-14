@@ -2,27 +2,45 @@ id: cpv_2
 
 name: XML External Entity (XXE) Injection in XStream DomDriver
 
+origin: 1-day
+
+release_date: 05/17/2016
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2016-3674
+- https://github.com/advisories/GHSA-rgh3-987h-wpmw
+- https://x-stream.github.io/CVE-2016-3674.html
+- https://github.com/x-stream/xstream/issues/25
+
 cwes:
 - CWE-611
 - CWE-918
-- CWE-776
 
 description: |
-  An XML External Entity (XXE) injection vulnerability exists in the XStream library's
-  DomDriver class. The vulnerability occurs in the createReader(InputSource source) method
-  where a DocumentBuilderFactory is created with default settings that allow external entity
-  resolution and DTD processing. When the DocumentBuilderFactory.newInstance() is called at
-  line 100 without setting proper security features, the resulting XML parser processes
-  external entities defined in DTDs, allowing attackers to trigger Server-Side Request
-  Forgery (SSRF) attacks, access local files, exfiltrate sensitive data, probe internal
-  network infrastructure, or cause denial of service through entity expansion attacks.
-  The vulnerability is triggered when malicious XML containing external entity references
-  is parsed at line 108 via documentBuilder.parse(source).
+  An XML External Entity (XXE) injection vulnerability exists in XStream's
+  DomDriver class. The vulnerability occurs because the DocumentBuilderFactory
+  is created with default settings that allow processing of external entities
+  and DOCTYPE declarations. An attacker can craft a malicious XML document
+  containing a DOCTYPE declaration with external entity references, which when
+  processed by XStream using the DomDriver, causes the XML parser to make
+  external HTTP requests. This enables Server-Side Request Forgery (SSRF),
+  allowing attackers to read local files using file:// protocol, probe internal
+  network services, exfiltrate sensitive data, or conduct denial-of-service
+  attacks. The vulnerability affects all XStream versions before 1.4.9 when
+  using DOM, DOM4J, JDOM, JDOM2, StAX, or XOM XML parsers.
 
 locations:
-- path_from_root: xstream/src/java/com/thoughtworks/xstream/io/xml/DomDriver.java
+- type: crash_site
+  path_from_root: xstream/src/java/com/thoughtworks/xstream/io/xml/DomDriver.java
+  function_name: createReader
+  startLine: 108
+  startColumn: 13
+  endLine: 108
+  endColumn: 50
+- type: root_cause
+  path_from_root: xstream/src/java/com/thoughtworks/xstream/io/xml/DomDriver.java
   function_name: createReader
   startLine: 100
-  endColumn: 0
-  endLine: 108
-  startColumn: 0
+  startColumn: 25
+  endLine: 100
+  endColumn: 68

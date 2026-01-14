@@ -1,27 +1,34 @@
 id: cpv_0
 
-name: Uncontrolled Memory Allocation in XSSF Shared Strings Table Parser
+name: Apache POI ReadOnlySharedStringsTable Uncontrolled Memory Allocation
+
+origin: 1-day
+
+release_date: 01/26/2024
+
+references:
+- https://issues.oss-fuzz.com/42532341
+- https://www.mail-archive.com/commits@poi.apache.org/msg16524.html
 
 cwes:
-- CWE-770
 - CWE-789
 - CWE-400
+- CWE-770
 
 description: |
-  An uncontrolled memory allocation vulnerability exists in the ReadOnlySharedStringsTable
-  class of Apache POI's XSSF event-based parser. When parsing Excel XLSX files, the code
-  reads the uniqueCount attribute from the sharedStrings.xml file and directly uses this
-  value to pre-allocate an ArrayList without validation. A maliciously crafted XLSX file
-  can specify an extremely large uniqueCount value (e.g., Integer.MAX_VALUE), causing the
-  ArrayList constructor to attempt allocating massive amounts of memory, resulting in an
-  OutOfMemoryError. This leads to application crashes and denial of service. The vulnerability
-  can be exploited by attackers who can supply crafted XLSX files to applications that process
-  untrusted documents, causing resource exhaustion and service disruption.
+  A memory allocation vulnerability exists in Apache POI's ReadOnlySharedStringsTable
+  class when parsing XLSX files. The startElement function reads the uniqueCount
+  attribute from an untrusted XML file and directly uses it to allocate an ArrayList
+  without validation or bounds checking. An attacker can craft a malicious XLSX file
+  with an extremely large uniqueCount value (e.g., 2 billion), causing the application
+  to attempt allocating excessive memory and triggering an OutOfMemoryError. This
+  leads to denial of service through resource exhaustion.
 
 locations:
-- path_from_root: poi-ooxml/src/main/java/org/apache/poi/xssf/eventusermodel/ReadOnlySharedStringsTable.java
+- type: root_cause
+  path_from_root: poi-ooxml/src/main/java/org/apache/poi/xssf/eventusermodel/ReadOnlySharedStringsTable.java
   function_name: startElement
   startLine: 251
-  startColumn: 0
+  startColumn: 13
   endLine: 251
-  endColumn: 0
+  endColumn: 60

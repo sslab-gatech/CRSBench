@@ -1,29 +1,36 @@
 id: cpv_5
 
-name: NULL Pointer Dereference in HTTP Connection History Variable Handler
+name: NULL pointer dereference in connection history traversal
+
+origin: synthetic
+
+release_date: 01/01/2024
 
 cwes:
 - CWE-476
-- CWE-252
-- CWE-193
+- CWE-823
 
 description: |
-  A NULL pointer dereference vulnerability occurs in the nginx HTTP variables handler
-  when processing connection history information. The ngx_http_get_last_ip_variable
-  function calls ngx_get_con_his() to retrieve a connection history entry but fails
-  to validate that the returned pointer is non-NULL before dereferencing it to access
-  the addr_text fields. This happens when the request_counter value exceeds the length
-  of the connection history linked list, causing ngx_get_con_his() to return NULL due
-  to an off-by-one error in its loop logic (using <= instead of proper NULL checking).
-  The vulnerability can be triggered via specially crafted HTTP requests that access
-  variables calling this function, resulting in a segmentation fault and denial of
-  service. The crash occurs at line 2851 when attempting to access last_ip->addr_text.data
-  on a NULL pointer.
+  A NULL pointer dereference vulnerability exists in the ngx_http_get_last_ip_variable
+  function in src/http/ngx_http_variables.c. The vulnerability is caused by improper
+  linked list traversal in ngx_get_con_his function, which can walk past the end of
+  the connection history list and return NULL. The returned NULL pointer is then
+  dereferenced without validation, causing a segmentation fault. An attacker can
+  trigger this by crafting an HTTP request with a request_counter value that exceeds
+  the length of the connection_history linked list, leading to a denial of service.
 
 locations:
-- path_from_root: src/http/ngx_http_variables.c
+- type: crash_site
+  path_from_root: src/http/ngx_http_variables.c
   function_name: ngx_http_get_last_ip_variable
   startLine: 2851
-  startColumn: 0
+  startColumn: 5
   endLine: 2852
-  endColumn: 0
+  endColumn: 36
+- type: root_cause
+  path_from_root: src/core/ngx_cycle.c
+  function_name: ngx_get_con_his
+  startLine: 66
+  startColumn: 5
+  endLine: 68
+  endColumn: 26

@@ -1,29 +1,36 @@
 id: cpv_0
 
-name: Apache BCEL Pass2Verifier File Path Traversal via SourceFile Attribute
+name: BCEL Pass2Verifier Source File Path Traversal
+
+origin: synthetic
+
+release_date: 01/01/2024
 
 cwes:
 - CWE-22
 - CWE-73
-- CWE-706
 
 description: |
-  A file path traversal vulnerability exists in Apache BCEL's Pass2Verifier class
-  when validating Java class files during static verification. The visitSourceFile
-  method extracts the source file name from a class file's SourceFile attribute
-  (stored in the constant pool) and directly passes it to FileReader without any
-  validation or sanitization. An attacker can craft a malicious Java class file
-  with an arbitrary path (e.g., /etc/passwd, ../../../sensitive-file) in the
-  SourceFile attribute, causing the verifier to attempt to read any file on the
-  filesystem that the application has access to. This allows for information
-  disclosure through arbitrary file reading and violates the security boundaries
-  of the bytecode verifier, which should only validate bytecode structure and not
-  perform unrestricted filesystem access based on untrusted input.
+  A file path traversal vulnerability exists in the visitSourceFile method
+  of Apache BCEL's Pass2Verifier class. The method extracts a source file
+  name from the SourceFile attribute of a Java class file's constant pool
+  and attempts to open and read that file without proper validation. An
+  attacker can craft a malicious class file with a SourceFile attribute
+  containing an arbitrary file path, allowing them to read arbitrary files
+  accessible to the application running the BCEL verifier.
 
 locations:
-- path_from_root: src/main/java/org/apache/bcel/verifier/statics/Pass2Verifier.java
+- type: crash_site
+  path_from_root: src/main/java/org/apache/bcel/verifier/statics/Pass2Verifier.java
   function_name: visitSourceFile
   startLine: 973
-  startColumn: 0
+  startColumn: 1
   endLine: 973
-  endColumn: 0
+  endColumn: 999
+- type: root_cause
+  path_from_root: src/main/java/org/apache/bcel/verifier/statics/Pass2Verifier.java
+  function_name: visitSourceFile
+  startLine: 972
+  startColumn: 1
+  endLine: 985
+  endColumn: 999

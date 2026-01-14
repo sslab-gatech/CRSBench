@@ -1,6 +1,10 @@
 id: cpv_1
 
-name: Heap buffer overflow in tmux OSC color parsing whitespace handling
+name: Heap Buffer Over-read in OSC Color Parameter Parsing
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-122
@@ -8,28 +12,19 @@ cwes:
 - CWE-787
 
 description: |
-  A heap-based buffer overflow (out-of-bounds read) vulnerability exists in the
-  input_osc_parse_colour function of tmux's input parsing code. The function is
-  responsible for parsing OSC (Operating System Command) color specifications
-  from terminal escape sequences.
-  
-  The vulnerability occurs when parsing color strings that contain only whitespace
-  characters. After calculating the string length, the code attempts to skip leading
-  whitespace characters with 'while (*p == ' ')' without checking if the remaining
-  buffer length has been exhausted or decrementing the length counter. This allows
-  the pointer to advance beyond the allocated buffer boundary, causing an out-of-bounds
-  read when dereferencing *p.
-  
-  The vulnerability can be triggered by sending specially crafted terminal escape
-  sequences (e.g., '\033]11;               \033') to tmux. This can lead to information
-  disclosure through heap memory leakage, denial of service via crash, and potential
-  exploitation by malicious terminal applications or attackers who can inject escape
-  sequences into terminal output.
+  A heap buffer over-read vulnerability exists in the input_osc_parse_colour
+  function in input.c. When parsing OSC 11 escape sequences (background color),
+  the function skips leading spaces without updating the length variable. This
+  creates a discrepancy between the pointer position and tracked length, causing
+  subsequent operations to read beyond allocated buffer boundaries. An attacker
+  can trigger this by providing an OSC 11 sequence with many leading spaces,
+  potentially leading to information disclosure or denial of service.
 
 locations:
-- path_from_root: input.c
+- type: crash_site
+  path_from_root: input.c
   function_name: input_osc_parse_colour
   startLine: 2488
-  startColumn: 22
+  startColumn: 12
   endLine: 2489
-  endColumn: 0
+  endColumn: 6

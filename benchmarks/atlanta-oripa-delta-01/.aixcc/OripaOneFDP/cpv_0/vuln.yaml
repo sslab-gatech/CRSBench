@@ -1,28 +1,30 @@
 id: cpv_0
 
-name: Unsafe XML Deserialization Leading to Remote Code Execution via XMLDecoder
+name: XMLDecoder Deserialization Command Injection
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-502
-- CWE-78
-- CWE-91
+- CWE-77
 
 description: |
-  This is a critical unsafe deserialization vulnerability that allows arbitrary OS command execution.
-  The vulnerability exists in the LoaderXML.loadAsDataSet() method which uses Java's XMLDecoder class
-  to deserialize XML data from untrusted input files. XMLDecoder can execute arbitrary Java code during
-  deserialization because it interprets XML elements as Java method invocations. An attacker can craft
-  a malicious XML file containing ProcessBuilder invocations or other dangerous Java classes to achieve
-  remote code execution. The vulnerability occurs when the fuzzing harness accepts arbitrary byte input,
-  writes it to a temporary XML file, and calls loadAsDataSet() which then invokes XMLDecoder.readObject()
-  on the malicious content. This results in execution of attacker-controlled OS commands with the 
-  privileges of the Java application, potentially leading to full system compromise, data exfiltration,
-  or denial of service.
+  An XML deserialization vulnerability exists in the LoaderXML.loadAsDataSet method
+  in src/main/java/oripa/persistence/doc/loader/LoaderXML.java. The method uses
+  Java's XMLDecoder to deserialize XML data from user-controlled input without any
+  validation or sanitization. XMLDecoder supports arbitrary method invocation during
+  deserialization, allowing an attacker to craft malicious XML payloads that
+  instantiate arbitrary Java classes and invoke their methods. This leads to OS
+  command injection through ProcessBuilder instantiation, enabling remote code
+  execution with the application's privileges.
 
 locations:
-- path_from_root: src/main/java/oripa/persistence/doc/loader/LoaderXML.java
+- type: crash_site
+  path_from_root: src/main/java/oripa/persistence/doc/loader/LoaderXML.java
   function_name: loadAsDataSet
   startLine: 44
-  startColumn: 0
+  startColumn: 1
   endLine: 44
-  endColumn: 0
+  endColumn: 2

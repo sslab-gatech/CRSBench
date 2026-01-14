@@ -1,31 +1,29 @@
 id: cpv_9
 
-name: XPath Injection in XMLUtils.getValue()
+name: XPath Injection in Jenkins XMLUtils.getValue()
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-643
 - CWE-91
-- CWE-74
 
 description: |
-  XPath Injection vulnerability in the Jenkins XMLUtils utility class. The vulnerability
-  exists in the getValue(String xpath, Document document) method which accepts an XPath
-  expression as a string parameter and directly compiles and evaluates it against an XML
-  document without any input validation or sanitization.
-  
-  The method calls xPathProcessor.compile(xpath).evaluate(document) with user-controlled
-  input, allowing an attacker to inject malicious XPath expressions such as document()
-  functions. This can lead to information disclosure through extraction of sensitive data
-  from XML documents, access control bypass through malicious queries, denial of service
-  through expensive queries, and potential XML External Entity (XXE) attacks.
-  
-  The vulnerability is triggered through the call chain: JenkinsThree.fuzzerTestOneInput()
-  → JenkinsThree.fuzz() → JenkinsThree.testApi() → Api.doXml() → XMLUtils.getValue().
+  An XPath Injection vulnerability exists in the XMLUtils.getValue() method
+  in jenkins/core/src/main/java/jenkins/util/xml/XMLUtils.java. The method
+  accepts an unsanitized XPath expression as a parameter and directly compiles
+  and evaluates it without validation or sanitization. This allows an attacker
+  to inject arbitrary XPath expressions into XML queries, potentially leading
+  to information disclosure, authentication bypass, or data exfiltration through
+  malicious XPath functions like document().
 
 locations:
-- path_from_root: jenkins/core/src/main/java/jenkins/util/xml/XMLUtils.java
+- type: root_cause
+  path_from_root: jenkins/core/src/main/java/jenkins/util/xml/XMLUtils.java
   function_name: getValue
-  startLine: 236
-  startColumn: 0
+  startLine: 234
+  startColumn: 1
   endLine: 236
-  endColumn: 0
+  endColumn: 60

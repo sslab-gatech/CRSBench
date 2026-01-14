@@ -1,30 +1,35 @@
 id: cpv_3
 
-name: Missing Authorization Check in Jenkins Proxy Configuration Validation Leading to SSRF
+name: Missing Permission Check in Proxy Configuration Validation Leading to SSRF
+
+origin: 1-day
+
+release_date: 02/15/2018
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2018-1000067
+- https://www.jenkins.io/security/advisory/2018-02-14/
 
 cwes:
 - CWE-918
 - CWE-862
-- CWE-285
 
 description: |
-  A Server-Side Request Forgery (SSRF) vulnerability exists in the doValidateProxy method 
-  of the ProxyConfiguration.DescriptorImpl2 class. The method accepts a user-controlled 
-  testUrl parameter and makes an HTTP request to that URL without performing authorization 
-  checks to verify the user has administrator privileges. While the method is annotated 
-  with @RequirePOST and @Restricted(NoExternalUse.class), it lacks the critical 
-  j.checkPermission(Jenkins.ADMINISTER) check present in similar methods. This allows 
-  unauthorized users to exploit the Jenkins server as a proxy to make HTTP requests to 
-  arbitrary URLs, including internal services not exposed to the internet. Attackers can 
-  leverage this to scan internal network infrastructure, access internal services, 
-  exfiltrate sensitive data, and bypass firewall restrictions. The vulnerability is 
-  triggered when the method proceeds to execute httpClient.send() with an attacker-controlled 
-  URI without validating the caller's permissions.
+  A Server-Side Request Forgery (SSRF) vulnerability exists in the
+  doValidateProxy method of Hudson.ProxyConfiguration.DescriptorImpl2 class.
+  The method fails to verify that the calling user has administrator privileges
+  before processing proxy validation requests. This allows any authenticated user
+  with basic read access (Overall/Read permission) to trigger arbitrary HTTP
+  requests from the Jenkins server by providing a malicious URL in the testUrl
+  parameter. Attackers can use this to scan internal networks, probe services
+  behind firewalls, and gather information about internal infrastructure through
+  HTTP status code responses.
 
 locations:
-- path_from_root: jenkins/core/src/main/java/hudson/ProxyConfiguration.java
+- type: root_cause
+  path_from_root: jenkins/core/src/main/java/hudson/ProxyConfiguration.java
   function_name: doValidateProxy
-  startLine: 527
+  startLine: 529
   startColumn: 0
-  endLine: 608
+  endLine: 533
   endColumn: 0

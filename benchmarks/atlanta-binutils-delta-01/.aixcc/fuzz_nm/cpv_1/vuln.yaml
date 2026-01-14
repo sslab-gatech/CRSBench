@@ -1,39 +1,45 @@
 id: cpv_1
 
-name: Heap Use-After-Free in BFD PE Format Reinitialization
+name: Heap-use-after-free in BFD format checking during PE ILF object processing
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-416
 - CWE-672
 
 description: |
-  A heap use-after-free vulnerability occurs in the BFD library during PE format
-  detection and reinitialization. When processing PE files, the bfd_in_memory
-  structure (bim) is prematurely freed in io_reinit during format matching failures.
-  Subsequently, the memory_bstat function attempts to read from the freed bim structure
-  to determine file size, resulting in a use-after-free read at bfd/bfdio.c:889.
-  
-  The vulnerability is triggered when:
-  1. pe_ILF_build_a_bfd allocates a bfd_in_memory structure for in-memory file handling
-  2. Format matching fails, causing bfd_reinit to call io_reinit
-  3. io_reinit prematurely frees abfd->iostream (pointing to bim) during I/O vector transition
-  4. Subsequent calls to coff_get_reloc_upper_bound invoke memory_bstat, which dereferences
-     the freed bim structure
-  
-  This affects all binutils tools processing PE files (nm, objdump, objcopy, etc.) and
-  can lead to crashes, information disclosure, or potential code execution if an attacker
-  can control the freed memory region.
+  A heap-use-after-free vulnerability exists in the BFD library when processing
+  PE (Portable Executable) format files. The io_reinit() function in bfd/format.c
+  and _bfd_delete_bfd() in bfd/opncls.c prematurely free the abfd->iostream
+  structure (bfd_in_memory) when the BFD_IN_MEMORY flag is set during format
+  checking. This structure is later accessed by memory_bstat() when called
+  through coff_get_reloc_upper_bound() -> bfd_get_file_size() -> bfd_stat(),
+  resulting in a use-after-free read. This can lead to denial of service crashes
+  and potentially arbitrary code execution if the freed memory is reallocated
+  and controlled by an attacker.
 
 locations:
-- path_from_root: bfd/bfdio.c
+- type: crash_site
+  path_from_root: bfd/bfdio.c
   function_name: memory_bstat
-  startLine: 889
-  startColumn: 27
-  endLine: 889
-  endColumn: 27
-- path_from_root: bfd/format.c
+  startLine: 884
+  startColumn: 1
+  endLine: 892
+  endColumn: 1
+- type: root_cause
+  path_from_root: bfd/format.c
   function_name: io_reinit
-  startLine: 184
-  startColumn: 6
-  endLine: 184
-  endColumn: 6
+  startLine: 172
+  startColumn: 1
+  endLine: 196
+  endColumn: 1
+- type: root_cause
+  path_from_root: bfd/opncls.c
+  function_name: _bfd_delete_bfd
+  startLine: 171
+  startColumn: 1
+  endLine: 172
+  endColumn: 1

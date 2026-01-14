@@ -1,32 +1,30 @@
 id: cpv_1
 
-name: Uncontrolled Memory Allocation in libtiff allocChoppedUpStripArrays
+name: LibTIFF Excessive Memory Allocation in Strip Array Processing
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-770
-- CWE-789
 - CWE-400
+- CWE-789
 
 description: |
-  An uncontrolled memory allocation vulnerability exists in libtiff's TIFF directory
-  reading functionality. The allocChoppedUpStripArrays function attempts to allocate
-  memory for strip arrays based on the nstrips value read from a TIFF file without
-  validating that the allocation size is reasonable relative to the actual file size.
-  
-  A maliciously crafted TIFF file can specify an extremely large number of strips,
-  causing the application to attempt allocating multiple gigabytes of memory (e.g.,
-  3489662144 bytes as observed in the crash). This leads to out-of-memory conditions,
-  application crashes, and denial of service.
-  
-  The vulnerability is triggered during TIFFReadDirectory when processing malformed
-  TIFF files with invalid directory structures and attacker-controlled metadata values.
-  The root cause is the lack of sanity checking before calling _TIFFCheckMalloc with
-  nstrips * sizeof(uint64_t) bytes for both StripByteCounts and StripOffsets arrays.
+  An excessive memory allocation vulnerability exists in the allocChoppedUpStripArrays
+  function in libtiff/tif_dirread.c. When processing a maliciously crafted TIFF file
+  with invalid directory entries specifying an extremely large number of strips, the
+  function attempts to allocate memory based on untrusted file metadata without proper
+  validation. This allows an attacker to cause a denial of service through memory
+  exhaustion by providing a relatively small crafted TIFF file that triggers allocation
+  of multiple gigabytes of memory.
 
 locations:
-- path_from_root: libtiff/tif_dirread.c
+- type: root_cause
+  path_from_root: libtiff/tif_dirread.c
   function_name: allocChoppedUpStripArrays
   startLine: 6498
-  startColumn: 29
+  startColumn: 5
   endLine: 6501
-  endColumn: 0
+  endColumn: 74

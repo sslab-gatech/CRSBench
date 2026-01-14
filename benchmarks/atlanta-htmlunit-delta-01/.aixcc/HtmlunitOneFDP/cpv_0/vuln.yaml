@@ -1,34 +1,39 @@
 id: cpv_0
 
-name: HtmlUnit XSLTProcessor RCE via Xalan Java Extensions
+name: Missing FEATURE_SECURE_PROCESSING in XSLTProcessor allows XSLT-based RCE
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-94
+- CWE-91
 - CWE-611
-- CWE-77
 
 description: |
-  HtmlUnit's XSLTProcessor class is vulnerable to XSLT Server-Side Code Injection
-  leading to Remote Code Execution. The vulnerability exists in the transform() method
-  at XSLTProcessor.java which processes XSLT transformations without properly restricting
-  access to external resources and dangerous Java extensions.
-  
-  The vulnerable code only enables FEATURE_SECURE_PROCESSING but does not set
-  ACCESS_EXTERNAL_DTD or ACCESS_EXTERNAL_STYLESHEET attributes, allowing the XSLT
-  processor to access external resources. Additionally, without a custom URI resolver,
-  the Apache Xalan XSLT processor supports Java extensions that allow XSLT stylesheets
-  to instantiate arbitrary Java classes, call static and instance methods, and execute
-  Runtime.exec() for OS command execution.
-  
-  An attacker can craft a malicious HTML page containing an XSLT stylesheet that declares
-  Java namespace bindings, uses XSLT variables to call Runtime.getRuntime(), and executes
-  arbitrary OS commands. This results in complete system compromise with the privileges
-  of the Java process, enabling data exfiltration, denial of service, and lateral movement.
+  An OS Command Injection vulnerability exists in HtmlUnit's XSLTProcessor
+  implementation due to the missing FEATURE_SECURE_PROCESSING security
+  configuration. The configureTransformerFactory method fails to enable
+  secure processing for the XSLT TransformerFactory, allowing malicious
+  XSLT stylesheets to leverage Xalan's Java extension functions to invoke
+  arbitrary Java methods, including Runtime.exec(). An attacker can craft
+  a malicious HTML page containing an XSLT stylesheet that executes
+  arbitrary OS commands, leading to remote code execution and complete
+  system compromise.
 
 locations:
-- path_from_root: src/main/java/org/htmlunit/javascript/host/xml/XSLTProcessor.java
+- type: root_cause
+  path_from_root: src/main/java/org/htmlunit/javascript/host/xml/XSLTProcessor.java
+  function_name: configureTransformerFactory
+  startLine: 129
+  startColumn: 1
+  endLine: 138
+  endColumn: 80
+- type: crash_site
+  path_from_root: src/main/java/org/htmlunit/javascript/host/xml/XSLTProcessor.java
   function_name: transform
-  startLine: 127
-  startColumn: 0
-  endLine: 130
-  endColumn: 0
+  startLine: 262
+  startColumn: 1
+  endLine: 262
+  endColumn: 100

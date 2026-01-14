@@ -1,29 +1,35 @@
 id: cpv_0
 
-name: Heap Buffer Off-by-one Overflow in buffer_write
+name: Off-by-one heap buffer overflow in buffer_write function
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
-- CWE-193
 - CWE-122
 - CWE-787
+- CWE-193
 
 description: |
-  A heap buffer overflow vulnerability exists in the buffer_write function in utils.c
-  due to an off-by-one error in the bounds checking logic. The function uses an
-  incorrect comparison operator (>) instead of (>=) when validating the index parameter
-  against the buffer size. This allows writing one byte beyond the allocated heap buffer.
-  
-  For a buffer of size N, valid indices are 0 to N-1, but the current implementation
-  accepts index N, causing a write at buf->buf[N] which is one byte past the end of
-  the allocated region. This vulnerability is triggered in fd-exhaustion-harness.c when
-  specific arithmetic constraints are met and buffer_write is called with an index
-  equal to the buffer size (300).
-  
-  The vulnerability can lead to heap memory corruption, potential control-flow hijacking,
-  denial of service, or corruption of adjacent heap data structures.
+  A heap buffer overflow vulnerability exists in the buffer_write function
+  in utils.c due to an off-by-one error in the bounds check. The function
+  uses the wrong comparison operator (> instead of >=) when validating the
+  index parameter, allowing writes at index equal to the buffer size. This
+  permits writing one byte past the end of the allocated heap buffer, which
+  can corrupt adjacent heap metadata or data structures, leading to crashes,
+  data corruption, or potentially arbitrary code execution.
 
 locations:
-- path_from_root: cp-user-stress-test-src/utils.c
+- type: root_cause
+  path_from_root: utils.c
+  function_name: buffer_write
+  startLine: 21
+  startColumn: 9
+  endLine: 21
+  endColumn: 25
+- type: crash_site
+  path_from_root: utils.c
   function_name: buffer_write
   startLine: 24
   startColumn: 21

@@ -1,37 +1,37 @@
 id: cpv_13
 
-name: SMTP NOOP Command Handler Use-After-Free
+name: nginx SMTP NOOP Handler Use-After-Free
+
+origin: synthetic
+
+release_date: 01/01/2024
 
 cwes:
 - CWE-416
 - CWE-825
-- CWE-672
 
 description: |
-  A heap use-after-free vulnerability occurs in nginx's SMTP mail handler module when
-  processing NOOP commands with excessive arguments (more than 10). In the ngx_mail_smtp_noop
-  function, when the condition s->args.nelts > 10 is met, the code calls
-  ngx_mail_close_connection(c) which destroys the connection pool containing the session
-  structure. However, the function returns NGX_ERROR to the caller ngx_mail_smtp_auth_state,
-  which continues execution and attempts to access the freed session structure at line 556,
-  specifically accessing s->buffer->pos and s->buffer->last through a dangling pointer.
-  
-  The session structure is allocated from the connection pool, and when
-  ngx_mail_close_connection is called, it invokes ngx_destroy_pool which frees all memory
-  allocated from the pool, including the session structure and its buffer field. This creates
-  a classic use-after-free scenario where the error handling path incorrectly frees resources
-  while the session pointer is still in use by the calling function.
-  
-  The vulnerability can lead to memory corruption, information disclosure through reading freed
-  heap memory, denial of service via crashes, and potentially code execution in sophisticated
-  attack scenarios. The issue is triggered by sending an SMTP NOOP command with more than 10
-  arguments, causing premature resource deallocation before the command handler completes
-  execution.
+  A use-after-free vulnerability exists in nginx's SMTP mail handler when
+  processing NOOP commands with more than 10 arguments. The ngx_mail_smtp_noop
+  function calls ngx_mail_close_connection which destroys the connection's
+  memory pool including the session object, but then returns NGX_ERROR to its
+  caller. The caller ngx_mail_smtp_auth_state continues execution and attempts
+  to access the freed session object's buffer members, resulting in a
+  use-after-free condition. This can lead to information disclosure, denial
+  of service, or potential remote code execution.
 
 locations:
-- path_from_root: src/mail/ngx_mail_smtp_handler.c
+- type: crash_site
+  path_from_root: src/mail/ngx_mail_smtp_handler.c
+  function_name: ngx_mail_smtp_auth_state
+  startLine: 556
+  startColumn: 8
+  endLine: 556
+  endColumn: 38
+- type: root_cause
+  path_from_root: src/mail/ngx_mail_smtp_handler.c
   function_name: ngx_mail_smtp_noop
   startLine: 836
   startColumn: 9
   endLine: 836
-  endColumn: 33
+  endColumn: 36

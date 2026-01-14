@@ -1,34 +1,44 @@
 id: cpv_11
 
-name: Unsafe Deserialization Leading to RCE in OpenWire Exception Handling
+name: Apache ActiveMQ OpenWire Protocol Unsafe Deserialization RCE
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://github.com/advisories/GHSA-crg9-44h2-xw35
+- https://activemq.apache.org/security-advisories.data/CVE-2023-46604-announcement.txt
 
 cwes:
 - CWE-502
 - CWE-470
-- CWE-94
+- CWE-913
 
 description: |
-  Remote Code Execution vulnerability in Apache ActiveMQ's OpenWire protocol implementation.
-  The vulnerability exists in BaseDataStreamMarshaller.createThrowable() method which is used
-  during deserialization of exception responses. When deserializing OpenWire protocol messages
-  containing exception information, the code uses Class.forName() with a class name provided
-  in the incoming data stream, followed by reflection-based instantiation via Constructor.newInstance().
-  
-  The vulnerability occurs because the class name is read directly from untrusted network data
-  and the code uses reflection to load and instantiate the class without validating that it
-  extends Throwable. Only a weak check exists (classes not starting with "j" are rejected),
-  which is insufficient. An attacker can specify any class that starts with "j", has a
-  constructor accepting a String parameter, and exists on the classpath.
-  
-  This allows an attacker to craft a malicious OpenWire ExceptionResponse message with a
-  carefully chosen class name that has dangerous side effects when instantiated, potentially
-  leading to remote code execution, denial of service, or information disclosure depending
-  on available classes on the classpath.
+  A critical remote code execution vulnerability exists in Apache ActiveMQ's
+  OpenWire protocol implementation. The BaseDataStreamMarshaller.createThrowable()
+  method deserializes exception objects from the OpenWire protocol without
+  validating that the loaded class actually extends Throwable. An attacker can
+  send a malicious ExceptionResponse message specifying an arbitrary class name
+  (e.g., ClassPathXmlApplicationContext) and constructor arguments, leading to
+  instantiation of arbitrary classes via reflection. This allows unauthenticated
+  remote code execution and has been actively exploited in the wild, including
+  in ransomware attacks. CVSS 9.8 Critical.
 
 locations:
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
+- type: crash_site
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
   function_name: createThrowable
-  startLine: 234
+  startLine: 233
   startColumn: 0
-  endLine: 234
+  endLine: 235
+  endColumn: 0
+- type: root_cause
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/ExceptionResponseMarshaller.java
+  function_name: looseUnmarshal
+  startLine: 109
+  startColumn: 0
+  endLine: 115
   endColumn: 0

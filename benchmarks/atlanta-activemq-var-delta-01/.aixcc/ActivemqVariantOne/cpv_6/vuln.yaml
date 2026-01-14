@@ -1,6 +1,15 @@
 id: cpv_6
 
-name: Apache ActiveMQ OpenWire Insecure Deserialization Remote Code Execution
+name: Apache ActiveMQ OpenWire Insecure Deserialization RCE
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://activemq.apache.org/security-advisories.data/CVE-2023-46604-announcement.txt
+- https://www.cisa.gov/known-exploited-vulnerabilities-catalog
 
 cwes:
 - CWE-502
@@ -8,23 +17,22 @@ cwes:
 - CWE-94
 
 description: |
-  An insecure deserialization vulnerability in Apache ActiveMQ's OpenWire protocol
-  implementation allows remote code execution. The createThrowable() method in
-  BaseDataStreamMarshaller.java accepts an externally-controlled className parameter
-  from network data and instantiates arbitrary classes via reflection without proper
-  validation. While the code attempts to restrict class names with a weak "j" prefix
-  check, this can be easily bypassed. When processing ExceptionResponse messages, an
-  attacker can supply a malicious class name (e.g., jaz.Zer) that passes the weak
-  filter, causing Class.forName() to load the attacker-specified class and invoke its
-  constructor at line 232. This allows arbitrary code execution if the class has a
-  constructor accepting a String parameter. The vulnerability affects multiple OpenWire
-  protocol versions (v1-v12) and can lead to full system compromise, data breach, or
-  service disruption depending on the privileges of the ActiveMQ process.
+  A critical insecure deserialization vulnerability exists in Apache ActiveMQ's
+  OpenWire protocol marshaller. The BaseDataStreamMarshaller.createThrowable()
+  method accepts an externally-controlled class name from a deserialized OpenWire
+  packet and instantiates it using reflection without proper validation. The only
+  check is whether the class name starts with "j", which is insufficient. An
+  attacker can send a crafted OpenWire packet containing an ExceptionResponse
+  with an arbitrary class name, causing the class to be loaded and instantiated
+  with attacker-controlled constructor parameters. This leads to remote code
+  execution on ActiveMQ brokers and clients with no authentication required.
+  The vulnerability has been exploited in the wild by ransomware and cryptominers.
 
 locations:
-- path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java
+- type: crash_site
+  path_from_root: activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java
   function_name: createThrowable
-  startLine: 232
-  startColumn: 0
+  startLine: 231
+  startColumn: 13
   endLine: 232
-  endColumn: 0
+  endColumn: 89

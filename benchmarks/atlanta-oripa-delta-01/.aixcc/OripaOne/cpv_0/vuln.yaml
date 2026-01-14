@@ -1,30 +1,31 @@
 id: cpv_0
 
-name: Unsafe XML Deserialization Leading to OS Command Injection
+name: XMLDecoder Insecure Deserialization leading to OS Command Injection
+
+origin: 1-day
+
+release_date: 03/29/2024
+
+references:
+- https://github.com/oripa/oripa/issues/355
 
 cwes:
 - CWE-502
-- CWE-77
 - CWE-94
+- CWE-78
 
 description: |
-  This is a critical XML deserialization vulnerability in the LoaderXML class that enables
-  arbitrary code execution and OS command injection. The vulnerability exists in the
-  loadAsDataSet() method which uses Java's XMLDecoder class to deserialize XML files
-  without any validation or restrictions. XMLDecoder is inherently unsafe as it can
-  instantiate arbitrary Java objects and invoke their methods based on XML content.
-  
-  An attacker can craft a malicious XML file that uses the <object> tag to instantiate
-  java.lang.ProcessBuilder, pass arbitrary command arguments, and invoke the start()
-  method to execute OS commands. This leads to remote code execution with the privileges
-  of the application, allowing data exfiltration, system compromise, and lateral movement.
-  
-  The vulnerability was patched by completely removing XMLDecoder usage and replacing it
-  with safe XML parsing using DocumentBuilderFactory and XPath for read-only data extraction
-  with explicit type checking.
+  An insecure deserialization vulnerability exists in the loadAsDataSet function
+  in oripa/persistence/doc/loader/LoaderXML.java. The application uses Java's
+  XMLDecoder class to deserialize user-provided XML files without proper input
+  validation. An attacker can craft a malicious XML file containing serialized
+  ProcessBuilder objects that execute arbitrary OS commands when the file is
+  opened. This allows for remote code execution with the privileges of the user
+  running the application.
 
 locations:
-- path_from_root: src/main/java/oripa/persistence/doc/loader/LoaderXML.java
+- type: crash_site
+  path_from_root: src/main/java/oripa/persistence/doc/loader/LoaderXML.java
   function_name: loadAsDataSet
   startLine: 44
   startColumn: 0

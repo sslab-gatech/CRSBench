@@ -1,33 +1,40 @@
 id: cpv_1
 
-name: Heap buffer overflow in packet_authagent_open
+name: Heap buffer overflow in packet_authagent_open due to insufficient bounds checking
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-122
 - CWE-125
-- CWE-20
+- CWE-805
 
 description: |
-  A heap-based buffer overflow vulnerability exists in libssh2's handling of SSH 
-  "auth-agent@openssh.com" channel open requests. The packet_authagent_open function 
-  in src/packet.c performs unsafe pointer arithmetic and reads data without validating 
-  that sufficient bytes are available in the input buffer.
-  
-  The vulnerability occurs because the function explicitly ignores the datalen parameter 
-  and assumes the packet contains at least 39 bytes of data after a calculated offset. 
-  It calls _libssh2_ntohu32() three times to read 32-bit integers without any bounds 
-  checking. When a malformed or truncated packet is received, these reads extend beyond 
-  the allocated buffer, causing out-of-bounds reads at offset 0 bytes after a 31-byte 
-  allocated region.
-  
-  An attacker can send a specially crafted SSH packet with an "auth-agent@openssh.com" 
-  channel type that is shorter than expected, leading to information disclosure through 
-  heap memory leakage and denial of service through crashes.
+  A heap-buffer-overflow vulnerability exists in the packet_authagent_open()
+  function in src/packet.c when processing SSH2 authentication agent channel
+  open requests. The function explicitly ignores the datalen parameter and
+  performs no bounds checking before accessing the buffer. It calculates an
+  offset of 27 bytes and attempts to read 12 additional bytes (three 32-bit
+  integers), requiring a minimum buffer size of 39 bytes. When a malformed
+  SSH2 packet with insufficient data is received, the function attempts to
+  read beyond the allocated buffer boundaries via _libssh2_ntohu32(), causing
+  a heap-buffer-overflow. This can lead to information disclosure, denial of
+  service, or potential code execution when an attacker controls the SSH2 server.
 
 locations:
-- path_from_root: src/packet.c
+- type: crash_site
+  path_from_root: src/misc.c
+  function_name: _libssh2_ntohu32
+  startLine: 228
+  startColumn: 23
+  endLine: 228
+  endColumn: 23
+- type: root_cause
+  path_from_root: src/packet.c
   function_name: packet_authagent_open
-  startLine: 478
-  startColumn: 48
-  endLine: 478
-  endColumn: 48
+  startLine: 472
+  startColumn: 1
+  endLine: 480
+  endColumn: 81

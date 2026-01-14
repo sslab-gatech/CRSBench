@@ -2,35 +2,47 @@ id: cpv_0
 
 name: SVC Decoder Display Dimension Mismatch Heap Buffer Overflow
 
+origin: synthetic
+
+release_date: 02/01/2026
+
+references: []
+
 cwes:
-- CWE-787
 - CWE-122
+- CWE-787
 - CWE-1284
 
 description: |
-  A heap buffer overflow vulnerability occurs in the libavc SVC decoder's format conversion
-  function. The vulnerability is triggered by a mismatch between the decoder's display dimensions
-  and the subset sequence dimensions in H.264/SVC video streams. When the decoder updates display
-  dimensions from subset sequence parameters without validation, subsequent format conversion
-  operations use the larger dimensions to copy data into buffers that were allocated based on
-  smaller dimensions. This causes memcpy to write beyond the allocated heap buffer boundary.
-  
-  The root cause is in isvcd_parse_slice_ext_nal where display dimensions (u2_disp_height and
-  u2_disp_width) are updated from ps_subset_seq without checking if they match the dimensions
-  used during initial buffer allocation. When ih264d_format_convert is called with these
-  mismatched dimensions, it passes larger width and height values to
-  ih264d_fmt_conv_420sp_to_420sp_swap_uv, resulting in a heap buffer overflow during the memcpy
-  operation.
-  
-  A malicious H.264/SVC video stream can declare initial dimensions to trigger buffer allocation,
-  then update subset sequence parameters with larger dimensions, causing the decoder to write
-  past the allocated buffer. This can lead to memory corruption, denial of service, and
+  A heap-based buffer overflow vulnerability exists in the libavc SVC decoder.
+  The decoder fails to validate that display dimensions match between the
+  initialized decoder state and subset sequence parameters when processing
+  slice headers. This allows an attacker to craft a malformed SVC video stream
+  with inconsistent display dimensions, causing the decoder to use mismatched
+  dimensions during format conversion. The vulnerability triggers during the
+  memcpy operation in ih264d_fmt_conv_420sp_to_420sp_swap_uv, writing 48 bytes
+  beyond the allocated buffer boundary. This can lead to denial of service or
   potentially arbitrary code execution.
 
 locations:
-- path_from_root: decoder/ih264d_format_conv.c
+- type: crash_site
+  path_from_root: decoder/ih264d_format_conv.c
   function_name: ih264d_fmt_conv_420sp_to_420sp_swap_uv
   startLine: 497
   startColumn: 9
   endLine: 497
   endColumn: 9
+- type: root_cause
+  path_from_root: decoder/svc/isvcd_parse_slice.c
+  function_name: isvcd_parse_decode_slice_ext_nal
+  startLine: 768
+  startColumn: 5
+  endLine: 772
+  endColumn: 60
+- type: root_cause
+  path_from_root: decoder/svc/isvcd_parse_slice.c
+  function_name: isvcd_parse_decode_slice
+  startLine: 2006
+  startColumn: 5
+  endLine: 2017
+  endColumn: 60

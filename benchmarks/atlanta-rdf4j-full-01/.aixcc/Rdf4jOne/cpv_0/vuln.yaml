@@ -1,6 +1,16 @@
 id: cpv_0
 
-name: XML External Entity (XXE) Injection in RDF4J TriXParser Enabling SSRF
+name: XML External Entity (XXE) Injection in TriX Parser
+
+origin: 1-day
+
+release_date: 08/20/2018
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2018-1000644
+- https://github.com/advisories/GHSA-6xq8-pvg4-3mf3
+- https://github.com/eclipse/rdf4j/pull/1146
+- https://github.com/eclipse/rdf4j/issues/1056
 
 cwes:
 - CWE-611
@@ -8,31 +18,28 @@ cwes:
 - CWE-776
 
 description: |
-  An XML External Entity (XXE) injection vulnerability exists in the RDF4J TriXParser
-  component when parsing TriX (Triples in XML) format RDF documents. The vulnerability
-  occurs in the parse() method where an XMLReader is created without configuring secure
-  XML parsing features. Specifically, the parser fails to disable DOCTYPE declarations,
-  external general entity processing, external parameter entity processing, and loading
-  of external DTDs.
-  
-  When XMLReaderFactory.createXMLReader() is called with default settings, it allows
-  processing of DOCTYPE declarations and resolution of external entities. An attacker
-  can craft a malicious TriX XML document containing a DOCTYPE declaration with an
-  external entity definition that references an attacker-controlled URL. When the parser
-  processes this document and encounters the entity reference, it attempts to resolve
-  the external entity by making an HTTP request to the specified URL.
-  
-  This vulnerability enables Server-Side Request Forgery (SSRF) attacks, allowing
-  attackers to: read local files using file:// protocol handlers, make the server
-  initiate requests to internal systems bypassing firewall restrictions, trigger
-  denial of service through XML entity expansion attacks (billion laughs), probe
-  internal network infrastructure through port scanning, and exfiltrate sensitive
-  data to external servers.
+  An XML External Entity (XXE) injection vulnerability exists in the Eclipse RDF4j
+  TriX parser. The TriXParser class creates an XMLReader without properly configuring
+  security features to prevent external entity processing. This allows the XML parser
+  to process DOCTYPE declarations, resolve external general and parameter entities,
+  and load external DTDs. An attacker can craft a malicious TriX file containing
+  external entity references to trigger Server-Side Request Forgery (SSRF) attacks,
+  disclose local files via file:// URIs, or cause denial of service through XML
+  entity expansion attacks. The root cause is insecure-by-default XML parser
+  configuration that fails to disable dangerous XML features.
 
 locations:
-- path_from_root: rio/trix/src/main/java/org/eclipse/rdf4j/rio/trix/TriXParser.java
+- type: root_cause
+  path_from_root: rio/trix/src/main/java/org/eclipse/rdf4j/rio/trix/TriXParser.java
   function_name: parse
-  startLine: 179
+  startLine: 173
   startColumn: 0
-  endLine: 179
+  endLine: 180
+  endColumn: 0
+- type: crash_site
+  path_from_root: rio/trix/src/main/java/org/eclipse/rdf4j/rio/trix/TriXParser.java
+  function_name: parse
+  startLine: 188
+  startColumn: 0
+  endLine: 188
   endColumn: 0

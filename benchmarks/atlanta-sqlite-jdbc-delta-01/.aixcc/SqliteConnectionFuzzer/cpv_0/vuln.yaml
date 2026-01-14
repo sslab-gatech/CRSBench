@@ -1,25 +1,29 @@
 id: cpv_0
 
-name: Array Index Out of Bounds in JDBC URL Parameter Parsing
+name: Empty Parameter ArrayIndexOutOfBoundsException in SQLite JDBC URL Parsing
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-129
 - CWE-20
 
 description: |
-  An Array Index Out of Bounds vulnerability exists in the extractPragmasFromFilename 
-  method of SQLiteConnection when parsing malformed JDBC connection URLs. The vulnerability 
-  is triggered when consecutive ampersands (&&&) in the connection URL create empty parameters. 
-  The code splits parameters on '=' and filters empty strings, which can result in a zero-length 
-  array. Subsequent access to kvp[0] without length validation causes an ArrayIndexOutOfBoundsException. 
-  This vulnerability allows an attacker to cause a denial of service by crafting JDBC URLs with 
-  consecutive ampersands (e.g., "jdbc:sqlite:aaa?&&&a"), leading to application crashes when 
-  attempting to establish database connections.
+  An ArrayIndexOutOfBoundsException vulnerability exists in the extractPragmasFromFilename
+  method in SQLiteConnection.java. When processing JDBC connection URLs with consecutive
+  ampersand characters (e.g., jdbc:sqlite:aaa?&&&a), the code splits parameters by '&'
+  and filters out empty strings, resulting in a zero-length array. The code then
+  unconditionally accesses kvp[0] without checking if the array is empty, causing an
+  ArrayIndexOutOfBoundsException. This leads to denial of service through an uncaught
+  exception that can crash the application or disrupt service availability.
 
 locations:
-- path_from_root: src/main/java/org/sqlite/SQLiteConnection.java
+- type: crash_site
+  path_from_root: src/main/java/org/sqlite/SQLiteConnection.java
   function_name: extractPragmasFromFilename
-  startLine: 517
+  startLine: 513
   startColumn: 0
-  endLine: 517
+  endLine: 513
   endColumn: 0

@@ -1,6 +1,15 @@
 id: cpv_10
 
-name: Apache ActiveMQ OpenWire Unsafe Deserialization Remote Code Execution
+name: Apache ActiveMQ OpenWire Protocol Unsafe Deserialization
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://github.com/advisories/GHSA-crg9-44h2-xw35
+- https://activemq.apache.org/security-advisories.data/CVE-2023-46604-announcement.txt
 
 cwes:
 - CWE-502
@@ -8,25 +17,29 @@ cwes:
 - CWE-94
 
 description: |
-  Critical remote code execution vulnerability in Apache ActiveMQ's OpenWire protocol 
-  deserialization mechanism. The BaseDataStreamMarshaller.createThrowable() method 
-  accepts an arbitrary class name from externally controlled data in the OpenWire 
-  protocol stream and uses Java reflection to instantiate it without validation.
-  
-  The vulnerable code calls Class.forName() with an attacker-controlled class name 
-  extracted from ExceptionResponse messages, then obtains a constructor and calls 
-  newInstance() to create an object of that class. No validation is performed to 
-  verify the loaded class extends Throwable or is safe to instantiate.
-  
-  An attacker can craft a malicious OpenWire message containing an ExceptionResponse 
-  with a specially crafted class name. When unmarshalled, this triggers instantiation 
-  of arbitrary classes on the classpath that have a String-parameter constructor, 
-  potentially leading to complete system compromise, data breach, and lateral movement.
+  A critical remote code execution vulnerability exists in Apache ActiveMQ's
+  OpenWire protocol implementation. The createThrowable() method in
+  BaseDataStreamMarshaller.java fails to validate that the class name provided
+  in serialized data actually extends Throwable before instantiating it using
+  reflection. An attacker can send a crafted OpenWire protocol message with an
+  ExceptionResponse command containing an arbitrary class name. This allows
+  instantiation of any class on the classpath, such as Spring Framework's
+  ClassPathXmlApplicationContext, leading to remote code execution without
+  authentication. The vulnerability has been actively exploited in the wild by
+  HelloKitty ransomware and Kinsing malware.
 
 locations:
-- path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
+- type: root_cause
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
   function_name: createThrowable
   startLine: 228
-  startColumn: 0
-  endLine: 232
-  endColumn: 0
+  startColumn: 1
+  endLine: 238
+  endColumn: 5
+- type: crash_site
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
+  function_name: looseUnmarsalThrowable
+  startLine: 511
+  startColumn: 1
+  endLine: 516
+  endColumn: 5

@@ -1,26 +1,43 @@
 id: cpv_0
 
-name: Snappy Java Stream DoS via Unvalidated Chunk Size Allocation
+name: Unchecked Chunk Size Leading to Denial of Service
+
+origin: 1-day
+
+release_date: 06/15/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-34455
+- https://github.com/advisories/GHSA-qcwq-55hx-v3vh
+- https://osv.dev/vulnerability/GHSA-qcwq-55hx-v3vh
 
 cwes:
+- CWE-1284
 - CWE-789
-- CWE-770
 - CWE-400
 
 description: |
-  A Denial of Service vulnerability exists in the Snappy compression library's SnappyInputStream class.
-  The hasNextChunk() method reads a chunk size value from untrusted input without proper validation,
-  allowing attackers to specify arbitrary memory allocation sizes. Specifically, the code fails to:
-  (1) validate that the chunk size is non-negative, and (2) enforce the maximum chunk size limit.
-  An attacker can craft a malicious Snappy stream with a chunk size of Integer.MAX_VALUE (0x7fffffff),
-  causing the application to attempt allocating ~2GB of memory, which exceeds JVM array limits and
-  triggers an OutOfMemoryError. This leads to application crash and resource exhaustion. The vulnerability
-  was introduced by removing critical input validation checks that prevent excessive memory allocation.
+  A Denial of Service vulnerability exists in the SnappyInputStream class where
+  the hasNextChunk() method reads a 4-byte integer from the input stream to
+  determine the size of the next chunk, but fails to validate this value before
+  using it to allocate a byte array. An attacker can provide a negative value
+  or an extremely large positive value (e.g., 0x7FFFFFFF = 2,147,483,647 bytes),
+  causing either a NegativeArraySizeException or an OutOfMemoryError that crashes
+  the JVM. This leads to application crash, resource exhaustion, and denial of
+  service for legitimate users.
 
 locations:
-- path_from_root: src/main/java/org/xerial/snappy/SnappyInputStream.java
+- type: crash_site
+  path_from_root: src/main/java/org/xerial/snappy/SnappyInputStream.java
   function_name: hasNextChunk
-  startLine: 445
-  startColumn: 0
-  endLine: 445
-  endColumn: 0
+  startLine: 442
+  startColumn: 17
+  endLine: 442
+  endColumn: 42
+- type: root_cause
+  path_from_root: src/main/java/org/xerial/snappy/SnappyInputStream.java
+  function_name: hasNextChunk
+  startLine: 421
+  startColumn: 1
+  endLine: 436
+  endColumn: 10

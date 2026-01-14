@@ -1,0 +1,849 @@
+# vuln.yaml Generation Agent Log
+Generated: 2026-01-14T07:43:08.880351
+Benchmark: sanity-stress-test-full-01
+Harness: forkbomb-harness
+CPV: cpv_0
+Project Directory: .crsbench-repos/cp-user-stress-test-src-86875fb2
+
+
+Validation: PASSED
+
+
+======================================================================
+Phase: Vulnerability Analysis
+======================================================================
+
+
+[Agent Response]
+I'll analyze the vulnerability for cpv_0 in the forkbomb-harness. Let me start by invoking the vuln-yaml-analyzer skill to get detailed guidance.
+
+[Tool] Skill
+  Input: {
+  "skill": "vuln-yaml-analyzer"
+}
+  Result: Launching skill: vuln-yaml-analyzer
+
+[Agent Response]
+<command-message>The "vuln-yaml-analyzer" skill is running</command-message>
+<command-name>vuln-yaml-analyzer</command-name>
+
+
+[Agent Response]
+Base directory for this skill: /home/acorn421/work/team-atlanta/CRSBench/.claude/skills/vuln-yaml-analyzer
+
+# Vulnerability Analyzer
+
+Analyze a vulnerability from crash logs, POV files, patches, and source code to prepare for vuln.yaml generation.
+
+## Analysis Strategy
+
+### Step 1: Analyze Crash Log (CRITICAL - Start Here)
+
+The crash log is the primary source of vulnerability information.
+
+**CRITICAL**:
+- **ONLY** read crash log files from the CPV's logs directory
+- **DO NOT** search for crash logs from other CPVs
+
+Find and read crash log files (e.g., `pov_0.log`, `crash.log`).
+
+Extract key information:
+- **Error type**: AddressSanitizer error (heap-buffer-overflow, use-after-free, etc.)
+- **Vulnerable function**: The function where the crash occurred (from stack trace)
+- **Vulnerable file**: The source file path (from stack trace)
+- **Line number**: Exact line where crash happened
+- **DEDUP_TOKEN**: Unique identifier for this crash
+- **Stack trace**: Full call stack for understanding control flow
+
+Example crash log parsing:
+```
+ERROR: AddressSanitizer: heap-buffer-overflow
+READ of size 45 at 0x50400000033c
+#0 __asan_memcpy /src/llvm-project/compiler-rt/lib/asan/...
+#1 cr_buf_read /src/curl/lib/sendf.c:1298:5    <-- Vulnerable function
+#2 Curl_creader_read /src/curl/lib/sendf.c:542:10
+...
+SUMMARY: AddressSanitizer: heap-buffer-overflow /src/curl/lib/sendf.c:1298:5 in cr_buf_read
+```
+
+From this, extract:
+- Error type: heap-buffer-overflow
+- File: lib/sendf.c (relative to project root)
+- Function: cr_buf_read
+- Line: 1298
+
+### Step 2: Identify Location Types
+
+For each vulnerability location, determine its type:
+
+**crash_site**: The point where the program crashes or error is detected
+- This is typically the location from the crash log stack trace
+- MUST be in project code
+- Example: The function where buffer overflow READ occurs
+
+**root_cause**: The underlying defect that enables the vulnerability
+- This is where the actual bug/defect exists
+- May be different from crash site (e.g., missing bounds check, incorrect allocation)
+- Example: Where buffer is allocated too small, or where bounds check is missing
+- **IMPORTANT: Analyze patches to identify root_cause** - patches show exactly what was fixed
+
+**EXCLUDE from both crash_site and root_cause:**
+- Harness files (fuzzing harness code, e.g., `*_fuzzer.c`, `*_fuzzer.cc`, `LLVMFuzzerTestOneInput`)
+- ASan/sanitizer functions (`__asan_*`, `__msan_*`, `__ubsan_*`)
+- Standard library functions (`memcpy`, `malloc`, `free`, `strlen`, etc.)
+- Compiler runtime functions (`__interceptor_*`, `llvm-project/compiler-rt/*`)
+- Only include actual project source code locations
+
+### Step 3: Locate Vulnerable Code
+
+- Use the file path from crash log to find the vulnerable source file
+- Read the vulnerable file around the crash line number
+- Identify the exact vulnerability location
+- Note the function name, line numbers, and code context
+
+### Step 4: Analyze POV (if available)
+
+- Check the CPV's blobs/ directory for POV files
+- These are test inputs that trigger the vulnerability
+- Note if POV structure provides hints about vulnerability type
+
+### Step 5: Analyze Patches (CRITICAL for root_cause)
+
+- Check the CPV's patches/ directory for patch files
+- **Patches are the primary source for identifying root_cause location**
+- Analyze what was changed to fix the vulnerability:
+  - Which file(s) were modified?
+  - Which function(s) were changed?
+  - What line(s) were added/removed?
+- The patch location typically indicates the root_cause location
+- If patch differs from crash site, you likely have separate crash_site and root_cause
+
+### Step 6: Identify Vulnerability Origin and Reference
+
+**⚠️ CRITICAL: DO NOT GUESS. ONLY USE CONCRETE EVIDENCE. ⚠️**
+
+**origin**: Source of the vulnerability
+- `1-day`: Real-world vulnerability with confirmed official reference (CVE, OSV, GHSA, bug tracker, etc.)
+- `synthetic`: Everything else (DEFAULT)
+
+**🚨 RULES FOR 1-day CLASSIFICATION 🚨**
+
+1. **Start with patch files** - Extract key information:
+   - Function name(s) being patched
+   - File path(s) being modified
+   - Type of fix (bounds check, null check, etc.)
+   - Any vulnerability ID already mentioned in patch (CVE, OSV, GHSA, issue #)
+
+2. **Search based on patch content:**
+   - Use WebSearch with: project name + function name + vulnerability keywords
+   - Example: `libtiff TIFFReadRawStrip1 CVE` or `libtiff TIFFReadRawStrip1 vulnerability`
+   - Look for an EXACT match - same function, same fix
+
+3. **Confirm the match:**
+   - The reference must describe the EXACT same vulnerability
+   - Same function name
+   - Same type of bug
+   - Same file/location
+   - If it's just "similar" but not exact → `synthetic`
+
+4. **DO NOT mark as `1-day` based on:**
+   - ❌ "Similar looking" vulnerabilities
+   - ❌ Same project but different function
+   - ❌ Same bug type but different location
+   - ❌ Guessing or "it might be"
+
+5. **If no EXACT match found → `synthetic`**
+
+**How to check (in order):**
+1. Read patch files - note function names, file paths, fix type
+2. Check if vulnerability ID already in patch content/filename (CVE, OSV, issue #)
+3. Check `.aixcc/meta.yaml` for existing reference
+4. WebSearch: `[project] [function_name] vulnerability` or `CVE` (only if needed)
+5. WebFetch: Get release_date from the reference source
+6. If no exact match → `synthetic`
+
+**release_date**:
+- For 1-day: Fetch from the official reference source (NVD, OSV, GitHub advisory, etc.)
+- For synthetic: Use `02/01/2026`
+
+**references**: List of URLs to vulnerability details (REQUIRED for 1-day)
+- Include all confirmed references (a single vulnerability may have multiple)
+- Valid reference sources:
+  - CVE: `https://nvd.nist.gov/vuln/detail/CVE-XXXX-XXXXX`
+  - OSV: `https://osv.dev/vulnerability/OSV-XXXX-XXXX`
+  - GHSA: `https://github.com/advisories/GHSA-xxxx-xxxx-xxxx`
+  - Project bug tracker: `https://github.com/project/issues/XXX`
+  - Other official security advisories
+- Example: A vulnerability may have both CVE and GHSA references
+
+### Step 7: Identify CWE
+
+Based on the vulnerability type, identify relevant CWEs:
+- Heap buffer overflow -> CWE-122, CWE-787
+- Stack buffer overflow -> CWE-121, CWE-787
+- Use-after-free -> CWE-416
+- NULL pointer dereference -> CWE-476
+- Integer overflow -> CWE-190
+- Command injection -> CWE-77
+- Path traversal -> CWE-22
+- Format string -> CWE-134
+
+## Output Format
+
+Provide a markdown document with this structure:
+
+```markdown
+# Vulnerability Analysis for {cpv_id}
+
+## Summary
+- **CPV ID**: {cpv_id}
+- **Harness**: {harness_name}
+- **Vulnerability Type**: <type from crash log>
+- **Origin**: <1-day or synthetic>
+- **Release Date**: <MM/DD/YYYY>
+- **References**: <list of CVE/OSV/GHSA URLs if available>
+
+## Crash Log Analysis
+- **Error Type**: <AddressSanitizer error type>
+- **Crash Location**: <file>:<line>
+- **Vulnerable Function**: <function name>
+- **DEDUP Token**: <dedup token from crash log>
+
+### Stack Trace
+<relevant stack trace snippet>
+
+## Vulnerable Code Location(s)
+
+### Location 1 (crash_site)
+- **Type**: crash_site
+- **File Path**: <path from project root>
+- **Function**: <function name>
+- **Line Range**: <start>-<end>
+- **Column Range**: <start>-<end>
+
+### Location 2 (root_cause) - if different from crash_site
+- **Type**: root_cause
+- **File Path**: <path from project root>
+- **Function**: <function name>
+- **Line Range**: <start>-<end>
+- **Column Range**: <start>-<end>
+
+### Code Context
+<vulnerable code snippet>
+
+## CWE Classification
+- CWE-XXX: <description>
+- CWE-YYY: <description>
+
+## Vulnerability Description
+<Clear description of the vulnerability, its cause, and impact>
+
+## POV Analysis (if available)
+<Analysis of proof-of-vulnerability test case>
+
+## Patch Analysis (if available)
+<Analysis of how the vulnerability was fixed>
+
+## Recommendations
+- Suggested CWEs: [CWE-XXX, CWE-YYY]
+- Vulnerability name: <concise name>
+```
+
+## Important Notes
+
+- **ALWAYS read and analyze the crash log first** - it contains the most critical information
+- **ONLY analyze crash logs from the specified CPV's logs directory**
+- Use Grep and Glob to find relevant source code files (NOT other CPVs' crash logs)
+- Read actual source code to verify vulnerability locations
+- Cite specific file paths and line numbers
+- Be precise about code locations (line and column numbers)
+- Distinguish between crash_site and root_cause locations
+
+
+
+[Agent Response]
+Now I'll analyze the vulnerability for cpv_0 in the forkbomb-harness. Let me start by reading the crash log from the CPV's logs directory.
+
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/sanity-stress-test-full-01/.aixcc/forkbomb-harness/cpv_0/logs/",
+  "description": "List crash log files in cpv_0"
+}
+  Result: total 16
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 .
+drwxrwxr-x 6 acorn421 acorn421 4096 Jan 13 23:50 ..
+-rw-rw-r-- 1 acorn421 acorn421 5456 Dec 22 17:50 pov_0.log
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/sanity-stress-test-full-01/.aixcc/forkbomb-harness/cpv_0/logs/pov_0.log"
+}
+  Result:      1→INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -e 'ASAN_OPTIONS='"'"'detect_leaks=0:color=never'"'"'' -v /home/procfs/CRS-multilang/libs/oss-fuzz/build/out/aixcc/c/stress-test:/out -v /home/procfs/CRS-multilang/libs/oss-fuzz/projects/aixcc/c/stress-test/.aixcc/povs/forkbomb-harness/cpv_0:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.2.1 reproduce forkbomb-harness -runs=100.
+     2→+ FUZZER=forkbomb-harne... (truncated)
+
+[Agent Response]
+Now let me check the patches directory to understand the fix:
+
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/sanity-stress-test-full-01/.aixcc/forkbomb-harness/cpv_0/patches/",
+  "description": "List patch files in cpv_0"
+}
+  Result: total 12
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 .
+drwxrwxr-x 6 acorn421 acorn421 4096 Jan 13 23:50 ..
+-rw-rw-r-- 1 acorn421 acorn421  324 Dec 22 17:50 patch_0.diff
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/sanity-stress-test-full-01/.aixcc/forkbomb-harness/cpv_0/patches/patch_0.diff"
+}
+  Result:      1→diff --git a/utils.c b/utils.c
+     2→index f8b0329..a4f4f45 100644
+     3→--- a/utils.c
+     4→+++ b/utils.c
+     5→@@ -18,7 +18,7 @@ void buffer_destroy(buffer_t *buf) {
+     6→ }
+     7→ 
+     8→ void buffer_write(buffer_t *buf, size_t index, char byte) {
+     9→-    if (index > buf->size) {
+    10→+    if (index >= buf->size) {
+    11→         return;
+    12→     }
+    13→     buf->buf[index] = byte;
+    14→
+
+<system-reminder>
+Whenever you read a file, you should consider whether it w... (truncated)
+
+[Agent Response]
+Now let me check the POV file:
+
+[Tool] Bash
+  Input: {
+  "command": "ls -la benchmarks/sanity-stress-test-full-01/.aixcc/forkbomb-harness/cpv_0/blobs/",
+  "description": "List POV files in cpv_0"
+}
+  Result: Exit code 1
+zsh:1: permission denied: /tmp/claude-2aac-cwd
+
+total 12
+drwxrwxr-x 2 acorn421 acorn421 4096 Dec 22 17:50 .
+drwxrwxr-x 6 acorn421 acorn421 4096 Jan 13 23:50 ..
+-rw-rw-r-- 1 acorn421 acorn421   12 Dec 22 17:50 pov_0.blob
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/sanity-stress-test-full-01/.aixcc/forkbomb-harness/cpv_0/blobs/pov_0.blob"
+}
+  Result:      1→7  8  ,  
+
+<system-reminder>
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+</system-reminder>
+
+
+[Agent Response]
+Now let me read the vulnerable source code files:
+
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-user-stress-test-src-86875fb2/utils.c"
+}
+  Result:      1→#include "utils.h"
+     2→
+     3→typedef struct buffer_s {
+     4→    char *buf;
+     5→    size_t size;
+     6→} buffer_t;
+     7→
+     8→buffer_t *buffer_create(size_t size) {
+     9→    buffer_t *buf = malloc(sizeof(buffer_t));
+    10→    buf->buf = malloc(size);
+    11→    buf->size = size;
+    12→    return buf;
+    13→}
+    14→
+    15→void buffer_destroy(buffer_t *buf) {
+    16→    free(buf->buf);
+    17→    free(buf);
+    18→}
+    19→
+    20→void buffer_write(buffer_t *buf, size_t... (truncated)
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/.crsbench-repos/cp-user-stress-test-src-86875fb2/forkbomb-harness.c"
+}
+  Result:      1→#include <stdint.h>
+     2→#include <stddef.h>
+     3→#include <stdio.h>
+     4→#include <stdlib.h>
+     5→#include <unistd.h>
+     6→#include <sys/wait.h>
+     7→
+     8→#include "utils.h"
+     9→
+    10→typedef struct InputFormat_s {
+    11→    int a;
+    12→    int b;
+    13→    int c;
+    14→} InputFormat;
+    15→
+    16→void func_forkbomb(const uint8_t *data, size_t size) {
+    17→    if (size < sizeof(InputFormat)) {
+    18→        return;
+    19→    }
+    20→    InputFormat *input ... (truncated)
+
+[Agent Response]
+Now let me check if there's any meta.yaml file that might indicate this is a 1-day vulnerability:
+
+[Tool] Bash
+  Input: {
+  "command": "find benchmarks/sanity-stress-test-full-01/.aixcc -name \"meta.yaml\" -o -name \"*.yaml\" | head -20",
+  "description": "Find yaml files in .aixcc directory"
+}
+  Result: benchmarks/sanity-stress-test-full-01/.aixcc/deep-crash-harness/cpv_0/vuln.yaml
+benchmarks/sanity-stress-test-full-01/.aixcc/meta.yaml
+[Tool] Read
+  Input: {
+  "file_path": "/home/acorn421/work/team-atlanta/CRSBench/benchmarks/sanity-stress-test-full-01/.aixcc/meta.yaml"
+}
+  Result:      1→patch_exclude_list:
+     2→- build.sh
+     3→- Makefile
+     4→- CMakeLists.txt
+     5→- configure*
+     6→- '*.ac'
+     7→- '*.am'
+     8→- .gitignore
+     9→- .aixcc/**
+    10→- '**/*test*.c'
+    11→- '**/*test*.cc'
+    12→- '**/*test*.cpp'
+    13→- '**/*test*.h'
+    14→- test/**
+    15→- tests/**
+    16→- docs/**
+    17→- '*.md'
+    18→- README*
+    19→full_mode:
+    20→  base_commit: 86875fb23f9d0352bdd5c33f39f0e8654e8ff17f
+    21→harness_files:
+    22→- name: timeout-harness
+    23→ ... (truncated)
+
+[Agent Response]
+Perfect! Now I have all the information I need. Let me analyze this vulnerability. Based on the crash log, patch, and source code, I can see this is a synthetic off-by-one vulnerability in a bounds check. Let me compile the analysis:
+
+# Vulnerability Analysis for cpv_0
+
+## Summary
+- **CPV ID**: cpv_0
+- **Harness**: forkbomb-harness
+- **Vulnerability Type**: Heap buffer overflow (off-by-one error in bounds check)
+- **Origin**: synthetic
+- **Release Date**: 02/01/2026
+- **References**: None (synthetic vulnerability)
+
+## Crash Log Analysis
+- **Error Type**: AddressSanitizer: heap-buffer-overflow
+- **Crash Location**: utils.c:24:21
+- **Vulnerable Function**: buffer_write
+- **DEDUP Token**: buffer_write--LLVMFuzzerTestOneInput--fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long)
+- **Operation**: WRITE of size 1 at address 0x5120000005ec
+- **Buffer Details**: Writing 0 bytes after a 300-byte region allocated at [0x5120000004c0, 0x5120000005ec)
+
+### Stack Trace
+```
+#0 0x56399f89783d in buffer_write /src/cp-user-stress-test-src/utils.c:24:21
+#1 0x56399f89766f in LLVMFuzzerTestOneInput /src/cp-user-stress-test-src/forkbomb-harness.c:60:5
+#2 0x56399f74e310 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long)
+```
+
+### Allocation Stack Trace
+```
+#0 0x56399f85a0df in malloc
+#1 0x56399f897715 in buffer_create /src/cp-user-stress-test-src/utils.c:10:16
+#2 0x56399f89748c in func_forkbomb /src/cp-user-stress-test-src/forkbomb-harness.c:21:21
+#3 0x56399f89766f in LLVMFuzzerTestOneInput /src/cp-user-stress-test-src/forkbomb-harness.c:60:5
+```
+
+## Vulnerable Code Location(s)
+
+### Location 1 (crash_site and root_cause - same location)
+- **Type**: Both crash_site and root_cause
+- **File Path**: utils.c
+- **Function**: buffer_write
+- **Line Range**: 20-25
+- **Column Range**: Line 21: 5-29 (the conditional check)
+
+### Code Context
+```c
+void buffer_write(buffer_t *buf, size_t index, char byte) {
+    if (index > buf->size) {  // Line 21 - BUG: Should be >= not >
+        return;
+    }
+    buf->buf[index] = byte;    // Line 24 - CRASH: Where overflow occurs
+}
+```
+
+**Vulnerable Pattern**: The bounds check at line 21 uses `>` instead of `>=`, allowing writes at index equal to `buf->size`. Since valid indices for a buffer of size N are [0, N-1], writing at index N causes a one-byte overflow.
+
+## CWE Classification
+- **CWE-122**: Heap-based Buffer Overflow
+- **CWE-787**: Out-of-bounds Write
+- **CWE-193**: Off-by-one Error
+
+## Vulnerability Description
+
+This is a classic **off-by-one heap buffer overflow** vulnerability in the `buffer_write` function in `utils.c`.
+
+**Root Cause**: The bounds check uses the wrong comparison operator:
+- **Buggy code**: `if (index > buf->size)` allows writing when `index == buf->size`
+- **Fixed code**: `if (index >= buf->size)` correctly rejects writes at or beyond the buffer size
+
+**Attack Scenario**:
+1. A buffer of size 300 is allocated via `buffer_create(300)` in `func_forkbomb` (line 21)
+2. The buffer's valid indices are [0, 299]
+3. When `input->c` equals 300, the bounds check `(300 > 300)` evaluates to false
+4. The function proceeds to write at `buf->buf[300]`, which is one byte past the allocated region
+5. AddressSanitizer detects the heap buffer overflow
+
+**Impact**: 
+- Allows one-byte write past the end of a heap-allocated buffer
+- Can corrupt heap metadata or adjacent heap objects
+- Potential for exploitation depending on what follows the buffer in memory
+
+## POV Analysis
+
+The POV file (`pov_0.blob`) contains 12 bytes structured as an `InputFormat` struct:
+```
+InputFormat {
+    int a;  // bytes 0-3
+    int b;  // bytes 4-7
+    int c;  // bytes 8-11
+}
+```
+
+The POV triggers the vulnerability by:
+1. Satisfying the arithmetic constraints: `a * b == 0x1337 * 0x1338` and `a + b == 0x1337 + 0x1338`
+2. Setting `c` to 300 (the buffer size), which bypasses the faulty bounds check
+3. Causing `buffer_write(buf, 300, 'a')` to write one byte past the 300-byte buffer
+
+This demonstrates a **targeted** exploit that solves specific arithmetic constraints to reach the vulnerable code path, rather than triggering the resource-exhausting fork bomb in the else branch.
+
+## Patch Analysis
+
+The patch fixes the off-by-one error with a minimal one-character change:
+
+```diff
+-    if (index > buf->size) {
++    if (index >= buf->size) {
+```
+
+**Fix correctness**: 
+- Changes the comparison from `>` to `>=`
+- Now correctly rejects writes when `index >= buf->size`
+- Valid indices [0, size-1] are allowed; index == size is rejected
+- This is the standard pattern for bounds checking (matching the `buffer_read` function at line 28)
+
+**Note**: The `buffer_read` function (lines 27-32) already uses the correct `>=` operator, making this an inconsistency in the codebase where write checking was implemented incorrectly.
+
+## Recommendations
+- **Suggested CWEs**: [CWE-122, CWE-787, CWE-193]
+- **Vulnerability Name**: Off-by-one heap buffer overflow in buffer_write bounds check
+- **Severity**: Medium to High (heap corruption potential)
+- **Classification**: Synthetic vulnerability (stress test for CRS systems)
+
+
+
+======================================================================
+Phase: vuln.yaml Generation
+======================================================================
+
+
+[Agent Response]
+I'll generate the vuln.yaml file using the vuln-yaml-generator skill for guidance on the exact format.
+
+[Tool] Skill
+  Input: {
+  "skill": "vuln-yaml-generator"
+}
+  Result: Launching skill: vuln-yaml-generator
+
+[Agent Response]
+<command-message>The "vuln-yaml-generator" skill is running</command-message>
+<command-name>vuln-yaml-generator</command-name>
+
+
+[Agent Response]
+Base directory for this skill: /home/acorn421/work/team-atlanta/CRSBench/.claude/skills/vuln-yaml-generator
+
+# Vulnerability YAML Generator
+
+Generate a vuln.yaml file from vulnerability analysis results.
+
+## vuln.yaml Format
+
+Generate a valid YAML file with this structure:
+
+```yaml
+id: {cpv_id}
+
+name: <Short, descriptive vulnerability name>
+
+origin: <1-day or synthetic>
+
+release_date: <MM/DD/YYYY>
+
+references:  # List of URLs (required for 1-day, optional for synthetic)
+- <URL to CVE/OSV/advisory>
+- <URL to another reference if available>
+
+cwes:
+- CWE-XXX
+- CWE-YYY
+
+description: |
+  <Clear, multi-line description of the vulnerability.
+  Include what causes it, where it occurs, and potential impact.>
+
+locations:
+- type: <crash_site or root_cause>
+  path_from_root: <relative/path/from/project/root.c>
+  function_name: <vulnerable_function>
+  startLine: <line_number>
+  startColumn: <column_number>
+  endLine: <line_number>
+  endColumn: <column_number>
+```
+
+## Field Guidelines
+
+### id
+- Must be exactly the provided CPV ID (e.g., `cpv_0`)
+
+### origin
+- Valid values: `1-day` or `synthetic`
+- `1-day`: **ONLY if CVE/OSV ID was found in patch files**
+- `synthetic`: **DEFAULT** - use if no CVE ID in patches
+- ⚠️ DO NOT guess based on web search results
+- ⚠️ If analysis says "synthetic" or no CVE found → use `synthetic`
+
+### release_date
+- Format: `MM/DD/YYYY` (e.g., `02/16/2017`)
+- For 1-day: Official CVE/advisory publication date
+- For synthetic: Use `02/01/2026`
+
+### references
+- List of URLs to vulnerability details (required for 1-day, optional for synthetic)
+- A single vulnerability may have multiple references (CVE + GHSA, etc.)
+- Valid reference sources:
+  - CVE: `https://nvd.nist.gov/vuln/detail/CVE-2017-6009`
+  - OSV: `https://osv.dev/vulnerability/OSV-2021-1234`
+  - GHSA: `https://github.com/advisories/GHSA-xxxx-xxxx-xxxx`
+  - Bug tracker: `https://github.com/project/issues/XXX`
+
+### name
+- Short, descriptive name (max 80 characters)
+- Examples:
+  - "Heap buffer overflow in cr_buf_read"
+  - "Use-after-free in HTTP chunk processing"
+  - "NULL pointer dereference in JSON parser"
+- DO NOT use generic names like "MOCK: cpv_0 vulnerability"
+- **CRITICAL**: Avoid special YAML characters in unquoted values:
+  - DO NOT use colons (`:`) in unquoted field values
+  - If you must include special characters, wrap the entire value in quotes
+
+### cwes
+- List of relevant CWE numbers (1-3 most relevant)
+- Common CWEs:
+  - CWE-787: Out-of-bounds Write
+  - CWE-125: Out-of-bounds Read
+  - CWE-416: Use After Free
+  - CWE-476: NULL Pointer Dereference
+  - CWE-190: Integer Overflow
+  - CWE-122: Heap-based Buffer Overflow
+  - CWE-121: Stack-based Buffer Overflow
+
+### description
+- Clear explanation of the vulnerability
+- Use `|` for multi-line strings
+- Include: type, location, cause, and security impact
+
+### locations
+- At least one location (the primary vulnerable code location)
+- **type** (REQUIRED):
+  - `crash_site`: Where the crash/error occurs (from crash log stack trace)
+  - `root_cause`: Where the underlying defect exists (from patch analysis)
+  - If only one location and it's both, use `crash_site`
+- **EXCLUDE these from locations:**
+  - Harness files (`*_fuzzer.c`, `*_fuzzer.cc`, `LLVMFuzzerTestOneInput`)
+  - ASan/sanitizer functions (`__asan_*`, `__msan_*`, `__ubsan_*`)
+  - Standard library functions (`memcpy`, `malloc`, `free`, etc.)
+  - Compiler runtime (`llvm-project/compiler-rt/*`)
+- **path_from_root**: Relative path from project root (NOT absolute path)
+- **function_name**: Exact function name from crash log
+- **startLine/endLine**: Line range of vulnerable code
+- **startColumn/endColumn**: Column range (use 0 if unknown)
+
+## Output
+
+Output ONLY the vuln.yaml content (no markdown fences, no explanation).
+
+## Example Output
+
+```yaml
+id: cpv_0
+
+name: Heap buffer overflow in cr_buf_read
+
+origin: 1-day
+
+release_date: 02/16/2017
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2017-6009
+
+cwes:
+- CWE-122
+- CWE-787
+
+description: |
+  A heap buffer overflow vulnerability exists in the cr_buf_read function
+  in lib/sendf.c. The function reads data into a buffer without properly
+  checking the buffer size, allowing an attacker to write beyond the
+  allocated memory. This can lead to arbitrary code execution or denial
+  of service.
+
+locations:
+- type: crash_site
+  path_from_root: lib/sendf.c
+  function_name: cr_buf_read
+  startLine: 1298
+  startColumn: 5
+  endLine: 1298
+  endColumn: 45
+- type: root_cause
+  path_from_root: lib/sendf.c
+  function_name: allocate_buffer
+  startLine: 1250
+  startColumn: 1
+  endLine: 1255
+  endColumn: 1
+```
+
+## Validation Checklist
+
+Before outputting, verify:
+- [ ] `id` matches the provided CPV ID
+- [ ] `origin` is either `1-day` or `synthetic`
+- [ ] `release_date` is in `MM/DD/YYYY` format
+- [ ] `references` is a list of valid URLs (required for 1-day, optional for synthetic)
+- [ ] `name` has no unquoted special characters
+- [ ] `cwes` is a non-empty list
+- [ ] `description` is non-empty and uses `|` for multiline
+- [ ] `locations` is a non-empty list
+- [ ] Each location has a valid `type` (crash_site or root_cause)
+- [ ] Each location has `path_from_root` (relative path, not absolute)
+- [ ] Each location has `function_name`
+- [ ] Each location has line/column numbers
+
+
+
+[Agent Response]
+Based on the vulnerability analysis and the format guidelines, here is the vuln.yaml content:
+
+```yaml
+id: cpv_0
+
+name: Off-by-one heap buffer overflow in buffer_write bounds check
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+cwes:
+- CWE-122
+- CWE-787
+- CWE-193
+
+description: |
+  A heap buffer overflow vulnerability exists in the buffer_write function
+  in utils.c due to an off-by-one error in the bounds check. The function
+  uses the wrong comparison operator (> instead of >=) when validating the
+  index parameter, allowing writes at index equal to buf->size. Since valid
+  indices for a buffer of size N are [0, N-1], writing at index N causes a
+  one-byte overflow past the allocated heap region. This can corrupt heap
+  metadata or adjacent heap objects, potentially leading to arbitrary code
+  execution or denial of service.
+
+locations:
+- type: crash_site
+  path_from_root: utils.c
+  function_name: buffer_write
+  startLine: 24
+  startColumn: 21
+  endLine: 24
+  endColumn: 21
+- type: root_cause
+  path_from_root: utils.c
+  function_name: buffer_write
+  startLine: 21
+  startColumn: 5
+  endLine: 21
+  endColumn: 29
+```
+
+
+
+==================================================
+Fix Attempt 1
+==================================================
+
+======================================================================
+Phase: vuln.yaml Fix
+======================================================================
+
+
+[Agent Response]
+```yaml
+id: cpv_0
+
+name: Off-by-one heap buffer overflow in buffer_write bounds check
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+cwes:
+- CWE-122
+- CWE-787
+- CWE-193
+
+description: |
+  A heap buffer overflow vulnerability exists in the buffer_write function
+  in utils.c due to an off-by-one error in the bounds check. The function
+  uses the wrong comparison operator (> instead of >=) when validating the
+  index parameter, allowing writes at index equal to buf->size. Since valid
+  indices for a buffer of size N are [0, N-1], writing at index N causes a
+  one-byte overflow past the allocated heap region. This can corrupt heap
+  metadata or adjacent heap objects, potentially leading to arbitrary code
+  execution or denial of service.
+
+locations:
+- type: crash_site
+  path_from_root: utils.c
+  function_name: buffer_write
+  startLine: 24
+  startColumn: 21
+  endLine: 24
+  endColumn: 21
+- type: root_cause
+  path_from_root: utils.c
+  function_name: buffer_write
+  startLine: 21
+  startColumn: 5
+  endLine: 21
+  endColumn: 29
+```
+
+

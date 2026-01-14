@@ -1,44 +1,40 @@
 id: cpv_0
 
-name: Stack-use-after-return in NASM preprocessor token list duplication
+name: NASM Preprocessor Zero-Length Token Stack-Use-After-Return
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
-- CWE-562
 - CWE-825
 - CWE-416
+- CWE-119
 
 description: |
-  A stack-use-after-return vulnerability exists in NASM's preprocessor macro expansion code.
-  The vulnerability occurs in the expand_mmac_params function when processing TOKEN_INDIRECT tokens.
-  
-  The root cause is in the dup_tlist function (lines 891-908), which returns a pointer to a local
-  stack variable through an output parameter. When dup_tlist sets *tailp = tailpp at line 904,
-  tailpp points to the address of the local stack variable newlist. When the function returns,
-  newlist goes out of scope, but the caller retains a pointer to this invalid stack location
-  through the tail variable.
-  
-  The vulnerability is triggered when:
-  1. expand_mmac_params processes a TOKEN_INDIRECT token
-  2. tokenize() creates a malformed token list (specifically zero-length tokens)
-  3. dup_tlist(tt, &tail) is called, updating tail to point to freed stack memory
-  4. Later code attempts to write through the dangling tail pointer (line 5373)
-  
-  The patch fixes this by preventing tokenize from creating zero-length tokens, ensuring
-  well-formed token lists that don't expose the stack-use-after-return issue.
-  
-  Impact: Memory corruption, potential arbitrary code execution, denial of service, and
-  possible information disclosure through stack memory access.
+  A stack-use-after-return vulnerability exists in NASM's preprocessor module.
+  The root cause is in the tokenize function (asm/preproc.c), which can create
+  zero-length tokens when parsing malformed assembly input. When toklen is
+  calculated as ep - line and results in zero, the original code unconditionally
+  creates an invalid token structure. This invalid token propagates through macro
+  expansion functions (pp_getline -> pp_tokline -> expand_mmac_params), where
+  manipulation of the token list causes a write through a tail pointer that
+  references freed stack memory from the dup_tlist function. This results in
+  memory corruption when writing to address 0x7f1aedf59f60 at line 5373 of
+  expand_mmac_params.
 
 locations:
-- path_from_root: asm/preproc.c
+- type: crash_site
+  path_from_root: asm/preproc.c
   function_name: expand_mmac_params
   startLine: 5373
   startColumn: 11
   endLine: 5373
   endColumn: 11
-- path_from_root: asm/preproc.c
-  function_name: dup_tlist
-  startLine: 904
-  startColumn: 0
-  endLine: 904
-  endColumn: 0
+- type: root_cause
+  path_from_root: asm/preproc.c
+  function_name: tokenize
+  startLine: 1677
+  startColumn: 9
+  endLine: 1682
+  endColumn: 22

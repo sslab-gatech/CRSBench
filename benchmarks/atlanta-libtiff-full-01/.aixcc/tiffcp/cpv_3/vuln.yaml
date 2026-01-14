@@ -1,40 +1,46 @@
 id: cpv_3
 
-name: TIFF InkNames Heap Buffer Overflow due to Inconsistent Metadata Validation
+name: LibTIFF TIFFTAG_INKNAMES Heap Buffer Overflow
+
+origin: 1-day
+
+release_date: 12/15/2022
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2022-3599
+- https://gitlab.com/libtiff/libtiff/-/issues/398
+- https://libtiff.gitlab.io/libtiff/releases/v4.5.0.html
 
 cwes:
-- CWE-125
 - CWE-122
-- CWE-20
+- CWE-125
+- CWE-787
 
 description: |
-  A heap buffer overflow vulnerability occurs when processing TIFF InkNames metadata.
-  The vulnerability has two components: insufficient validation in the checkInkNamesString()
-  function in libtiff/tif_dir.c and the tiffcp harness trusting unchecked metadata values.
-  
-  The checkInkNamesString() function does not properly validate that the InkNames string
-  buffer contains the expected number of null-terminated strings based on the NUMBEROFINKS
-  field. The tiffcp.cc harness retrieves NUMBEROFINKS and INKNAMES from the input TIFF file
-  and iterates through ink names by searching for null terminators with strchr() and
-  calling strlen() on each ink name.
-  
-  When a maliciously crafted TIFF file specifies more ink names (via NUMBEROFINKS) than
-  actually exist in the INKNAMES buffer, the loop in tiffcp.cc moves past the end of the
-  allocated buffer when searching for null terminators, causing strlen() to read beyond
-  the allocated heap buffer bounds. This results in a heap buffer overflow read that can
-  lead to information disclosure, denial of service, or potential code execution when
-  chained with other vulnerabilities.
+  A heap buffer overflow vulnerability exists in the processing of TIFFTAG_INKNAMES
+  metadata in LibTIFF. The checkInkNamesString() function in libtiff/tif_dir.c
+  improperly validates ink name strings by relying on an expected count rather than
+  counting actual ink names present. When a malformed TIFF file provides fewer ink
+  names than expected or lacks proper null termination, the function fails validation
+  but still allows allocation of an insufficient buffer via _TIFFsetNString(). This
+  allocated buffer does not include space for a null terminator. Later, when the
+  tiffcp harness retrieves the ink names and calls strlen() to parse them, it reads
+  beyond the allocated buffer boundary, causing a heap buffer overflow. This can
+  lead to denial of service, information disclosure through heap memory reads, or
+  potential arbitrary code execution.
 
 locations:
-- path_from_root: contrib/oss-fuzz/tiffcp.cc
+- type: crash_site
+  path_from_root: contrib/oss-fuzz/tiffcp.cc
   function_name: tiffcp
   startLine: 976
   startColumn: 57
   endLine: 976
   endColumn: 57
-- path_from_root: libtiff/tif_dir.c
+- type: root_cause
+  path_from_root: libtiff/tif_dir.c
   function_name: checkInkNamesString
-  startLine: 139
-  startColumn: 0
-  endLine: 165
-  endColumn: 0
+  startLine: 142
+  startColumn: 1
+  endLine: 166
+  endColumn: 1

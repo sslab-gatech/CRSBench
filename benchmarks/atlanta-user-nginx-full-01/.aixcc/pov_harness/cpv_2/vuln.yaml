@@ -1,6 +1,10 @@
 id: cpv_2
 
-name: Integer Underflow in nginx HTTP Substitution Filter Leading to Negative Size Parameter
+name: Integer Underflow in nginx HTTP Sub Filter Module Once Mode
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-191
@@ -8,18 +12,24 @@ cwes:
 - CWE-682
 
 description: |
-  An integer underflow vulnerability exists in the nginx HTTP substitution filter module
-  (ngx_http_sub_filter_module.c), specifically in the ngx_http_sub_parse() function.
-  When the sub_filter_once directive is enabled, the code incorrectly calculates the offset
-  value as `offset = end + (ngx_int_t) tables->min_match_len`, which can cause offset to
-  exceed the end value. This leads to a negative result when calculating `end - len` at
-  line 735, which wraps around to a very large unsigned value when passed to ngx_cpymem().
-  This causes an out-of-bounds memory write, potentially leading to memory corruption, denial
-  of service, or arbitrary code execution. The vulnerability is triggered by specially crafted
-  HTTP requests processed by the substitution filter.
+  An integer underflow vulnerability exists in the ngx_http_sub_parse function
+  in src/http/modules/ngx_http_sub_filter_module.c. When the ctx->once flag is
+  set (indicating substitution should only happen once), an off-by-one error in
+  the offset calculation causes downstream integer underflow. This results in a
+  negative size parameter being passed to ngx_cpymem (memcpy wrapper) at line 735,
+  triggering AddressSanitizer's negative-size-param detection. The vulnerability
+  can lead to crashes and potential memory corruption.
 
 locations:
-- path_from_root: src/http/modules/ngx_http_sub_filter_module.c
+- type: root_cause
+  path_from_root: src/http/modules/ngx_http_sub_filter_module.c
+  function_name: ngx_http_sub_parse
+  startLine: 631
+  startColumn: 18
+  endLine: 631
+  endColumn: 18
+- type: crash_site
+  path_from_root: src/http/modules/ngx_http_sub_filter_module.c
   function_name: ngx_http_sub_parse
   startLine: 735
   startColumn: 9

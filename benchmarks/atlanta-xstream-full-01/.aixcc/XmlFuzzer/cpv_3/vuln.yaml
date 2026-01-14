@@ -1,27 +1,38 @@
 id: cpv_3
 
-name: Uncontrolled Resource Consumption via Timestamp Parsing
+name: XStream SqlTimestampConverter Input Validation Error Leading to DoS
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-400
-- CWE-834
+- CWE-835
 - CWE-770
 
 description: |
-  An uncontrolled resource consumption vulnerability exists in the SqlTimestampConverter.fromString() 
-  method of XStream. The vulnerability is caused by an off-by-one error in the validation logic that 
-  allows timestamp strings with 10 or more fractional second digits to pass validation. When processing 
-  such input, the code enters an infinite loop attempting to pad a buffer of length 10+ to exactly 9 
-  characters by continuously appending zeros. This results in rapid heap memory exhaustion and causes 
-  an OutOfMemoryError, leading to application crash and denial of service. An attacker can exploit 
-  this by providing malicious XML input containing a sql-timestamp element with an excessively long 
-  fractional seconds component (e.g., "1970-01-01 00:00:01.0000789012"). The vulnerability requires 
-  no authentication and can be triggered with minimal effort through any XStream deserialization endpoint.
+  An off-by-one error in the SqlTimestampConverter.fromString() method allows
+  timestamp strings with 10 fractional digits instead of the correct maximum of
+  9 digits (nanosecond precision). The validation at line 75 incorrectly checks
+  if str.length() - idx > 11, allowing inputs with 10 fractional digits to pass.
+  When such input is provided, the padding loop at lines 82-83 attempts to pad
+  the 10-character fractional part to exactly 9 characters, creating an infinite
+  loop that continuously appends '0' characters until memory is exhausted. This
+  results in a Denial of Service through uncontrolled resource consumption.
 
 locations:
-- path_from_root: xstream/src/java/com/thoughtworks/xstream/converters/extended/SqlTimestampConverter.java
+- type: root_cause
+  path_from_root: xstream/src/java/com/thoughtworks/xstream/converters/extended/SqlTimestampConverter.java
   function_name: fromString
   startLine: 75
-  startColumn: 0
-  endLine: 84
-  endColumn: 0
+  startColumn: 1
+  endLine: 75
+  endColumn: 100
+- type: crash_site
+  path_from_root: xstream/src/java/com/thoughtworks/xstream/converters/extended/SqlTimestampConverter.java
+  function_name: fromString
+  startLine: 82
+  startColumn: 1
+  endLine: 83
+  endColumn: 100

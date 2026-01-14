@@ -1,30 +1,45 @@
 id: cpv_0
 
-name: Heap buffer overflow in BMP color index validation
+name: Heap buffer over-read in get_8bit_row via unchecked BMP colormap index
+
+origin: 1-day
+
+release_date: 03/07/2019
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2018-14498
+- https://github.com/libjpeg-turbo/libjpeg-turbo/issues/258
+- https://github.com/libjpeg-turbo/libjpeg-turbo/commit/9c78a04df4e44ef6487eee99c4258397f4fdca55
 
 cwes:
 - CWE-125
-- CWE-129
-- CWE-122
+- CWE-787
+- CWE-119
 
 description: |
-  A heap buffer overflow vulnerability exists in libjpeg-turbo's BMP file reader
-  in the get_8bit_row() function in rdbmp.c. When processing 8-bit color-indexed
-  BMP files, the function reads pixel values that serve as indices into a color
-  palette (colormap) without validating that these indices are within the bounds
-  of the allocated colormap array. A specially-crafted BMP file can declare a
-  small color table but include pixel data with color indices that exceed the
-  table size, causing out-of-bounds heap reads when accessing colormap[0][t],
-  colormap[1][t], and colormap[2][t]. This can lead to information disclosure
-  through leaked heap memory contents and denial of service through crashes.
-  The vulnerability affects multiple code paths in get_8bit_row() including
-  grayscale conversion, CMYK conversion, and RGB processing with or without
-  alpha channels.
+  A heap-based buffer over-read vulnerability exists in the get_8bit_row()
+  function in rdbmp.c when processing 8-bit BMP files with color palettes.
+  The function reads pixel data as palette indices and uses them to look up
+  RGB values in the colormap array without validating that these indices are
+  within the valid range for the allocated colormap size. A maliciously
+  crafted 8-bit BMP file can specify a small colormap but include pixel data
+  containing palette indices that exceed this size, causing an out-of-bounds
+  read when accessing colormap[0][t]. This can lead to denial of service
+  through application crash and potential information disclosure by reading
+  arbitrary heap memory.
 
 locations:
-- path_from_root: rdbmp.c
+- type: crash_site
+  path_from_root: rdbmp.c
   function_name: get_8bit_row
   startLine: 209
   startColumn: 26
-  endLine: 211
-  endColumn: 38
+  endLine: 209
+  endColumn: 26
+- type: root_cause
+  path_from_root: rdbmp.c
+  function_name: get_8bit_row
+  startLine: 180
+  startColumn: 1
+  endLine: 213
+  endColumn: 50

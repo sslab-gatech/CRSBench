@@ -1,6 +1,13 @@
 id: cpv_4
 
-name: Apache POI HWPF Uncontrolled Memory Consumption in Bullet Text Processing
+name: Apache POI HWPF Bullet Text Memory Exhaustion
+
+origin: synthetic
+
+release_date: 01/11/2025
+
+references:
+- https://issues.oss-fuzz.com/issues/42537720
 
 cwes:
 - CWE-400
@@ -8,20 +15,25 @@ cwes:
 - CWE-789
 
 description: |
-  An uncontrolled resource consumption vulnerability exists in Apache POI's HWPF 
-  document processing when handling bullet text with large numbering values. The 
-  getBulletText() method in AbstractWordUtils does not validate the size of 
-  numbering values before processing them, and the NumberFormatter.getNumber() 
-  method can generate extremely large strings when converting large numbers to 
-  Roman numerals (e.g., 999,999 becomes 999 'M' characters). A specially-crafted 
-  .doc file with extremely large numbering start values and Roman numeral 
-  formatting can cause the bulletBuffer StringBuilder to grow without bounds, 
-  consuming gigabytes of memory and triggering an OutOfMemoryError. This allows 
-  an attacker to cause a denial of service with a relatively small malicious 
-  document (56 KB POV triggers 1843 MB heap exhaustion).
+  A denial of service vulnerability exists in the AbstractWordUtils.getBulletText()
+  method when processing Word documents with malicious list formatting. The method
+  fails to validate or limit the size of generated bullet text before appending to
+  a StringBuilder. When a crafted document specifies large numbering values with
+  Roman numeral formatting, the NumberFormatter generates extremely long strings
+  (e.g., thousands of 'M' characters), causing uncontrolled memory allocation and
+  eventual OutOfMemoryError. A small 56KB malicious .doc file can consume all
+  available heap space, resulting in application crash.
 
 locations:
-- path_from_root: poi-scratchpad/src/main/java/org/apache/poi/hwpf/converter/AbstractWordUtils.java
+- type: crash_site
+  path_from_root: poi-scratchpad/src/main/java/org/apache/poi/hwpf/converter/WordToTextConverter.java
+  function_name: getText
+  startLine: 178
+  startColumn: 0
+  endLine: 178
+  endColumn: 0
+- type: root_cause
+  path_from_root: poi-scratchpad/src/main/java/org/apache/poi/hwpf/converter/AbstractWordUtils.java
   function_name: getBulletText
   startLine: 230
   startColumn: 0

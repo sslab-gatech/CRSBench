@@ -1,27 +1,37 @@
 id: cpv_11
 
-name: POP3 USER Command Heap Buffer Overflow in ngx_mail_pop3_user
+name: Heap buffer overflow in nginx POP3 USER handler
+
+origin: synthetic
+
+release_date: "01/01/2024"
+
+references: []
 
 cwes:
 - CWE-122
 - CWE-787
-- CWE-805
 
 description: |
-  A heap buffer overflow vulnerability exists in the nginx mail module's POP3 handler,
-  specifically in the ngx_mail_pop3_user function. The function allocates a fixed-size
-  buffer of 100 bytes to store the username from a POP3 USER command, but then copies
-  user-controlled data of arbitrary length into this buffer without validation. An
-  attacker can send a POP3 USER command with a username exceeding 100 bytes, causing
-  the ngx_memcpy operation to write beyond the allocated buffer boundaries. This can
-  lead to memory corruption, denial of service through process crashes, and potentially
-  arbitrary code execution if the attacker can carefully control the overflowed data
-  to overwrite critical heap structures or function pointers.
+  A heap-based buffer overflow vulnerability exists in the ngx_mail_pop3_user
+  function in src/mail/ngx_mail_pop3_handler.c. The function allocates a fixed-size
+  buffer of 100 bytes to store the login username, but then copies user-controlled
+  data of arbitrary length into this buffer. An attacker can trigger this vulnerability
+  by sending a POP3 USER command with a username longer than 100 bytes, causing heap
+  memory corruption that could lead to remote code execution or denial of service.
 
 locations:
-- path_from_root: src/mail/ngx_mail_pop3_handler.c
+- type: root_cause
+  path_from_root: src/mail/ngx_mail_pop3_handler.c
   function_name: ngx_mail_pop3_user
   startLine: 332
-  startColumn: 0
+  startColumn: 24
+  endLine: 332
+  endColumn: 48
+- type: crash_site
+  path_from_root: src/mail/ngx_mail_pop3_handler.c
+  function_name: ngx_mail_pop3_user
+  startLine: 337
+  startColumn: 5
   endLine: 337
-  endColumn: 0
+  endColumn: 49

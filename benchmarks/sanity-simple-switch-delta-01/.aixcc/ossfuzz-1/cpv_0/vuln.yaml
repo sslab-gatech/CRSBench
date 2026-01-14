@@ -1,31 +1,30 @@
 id: cpv_0
 
-name: Stack Buffer Overflow in target() Function via Unchecked memcpy()
+name: Stack buffer overflow in target function case 1
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-121
 - CWE-787
-- CWE-805
+- CWE-120
 
 description: |
-  A stack-based buffer overflow vulnerability exists in the target() function in simple.c.
-  The function processes user-controlled input where the first byte determines a command to execute.
-  When the command byte equals 1, the function copies an arbitrary amount of payload data into a 
-  16-byte stack buffer (buf1) using memcpy() without any size validation. This allows an attacker
-  to overflow the buffer by providing a payload larger than 16 bytes. All other command cases 
-  (2-5) properly validate payload size before copying, but case 1 is missing this critical check.
-  
-  An attacker can exploit this by sending input with command byte 0x01 followed by more than 16 
-  bytes of payload data. This overwrites adjacent stack memory including other local buffers and
-  potentially stack metadata such as frame pointers and return addresses. The vulnerability can
-  lead to arbitrary code execution, denial of service through crashes, or corruption of data
-  integrity. The proof of vulnerability demonstrates this with 72 bytes of input (1 command byte
-  + 71 payload bytes), causing a 55-byte overflow beyond the buffer boundary.
+  A stack-based buffer overflow vulnerability exists in the target function
+  in simple.c at case 1 of the switch statement. The function performs a
+  memcpy operation without validating that the payload size fits within the
+  destination buffer (buf1, 16 bytes). When cmd equals 1, arbitrary-sized
+  user-controlled data is copied directly into buf1, allowing an attacker
+  to overflow the buffer and corrupt adjacent stack memory. This can lead
+  to crashes, arbitrary code execution, or information disclosure.
 
 locations:
-- path_from_root: simple.c
+- type: crash_site
+  path_from_root: simple.c
   function_name: target
   startLine: 19
-  startColumn: 0
+  startColumn: 5
   endLine: 19
-  endColumn: 0
+  endColumn: 38

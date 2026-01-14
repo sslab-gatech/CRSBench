@@ -1,6 +1,12 @@
 id: cpv_0
 
-name: Hidden Backdoor with OS Command Injection via Authentication Bypass
+name: "Hidden Backdoor with Authentication Bypass Leading to OS Command Injection"
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+references: []
 
 cwes:
 - CWE-78
@@ -8,24 +14,29 @@ cwes:
 - CWE-798
 
 description: |
-  This critical vulnerability consists of a hidden backdoor that bypasses authentication
-  combined with OS command injection. The vulnerable code in the doexecCommandUtils method
-  contains a hardcoded backdoor triggered by the HTTP header 'x-evil-backdoor' with a value
-  matching the SHA-256 hash of "breakin the law". This backdoor completely bypasses the
-  normal Jenkins administrator authentication check. Once bypassed, the application accepts
-  arbitrary user input through the cmdSeq2 parameter and passes it directly to ProcessBuilder
-  without any validation or sanitization, leading to OS command injection. An attacker can
-  execute arbitrary commands with Jenkins process privileges, potentially leading to remote
-  code execution, credential theft, system compromise, and lateral movement within the network.
-  The vulnerability exists in the UtilMain.java file where createUtils is called from the
-  backdoor path at line 154, ultimately executing commands at line 179 via processBuilder.start().
+  A critical security vulnerability consisting of a hidden backdoor that allows
+  attackers to bypass Jenkins administrator authentication and execute arbitrary
+  OS commands. The backdoor checks for an HTTP header 'x-evil-backdoor' and
+  compares its SHA-256 hash against a hardcoded passphrase "breakin the law".
+  If the hash matches, it grants full command execution access without requiring
+  Jenkins ADMINISTER permission. Once bypassed, the application accepts arbitrary
+  user input through the cmdSeq2 parameter and passes it directly to ProcessBuilder
+  without validation, enabling Remote Code Execution (RCE) with Jenkins process
+  privileges. This allows attackers to execute system commands, read sensitive
+  files, modify Jenkins configuration, and compromise the entire CI/CD pipeline.
 
 locations:
-- path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
+- type: root_cause
+  path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
   function_name: doexecCommandUtils
-  startLine: 151
-  endLine: 161
-- path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
+  startLine: 153
+  startColumn: 1
+  endLine: 165
+  endColumn: 10
+- type: crash_site
+  path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
   function_name: createUtils
-  startLine: 179
-  endLine: 179
+  startLine: 194
+  startColumn: 1
+  endLine: 194
+  endColumn: 50

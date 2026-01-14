@@ -1,37 +1,44 @@
 id: cpv_0
 
-name: TNS Coefficient Table Index Logic Error Leading to Integer Overflow
+name: Incorrect TNS Coefficient Table Selection Leading to Integer Overflow
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+references:
+- https://github.com/knik0/faad2/pull/185
 
 cwes:
 - CWE-682
 - CWE-190
-- CWE-697
+- CWE-1325
 
 description: |
-  A logic error in the TNS (Temporal Noise Shaping) coefficient decoding function
-  causes incorrect selection of coefficient tables, leading to a signed integer overflow
-  in fixed-point arithmetic operations. The vulnerability occurs in tns_decode_coef()
-  where inverted boolean logic (using == instead of !=) calculates the wrong table_index
-  value when selecting from the all_tns_coefs[] array.
-  
-  When processing specific combinations of coef_compress and coef_res_bits parameters
-  (e.g., coef_compress=1, coef_res_bits=4), the incorrect coefficient table is selected.
-  These wrong coefficients propagate through the decoding pipeline and eventually cause
-  a signed 32-bit integer overflow in the DST4_32 function during SBR QMF synthesis,
-  where the calculation "232566383 + 2055740917" exceeds INT32_MAX.
-  
-  The bug was introduced in commit 2ea4a35 by changing the condition from
-  "2 * (coef_compress != 0) + (coef_res_bits != 3)" to
-  "2 * (coef_compress == 0) + (coef_res_bits == 3)".
-  
-  This vulnerability can be triggered by specially crafted AAC audio streams and may
-  lead to undefined behavior, crashes, or potential code execution in fixed-point
-  builds of FAAD2.
+  A vulnerability exists in the tns_decode_coef function in libfaad/tns.c due to
+  incorrect boolean logic when calculating the TNS coefficient table index. The
+  function uses equality checks (==) instead of inequality checks (!=) when
+  computing table_index from coef_compress and coef_res_bits parameters. This
+  causes the wrong TNS coefficient table to be selected from the all_tns_coefs
+  array. The incorrect coefficients propagate through the TNS decoding process
+  and eventually reach the SBR synthesis stage. In fixed-point arithmetic mode
+  (where real_t is int32_t), these corrupted values cause a signed integer
+  overflow in the DST4_32 function during spectral band replication, resulting
+  in undefined behavior. This can lead to incorrect audio output, crashes, or
+  potential security issues in AAC audio decoding with TNS enabled.
 
 locations:
-- path_from_root: libfaad/tns.c
+- type: root_cause
+  path_from_root: libfaad/tns.c
   function_name: tns_decode_coef
   startLine: 199
-  startColumn: 0
+  startColumn: 5
   endLine: 199
-  endColumn: 0
+  endColumn: 70
+- type: crash_site
+  path_from_root: libfaad/sbr_dct.c
+  function_name: DST4_32
+  startLine: 816
+  startColumn: 5
+  endLine: 816
+  endColumn: 26

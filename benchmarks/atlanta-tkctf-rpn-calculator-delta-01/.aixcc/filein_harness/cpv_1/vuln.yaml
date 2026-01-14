@@ -1,36 +1,42 @@
 id: cpv_1
 
-name: Division by Zero in RPN Calculator Stack Operations
+name: Division and Modulo by Zero in RPN Calculator
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 cwes:
 - CWE-369
-- CWE-1339
 
 description: |
-  A division by zero vulnerability exists in the main_loop() function of the RPN calculator.
-  When processing division (/) or modulo (%) operations, the code does not validate that
-  the divisor (r2) is non-zero before performing the arithmetic operation. This occurs in
-  the switch case handlers at lines 188 and 194 in stackmachine.c, where the two_arg_operand
-  macro executes r1 / r2 or r1 % r2 without checking if r2 equals zero.
-  
-  An attacker can craft input that pushes a value onto the stack followed by zero, then
-  triggers a division or modulo operation. This causes a Floating Point Exception (FPE)
-  signal (SIGFPE), resulting in program termination and denial of service.
-  
-  The vulnerability can be exploited with input such as "10 0 /" which pushes 10 and 0
-  onto the stack, then attempts division, causing an immediate crash. The patch adds
-  validation checks (if (r2 != 0)) before executing these operations to prevent the FPE.
+  A division by zero and modulo by zero vulnerability exists in the main_loop
+  function of the RPN (Reverse Polish Notation) calculator implementation.
+  The calculator performs division (/) and modulo (%) operations without
+  checking if the divisor is zero. When the second operand on the stack is
+  zero, executing these operations triggers a Floating Point Exception (FPE),
+  causing the program to crash. This leads to a deterministic denial of
+  service vulnerability.
 
 locations:
-- path_from_root: cp-tkctf-rpn-calculator-source/stackmachine.c
+- type: crash_site
+  path_from_root: cp-tkctf-rpn-calculator-source/stackmachine.c
   function_name: main_loop
   startLine: 188
   startColumn: 17
   endLine: 188
   endColumn: 17
-- path_from_root: cp-tkctf-rpn-calculator-source/stackmachine.c
+- type: root_cause
+  path_from_root: cp-tkctf-rpn-calculator-source/stackmachine.c
   function_name: main_loop
-  startLine: 194
-  startColumn: 0
-  endLine: 194
-  endColumn: 0
+  startLine: 195
+  startColumn: 1
+  endLine: 195
+  endColumn: 50
+- type: root_cause
+  path_from_root: cp-tkctf-rpn-calculator-source/stackmachine.c
+  function_name: main_loop
+  startLine: 201
+  startColumn: 1
+  endLine: 201
+  endColumn: 50
