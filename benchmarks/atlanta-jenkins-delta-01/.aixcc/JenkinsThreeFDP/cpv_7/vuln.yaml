@@ -30,13 +30,6 @@ locations:
   startColumn: 0
   endLine: 196
   endColumn: 0
-- type: root_cause
-  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
-  function_name: getHeadRev
-  startLine: 97
-  startColumn: 0
-  endLine: 101
-  endColumn: 0
 - type: crash_site
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
   function_name: launchCommandWithCredentials

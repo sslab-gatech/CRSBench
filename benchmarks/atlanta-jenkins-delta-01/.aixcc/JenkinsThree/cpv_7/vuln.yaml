@@ -22,11 +22,11 @@ description: |
 locations:
 - type: crash_site
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
-  function_name: doCheckUrl
-  startLine: 196
-  startColumn: 13
-  endLine: 196
-  endColumn: 23
+  function_name: launchCommandWithCredentials
+  startLine: 91
+  startColumn: 10
+  endLine: 91
+  endColumn: 22
 - type: root_cause
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
   function_name: doCheckUrl
