@@ -27,3 +27,10 @@ locations:
   startColumn: 1
   endLine: 236
   endColumn: 60
+- type: crash_site
+  path_from_root: jenkins/core/src/main/java/jenkins/util/xml/XMLUtils.java
+  function_name: getValue
+  startLine: 234
+  startColumn: 0
+  endLine: 236
+  endColumn: 0
