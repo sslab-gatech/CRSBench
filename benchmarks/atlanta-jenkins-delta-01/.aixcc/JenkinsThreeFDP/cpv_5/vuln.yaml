@@ -8,6 +8,7 @@ release_date: 02/01/2026
 
 cwes:
 - CWE-89
+- CWE-943
 
 description: |
   A SQL injection vulnerability exists in the doGetName method of the
