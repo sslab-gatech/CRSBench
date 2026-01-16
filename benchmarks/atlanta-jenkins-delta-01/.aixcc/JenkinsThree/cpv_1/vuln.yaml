@@ -9,7 +9,6 @@ release_date: 02/01/2026
 cwes:
 - CWE-94
 - CWE-95
-- CWE-74
 
 description: |
   A script engine injection vulnerability exists in the secureEval method
