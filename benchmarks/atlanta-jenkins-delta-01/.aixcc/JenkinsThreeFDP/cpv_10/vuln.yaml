@@ -7,9 +7,9 @@ origin: synthetic
 release_date: 02/01/2026
 
 cwes:
-- CWE-285
 - CWE-863
-- CWE-114
+- CWE-434
+- CWE-94
 
 description: |
   An authorization bypass vulnerability exists in the doPerform function in
