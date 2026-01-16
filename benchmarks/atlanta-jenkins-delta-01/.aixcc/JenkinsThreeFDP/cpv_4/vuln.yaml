@@ -14,6 +14,7 @@ references:
 
 cwes:
 - CWE-502
+- CWE-470
 
 description: |
   A deserialization vulnerability exists in the Jenkins Code Coverage API Plugin
