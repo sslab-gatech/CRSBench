@@ -8,7 +8,6 @@ release_date: 02/01/2026
 
 cwes:
 - CWE-90
-- CWE-20
 
 description: |
   An LDAP Injection vulnerability exists in the authenticateAsAdmin method
@@ -23,6 +22,13 @@ locations:
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AuthAction.java
   function_name: authenticateAsAdmin
   startLine: 228
+  startColumn: 1
+  endLine: 229
+  endColumn: 40
+- type: crash_site
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AuthAction.java
+  function_name: authenticateAsAdmin
+  startLine: 228
   startColumn: 0
-  endLine: 230
+  endLine: 228
   endColumn: 0
