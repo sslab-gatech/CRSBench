@@ -13,7 +13,7 @@ references:
 cwes:
 - CWE-917
 - CWE-20
-- CWE-94
+- CWE-400
 
 description: |
   A critical remote code execution vulnerability caused by improper input validation
@@ -30,13 +30,13 @@ locations:
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
   function_name: doCheck
   startLine: 45
-  startColumn: 0
+  startColumn: 9
   endLine: 46
-  endColumn: 0
-- type: root_cause
+  endColumn: 33
+- type: crash_site
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
   function_name: doCheck
   startLine: 58
-  startColumn: 0
+  startColumn: 17
   endLine: 58
-  endColumn: 0
+  endColumn: 39

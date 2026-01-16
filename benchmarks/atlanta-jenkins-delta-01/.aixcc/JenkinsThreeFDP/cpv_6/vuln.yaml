@@ -12,8 +12,8 @@ references:
 
 cwes:
 - CWE-917
-- CWE-117
 - CWE-20
+- CWE-400
 
 description: |
   A combination of two flaws enables a Log4Shell-style JNDI injection attack.
