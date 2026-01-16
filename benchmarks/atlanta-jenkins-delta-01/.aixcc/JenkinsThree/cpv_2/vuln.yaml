@@ -9,6 +9,7 @@ release_date: 02/01/2026
 cwes:
 - CWE-22
 - CWE-23
+- CWE-73
 
 description: |
   A path traversal vulnerability exists in the doPerformUpload method in
