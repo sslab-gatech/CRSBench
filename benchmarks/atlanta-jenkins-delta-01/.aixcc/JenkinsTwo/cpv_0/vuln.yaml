@@ -29,13 +29,9 @@ locations:
   path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
   function_name: createUtils
   startLine: 194
-  startColumn: 1
   endLine: 194
-  endColumn: 50
 - type: root_cause
   path_from_root: plugins/pipeline-util-plugin/src/main/java/io/jenkins/plugins/UtilPlug/UtilMain.java
   function_name: doexecCommandUtils
   startLine: 151
-  startColumn: 1
   endLine: 165
-  endColumn: 100
