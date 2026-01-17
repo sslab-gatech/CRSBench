@@ -25,13 +25,9 @@ locations:
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/Script.java
   function_name: secureEval
   startLine: 84
-  startColumn: 9
   endLine: 84
-  endColumn: 31
 - type: root_cause
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/Script.java
   function_name: secureEval
   startLine: 84
-  startColumn: 9
   endLine: 84
-  endColumn: 31

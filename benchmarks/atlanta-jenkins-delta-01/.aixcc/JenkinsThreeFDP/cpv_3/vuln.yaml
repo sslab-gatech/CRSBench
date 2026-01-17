@@ -30,13 +30,9 @@ locations:
   path_from_root: jenkins/core/src/main/java/hudson/ProxyConfiguration.java
   function_name: doValidateProxy
   startLine: 593
-  startColumn: 1
   endLine: 593
-  endColumn: 100
 - type: root_cause
   path_from_root: jenkins/core/src/main/java/hudson/ProxyConfiguration.java
   function_name: doValidateProxy
   startLine: 529
-  startColumn: 1
   endLine: 533
-  endColumn: 100

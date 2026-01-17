@@ -25,13 +25,9 @@ locations:
   path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/db/LocalFileKnowledgeBase.java
   function_name: lambda$load$1
   startLine: 131
-  startColumn: 1
   endLine: 131
-  endColumn: 100
 - type: root_cause
   path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/db/LocalFileKnowledgeBase.java
   function_name: doLoad
   startLine: 327
-  startColumn: 1
   endLine: 328
-  endColumn: 100

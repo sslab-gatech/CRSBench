@@ -31,13 +31,9 @@ locations:
   path_from_root: plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CoverageProcessor.java
   function_name: recoverCoverageResult
   startLine: 733
-  startColumn: 0
   endLine: 733
-  endColumn: 0
 - type: root_cause
   path_from_root: plugins/code-coverage-api-plugin/src/main/java/io/jenkins/plugins/coverage/CompatibleObjectInputStream.java
   function_name: CompatibleObjectInputStream
   startLine: 27
-  startColumn: 0
   endLine: 30
-  endColumn: 0

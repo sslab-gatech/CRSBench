@@ -30,13 +30,9 @@ locations:
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
   function_name: doCheck
   startLine: 45
-  startColumn: 9
   endLine: 46
-  endColumn: 33
 - type: crash_site
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
   function_name: doCheck
   startLine: 58
-  startColumn: 17
   endLine: 58
-  endColumn: 39

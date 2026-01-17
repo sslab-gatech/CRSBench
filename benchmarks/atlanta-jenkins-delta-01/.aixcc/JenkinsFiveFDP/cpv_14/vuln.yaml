@@ -28,13 +28,9 @@ locations:
   path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
   function_name: constructor
   startLine: 96
-  startColumn: 1
   endLine: 96
-  endColumn: 80
 - type: crash_site
   path_from_root: plugins/email-ext-plugin/src/main/java/hudson/plugins/emailext/EmailConfig.java
   function_name: debugOnlyAndPrivate
   startLine: 37
-  startColumn: 1
   endLine: 37
-  endColumn: 80

@@ -23,13 +23,9 @@ locations:
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java
   function_name: doGetName
   startLine: 74
-  startColumn: 13
   endLine: 74
-  endColumn: 109
 - type: root_cause
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java
   function_name: doGetName
   startLine: 74
-  startColumn: 13
   endLine: 74
-  endColumn: 109

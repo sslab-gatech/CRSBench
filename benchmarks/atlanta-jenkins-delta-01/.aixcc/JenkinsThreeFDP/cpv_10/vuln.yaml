@@ -26,13 +26,9 @@ locations:
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/SecretMessage.java
   function_name: doPerform
   startLine: 88
-  startColumn: 0
   endLine: 88
-  endColumn: 0
 - type: crash_site
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/SecretMessage.java
   function_name: doPerform
   startLine: 98
-  startColumn: 0
   endLine: 98
-  endColumn: 0

@@ -26,13 +26,9 @@ locations:
   path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/CauseManagement.java
   function_name: doRemoveConfirm
   startLine: 232
-  startColumn: 9
   endLine: 232
-  endColumn: 42
 - type: crash_site
   path_from_root: plugins/build-failure-analyzer-plugin/src/main/java/com/sonyericsson/jenkins/plugins/bfa/CauseManagement.java
   function_name: doRemoveConfirm
   startLine: 245
-  startColumn: 29
   endLine: 245
-  endColumn: 95

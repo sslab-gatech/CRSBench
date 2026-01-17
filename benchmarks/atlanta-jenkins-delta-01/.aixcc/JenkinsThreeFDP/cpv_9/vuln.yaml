@@ -24,13 +24,9 @@ locations:
   path_from_root: jenkins/core/src/main/java/jenkins/util/xml/XMLUtils.java
   function_name: getValue
   startLine: 234
-  startColumn: 0
   endLine: 237
-  endColumn: 0
 - type: root_cause
   path_from_root: jenkins/core/src/main/java/jenkins/util/xml/XMLUtils.java
   function_name: getValue
   startLine: 234
-  startColumn: 0
   endLine: 237
-  endColumn: 0

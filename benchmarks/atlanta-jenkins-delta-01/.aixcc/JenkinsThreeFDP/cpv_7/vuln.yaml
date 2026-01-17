@@ -27,13 +27,9 @@ locations:
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
   function_name: doCheckUrl
   startLine: 195
-  startColumn: 0
   endLine: 196
-  endColumn: 0
 - type: crash_site
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserRemoteConfig.java
   function_name: launchCommandWithCredentials
   startLine: 91
-  startColumn: 0
   endLine: 91
-  endColumn: 0

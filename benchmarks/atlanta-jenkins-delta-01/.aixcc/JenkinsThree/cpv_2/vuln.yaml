@@ -26,13 +26,9 @@ locations:
   path_from_root: jenkins/core/src/main/java/hudson/PluginManager.java
   function_name: doPerformUpload
   startLine: 1638
-  startColumn: 13
   endLine: 1638
-  endColumn: 72
 - type: crash_site
   path_from_root: jenkins/core/src/main/java/hudson/PluginManager.java
   function_name: doPerformUpload
   startLine: 1640
-  startColumn: 13
   endLine: 1640
-  endColumn: 57
