@@ -7,9 +7,9 @@ origin: synthetic
 release_date: 02/01/2026
 
 cwes:
-- CWE-185
 - CWE-1333
-- CWE-862
+- CWE-185
+- CWE-863
 
 description: |
   A combined authorization bypass and regular expression injection vulnerability exists in the AccessFilter.doGet() method.
@@ -24,13 +24,9 @@ locations:
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AccessFilter.java
   function_name: doGet
   startLine: 79
-  startColumn: 1
   endLine: 79
-  endColumn: 60
 - type: crash_site
   path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/AccessFilter.java
   function_name: doGet
   startLine: 87
-  startColumn: 1
   endLine: 87
-  endColumn: 60
