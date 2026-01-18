@@ -2,10 +2,20 @@ id: cpv_4
 
 name: Shell we detect
 
+author: Tim Allison
+
+validator: Qingxiao Xu
+
+description: ShellCodeDetector may execute unsanitized user-generated code.
+
+difficulty_level:
+
 cwes:
 - CWE-78
 
-description: ShellCodeDetector may execute unsanitized user-generated code.
+origin: synthetic
+
+release_date: 02/01/2026
 
 locations:
 - path_from_root: tika-core/src/main/java/org/apache/tika/detect/ShellCodeDetector.java

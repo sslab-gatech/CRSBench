@@ -2,11 +2,21 @@ id: cpv_0
 
 name: PDF command injection
 
+author: Tim Allison
+
+validator: Qingxiao Xu
+
+description: A crafted PDF can trigger command injection in a new OCR component.
+
+difficulty_level:
+
 cwes:
 - CWE-77
 - CWE-28
 
-description: A crafted PDF can trigger command injection in a new OCR component.
+origin: synthetic
+
+release_date: 02/01/2026
 
 locations:
 - path_from_root: pdfbox/src/main/java/org/apache/pdfbox/ocr/OCRStreamEngine.java

@@ -2,12 +2,22 @@ id: cpv_0
 
 name: zip slip from unicode normalization
 
+author: Tim Allison
+
+validator: Qingxiao Xu
+
+description: Unicode normalization allows bypass of zip slip check
+
+difficulty_level:
+
 cwes:
 - CWE-35
 - CWE-22
 - CWE-29
 
-description: Unicode normalization allows bypass of zip slip check
+origin: synthetic
+
+release_date: 02/01/2026
 
 locations:
 - path_from_root: src/main/java/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.java

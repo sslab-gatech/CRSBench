@@ -2,12 +2,22 @@ id: cpv_0
 
 name: zip slip from url normalization
 
+author: Tim Allison
+
+validator: Qingxiao Xu
+
+description: This vuln allows a zip slip when the path is URL encoded.
+
+difficulty_level:
+
 cwes:
 - CWE-35
 - CWE-22
 - CWE-29
 
-description: This vuln allows a zip slip when the path is URL encoded.
+origin: synthetic
+
+release_date: 02/01/2026
 
 locations:
 - path_from_root: src/main/java/org/apache/commons/compress/archivers/ArchiveEntry.java

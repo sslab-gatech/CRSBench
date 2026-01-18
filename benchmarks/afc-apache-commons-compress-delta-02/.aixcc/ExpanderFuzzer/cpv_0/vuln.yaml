@@ -2,11 +2,21 @@ id: cpv_0
 
 name: OOM on crafted compressed file
 
-cwes:
-- CWE-789
+author: Tim Allison
+
+validator: Qingxiao Xu
 
 description: Some compression formats may build large tables in memory before decompressing a file based on information in
   the compressed file. A very small crafted file may cause a  decompressor to allocate GBs of memory unless a limit is set.
+
+difficulty_level:
+
+cwes:
+- CWE-789
+
+origin: synthetic
+
+release_date: 02/01/2026
 
 locations:
 - path_from_root: src/main/java/org/apache/commons/compress/archivers/examples/Expander.java

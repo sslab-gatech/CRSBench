@@ -2,11 +2,21 @@ id: cpv_0
 
 name: log4shell
 
+author: anonymous
+
+validator: Qingxiao Xu
+
+description: User crafted input may trigger an RCE via jndi injection
+
+difficulty_level:
+
 cwes:
 - CWE-917
 - CWE-20
 
-description: User crafted input may trigger an RCE via jndi injection
+origin: 1-day
+
+release_date: 12/10/2021
 
 locations:
 - path_from_root: core/src/main/java/org/apache/logging/log4j/core/lookup/JndiLookup.java

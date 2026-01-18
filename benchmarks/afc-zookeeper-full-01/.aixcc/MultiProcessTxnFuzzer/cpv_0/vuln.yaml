@@ -2,10 +2,20 @@ id: cpv_0
 
 name: deserialization backdoor
 
+author: Tim Allison
+
+validator: Qingxiao Xu
+
+description: A carefully crafted set of transactions can trigger unsafe object deserializattion.
+
+difficulty_level:
+
 cwes:
 - CWE-502
 
-description: A carefully crafted set of transactions can trigger unsafe object deserializattion.
+origin: synthetic
+
+release_date: 02/01/2026
 
 locations:
 - path_from_root: zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java
