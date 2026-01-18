@@ -19,7 +19,8 @@ origin: 1-day
 release_date: 12/10/2021
 
 locations:
-- path_from_root: core/src/main/java/org/apache/logging/log4j/core/lookup/JndiLookup.java
+- type: crash_site
+  path_from_root: core/src/main/java/org/apache/logging/log4j/core/lookup/JndiLookup.java
   function_name: lookupHook
   startLine: 29
   startColumn: 1

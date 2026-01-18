@@ -18,7 +18,8 @@ origin: synthetic
 release_date: 02/01/2026
 
 locations:
-- path_from_root: tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-microsoft-module/src/main/java/org/apache/tika/parser/microsoft/rtf/TextExtractor.java
+- type: crash_site
+  path_from_root: tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-microsoft-module/src/main/java/org/apache/tika/parser/microsoft/rtf/TextExtractor.java
   function_name: reportFinding
   startLine: 1473
   startColumn: 11

@@ -20,7 +20,8 @@ origin: synthetic
 release_date: 02/01/2026
 
 locations:
-- path_from_root: src/main/java/org/apache/commons/compress/archivers/ArchiveEntry.java
+- type: crash_site
+  path_from_root: src/main/java/org/apache/commons/compress/archivers/ArchiveEntry.java
   function_name: check
   startLine: 80
   startColumn: 58

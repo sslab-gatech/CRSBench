@@ -18,7 +18,8 @@ origin: synthetic
 release_date: 02/01/2026
 
 locations:
-- path_from_root: tika-core/src/main/java/org/apache/tika/detect/ShellCodeDetector.java
+- type: crash_site
+  path_from_root: tika-core/src/main/java/org/apache/tika/detect/ShellCodeDetector.java
   function_name: processImplStartHook
   startLine: 88
   startColumn: 9

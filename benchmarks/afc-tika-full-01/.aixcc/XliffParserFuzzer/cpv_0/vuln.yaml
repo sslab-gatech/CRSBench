@@ -18,7 +18,8 @@ origin: synthetic
 release_date: 02/01/2026
 
 locations:
-- path_from_root: tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-xml-module/src/main/java/org/apache/tika/parser/xliff/XLIFF12Parser.java
+- type: crash_site
+  path_from_root: tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-xml-module/src/main/java/org/apache/tika/parser/xliff/XLIFF12Parser.java
   function_name: checkSsrf
   startLine: 73
   startColumn: 8

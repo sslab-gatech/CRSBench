@@ -19,7 +19,8 @@ origin: synthetic
 release_date: 02/01/2026
 
 locations:
-- path_from_root: pdfbox/src/main/java/org/apache/pdfbox/ocr/OCRStreamEngine.java
+- type: crash_site
+  path_from_root: pdfbox/src/main/java/org/apache/pdfbox/ocr/OCRStreamEngine.java
   function_name: processImplStartHook
   startLine: 158
   startColumn: 9

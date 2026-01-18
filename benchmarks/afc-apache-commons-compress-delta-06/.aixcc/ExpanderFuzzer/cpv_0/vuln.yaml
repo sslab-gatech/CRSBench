@@ -20,7 +20,8 @@ origin: synthetic
 release_date: 02/01/2026
 
 locations:
-- path_from_root: src/main/java/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.java
+- type: crash_site
+  path_from_root: src/main/java/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.java
   function_name: check
   startLine: 1491
   startColumn: 5
