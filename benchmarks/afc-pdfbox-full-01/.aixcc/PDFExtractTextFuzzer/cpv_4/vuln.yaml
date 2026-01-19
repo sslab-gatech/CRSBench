@@ -2,6 +2,14 @@ id: cpv_4
 
 name: Type1Font lexer OutOfMemoryError
 
+author: Tim Allison
+
+validator: Youngjoon Kim
+
+origin: synthetic
+
+release_date: 02/01/2026
+
 cwes:
 - CWE-789
 
@@ -10,6 +18,7 @@ description: A PDF with a crafted Type1 Font embedded can trigger an OutOfMemory
 
 locations:
 - path_from_root: fontbox/src/main/java/org/apache/fontbox/type1/Type1Lexer.java
+  type: crash_site
   function_name: readCharString
   startLine: 507
   startColumn: 13
