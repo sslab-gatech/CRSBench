@@ -2,6 +2,14 @@ id: cpv_5
 
 name: Type1Font int overflow into OOM
 
+author: Tim Allison
+
+validator: Youngjoon Kim
+
+origin: synthetic
+
+release_date: 02/01/2026
+
 cwes:
 - CWE-789
 
@@ -10,8 +18,12 @@ description: A PDF with a crafted Type1 Font can trigger an OutOfMemoryError whe
 
 locations:
 - path_from_root: fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java
+  type: root_cause
   function_name: parsePfb
   startLine: 161
-  startColumn: 13
+  endLine: 161
+- path_from_root: fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java
+  type: crash_site
+  function_name: parsePfb
+  startLine: 166
   endLine: 166
-  endColumn: 40
