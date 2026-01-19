@@ -2,6 +2,12 @@ id: cpv_6
 
 name: PageTrees -> PageForests
 
+validator: Youngjoon Kim
+
+origin: synthetic
+
+release_date: 02/01/2026
+
 cwes:
 - CWE-834
 
@@ -9,8 +15,12 @@ description: A PDF with a crafted page tree can cause a StackOverflow.
 
 locations:
 - path_from_root: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java
-  function_name: wait
-  startLine: 186
-  startColumn: 13
-  endLine: 225
-  endColumn: 10
+  type: root_cause
+  function_name: enqueueKids
+  startLine: 208
+  endLine: 224
+- path_from_root: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java
+  type: crash_site
+  function_name: getKids
+  startLine: 150
+  endLine: 172
