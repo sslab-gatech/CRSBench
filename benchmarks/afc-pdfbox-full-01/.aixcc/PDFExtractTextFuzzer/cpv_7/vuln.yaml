@@ -2,6 +2,14 @@ id: cpv_7
 
 name: Ye olde infinite XRefs
 
+author: Tim Allison
+
+validator: Youngjoon Kim
+
+origin: synthetic
+
+release_date: 02/01/2026
+
 cwes:
 - CWE-834
 
@@ -9,7 +17,8 @@ description: A PDF with a crafted XRef table can cause an infinite loop.
 
 locations:
 - path_from_root: pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java
-  function_name: wait
+  type: root_cause
+  function_name: parseXref
   startLine: 102
   startColumn: 9
   endLine: 176
