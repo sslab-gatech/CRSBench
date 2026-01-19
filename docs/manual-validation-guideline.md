@@ -1,5 +1,11 @@
 # Manual Validation Guidelines
 
+## Progress Tracking
+
+- Update your progress by checking the boxes in the **vuln.yaml** and **ground truth patch** columns in the Google Sheet.
+
+---
+
 ## 1. Ground-Truth Patch
 
 - Patches are continuously verified through automated validation.
@@ -7,10 +13,14 @@
 - Each patch passes the current version of `test.sh`.
 - If the ground-truth patch comes from the actual developer’s commit, we can trust it.
 
-Important limitation  
+Important limitation
 - The unit tests used by `test.sh` have limited test coverage.
 - As a result, automated validation may miss certain issues.
 - Manual validation is required to identify gaps not covered by tests.
+
+Duplicate patch detection
+- If you notice that different CPVs in the same project use the **same ground-truth patch**, please notify the team.
+- We may need to decide whether to merge them into one CPV.
 
 ---
 
@@ -51,8 +61,12 @@ https://docs.google.com/document/d/1zweFtQT-EhAnimtMfr7XqTQN4LTvtKnUE7QlyImVF1c/
   - Will be assigned later based on CRS evaluation results.
 
 - **cwes**
-  - Multiple CWE entries are allowed.
-  - Include all relevant CWEs.
+  - CWE mapping can be ambiguous and difficult to standardize consistently.
+  - **Required**: Include CWEs that can be confirmed from:
+    - Crash logs (e.g., AddressSanitizer error types)
+    - Official CWE information from authoritative sources like NVD (for 1-day vulnerabilities)
+  - **Optional**: Additional CWEs can be added at your discretion.
+  - If standardization is needed later, a mapping script will handle batch updates.
 
 - **origin**
   - `1-day`: the vulnerability is ported from a real-world vulnerability.
@@ -90,5 +104,12 @@ https://docs.google.com/document/d/1zweFtQT-EhAnimtMfr7XqTQN4LTvtKnUE7QlyImVF1c/
     - Sanitizer runtime functions
     - Standard library code
 
-Strict rules  
+Column information (startColumn, endColumn)
+- If column values are unclear, **omit** `startColumn` and `endColumn` entirely.
+- According to the SARIF specification:
+  - When `startColumn` is omitted, it defaults to 1.
+  - When `endColumn` is omitted, it defaults to one greater than the number of characters on the line.
+- Do not set column values to 0; simply remove the column properties.
+
+Strict rules
 - `root_cause` and `crash_site` must never reference harness code.
