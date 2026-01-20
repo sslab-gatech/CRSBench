@@ -2,6 +2,14 @@ id: cpv_3
 
 name: zip++ slip
 
+author: Tim Allison
+
+validator: Youngjoon Kim
+
+origin: synthetic
+
+release_date: 02/01/2026
+
 cwes:
 - CWE-35
 - CWE-22
@@ -11,8 +19,15 @@ description: Failure to properly handle archive name contents allows for zip sli
 
 locations:
 - path_from_root: src/main/java/org/apache/commons/compress/archivers/ArchiveEntry.java
-  function_name: check
+  function_name: resolveIn
   startLine: 77
   startColumn: 9
   endLine: 77
   endColumn: 58
+- path_from_root: src/main/java/org/apache/commons/compress/archivers/examples/Expander.java
+  type: crash_site
+  function_name: expand
+  startLine: 86
+  startColumn: 26
+  endLine: 86
+  endColumn: 87
