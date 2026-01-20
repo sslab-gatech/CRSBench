@@ -2,6 +2,14 @@ id: cpv_2
 
 name: object deserialization backdoor in a tar archive entry
 
+author: Tim Allison
+
+validator: Youngjoon Kim
+
+origin: synthetic
+
+release_date: 02/01/2026
+
 cwes:
 - CWE-502
 
@@ -10,8 +18,12 @@ description: If a tar entry's name looks like a Java serialized object and the u
 
 locations:
 - path_from_root: src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java
-  function_name: reportFinding
-  startLine: 1549
-  startColumn: 1
-  endLine: 1566
-  endColumn: 1
+  type: root_cause
+  function_name: updateName
+  startLine: 1557
+  endLine: 1558
+- path_from_root: src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java
+  type: crash_site
+  function_name: updateName
+  startLine: 1559
+  endLine: 1559
