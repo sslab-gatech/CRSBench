@@ -2,6 +2,14 @@ id: cpv_0
 
 name: SSRF in xmp
 
+author: Tim Allison
+
+validator: Youngjoon Kim
+
+origin: synthetic
+
+release_date: 02/01/2026
+
 cwes:
 - CWE-611
 - CWE-918
@@ -10,8 +18,14 @@ description: A crafted XMP file within a PDF could trigger an external entity  v
 
 locations:
 - path_from_root: xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java
+  type: root_cause
   function_name: checkSsrf
   startLine: 81
   startColumn: 13
   endLine: 82
   endColumn: 13
+- path_from_root: xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java
+  type: crash_site
+  function_name: parse
+  startLine: 113
+  endLine: 113
