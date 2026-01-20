@@ -2,6 +2,14 @@ id: cpv_0
 
 name: ssrf via comment in a zip file
 
+author: Tim Allison
+
+validator: Youngjoon Kim
+
+origin: synthetic
+
+release_date: 02/01/2026
+
 cwes:
 - CWE-918
 - CWE-610
@@ -11,8 +19,12 @@ description: If a zip file has a comment that starts with http or https,  the Zi
 
 locations:
 - path_from_root: src/main/java/org/apache/commons/compress/archivers/zip/ZipFile.java
-  function_name: checkSsrf
+  function_name: readCentralDirectoryEntry
   startLine: 1550
   startColumn: 1
-  endLine: 1561
-  endColumn: 1
+  endLine: 1560
+  endColumn: 38
+- path_from_root: src/main/java/org/apache/commons/compress/archivers/zip/ZipFile.java
+  function_name: readCentralDirectoryEntry
+  startLine: 1552
+  endLine: 1552
