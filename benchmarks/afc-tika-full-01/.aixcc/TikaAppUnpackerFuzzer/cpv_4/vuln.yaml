@@ -20,7 +20,7 @@ release_date: 02/01/2026
 locations:
 - type: crash_site
   path_from_root: tika-core/src/main/java/org/apache/tika/detect/ShellCodeDetector.java
-  function_name: processImplStartHook
+  function_name: detect
   startLine: 88
   startColumn: 9
   endLine: 109

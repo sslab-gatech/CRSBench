@@ -21,7 +21,7 @@ release_date: 12/10/2021
 locations:
 - type: crash_site
   path_from_root: core/src/main/java/org/apache/logging/log4j/core/lookup/JndiLookup.java
-  function_name: lookupHook
+  function_name: JndiLookup.<clinit>
   startLine: 29
   startColumn: 1
   endLine: 78

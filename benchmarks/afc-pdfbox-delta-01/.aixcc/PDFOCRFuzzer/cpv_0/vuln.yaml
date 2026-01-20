@@ -21,7 +21,7 @@ release_date: 02/01/2026
 locations:
 - type: crash_site
   path_from_root: pdfbox/src/main/java/org/apache/pdfbox/ocr/OCRStreamEngine.java
-  function_name: processImplStartHook
+  function_name: runTesseract
   startLine: 158
   startColumn: 9
   endLine: 159

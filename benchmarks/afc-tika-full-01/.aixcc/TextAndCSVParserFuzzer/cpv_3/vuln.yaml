@@ -20,7 +20,7 @@ release_date: 02/01/2026
 locations:
 - type: crash_site
   path_from_root: tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-text-module/src/main/java/org/apache/tika/parser/csv/TextAndCSVParser.java
-  function_name: checkSsrf
+  function_name: processURL
   startLine: 274
   startColumn: 9
   endLine: 284

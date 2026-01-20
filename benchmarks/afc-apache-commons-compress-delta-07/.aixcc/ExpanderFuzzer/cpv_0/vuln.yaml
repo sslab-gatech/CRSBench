@@ -22,7 +22,7 @@ release_date: 02/01/2026
 locations:
 - type: crash_site
   path_from_root: src/main/java/org/apache/commons/compress/archivers/examples/Expander.java
-  function_name: check
+  function_name: expand
   startLine: 477
   startColumn: 13
   endLine: 524

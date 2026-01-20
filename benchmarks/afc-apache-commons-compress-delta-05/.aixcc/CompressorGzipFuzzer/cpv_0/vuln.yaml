@@ -21,7 +21,7 @@ release_date: 02/01/2026
 locations:
 - type: crash_site
   path_from_root: src/main/java/org/apache/commons/compress/compressors/gzip/GzipCompressorInputStream.java
-  function_name: processImplStartHook
+  function_name: init
   startLine: 403
   startColumn: 9
   endLine: 408

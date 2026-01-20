@@ -20,7 +20,7 @@ release_date: 02/01/2026
 locations:
 - type: crash_site
   path_from_root: tika-app/src/main/java/org/apache/tika/cli/TikaUntar.java
-  function_name: check
+  function_name: main
   startLine: 43
   startColumn: 21
   endLine: 47

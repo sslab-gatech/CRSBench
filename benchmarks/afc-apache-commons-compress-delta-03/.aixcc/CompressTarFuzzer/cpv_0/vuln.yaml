@@ -24,7 +24,7 @@ release_date: 02/01/2026
 locations:
 - type: crash_site
   path_from_root: src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java
-  function_name: waitForReferencePendingList
+  function_name: TarArchiveEntry.<clinit>
   startLine: 221
   startColumn: 5
   endLine: 222

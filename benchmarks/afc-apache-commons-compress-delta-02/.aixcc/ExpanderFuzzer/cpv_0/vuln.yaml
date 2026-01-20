@@ -21,7 +21,7 @@ release_date: 02/01/2026
 locations:
 - type: crash_site
   path_from_root: src/main/java/org/apache/commons/compress/archivers/examples/Expander.java
-  function_name: initializeTables
+  function_name: decompress
   startLine: 221
   startColumn: 1
   endLine: 241

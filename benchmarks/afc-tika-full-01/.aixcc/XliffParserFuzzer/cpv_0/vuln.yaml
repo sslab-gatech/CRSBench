@@ -20,7 +20,7 @@ release_date: 02/01/2026
 locations:
 - type: crash_site
   path_from_root: tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-xml-module/src/main/java/org/apache/tika/parser/xliff/XLIFF12Parser.java
-  function_name: checkSsrf
+  function_name: parse
   startLine: 73
   startColumn: 8
   endLine: 74

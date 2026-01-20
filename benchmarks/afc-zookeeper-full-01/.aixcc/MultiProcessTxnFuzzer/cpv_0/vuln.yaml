@@ -20,7 +20,7 @@ release_date: 02/01/2026
 locations:
 - type: crash_site
   path_from_root: zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java
-  function_name: reportFinding
+  function_name: verifyDataIntegrity
   startLine: 537
   startColumn: 5
   endLine: 580
