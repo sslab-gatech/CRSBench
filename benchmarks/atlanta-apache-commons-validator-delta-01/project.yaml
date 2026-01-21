@@ -10,3 +10,5 @@ fuzzing_engines:
   - libfuzzer
 sanitizers:
   - address
+rts_mode: jcgeks
+inc_build: true

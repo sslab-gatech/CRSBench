@@ -18,9 +18,9 @@ patch_exclude_list:
 - README*
 delta_mode:
   base_commit: bcb3d912930178de594c353011169f4f9bfb9579
-  ref_commit: 85d42804a479e5cec4c27dbe4e6f19805e4def41
+  ref_commit: dca8638ad0172bda45d6e2486198c6d81424b058
 full_mode:
-  base_commit: 85d42804a479e5cec4c27dbe4e6f19805e4def41
+  base_commit: dca8638ad0172bda45d6e2486198c6d81424b058
 harness_files:
 - name: StrutsOne
   path: $PROJECT/fuzz/struts-harness-one/src/main/java/com/aixcc/struts/harnesses/one/StrutsOne.java

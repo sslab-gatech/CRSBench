@@ -18,9 +18,9 @@ patch_exclude_list:
 - README*
 delta_mode:
   base_commit: f6f34f6d5b6d67205c34de617a0b99fe11e3d323
-  ref_commit: 2ce1abcd92029808802cc6d5c6e83d26a52eddf3
+  ref_commit: fdf7556ddeb50269d5fbf7a0f9771100b4d3d512
 full_mode:
-  base_commit: 2ce1abcd92029808802cc6d5c6e83d26a52eddf3
+  base_commit: fdf7556ddeb50269d5fbf7a0f9771100b4d3d512
 harness_files:
 - name: DataTreeFuzzer
   path: $PROJECT/DataTreeFuzzer.java

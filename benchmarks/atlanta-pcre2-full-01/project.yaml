@@ -13,3 +13,5 @@ architectures:
 auto_ccs:
   - "me@addisoncrump.info"
   - "philip.hazel@gmail.com"
+rts_mode: none
+inc_build: true

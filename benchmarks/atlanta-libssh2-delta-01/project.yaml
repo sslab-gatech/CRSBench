@@ -8,3 +8,5 @@ fuzzing_engines:
 sanitizers:
   - address
 main_repo: 'git@github.com:Team-Atlanta/cp-c-libssh2.git'
+rts_mode: none
+inc_build: true

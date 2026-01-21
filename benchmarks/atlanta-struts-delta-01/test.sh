@@ -15,7 +15,7 @@ MVN_SKIP_ARGS="-Djacoco.skip=true -Dspotless.check.skip=true -Drat.skip=true -Dc
 ## [REQUIRED] You can add additional args needed per project to MVN_ADDITIONAL_ARGS
 MVN_ADDITIONAL_ARGS="-Dsurefire.failIfNoSpecifiedTests=false"
 ## [REQUIRED] Tests to include. Try to use blacklist as much as possible to maintain high test coverage.
-INCLUDE_TESTS="**/ELAttributeEvaluatorTest.java"
+INCLUDE_TESTS=""
 if [ -n "$INCLUDE_TESTS" ]; then
     MVN_INCLUDE_TESTS="-Dsurefire.includes=$INCLUDE_TESTS"
 fi

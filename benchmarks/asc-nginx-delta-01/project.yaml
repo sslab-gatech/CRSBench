@@ -10,3 +10,5 @@ sanitizers:
 
 fuzzing_engines:
   - libfuzzer
+rts_mode: none
+inc_build: true

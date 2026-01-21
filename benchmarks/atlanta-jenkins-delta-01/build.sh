@@ -61,22 +61,22 @@ build_proj() {
     fi
 
     echo "about to build jenkins"
-    cd $proj_dir/jenkins && mvn -DskipTests -Dlicense.skip=true -Pquick-build -am -pl bom,war install
+    cd $proj_dir/jenkins && mvn -DskipTests -Dlicense.skip=true -Pquick-build -am -pl bom,war -ntp install
     echo "finished with jenkins"
 
-    cd $proj_dir/plugins/pipeline-util-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build install
+    cd $proj_dir/plugins/pipeline-util-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build -ntp install
     echo "finished with pipeline util"
 
-    cd $proj_dir/plugins/toy-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build install
+    cd $proj_dir/plugins/toy-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build -ntp install
     echo "finished with toy-plugin"
 
-    cd $proj_dir/plugins/build-failure-analyzer-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build install
+    cd $proj_dir/plugins/build-failure-analyzer-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build -ntp install
     echo "finished with build-failure-analyzer-plugin"
 
-    cd $proj_dir/plugins/code-coverage-api-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build clean install
+    cd $proj_dir/plugins/code-coverage-api-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build -ntp clean install
     echo "finished with code-coverage-api-plugin"
 
-    cd $proj_dir/plugins/email-ext-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build clean install
+    cd $proj_dir/plugins/email-ext-plugin && mvn -DskipTests -Dlicense.skip=true -Pquick-build -ntp clean install
     echo "finished with email-ext-plugin"
 }
 

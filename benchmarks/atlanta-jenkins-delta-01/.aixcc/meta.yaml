@@ -18,9 +18,9 @@ patch_exclude_list:
 - README*
 delta_mode:
   base_commit: df052da588e9f49f9815f540fc75e72c9369f411
-  ref_commit: 43fac74cc136c5c3b7446c0bd0bf125a9f4856da
+  ref_commit: 2ac6c746f1a960ff0b36b39677aeda49c5b5d90f
 full_mode:
-  base_commit: 43fac74cc136c5c3b7446c0bd0bf125a9f4856da
+  base_commit: 2ac6c746f1a960ff0b36b39677aeda49c5b5d90f
 harness_files:
 - name: JenkinsTwo
   path: $PROJECT/fuzz/jenkins-harness-two/src/main/java/com/aixcc/jenkins/harnesses/two/JenkinsTwo.java

@@ -15,3 +15,5 @@ vendor_ccs:
   - "bug-disclosure@code-intelligence.com"
   - "centic@apache.org"
   - "dominik.stadler@gmail.com"
+rts_mode: none
+inc_build: true

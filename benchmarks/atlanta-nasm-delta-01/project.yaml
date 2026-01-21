@@ -11,3 +11,4 @@ sanitizers:
   - address
 fuzzing_engines:
   - libfuzzer # mem leak; only for bug reproducing
+  # - honggfuzz

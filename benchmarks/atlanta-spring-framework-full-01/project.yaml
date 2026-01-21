@@ -16,3 +16,5 @@ vendor_ccs:
   - "schaich@code-intelligence.com"
   - "bug-disclosure@code-intelligence.com"
 run_tests: False
+rts_mode: none
+inc_build: true

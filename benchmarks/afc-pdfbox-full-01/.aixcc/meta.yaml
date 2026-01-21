@@ -17,7 +17,7 @@ patch_exclude_list:
 - '*.md'
 - README*
 full_mode:
-  base_commit: af9a994234ea30c678961852389e3118d479537c
+  base_commit: 65c74cab4bd1c6874328891fe3b5ea3f8314153f
 harness_files:
 - name: DomXmpParserFuzzer
   path: $PROJECT/project-parent/fuzz-targets/src/main/java/com/example/DomXmpParserFuzzer.java

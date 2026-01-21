@@ -6,3 +6,5 @@ fuzzing_engines:
   - "libfuzzer"
 sanitizers:
   - address
+rts_mode: none
+inc_build: true

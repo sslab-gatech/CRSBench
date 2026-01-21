@@ -7,3 +7,5 @@ architectures:
 main_repo: 'git@github.com:Team-Atlanta/r3-afc-example-libpng.git'
 fuzzing_engines:
   - libfuzzer
+rts_mode: none
+inc_build: true
