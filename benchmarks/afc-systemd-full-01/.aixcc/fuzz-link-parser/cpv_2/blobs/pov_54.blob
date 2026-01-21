@@ -1,0 +1,10 @@
+[Match]
+=
+Virtualication==
+Hostess=00:01:02:aa:bb=
+Host=!MName=du = 1123-1150
+Dmmy98
+
+[Link]
+Miatch192.168.42.1
+Domains= onaress=00:01:02aa:bb:cc
