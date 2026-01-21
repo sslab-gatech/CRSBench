@@ -17,7 +17,7 @@ patch_exclude_list:
 - '*.md'
 - README*
 full_mode:
-  base_commit: 68ae3feed7fdba312514bc22db70f75436bb1f55
+  base_commit: 68d3aa8164cec45c3fc158c26d73cd845306211d
 harness_files:
 - name: DataTreeFuzzer
   path: $PROJECT/DataTreeFuzzer.java

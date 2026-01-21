@@ -3,6 +3,7 @@ package com.aixcc.jackson.databind.harnesses.one;
 import com.code_intelligence.jazzer.api.FuzzedDataProvider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -60,7 +61,13 @@ public class JacksonDatabindOneFDP {
                     break;
                 case 10010:
                     if (om != null) {
-                        om.readValue(whole, JacksonDatabindOneDao.class);
+                        try {
+                            om.readValue(whole, JacksonDatabindOneDao.class);
+                        } catch (JsonMappingException e) {
+                            if (e.getMessage() == null || !e.getMessage().contains("prevented for security reasons")) {
+                                throw e;
+                            }
+                        }
                     }
                     break;
                 default:

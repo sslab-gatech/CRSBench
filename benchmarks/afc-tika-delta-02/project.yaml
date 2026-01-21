@@ -5,5 +5,5 @@ fuzzing_engines:
 main_repo: "git@github.com:Team-Atlanta/official-afc-tika.git"
 sanitizers:
   - address
-rts_mode: openclover
+rts_mode: none
 inc_build: true

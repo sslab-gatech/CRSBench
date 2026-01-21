@@ -21,7 +21,7 @@ if [ -n "$INCLUDE_TESTS" ]; then
 fi
 # [REQUIRED] Tests to exclude (e.g., failed tests before patching). Minimize this to maintain high test coverage.
 # These tests have JUnit 3 TestSuite infrastructure issues or require GUI libraries
-EXCLUDE_TESTS=""
+EXCLUDE_TESTS="**/FieldDictionaryTest.java,**/SecurityManagerTest.java,**/FontConverterTest.java,**/EncodingTestSuite.java,**/DriverEndToEndTestSuite.java,**/SjsxpWriterTest.java,**/StandardStaxReaderTest.java,**/SjsxpReaderTest.java,**/PathTest.java"
 if [ -n "$EXCLUDE_TESTS" ]; then
     MVN_EXCLUDE_TESTS="-Dsurefire.excludes=$EXCLUDE_TESTS"
 fi

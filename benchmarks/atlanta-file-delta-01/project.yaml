@@ -9,3 +9,5 @@ architectures:
 main_repo: 'git@github.com:Team-Atlanta/cp-user-file.git'
 fuzzing_engines:
   - libfuzzer
+rts_mode: none
+inc_build: true

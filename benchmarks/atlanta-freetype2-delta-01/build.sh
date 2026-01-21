@@ -23,8 +23,9 @@ rm -rf .gitmodules
 rm -rf .gitignore
 rm -rf subprojects/dlg
 git init
-git config user.email "you@example.com"
-git config user.name "Your Name"
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
+git config --global --add safe.directory "$(pwd)"
 git add -f .
 git commit -m "Base commit"
 git submodule add https://github.com/nyorain/dlg.git subprojects/dlg 
