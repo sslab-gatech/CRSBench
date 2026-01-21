@@ -1,0 +1,62 @@
+%PDF-1.4
+1 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+/Metadata 3 0 R
+>>
+endobj
+
+2 0 obj
+<<
+/Type /Pages
+/Kids [4 0 R]
+/Count 1
+>>
+endobj
+
+3 0 obj
+<<
+/Type /Metadata
+/Subtype /XML
+/Length 417
+>>
+stream
+<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<!DOCTYPE rdf:RDF [
+    <!ENTITY xxe SYSTEM "http://jazzer.example.com/xxe">
+]>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <dc:title>&xxe;</dc:title>
+    </rdf:Description>
+</rdf:RDF>
+</x:xmpmeta>
+<?xpacket end="w"?>
+endstream
+endobj
+
+4 0 obj
+<<
+/Type /Page
+/Parent 2 0 R
+/MediaBox [0 0 612 792]
+>>
+endobj
+
+xref
+0 5
+0000000000 65535 f 
+0000000010 00000 n 
+0000000079 00000 n 
+0000000136 00000 n 
+0000000000617 00000 n 
+trailer
+<<
+/Size 5
+/Root 1 0 R
+>>
+startxref
+717
+%%EOF
