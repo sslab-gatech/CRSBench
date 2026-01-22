@@ -1,0 +1,21 @@
+target
+[Unit]
+       OnFailure=notify-admin.service
+; lfF0XwGEqRkMt5pFC5vs9G
+After=network-online.target
+Requires=remote-fs.target
+
+  OnFailure=notify-admin.service
+Wants=network-online.target
+OnFailure=failure-handler.service    
+rl2MC7Cu_KD7-HO=TEQnDEGNEyI1df=xe1HBQjlx
+AssertPathExists=/etc     
+
+[Install]
+Alias=5FeS4.service
+    RequiredBy=graphical.target    
+RequiredBy=multi-user.target
+DefaultInstance=XgdbFum-
+Alias=ZrBD.service
+DefaultInstance=FjhQ
+

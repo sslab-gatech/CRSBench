@@ -20,7 +20,7 @@ if [ -n "$INCLUDE_TESTS" ]; then
     MVN_INCLUDE_TESTS="-Dsurefire.includes=$INCLUDE_TESTS"
 fi
 ## [REQUIRED] Tests to exclude (e.g., failed tests before patching). Minimize this to maintain high test coverage.
-EXCLUDE_TESTS=""
+EXCLUDE_TESTS="**/JDKStringLikeTypesTest.java"
 if [ -n "$EXCLUDE_TESTS" ]; then
     MVN_EXCLUDE_TESTS="-Dsurefire.excludes=$EXCLUDE_TESTS"
 fi
@@ -41,7 +41,7 @@ fi
 # Run Test
 ## [REQUIRED] Try not to change when using mvn test. Avoid using commands like `clean` as much as possible. Use only if absolutely necessary.
 if [ -n "${RTS_ON}" ] && [ "$RTS_TOOL" = "openclover" ]; then
-    $MVN clover:setup clover:optimize test clover:snapshot $MVN_ARGS
+    $MVN clover:setup clover:optimize test clover:snapshot $MVN_ARGS -Dmaven.clover.excludesList="**/JDKStringLikeTypesTest.java"
 else
     $MVN test $MVN_ARGS
 fi

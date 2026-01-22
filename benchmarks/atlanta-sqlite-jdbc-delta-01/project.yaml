@@ -9,3 +9,5 @@ vendor_ccs:
 - david@adalogics.com
 - adam@adalogics.com
 - arthur.chan@adalogics.com
+rts_mode: jcgeks
+inc_build: true

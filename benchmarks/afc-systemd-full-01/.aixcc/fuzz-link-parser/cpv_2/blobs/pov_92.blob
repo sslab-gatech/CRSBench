@@ -1,0 +1,13 @@
+[Match]
+KernelCommandLine=quiet
+Architecture=x86-64
+Virtualization=container
+KernelVersion=arm64
+Host=x86-64
+
+[NetDev]
+Name=test780
+Kind=wireguard
+Description=Test network device 910
+
+GVRP=tr

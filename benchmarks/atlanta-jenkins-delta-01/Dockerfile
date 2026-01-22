@@ -21,11 +21,6 @@ ENV LANG C.UTF-8
 ENV TZ America/New_York
 ENV USER root
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        maven
-
-ENV MVN=/usr/bin/mvn
 
 # Install sdk man
 RUN curl -s "https://get.sdkman.io" | bash

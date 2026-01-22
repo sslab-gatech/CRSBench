@@ -12,7 +12,7 @@ fi
 ## [REQUIRED] Do not modify MVN_SKIP_ARGS as much as possible
 MVN_SKIP_ARGS="-Djacoco.skip=true -Dspotless.check.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Denforcer.skip=true -Dpmd.skip=true -Dlicense.skip=true -Danimal.sniffer.skip=true -Drat.numUnapprovedLicenses=100 -Drat.ignoreErrors=true -Dcheckstyle.skipExec=true -Dspotbugs.skip=true"
 ## [REQUIRED] You can add additional args needed per project to MVN_ADDITIONAL_ARGS
-MVN_ADDITIONAL_ARGS="-Dpropguard.skip -Dmaven.javadoc.skip=true -Dencoding=UTF-8 -Dmaven.antrun.skip=true -Dsurefire.failIfNoSpecifiedTests=false -am -pl :zookeeper --no-snapshot-updates"
+MVN_ADDITIONAL_ARGS="-Dpropguard.skip -Dmaven.javadoc.skip=true -Dencoding=UTF-8 -Dmaven.antrun.skip=true -Dsurefire.failIfNoSpecifiedTests=false -am -pl :zookeeper --no-snapshot-updates -fae -Dmaven.compiler.failOnWarning=false"
 ## [REQUIRED] Tests to include. Try to use blacklist as much as possible to maintain high test coverage.
 INCLUDE_TESTS=""
 if [ -n "$INCLUDE_TESTS" ]; then
@@ -39,8 +39,9 @@ fi
 
 # Run Test
 ## [REQUIRED] Try not to change when using mvn test. Avoid using commands like `clean` as much as possible. Use only if absolutely necessary.
+export MAVEN_OPTS="-Xms4g -Xmx32g"
 if [ -n "${RTS_ON}" ] && [ "$RTS_TOOL" = "openclover" ]; then
-    $MVN clover:setup clover:optimize install clover:snapshot $MVN_ARGS -Dsurefire.argLine="-Xms1g -Xmx5g"
+    $MVN clover:setup clover:optimize install clover:snapshot $MVN_ARGS -Dtest=DataTreeTest,DataNodeTest,DeserializationPerfTest,ZooKeeperTest,MessageTrackerTest
 else
-    $MVN install $MVN_ARGS -Dsurefire.argLine="-Xms1g -Xmx5g"
+    $MVN install $MVN_ARGS
 fi

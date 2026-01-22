@@ -13,3 +13,5 @@ architectures:
   - x86_64
   - i386
 main_repo: 'git@github.com:Team-Atlanta/cp-c-curl.git'
+rts_mode: none
+inc_build: true

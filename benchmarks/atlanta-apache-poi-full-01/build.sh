@@ -18,7 +18,7 @@
 MVN_FLAGS="--no-transfer-progress -DskipTests"
 ALL_JARS=""
 LIBRARY_NAME="poi"
-GRADLE_FLAGS="-x javadoc -x test -Dfile.encoding=UTF-8 -Porg.gradle.java.installations.fromEnv=JAVA_HOME_8,JAVA_HOME_11 --console=plain"
+GRADLE_FLAGS="-x javadoc -x test -x compileTestJava -Dfile.encoding=UTF-8 -Porg.gradle.java.installations.fromEnv=JAVA_HOME_8,JAVA_HOME_11 --console=plain"
 
 echo Copy libraries for java.awt in place
 ls /usr/lib/x86_64-linux-gnu/

@@ -7,3 +7,5 @@ sanitizers:
   - address
 architectures:
   - x86_64
+rts_mode: none
+inc_build: true

@@ -8,3 +8,5 @@ fuzzing_engines:
 main_repo: 'git@github.com:Team-Atlanta/official-afc-systemd.git'
 architectures:
   - x86_64
+rts_mode: none
+inc_build: true

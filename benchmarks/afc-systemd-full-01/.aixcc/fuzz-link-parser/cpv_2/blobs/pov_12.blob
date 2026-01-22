@@ -1,0 +1,30 @@
+# Auto-generated network configuration file
+[Match]
+MACAddress=  99:37:4f:72:91:15 # mYBFcwdBvuJHXh
+Driver   =ath9k
+KernelCommandLine   = root=/dev/sda1
+$S{j)Q*XL!F42{vXO>R
+KernelCommandLine  =bjKDc
+Host= ether
+[Route]
+Gateway   =173.7.52.48
+Source=185.215.53.44
+Table  =  51275
+[Address]
+‹lœ[Route]
+7h/++SYFxD=_sx~S:
+# +c2J;|L,?Rthxa(
+jHZut0}WcWLb>
+Gateway =   132.237.180.176
+Metric =  53622
+Gateway   =  231.189.88.155
+
+[Route]
+Destination=:45ae:23c:c4ae:4c45:1ede::3667/83
+; p]'E0ppA s$
+Destination   =   9896:2bdb:7425:30ae:8e6f::8061:/17
+B¨`Source=  116.61.177.122
+Gateway   =226.53.14.41
+[Link]
+À9ŽgçFGo&7\(^/A
+Unmanaged=  off
