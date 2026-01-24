@@ -33,7 +33,7 @@ harness_files:
 - name: JenkinsTwoFDP
   path: $PROJECT/fuzz/jenkins-harness-two/src/main/java/com/aixcc/jenkins/harnesses/two/JenkinsTwoFDP.java
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_16
     povs:
     - id: pov_0
       sanitizer: address
@@ -99,57 +99,57 @@ harness_files:
 - name: JenkinsThreeFDP
   path: $PROJECT/fuzz/jenkins-harness-three/src/main/java/com/aixcc/jenkins/harnesses/three/JenkinsThreeFDP.java
   vulns:
-  - vuln_keyword: cpv_1
+  - vuln_keyword: cpv_17
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueCritical: Script Engine Injection'
-  - vuln_keyword: cpv_2
+  - vuln_keyword: cpv_18
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueCritical: File path traversal'
-  - vuln_keyword: cpv_3
+  - vuln_keyword: cpv_19
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueMedium: Server Side Request Forgery'
-  - vuln_keyword: cpv_4
+  - vuln_keyword: cpv_20
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: Remote Code Execution'
-  - vuln_keyword: cpv_5
+  - vuln_keyword: cpv_21
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: SQL Injection'
-  - vuln_keyword: cpv_6
+  - vuln_keyword: cpv_22
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueCritical: Remote JNDI Lookup'
-  - vuln_keyword: cpv_7
+  - vuln_keyword: cpv_23
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueCritical: OS Command Injection'
-  - vuln_keyword: cpv_8
+  - vuln_keyword: cpv_24
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueCritical: LDAP Injection'
-  - vuln_keyword: cpv_9
+  - vuln_keyword: cpv_25
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: XPath Injection'
-  - vuln_keyword: cpv_10
+  - vuln_keyword: cpv_26
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: load arbitrary library'
-  - vuln_keyword: cpv_11
+  - vuln_keyword: cpv_27
     povs:
     - id: pov_0
       sanitizer: address
@@ -183,12 +183,12 @@ harness_files:
 - name: JenkinsFiveFDP
   path: $PROJECT/fuzz/jenkins-harness-five/src/main/java/com/aixcc/jenkins/harnesses/five/JenkinsFiveFDP.java
   vulns:
-  - vuln_keyword: cpv_14
+  - vuln_keyword: cpv_28
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueCritical: OS Command Injection'
-  - vuln_keyword: cpv_15
+  - vuln_keyword: cpv_29
     povs:
     - id: pov_0
       sanitizer: address

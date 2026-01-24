@@ -33,7 +33,7 @@ harness_files:
 - name: MailApiHarnessOneFDP
   path: $PROJECT/fuzz/mail-api-harness-one/src/main/java/com/aixcc/mailapi/harnesses/one/MailApiHarnessOneFDP.java
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_1
     povs:
     - id: pov_0
       sanitizer: address
