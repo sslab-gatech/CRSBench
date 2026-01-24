@@ -1387,13 +1387,22 @@ def run_experiment_local(
         _cleanup_experiment_artifacts(experiment_name, config)
 
 
-def monitor_jobs(queue, job_list: List, experiment_name: str) -> List[TrialResult]:
+def monitor_jobs(
+    queue,
+    job_list: List,
+    experiment_name: str,
+    *,
+    retry: int = 0,
+    retry_interval: int = 30,
+) -> List[TrialResult]:
     """Monitor job progress and display status.
 
     Args:
         queue: RQ queue instance
         job_list: List of enqueued RQ jobs
         experiment_name: Experiment identifier
+        retry: Maximum number of retries for failed jobs (default: 0)
+        retry_interval: Interval in seconds between retry checks (default: 30)
 
     Returns:
         List of TrialResult objects
@@ -1405,84 +1414,120 @@ def monitor_jobs(queue, job_list: List, experiment_name: str) -> List[TrialResul
         logger.warning("Rich library not available, using basic progress display")
 
     if rich_available:
-        return _monitor_jobs_rich(queue, job_list, experiment_name)
-    return _monitor_jobs_basic(queue, job_list, experiment_name)
+        return _monitor_jobs_rich(
+            queue, job_list, experiment_name, retry=retry, retry_interval=retry_interval
+        )
+    return _monitor_jobs_basic(
+        queue, job_list, experiment_name, retry=retry, retry_interval=retry_interval
+    )
 
 
 def _monitor_jobs_basic(
-    queue, job_list: List, experiment_name: str
+    queue,
+    job_list: List,
+    experiment_name: str,
+    *,
+    retry: int = 0,
+    retry_interval: int = 30,
 ) -> List[TrialResult]:
     """Basic job monitoring without Rich UI."""
-    from crsbench.distributed.queue import get_queue_stats
+    from crsbench.distributed.queue import get_queue_stats, requeue_failed_jobs
     from crsbench.evaluation.results import TrialMetadata
 
     logger.info(f"\nMonitoring {len(job_list)} jobs for experiment: {experiment_name}")
 
-    while True:
-        stats = get_queue_stats(queue)
+    # Track retry counts: job_id -> retry_count
+    job_retry_counts: dict[str, int] = {}
+    last_requeue_time = time.time()
 
-        # Display stats
-        log_section(f"Experiment: {experiment_name}", width=60)
-        logger.info(f"Workers connected: {stats.get('workers', 0)}")
-        log_summary(
-            "Queue Status",
-            {
-                "queued": stats["queued"],
-                "started": stats["started"],
-                "finished": stats["finished"],
-                "failed": stats["failed"],
-            },
-            show_percentage=False,
-            level="debug",
-        )
+    try:
+        while True:
+            stats = get_queue_stats(queue)
 
-        # Display currently running jobs with metadata
-        running_jobs = []
-        for job in job_list:
-            job.refresh()
-            if job.get_status() == "started":
-                worker_name = job.meta.get("worker_name", "?")
-                crs = job.meta.get("crs", "?")
-                benchmark = job.meta.get("benchmark", "?")
-                harness = job.meta.get("harness", "?")
-                mode = job.meta.get("mode", "?")
-                trial_num = job.meta.get("trial_num", "?")
-                phase = job.meta.get("phase", "queued")
-                phase_started_at = job.meta.get("phase_started_at")
-                elapsed = ""
-                if phase_started_at:
-                    elapsed_sec = int(time.time() - phase_started_at)
-                    mins, secs = divmod(elapsed_sec, 60)
-                    elapsed = f"{mins}m{secs}s"
-                running_jobs.append(
-                    f"  [{worker_name}] [{crs}] {benchmark}/{harness} mode={mode} trial={trial_num} phase={phase} ({elapsed})"
-                )
+            # Display stats
+            log_section(f"Experiment: {experiment_name}", width=60)
+            logger.info(f"Workers connected: {stats.get('workers', 0)}")
+            log_summary(
+                "Queue Status",
+                {
+                    "queued": stats["queued"],
+                    "started": stats["started"],
+                    "finished": stats["finished"],
+                    "failed": stats["failed"],
+                },
+                show_percentage=False,
+                level="debug",
+            )
 
-        if running_jobs:
-            logger.info("Currently Running:")
-            for line in running_jobs:
-                logger.info(line)
+            # Display currently running jobs with metadata
+            running_jobs = []
+            for job in job_list:
+                job.refresh()
+                if job.get_status() == "started":
+                    worker_name = job.meta.get("worker_name", "?")
+                    crs = job.meta.get("crs", "?")
+                    benchmark = job.meta.get("benchmark", "?")
+                    harness = job.meta.get("harness", "?")
+                    mode = job.meta.get("mode", "?")
+                    trial_num = job.meta.get("trial_num", "?")
+                    phase = job.meta.get("phase", "queued")
+                    phase_started_at = job.meta.get("phase_started_at")
+                    elapsed = ""
+                    if phase_started_at:
+                        elapsed_sec = int(time.time() - phase_started_at)
+                        mins, secs = divmod(elapsed_sec, 60)
+                        elapsed = f"{mins}m{secs}s"
+                    running_jobs.append(
+                        f"  [{worker_name}] [{crs}] {benchmark}/{harness} mode={mode} trial={trial_num} phase={phase} ({elapsed})"
+                    )
 
-        # Check if all jobs completed
-        completed = 0
-        failed = 0
-        for job in job_list:
-            job.refresh()
-            if job.is_finished:
-                completed += 1
-            elif job.is_failed:
-                failed += 1
+            if running_jobs:
+                logger.info("Currently Running:")
+                for line in running_jobs:
+                    logger.info(line)
 
-        log_progress(
-            completed + failed,
-            len(job_list),
-            f"Jobs complete ({completed} success, {failed} failed)",
-        )
+            # Check job statuses
+            completed = 0
+            failed_jobs = []
+            permanently_failed = 0
 
-        if completed + failed >= len(job_list):
-            break
+            for job in job_list:
+                job.refresh()
+                if job.is_finished:
+                    completed += 1
+                elif job.is_failed:
+                    retry_count = job_retry_counts.get(job.id, 0)
+                    if retry > 0 and retry_count < retry:
+                        failed_jobs.append(job)
+                    else:
+                        permanently_failed += 1
 
-        time.sleep(3)
+            # Exit when all jobs are finished or permanently failed
+            if completed + permanently_failed >= len(job_list):
+                break
+
+            # Periodically requeue failed jobs (if retry enabled)
+            if retry > 0 and failed_jobs:
+                current_time = time.time()
+                if (current_time - last_requeue_time) >= retry_interval:
+                    for job in failed_jobs:
+                        job_retry_counts[job.id] = job_retry_counts.get(job.id, 0) + 1
+                        logger.info(
+                            f"Requeuing job {job.id[:8]} (retry {job_retry_counts[job.id]}/{retry})"
+                        )
+                    requeue_failed_jobs(queue, failed_jobs)
+                    last_requeue_time = current_time
+
+            log_progress(
+                completed + permanently_failed,
+                len(job_list),
+                f"Jobs complete ({completed} success, {permanently_failed} failed)",
+            )
+
+            time.sleep(3)
+
+    except KeyboardInterrupt:
+        logger.warning("\nInterrupted. Running jobs continue on workers.")
 
     # Collect results
     results: List[TrialResult] = []
@@ -1513,16 +1558,25 @@ def _monitor_jobs_basic(
 
 
 def _monitor_jobs_rich(
-    queue, job_list: List, experiment_name: str
+    queue,
+    job_list: List,
+    experiment_name: str,
+    *,
+    retry: int = 0,
+    retry_interval: int = 30,
 ) -> List[TrialResult]:
     """Monitor jobs with Rich UI."""
     from rich.console import Console, Group
     from rich.live import Live
     from rich.table import Table
 
-    from crsbench.distributed.queue import get_queue_stats
+    from crsbench.distributed.queue import get_queue_stats, requeue_failed_jobs
 
     console = Console()
+
+    # Track retry counts: job_id -> retry_count
+    job_retry_counts: dict[str, int] = {}
+    last_requeue_time = time.time()
 
     def generate_status_table():
         stats = get_queue_stats(queue)
@@ -1585,23 +1639,52 @@ def _monitor_jobs_rich(
 
         return Group(table, running_table)
 
-    with Live(generate_status_table(), refresh_per_second=1, console=console) as live:
-        while True:
-            # Check if all jobs completed
-            completed = 0
-            failed = 0
-            for job in job_list:
-                job.refresh()
-                if job.is_finished:
-                    completed += 1
-                elif job.is_failed:
-                    failed += 1
+    try:
+        with Live(
+            generate_status_table(), refresh_per_second=1, console=console
+        ) as live:
+            while True:
+                # Check job statuses
+                completed = 0
+                failed_jobs = []
+                permanently_failed = 0
 
-            if completed + failed >= len(job_list):
-                break
+                for job in job_list:
+                    job.refresh()
+                    if job.is_finished:
+                        completed += 1
+                    elif job.is_failed:
+                        retry_count = job_retry_counts.get(job.id, 0)
+                        if retry > 0 and retry_count < retry:
+                            failed_jobs.append(job)
+                        else:
+                            permanently_failed += 1
 
-            live.update(generate_status_table())
-            time.sleep(1)
+                # Exit when all jobs are finished or permanently failed
+                if completed + permanently_failed >= len(job_list):
+                    break
+
+                # Periodically requeue failed jobs (if retry enabled)
+                if retry > 0 and failed_jobs:
+                    current_time = time.time()
+                    if (current_time - last_requeue_time) >= retry_interval:
+                        for job in failed_jobs:
+                            job_retry_counts[job.id] = (
+                                job_retry_counts.get(job.id, 0) + 1
+                            )
+                            logger.info(
+                                f"Requeuing job {job.id[:8]} (retry {job_retry_counts[job.id]}/{retry})"
+                            )
+                        requeue_failed_jobs(queue, failed_jobs)
+                        last_requeue_time = current_time
+
+                live.update(generate_status_table())
+                time.sleep(1)
+
+    except KeyboardInterrupt:
+        console.print(
+            "\n[yellow]Interrupted. Running jobs continue on workers.[/yellow]"
+        )
 
     # Collect results
     from crsbench.evaluation.results import TrialMetadata
@@ -1999,7 +2082,13 @@ def run_experiment_distributed(
 
     # Monitor progress
     logger.info("\nMonitoring job progress...")
-    results = monitor_jobs(queue, jobs, experiment_name)
+    results = monitor_jobs(
+        queue,
+        jobs,
+        experiment_name,
+        retry=config.retry,
+        retry_interval=config.retry_interval,
+    )
 
     # Generate final report
     log_section("Experiment Complete - Generating Report", width=60)

@@ -907,6 +907,17 @@ class ExperimentConfig(BaseModel):
         default=None,
         description="Destination path for copying report data",
     )
+    retry: int = Field(
+        default=0,
+        ge=0,
+        description="Maximum number of retries for failed jobs (0 = no retry). "
+        "Each failed job can be requeued up to this many times.",
+    )
+    retry_interval: int = Field(
+        default=30,
+        ge=1,
+        description="Interval in seconds between checking for failed jobs to retry (default: 30).",
+    )
 
     @field_validator("experiment")
     @classmethod
