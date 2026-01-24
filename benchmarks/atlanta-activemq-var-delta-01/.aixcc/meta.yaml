@@ -88,62 +88,62 @@ harness_files:
 - name: ActivemqVariantOneFDP
   path: $PROJECT/fuzz/activemq-harness-one/src/main/java/com/aixcc/activemq/harnesses/one/ActivemqVariantOneFDP.java
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_12
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: Remote Code Execution'
-  - vuln_keyword: cpv_1
+  - vuln_keyword: cpv_13
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: Remote Code Execution'
-  - vuln_keyword: cpv_2
+  - vuln_keyword: cpv_14
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: Remote Code Execution'
-  - vuln_keyword: cpv_3
+  - vuln_keyword: cpv_15
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: Remote Code Execution'
-  - vuln_keyword: cpv_4
+  - vuln_keyword: cpv_16
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: Remote Code Execution'
-  - vuln_keyword: cpv_5
+  - vuln_keyword: cpv_17
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: Remote Code Execution'
-  - vuln_keyword: cpv_6
+  - vuln_keyword: cpv_18
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: Remote Code Execution'
-  - vuln_keyword: cpv_7
+  - vuln_keyword: cpv_19
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: Remote Code Execution'
-  - vuln_keyword: cpv_8
+  - vuln_keyword: cpv_20
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: Remote Code Execution'
-  - vuln_keyword: cpv_9
+  - vuln_keyword: cpv_21
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: Remote Code Execution'
-  - vuln_keyword: cpv_10
+  - vuln_keyword: cpv_22
     povs:
     - id: pov_0
       sanitizer: address
       error_token: 'FuzzerSecurityIssueHigh: Remote Code Execution'
-  - vuln_keyword: cpv_11
+  - vuln_keyword: cpv_23
     povs:
     - id: pov_0
       sanitizer: address

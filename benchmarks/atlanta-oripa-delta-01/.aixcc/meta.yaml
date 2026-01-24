@@ -33,7 +33,7 @@ harness_files:
 - name: OripaOneFDP
   path: $PROJECT/fuzz/oripa-harness-one/src/main/java/com/aixcc/oripa/harnesses/one/OripaOneFDP.java
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_1
     povs:
     - id: pov_0
       sanitizer: address

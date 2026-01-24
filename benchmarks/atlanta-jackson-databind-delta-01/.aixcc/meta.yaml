@@ -33,7 +33,7 @@ harness_files:
 - name: JacksonDatabindOneFDP
   path: $PROJECT/fuzz/jackson-databind-harness-one/src/main/java/com/aixcc/jackson/databind/harnesses/one/JacksonDatabindOneFDP.java
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_1
     povs:
     - id: pov_0
       sanitizer: address
