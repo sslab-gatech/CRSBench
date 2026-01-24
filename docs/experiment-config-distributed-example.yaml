@@ -112,6 +112,12 @@ benchmarks:
 # - "<ip>/<hostname>": remote Redis server
 redis_host: localhost
 
+# Maximum retry attempts for failed jobs. (0 = no retry, >= 0)
+retry: 0  # default: 0
+
+# Interval in seconds between checking for failed jobs to retry. (>= 1)
+retry_interval: 30  # default: 30
+
 # Snapshot interval in seconds. (0 to disable, 60-86400 when enabled)
 snapshot_period: 900  # 15 minutes, default: 900
 

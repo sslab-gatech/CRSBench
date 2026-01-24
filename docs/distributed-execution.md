@@ -236,6 +236,29 @@ resources:
 2. CRS-specific `config-resource.yaml` (if no experiment config)
 3. Default values (4 cores, 8G memory)
 
+### Retry Configuration
+
+Configure automatic retry of failed jobs:
+
+```yaml
+# Maximum retry attempts for failed jobs (0 = no retry)
+retry: 3
+
+# Interval in seconds between checking for failed jobs to retry
+retry_interval: 30
+```
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| `retry` | Max retry attempts for failed jobs (0 = disabled) | `0` |
+| `retry_interval` | Seconds between checking for failed jobs | `30` |
+
+When a job fails:
+1. A `.fail` marker is created in the trial directory
+2. Build artifacts are cleaned up (if `cleanup_after_trial` enabled)
+3. The `.fail` marker remains as evidence of failure
+4. If `retry > 0`, the job may be requeued up to `retry` times
+
 ### Worker Configuration
 
 Configure distributed workers via experiment config:
