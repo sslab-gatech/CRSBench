@@ -1,0 +1,30 @@
+id: cpv_1
+name: XML External Entity (XXE) Injection in Angus Mail text_xml Handler
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+cwes:
+- CWE-611
+- CWE-918
+- CWE-776
+
+description: |
+  An XML External Entity (XXE) injection vulnerability exists in the writeTo()
+  method of the text_xml content handler in Angus Mail library. The vulnerable
+  code creates a TransformerFactory instance without configuring security features,
+  allowing external entity resolution. An attacker can craft a malicious email with
+  XML content containing external entity definitions that reference arbitrary URLs.
+  This enables Server-Side Request Forgery (SSRF) attacks, information disclosure
+  through access to internal services, and potential denial of service through
+  entity expansion attacks.
+
+locations:
+- type: root_cause
+  path_from_root: core/src/main/java/org/eclipse/angus/mail/handlers/text_xml.java
+  function_name: writeTo
+  startLine: 89
+  startColumn: 0
+  endLine: 90
+  endColumn: 0

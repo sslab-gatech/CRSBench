@@ -1,0 +1,30 @@
+id: cpv_21
+name: SQL Injection in UserNameAction.doGetName()
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+cwes:
+- CWE-89
+- CWE-943
+
+description: |
+  A SQL injection vulnerability exists in the doGetName method of the
+  UserNameAction class. The method constructs a SQL query by directly
+  concatenating user-supplied input from HTTP request parameters (ID and PW)
+  without proper sanitization or use of prepared statements. An attacker can
+  inject malicious SQL code through these parameters to bypass authentication,
+  read sensitive data from the database, or manipulate database records.
+
+locations:
+- type: crash_site
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java
+  function_name: doGetName
+  startLine: 74
+  endLine: 74
+- type: root_cause
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/UserNameAction.java
+  function_name: doGetName
+  startLine: 74
+  endLine: 74

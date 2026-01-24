@@ -1,0 +1,37 @@
+id: cpv_1
+name: XPath Injection in Config.getTagXPath via Unsafe String Concatenation
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+cwes:
+- CWE-643
+- CWE-91
+- CWE-74
+
+description: |
+  An XPath injection vulnerability exists in the Config.getTagXPath method
+  in src/me/xdrop/fuzzywuzzy/Config.java. The function directly concatenates
+  user-controlled input into an XPath expression without proper validation
+  or sanitization, allowing an attacker to inject malicious XPath syntax.
+  This can lead to information disclosure, XML structure manipulation, or
+  denial of service through malformed queries. The vulnerability is triggered
+  through a reflection-based call in DiffUtils.getConfigValue that invokes
+  the vulnerable method instead of the safe DOM-based alternative.
+
+locations:
+- type: crash_site
+  path_from_root: src/me/xdrop/fuzzywuzzy/Config.java
+  function_name: getTagXPath
+  startLine: 84
+  startColumn: 13
+  endLine: 84
+  endColumn: 48
+- type: root_cause
+  path_from_root: diffutils/src/me/xdrop/diffutils/DiffUtils.java
+  function_name: getConfigValue
+  startLine: 855
+  startColumn: 29
+  endLine: 855
+  endColumn: 128

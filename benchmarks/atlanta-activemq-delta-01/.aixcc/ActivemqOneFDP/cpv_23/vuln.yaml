@@ -1,0 +1,42 @@
+id: cpv_23
+name: Apache ActiveMQ OpenWire Deserialization Remote Code Execution
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://github.com/advisories/GHSA-crg9-44h2-xw35
+- https://activemq.apache.org/security-advisories.data/CVE-2023-46604-announcement.txt
+
+cwes:
+- CWE-502
+- CWE-470
+- CWE-94
+
+description: |
+  A critical remote code execution vulnerability exists in Apache ActiveMQ's OpenWire
+  protocol deserialization mechanism. The BaseDataStreamMarshaller.createThrowable()
+  method accepts an arbitrary class name from externally-controlled data and instantiates
+  it using reflection without validating that the class extends Throwable. An attacker
+  with network access to the broker can send a specially crafted OpenWire packet
+  containing an ExceptionResponse with a malicious class name, triggering instantiation
+  of any class on the classpath that has a String constructor. This allows remote code
+  execution by instantiating classes that execute commands in their constructors.
+
+locations:
+- type: crash_site
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 234
+  startColumn: 1
+  endLine: 234
+  endColumn: 80
+- type: root_cause
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 230
+  startColumn: 1
+  endLine: 240
+  endColumn: 80

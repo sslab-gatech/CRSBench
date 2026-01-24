@@ -1,0 +1,32 @@
+id: cpv_17
+name: Script Engine Injection via Insecure Eval in Jenkins Toy Plugin
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+cwes:
+- CWE-94
+- CWE-95
+
+description: |
+  A Script Engine Injection vulnerability exists in the secureEval method
+  of the Jenkins toy plugin. The method directly evaluates user-provided
+  Groovy script content using groovyEngine.eval() without proper validation
+  during the compilation phase. While a custom GroovySecurityManager attempts
+  to blacklist certain instructions through AST analysis, the eval() method
+  can execute scripts that bypass these security checks. This allows attackers
+  to potentially execute arbitrary code on the Jenkins server, escape the
+  security sandbox, and escalate privileges.
+
+locations:
+- type: crash_site
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/Script.java
+  function_name: secureEval
+  startLine: 84
+  endLine: 84
+- type: root_cause
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/Script.java
+  function_name: secureEval
+  startLine: 84
+  endLine: 84

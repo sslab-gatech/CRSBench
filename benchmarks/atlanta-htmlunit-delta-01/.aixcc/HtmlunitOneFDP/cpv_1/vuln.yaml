@@ -1,0 +1,38 @@
+id: cpv_1
+name: Missing FEATURE_SECURE_PROCESSING in XSLTProcessor allows XSLT-based RCE
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+cwes:
+- CWE-94
+- CWE-91
+- CWE-611
+
+description: |
+  An OS Command Injection vulnerability exists in HtmlUnit's XSLTProcessor
+  implementation due to the missing FEATURE_SECURE_PROCESSING security
+  configuration. The configureTransformerFactory method fails to enable
+  secure processing for the XSLT TransformerFactory, allowing malicious
+  XSLT stylesheets to leverage Xalan's Java extension functions to invoke
+  arbitrary Java methods, including Runtime.exec(). An attacker can craft
+  a malicious HTML page containing an XSLT stylesheet that executes
+  arbitrary OS commands, leading to remote code execution and complete
+  system compromise.
+
+locations:
+- type: root_cause
+  path_from_root: src/main/java/org/htmlunit/javascript/host/xml/XSLTProcessor.java
+  function_name: configureTransformerFactory
+  startLine: 129
+  startColumn: 1
+  endLine: 138
+  endColumn: 80
+- type: crash_site
+  path_from_root: src/main/java/org/htmlunit/javascript/host/xml/XSLTProcessor.java
+  function_name: transform
+  startLine: 262
+  startColumn: 1
+  endLine: 262
+  endColumn: 100

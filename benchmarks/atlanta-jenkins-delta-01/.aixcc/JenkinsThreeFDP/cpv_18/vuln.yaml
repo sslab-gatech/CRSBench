@@ -1,0 +1,33 @@
+id: cpv_18
+name: Path Traversal in Jenkins PluginManager Upload Handler
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+cwes:
+- CWE-22
+- CWE-23
+- CWE-73
+
+description: |
+  A path traversal vulnerability exists in the hudson.PluginManager.doPerformUpload()
+  method. The method accepts file uploads for Jenkins plugins and constructs the
+  destination file path using the uploadPath parameter from the HTTP request without
+  any validation or sanitization. An attacker can inject path traversal sequences
+  (e.g., ../) to escape the intended /tmp/plugins directory and write files to
+  arbitrary locations on the Jenkins controller filesystem. This can lead to arbitrary
+  file write, potential code execution if executable files are overwritten, and
+  compromise of Jenkins secrets and configuration files.
+
+locations:
+- type: root_cause
+  path_from_root: jenkins/core/src/main/java/hudson/PluginManager.java
+  function_name: doPerformUpload
+  startLine: 1638
+  endLine: 1638
+- type: crash_site
+  path_from_root: jenkins/core/src/main/java/hudson/PluginManager.java
+  function_name: doPerformUpload
+  startLine: 1640
+  endLine: 1641

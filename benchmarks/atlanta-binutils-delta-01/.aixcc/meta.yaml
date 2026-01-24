@@ -57,7 +57,7 @@ harness_files:
 - name: fuzz_nm
   path: $PROJECT/fuzz_nm.c
   vulns:
-  - vuln_keyword: cpv_1
+  - vuln_keyword: cpv_4
     povs:
     - id: pov_0
       sanitizer: address

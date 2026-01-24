@@ -1,0 +1,34 @@
+id: cpv_1
+name: Expression Language Injection via Error Message Template in CronParser
+
+origin: 1-day
+
+release_date: 11/15/2021
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2021-41269
+- https://github.com/advisories/GHSA-p9m8-27x8-rg87
+
+cwes:
+- CWE-94
+- CWE-917
+- CWE-78
+
+description: |
+  An Expression Language (EL) injection vulnerability exists in the CronParser.parse()
+  method in cron-utils. When parsing an invalid cron expression, the error message
+  includes the user-controlled expression value which is later interpolated by
+  Hibernate Validator's EL engine. An attacker can craft a malicious cron expression
+  containing EL injection payloads that, when processed, execute arbitrary code through
+  the JavaScript engine, leading to OS command injection and remote code execution.
+  This vulnerability affects cron-utils versions prior to 9.1.6 and has a CVSS score
+  of 10.0 (Critical).
+
+locations:
+- type: root_cause
+  path_from_root: src/main/java/com/cronutils/parser/CronParser.java
+  function_name: parse
+  startLine: 165
+  startColumn: 23
+  endLine: 165
+  endColumn: 106

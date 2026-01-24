@@ -33,7 +33,7 @@ harness_files:
 - name: FuzzyOneFDP
   path: $PROJECT/fuzz/fuzzy-harness-one/src/main/java/com/aixcc/fuzzy/harnesses/one/FuzzyOneFDP.java
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_1
     povs:
     - id: pov_0
       sanitizer: address

@@ -1,0 +1,28 @@
+id: cpv_5
+name: XPath Injection in PatSegment instruction parsing
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+cwes:
+- CWE-643
+- CWE-91
+
+description: |
+  An XPath injection vulnerability exists in the PatSegment class within
+  the Apache Commons Imaging library. The parseInstructions method at line
+  93 directly uses user-controlled input from the instruction parameter in
+  an XPath expression without proper sanitization or validation. An attacker
+  can inject malicious XPath syntax through crafted instruction values in
+  image metadata, potentially leading to unauthorized data access or
+  manipulation of the XML document processing.
+
+locations:
+- type: crash_site
+  path_from_root: src/main/java/org/apache/commons/imaging/formats/png/chunks/PatSegment.java
+  function_name: parseInstructions
+  startLine: 93
+  startColumn: 1
+  endLine: 93
+  endColumn: 100

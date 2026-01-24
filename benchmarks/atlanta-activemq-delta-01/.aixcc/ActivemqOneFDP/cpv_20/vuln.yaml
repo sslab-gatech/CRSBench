@@ -1,0 +1,43 @@
+id: cpv_20
+name: Apache ActiveMQ OpenWire Protocol RCE via Unsafe Throwable Instantiation
+
+origin: 1-day
+
+release_date: 10/27/2023
+
+references:
+- https://nvd.nist.gov/vuln/detail/CVE-2023-46604
+- https://activemq.apache.org/news/cve-2023-46604
+
+cwes:
+- CWE-502
+- CWE-470
+- CWE-94
+
+description: |
+  A critical Remote Code Execution vulnerability exists in Apache ActiveMQ's
+  OpenWire protocol marshaller. The BaseDataStreamMarshaller.createThrowable()
+  method accepts an attacker-controlled class name and instantiates it via
+  reflection without validating that the class extends Throwable. This allows
+  instantiation of arbitrary classes on the classpath that have a String
+  constructor, enabling remote code execution. An attacker can craft a malicious
+  OpenWire message containing an ExceptionResponse with an arbitrary class name
+  and parameter, which when deserialized executes malicious code. No
+  authentication is required and the vulnerability is network exploitable with
+  CVSS score 10.0 CRITICAL.
+
+locations:
+- type: root_cause
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java
+  function_name: createThrowable
+  startLine: 228
+  startColumn: 1
+  endLine: 238
+  endColumn: 5
+- type: crash_site
+  path_from_root: activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java
+  function_name: looseUnmarsalThrowable
+  startLine: 511
+  startColumn: 1
+  endLine: 549
+  endColumn: 5
