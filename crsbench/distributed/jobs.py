@@ -14,7 +14,10 @@ from typing import Any, Dict, Optional
 
 import yaml
 
-from crsbench.evaluation.cleanup import cleanup_trial_directory, copy_trial_results
+from crsbench.evaluation.cleanup import (
+    cleanup_trial_directory,
+    copy_trial_results,
+)
 from crsbench.evaluation.crs_bug_finding_executor import CRSBugFindingExecutor
 from crsbench.evaluation.crs_patch_executor import CRSPatchExecutor
 from crsbench.evaluation.litellm_tracker import (
@@ -442,22 +445,24 @@ def _create_failed_trial_result(
     harness: str,
     trial_num: int,
 ) -> TrialResult:
-    """Create TrialResult for a previously failed trial.
+    """Create a failed TrialResult from a directory with .fail marker.
 
     Args:
-        trial_dir: Path to trial directory
+        trial_dir: Path to trial directory with .fail marker
         crs: CRS name
         benchmark: Benchmark name
         harness: Harness name
         trial_num: Trial number
 
     Returns:
-        TrialResult indicating failure (for retry)
+        TrialResult with success=False
     """
     metadata_file = trial_dir / "metadata.json"
 
-    # Default values
+    # Default values for failed trial
     crs_type_enum = CRSType.BUG_FINDING
+    error_msg = "Trial failed (recovered from .fail marker)"
+    error_type = "UnknownError"
 
     if metadata_file.exists():
         try:
@@ -471,11 +476,11 @@ def _create_failed_trial_result(
 
         except Exception as e:
             logger.warning(
-                f"Could not parse metadata.json for failed trial {trial_num}: {e}. Using default CRS type."
+                f"Could not parse metadata.json for failed trial {trial_num}: {e}. Using defaults."
             )
 
     logger.info(
-        f"[Trial {trial_num}] Found existing .fail marker at {trial_dir} - returning failed result for retry"
+        f"[Trial {trial_num}] Skipping execution - found existing .fail marker at {trial_dir}"
     )
 
     return TrialResult(
@@ -486,8 +491,8 @@ def _create_failed_trial_result(
         crs_type=crs_type_enum,
         success=False,
         execution_time=0.0,
-        error="Trial previously failed (marked for retry)",
-        error_type="PreviousFailure",
+        error=error_msg,
+        error_type=error_type,
         report={},
         metadata=TrialMetadata(
             timestamp_start=0.0,
@@ -658,6 +663,9 @@ def run_crs_trial(
     except Exception as e:
         # Don't fail the job if metadata update fails
         logger.warning(f"Failed to update job metadata: {e}")
+
+    # Initialize trial_output_dir before try block for exception handlers
+    trial_output_dir: Optional[Path] = None
 
     try:
         # Get snapshot configuration
@@ -1051,27 +1059,9 @@ def run_crs_trial(
         execution_time = time.time() - start_time
         error_msg = escape_loguru_braces(str(e))
         logger.error(f"[Trial {trial_num}] Benchmark not found: {error_msg}")
-        # Create .fail marker if trial_output_dir exists
-        if "trial_output_dir" in locals() and trial_output_dir.exists():
+        # Create .fail marker and clean up build artifacts if enabled
+        if trial_output_dir and trial_output_dir.exists():
             (trial_output_dir / ".fail").touch()
-            # Per-trial copy if enabled (before cleanup, even for failed trials)
-            if config.copy_results_after_trial and config.experiment_results_filestore:
-                experiment_dir = (
-                    config.experiment_filestore.resolve() / config.experiment
-                )
-                rel_path = trial_output_dir.relative_to(experiment_dir)
-                folder_name = _generate_results_folder_name(
-                    config.experiment, results_timestamp
-                )
-                dest_dir = (
-                    Path(config.experiment_results_filestore)
-                    / folder_name
-                    / "experiment-data"
-                    / config.experiment
-                    / rel_path
-                )
-                copy_trial_results(trial_output_dir, dest_dir)
-            # Per-trial cleanup if enabled (even for failed trials)
             if config.cleanup_after_trial:
                 cleanup_trial_directory(trial_output_dir)
         return TrialResult(
@@ -1095,27 +1085,9 @@ def run_crs_trial(
         execution_time = time.time() - start_time
         error_msg = escape_loguru_braces(str(e))
         logger.error(f"[Trial {trial_num}] Invalid benchmark format: {error_msg}")
-        # Create .fail marker if trial_output_dir exists
-        if "trial_output_dir" in locals() and trial_output_dir.exists():
+        # Create .fail marker and clean up build artifacts if enabled
+        if trial_output_dir and trial_output_dir.exists():
             (trial_output_dir / ".fail").touch()
-            # Per-trial copy if enabled (before cleanup, even for failed trials)
-            if config.copy_results_after_trial and config.experiment_results_filestore:
-                experiment_dir = (
-                    config.experiment_filestore.resolve() / config.experiment
-                )
-                rel_path = trial_output_dir.relative_to(experiment_dir)
-                folder_name = _generate_results_folder_name(
-                    config.experiment, results_timestamp
-                )
-                dest_dir = (
-                    Path(config.experiment_results_filestore)
-                    / folder_name
-                    / "experiment-data"
-                    / config.experiment
-                    / rel_path
-                )
-                copy_trial_results(trial_output_dir, dest_dir)
-            # Per-trial cleanup if enabled (even for failed trials)
             if config.cleanup_after_trial:
                 cleanup_trial_directory(trial_output_dir)
         return TrialResult(
@@ -1141,27 +1113,9 @@ def run_crs_trial(
         logger.error(
             f"[Trial {trial_num}] Failed with error: {error_msg}", exc_info=True
         )
-        # Create .fail marker if trial_output_dir exists
-        if "trial_output_dir" in locals() and trial_output_dir.exists():
+        # Create .fail marker and clean up build artifacts if enabled
+        if trial_output_dir and trial_output_dir.exists():
             (trial_output_dir / ".fail").touch()
-            # Per-trial copy if enabled (before cleanup, even for failed trials)
-            if config.copy_results_after_trial and config.experiment_results_filestore:
-                experiment_dir = (
-                    config.experiment_filestore.resolve() / config.experiment
-                )
-                rel_path = trial_output_dir.relative_to(experiment_dir)
-                folder_name = _generate_results_folder_name(
-                    config.experiment, results_timestamp
-                )
-                dest_dir = (
-                    Path(config.experiment_results_filestore)
-                    / folder_name
-                    / "experiment-data"
-                    / config.experiment
-                    / rel_path
-                )
-                copy_trial_results(trial_output_dir, dest_dir)
-            # Per-trial cleanup if enabled (even for failed trials)
             if config.cleanup_after_trial:
                 cleanup_trial_directory(trial_output_dir)
         return TrialResult(

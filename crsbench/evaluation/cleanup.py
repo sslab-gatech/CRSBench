@@ -155,6 +155,25 @@ def cleanup_trial_directory(trial_dir: Path) -> None:
         logger.debug(f"No items to delete in {trial_dir.name}")
 
 
+def delete_trial_directory(trial_dir: Path) -> None:
+    """Delete entire trial directory.
+
+    Uses Docker fallback for root-owned files created by containers.
+
+    Args:
+        trial_dir: Path to trial directory to delete
+    """
+    if not trial_dir.exists():
+        return
+
+    logger.info(f"Deleting failed trial directory: {trial_dir}")
+    try:
+        shutil.rmtree(trial_dir)
+    except PermissionError:
+        if not _rmtree_with_docker(trial_dir):
+            logger.warning(f"Failed to delete trial directory: {trial_dir}")
+
+
 def copy_trial_results(trial_dir: Path, dest_dir: Path) -> None:
     """Copy trial directory to destination, excluding blacklisted patterns.
 
