@@ -50,7 +50,7 @@ fi
 # Run Test
 ## [REQUIRED] Try not to change when using mvn test. Avoid using commands like `clean` as much as possible. Use only if absolutely necessary.
 # Clover excludes: packages with Java syntax issues during Clover instrumentation
-CLOVER_EXCLUDES="-Dmaven.clover.excludesList=**/protocol/oid4vc/**,**/keys/JavaKeystoreKeyProvider.java"
+CLOVER_EXCLUDES="-Dmaven.clover.excludesList=**/protocol/oid4vc/**,**/keys/JavaKeystoreKeyProvider.java,**/ConditionalSubFlowExecutedAuthenticatorFactory.java"
 if [ -n "${RTS_ON}" ] && [ "$RTS_TOOL" = "openclover" ]; then
     $MVN clover:setup clover:optimize test clover:snapshot $MVN_ARGS $CLOVER_EXCLUDES
 else
