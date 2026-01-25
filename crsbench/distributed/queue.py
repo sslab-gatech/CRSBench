@@ -177,7 +177,7 @@ def get_queue_stats(queue: "rq.Queue") -> dict:
 
 def clear_queue(queue: "rq.Queue") -> int:
     """
-    Clear all jobs from the queue.
+    Clear all jobs from the queue and all registries.
 
     Args:
         queue: RQ queue instance
@@ -186,7 +186,8 @@ def clear_queue(queue: "rq.Queue") -> int:
         int: Number of jobs removed
 
     Warning:
-        This will remove all pending jobs. Use with caution.
+        This will remove all jobs (queued, started, finished, failed).
+        Use with caution.
 
     Example:
         >>> queue = initialize_queue('localhost', 'test-exp')
@@ -196,19 +197,43 @@ def clear_queue(queue: "rq.Queue") -> int:
     if not REDIS_AVAILABLE:
         raise RuntimeError("Redis and RQ packages are required")
 
+    total_count = 0
+
     try:
-        job_ids = queue.get_job_ids()
-        count = len(job_ids)
+        # Clear main queue using empty()
+        queued_count = queue.count
+        queue.empty()
+        total_count += queued_count
+        logger.debug(f"Cleared {queued_count} queued jobs")
 
-        for job_id in job_ids:
-            try:
-                job = rq.job.Job.fetch(job_id, connection=queue.connection)  # type: ignore[attr-defined]
-                job.delete()
-            except Exception as e:
-                logger.warning(f"Failed to delete job {job_id}: {e}")
+        # Clear all registries with delete_job=True
+        registries = [
+            ("started", queue.started_job_registry),
+            ("finished", queue.finished_job_registry),
+            ("failed", queue.failed_job_registry),
+            ("deferred", queue.deferred_job_registry),
+        ]
 
-        logger.info(f"Cleared {count} jobs from queue {queue.name}")
-        return count
+        if hasattr(queue, "scheduled_job_registry"):
+            registries.append(("scheduled", queue.scheduled_job_registry))
+
+        for registry_name, registry in registries:
+            job_ids = registry.get_job_ids()
+            registry_count = 0
+            for job_id in job_ids:
+                try:
+                    registry.remove(job_id, delete_job=True)
+                    registry_count += 1
+                except Exception as e:
+                    logger.warning(
+                        f"Failed to delete {registry_name} job {job_id}: {e}"
+                    )
+            if registry_count > 0:
+                logger.debug(f"Cleared {registry_count} {registry_name} jobs")
+                total_count += registry_count
+
+        logger.info(f"Cleared {total_count} jobs from queue {queue.name}")
+        return total_count
 
     except Exception as e:
         logger.error(f"Failed to clear queue: {e}")
