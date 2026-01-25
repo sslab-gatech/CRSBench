@@ -326,9 +326,19 @@ def requeue_failed_jobs(queue: "rq.Queue", failed_jobs: list["rq.job.Job"]) -> i
     count = 0
     for job in failed_jobs:
         try:
+            # Increment executed_times in job metadata
+            executed_times = job.meta.get("executed_times", 1) + 1
+            job.meta["executed_times"] = executed_times
+            job.save_meta()
+
+            # Remove from failed registry before requeuing
+            queue.failed_job_registry.remove(job)
+
             queue.enqueue_job(job)
             count += 1
-            logger.debug(f"Requeued failed job {job.id[:8]}")
+            logger.debug(
+                f"Requeued job {job.id[:8]} (executed_times: {executed_times})"
+            )
         except Exception as e:
             logger.warning(f"Failed to requeue job {job.id[:8]}: {e}")
 

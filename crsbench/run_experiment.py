@@ -1436,8 +1436,6 @@ def _monitor_jobs_basic(
 
     logger.info(f"\nMonitoring {len(job_list)} jobs for experiment: {experiment_name}")
 
-    # Track retry counts: job_id -> retry_count
-    job_retry_counts: dict[str, int] = {}
     last_requeue_time = time.time()
 
     try:
@@ -1496,8 +1494,9 @@ def _monitor_jobs_basic(
                 if job.is_finished:
                     completed += 1
                 elif job.is_failed:
-                    retry_count = job_retry_counts.get(job.id, 0)
-                    if retry > 0 and retry_count < retry:
+                    executed_times = job.meta.get("executed_times", 1)
+                    # Can retry if executed_times <= retry (hasn't exceeded limit)
+                    if retry > 0 and executed_times <= retry:
                         failed_jobs.append(job)
                     else:
                         permanently_failed += 1
@@ -1511,9 +1510,9 @@ def _monitor_jobs_basic(
                 current_time = time.time()
                 if (current_time - last_requeue_time) >= retry_interval:
                     for job in failed_jobs:
-                        job_retry_counts[job.id] = job_retry_counts.get(job.id, 0) + 1
+                        executed_times = job.meta.get("executed_times", 1)
                         logger.info(
-                            f"Requeuing job {job.id[:8]} (retry {job_retry_counts[job.id]}/{retry})"
+                            f"Requeuing job {job.id[:8]} (execution {executed_times} -> {executed_times + 1}, max: {retry + 1})"
                         )
                     requeue_failed_jobs(queue, failed_jobs)
                     last_requeue_time = current_time
@@ -1574,8 +1573,6 @@ def _monitor_jobs_rich(
 
     console = Console()
 
-    # Track retry counts: job_id -> retry_count
-    job_retry_counts: dict[str, int] = {}
     last_requeue_time = time.time()
 
     def generate_status_table():
@@ -1654,8 +1651,9 @@ def _monitor_jobs_rich(
                     if job.is_finished:
                         completed += 1
                     elif job.is_failed:
-                        retry_count = job_retry_counts.get(job.id, 0)
-                        if retry > 0 and retry_count < retry:
+                        executed_times = job.meta.get("executed_times", 1)
+                        # Can retry if executed_times <= retry (hasn't exceeded limit)
+                        if retry > 0 and executed_times <= retry:
                             failed_jobs.append(job)
                         else:
                             permanently_failed += 1
@@ -1669,11 +1667,9 @@ def _monitor_jobs_rich(
                     current_time = time.time()
                     if (current_time - last_requeue_time) >= retry_interval:
                         for job in failed_jobs:
-                            job_retry_counts[job.id] = (
-                                job_retry_counts.get(job.id, 0) + 1
-                            )
+                            executed_times = job.meta.get("executed_times", 1)
                             logger.info(
-                                f"Requeuing job {job.id[:8]} (retry {job_retry_counts[job.id]}/{retry})"
+                                f"Requeuing job {job.id[:8]} (execution {executed_times} -> {executed_times + 1}, max: {retry + 1})"
                             )
                         requeue_failed_jobs(queue, failed_jobs)
                         last_requeue_time = current_time
@@ -2071,6 +2067,7 @@ def run_experiment_distributed(
                 "trial_num": trial.trial_num,
                 "cpu_count": cpu_count,  # CPU count from resource config
                 "memory_limit": memory_limit,  # Memory limit from resource config
+                "executed_times": 1,  # Track execution count (first execution)
             },
         )
         jobs.append(job)
