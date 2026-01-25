@@ -1,0 +1,430 @@
+diff --git a/pom.xml b/pom.xml
+index 664d8fb0a7051f35b1464a44c447550e25acc500..dddd4b5122bf7279fe9a904f9249bd7bd0632d18 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -1,6 +1,8 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+-<!--
++<project xmlns="http://maven.apache.org/POM/4.0.0"
++  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <!--
+ /**
+  * Licensed to the Apache Software Foundation (ASF) under one
+  * or more contributor license agreements.  See the NOTICE file
+@@ -248,10 +250,10 @@
+       <timezone>-8</timezone>
+     </developer>
+     <developer>
+-        <id>eolivelli</id>
+-        <name>Enrico Olivelli</name>
+-        <email>eolivelli@apache.org</email>
+-        <timezone>+1</timezone>
++      <id>eolivelli</id>
++      <name>Enrico Olivelli</name>
++      <email>eolivelli@apache.org</email>
++      <timezone>+1</timezone>
+     </developer>
+     <developer>
+       <id>nkalmar</id>
+@@ -304,44 +306,44 @@
+       </modules>
+     </profile>
+     <profile>
+-        <id>apache-release</id>
+-        <build>
+-            <plugins>
+-                <plugin>
+-                    <groupId>org.apache.maven.plugins</groupId>
+-                    <artifactId>maven-assembly-plugin</artifactId>
+-                    <dependencies>
+-                        <dependency>
+-                            <groupId>org.apache.apache.resources</groupId>
+-                            <artifactId>apache-source-release-assembly-descriptor</artifactId>
+-                            <version>1.0.6</version>
+-                        </dependency>
+-                    </dependencies>
+-                    <executions>
+-                        <execution>
+-                            <id>source-release-assembly-tar-gz</id>
+-                            <phase>initialize</phase>
+-                            <goals>
+-                                <goal>single</goal>
+-                            </goals>
+-                            <configuration>
+-                                <runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
+-                                <descriptorRefs>
+-                                    <!-- defined in Apache Parent Pom -->
+-                                    <descriptorRef>${sourceReleaseAssemblyDescriptor}</descriptorRef>
+-                                </descriptorRefs>
+-                                <finalName>apache-zookeeper-${project.version}</finalName>
+-                                <appendAssemblyId>false</appendAssemblyId>
+-                                <formats>
+-                                    <format>tar.gz</format>
+-                                </formats>
+-                                <tarLongFileMode>posix</tarLongFileMode>
+-                            </configuration>
+-                        </execution>
+-                    </executions>
+-                </plugin>
+-            </plugins>
+-        </build>
++      <id>apache-release</id>
++      <build>
++        <plugins>
++          <plugin>
++            <groupId>org.apache.maven.plugins</groupId>
++            <artifactId>maven-assembly-plugin</artifactId>
++            <dependencies>
++              <dependency>
++                <groupId>org.apache.apache.resources</groupId>
++                <artifactId>apache-source-release-assembly-descriptor</artifactId>
++                <version>1.0.6</version>
++              </dependency>
++            </dependencies>
++            <executions>
++              <execution>
++                <id>source-release-assembly-tar-gz</id>
++                <phase>initialize</phase>
++                <goals>
++                  <goal>single</goal>
++                </goals>
++                <configuration>
++                  <runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
++                  <descriptorRefs>
++                    <!-- defined in Apache Parent Pom -->
++                    <descriptorRef>${sourceReleaseAssemblyDescriptor}</descriptorRef>
++                  </descriptorRefs>
++                  <finalName>apache-zookeeper-${project.version}</finalName>
++                  <appendAssemblyId>false</appendAssemblyId>
++                  <formats>
++                    <format>tar.gz</format>
++                  </formats>
++                  <tarLongFileMode>posix</tarLongFileMode>
++                </configuration>
++              </execution>
++            </executions>
++          </plugin>
++        </plugins>
++      </build>
+     </profile>
+     <profile>
+       <id>m2e</id>
+@@ -481,8 +483,8 @@
+               </includes>
+               <excludes>
+                 <exclude>org/apache/zookeeper/version/**/*</exclude>
+-                  <exclude>**/ReadOnlyModeTest.java</exclude>
+-                  <exclude>**/KeeperStateTest.java</exclude>
++                <exclude>**/ReadOnlyModeTest.java</exclude>
++                <exclude>**/KeeperStateTest.java</exclude>
+               </excludes>
+             </configuration>
+             <executions>
+@@ -736,10 +738,10 @@
+         <artifactId>metrics-core</artifactId>
+         <version>${dropwizard.version}</version>
+         <exclusions>
+-           <exclusion>
+-              <groupId>org.slf4j</groupId>
+-              <artifactId>slf4j-api</artifactId>
+-           </exclusion>
++          <exclusion>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-api</artifactId>
++          </exclusion>
+         </exclusions>
+       </dependency>
+       <dependency>
+@@ -784,17 +786,16 @@
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-compiler-plugin</artifactId>
+           <configuration>
+-             <showWarnings>true</showWarnings>
+-             <compilerArgs>
+-               <compilerArg>-Werror</compilerArg>
+-               <compilerArg>-Xlint:deprecation</compilerArg>
+-               <compilerArg>-Xlint:unchecked</compilerArg>
+-               <compilerArg>-Xlint:-options</compilerArg>
+-               <compilerArg>-Xdoclint:-missing</compilerArg>
+-               <!-- https://issues.apache.org/jira/browse/MCOMPILER-205 -->
+-               <compilerArg>-Xpkginfo:always</compilerArg>
+-              </compilerArgs>
+-            </configuration>
++            <showWarnings>true</showWarnings>
++            <compilerArgs>
++              <compilerArg>-Xlint:deprecation</compilerArg>
++              <compilerArg>-Xlint:unchecked</compilerArg>
++              <compilerArg>-Xlint:-options</compilerArg>
++              <compilerArg>-Xdoclint:-missing</compilerArg>
++              <!-- https://issues.apache.org/jira/browse/MCOMPILER-205 -->
++              <compilerArg>-Xpkginfo:always</compilerArg>
++            </compilerArgs>
++          </configuration>
+         </plugin>
+         <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+@@ -838,8 +839,29 @@
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-surefire-plugin</artifactId>
+           <configuration>
+-              <trimStackTrace>false</trimStackTrace>
+-              <redirectTestOutputToFile>${redirectTestOutputToFile}</redirectTestOutputToFile>
++            <trimStackTrace>false</trimStackTrace>
++            <redirectTestOutputToFile>${redirectTestOutputToFile}</redirectTestOutputToFile>
++            <includes>
++              <include>**/DataTreeTest.java</include>
++              <include>**/DataNodeTest.java</include>
++              <include>**/DeserializationPerfTest.java</include>
++              <include>**/ZooKeeperTest.java</include>
++              <include>**/MessageTrackerTest.java</include>
++            </includes>
++            <excludes>
++              <exclude>**/ZKUtilTest.java</exclude>
++              <exclude>**/ZooKeeperServerMainTest.java</exclude>
++              <exclude>**/SnapshotAndRestoreCommandTest.java</exclude>
++              <exclude>**/QuorumPeerMainTest.java</exclude>
++              <exclude>**/ClientSSLTest.java</exclude>
++              <exclude>**/ReconfigRecoveryTest.java</exclude>
++              <exclude>**/ClientSSLTest.java</exclude>
++              <exclude>**/CloseSessionTxnTest.java</exclude>
++              <exclude>**/QuorumPeerTest.java</exclude>
++              <exclude>**/ClientTest.java</exclude>
++              <exclude>**/ReconfigTest.java</exclude>
++              <exclude>**/ZookeeperServerClusterTest.java</exclude>
++            </excludes>
+           </configuration>
+         </plugin>
+         <plugin>
+@@ -918,8 +940,8 @@
+           <artifactId>maven-remote-resources-plugin</artifactId>
+           <executions>
+             <execution>
+-               <id>process-resource-bundles</id>
+-               <phase>none</phase>
++              <id>process-resource-bundles</id>
++              <phase>none</phase>
+             </execution>
+           </executions>
+         </plugin>
+@@ -932,7 +954,7 @@
+           <groupId>org.cyclonedx</groupId>
+           <artifactId>cyclonedx-maven-plugin</artifactId>
+           <version>2.7.9</version>
+-       </plugin>
++        </plugin>
+       </plugins>
+     </pluginManagement>
+ 
+@@ -1026,8 +1048,10 @@
+         </configuration>
+       </plugin>
+       <plugin>
+-        <!-- Maven's deploy plugin only creates checksums during the deployment of the jar artifacts to repo. -->
+-        <!-- We also want to sign tarballs. Nicoulaj's plugin is the recommended solution by the community.   -->
++        <!-- Maven's deploy plugin only creates checksums during the deployment of the jar artifacts
++        to repo. -->
++        <!-- We also want to sign tarballs. Nicoulaj's plugin is the recommended solution by the
++        community.   -->
+         <groupId>net.nicoulaj.maven.plugins</groupId>
+         <artifactId>checksum-maven-plugin</artifactId>
+         <executions>
+@@ -1102,47 +1126,50 @@
+         </configuration>
+       </plugin>
+       <plugin>
+-          <groupId>org.apache.maven.plugins</groupId>
+-          <artifactId>maven-release-plugin</artifactId>
+-          <inherited>false</inherited>
+-          <configuration>
+-            <!-- update the version inside the C sources -->
+-            <preparationGoals>clean verify -DskipTests antrun:run@replace-cclient-files-during-release scm:add@add-cclient-files-during-release scm:checkin@commit-cclient-files-during-release</preparationGoals>
+-            <completionGoals>clean verify -DskipTests antrun:run@replace-cclient-files-during-release scm:add@add-cclient-files-during-release scm:checkin@commit-cclient-files-during-release</completionGoals>
+-            <pushChanges>false</pushChanges>
+-            <localCheckout>true</localCheckout>
+-            <autoVersionSubmodules>true</autoVersionSubmodules>
+-            <tagNameFormat>release-@{project.version}</tagNameFormat>
+-          </configuration>
+-        </plugin>
+-        <plugin>
+-          <groupId>org.apache.maven.plugins</groupId>
+-          <artifactId>maven-scm-plugin</artifactId>
+-          <inherited>false</inherited>
+-          <executions>
+-             <execution>
+-               <id>add-cclient-files-during-release</id>
+-               <phase>none</phase>
+-               <goals>
+-                 <goal>add</goal>
+-               </goals>
+-               <configuration>
+-                 <pushChanges>false</pushChanges>
+-                 <includes>zookeeper-client/zookeeper-client-c/CMakeLists.txt,zookeeper-client/zookeeper-client-c/configure.ac,zookeeper-client/zookeeper-client-c/include/zookeeper_version.h</includes>
+-               </configuration>
+-            </execution>
+-            <execution>
+-               <id>commit-cclient-files-during-release</id>
+-               <phase>none</phase>
+-               <goals>
+-                   <!-- git commit -->
+-                <goal>checkin</goal>
+-              </goals>
+-              <configuration>
+-                 <pushChanges>false</pushChanges>
+-                 <message>Prepared ${project.version}</message>
+-              </configuration>
+-            </execution>
++        <groupId>org.apache.maven.plugins</groupId>
++        <artifactId>maven-release-plugin</artifactId>
++        <inherited>false</inherited>
++        <configuration>
++          <!-- update the version inside the C sources -->
++          <preparationGoals>clean verify -DskipTests antrun:run@replace-cclient-files-during-release
++            scm:add@add-cclient-files-during-release scm:checkin@commit-cclient-files-during-release</preparationGoals>
++          <completionGoals>clean verify -DskipTests antrun:run@replace-cclient-files-during-release
++            scm:add@add-cclient-files-during-release scm:checkin@commit-cclient-files-during-release</completionGoals>
++          <pushChanges>false</pushChanges>
++          <localCheckout>true</localCheckout>
++          <autoVersionSubmodules>true</autoVersionSubmodules>
++          <tagNameFormat>release-@{project.version}</tagNameFormat>
++        </configuration>
++      </plugin>
++      <plugin>
++        <groupId>org.apache.maven.plugins</groupId>
++        <artifactId>maven-scm-plugin</artifactId>
++        <inherited>false</inherited>
++        <executions>
++          <execution>
++            <id>add-cclient-files-during-release</id>
++            <phase>none</phase>
++            <goals>
++              <goal>add</goal>
++            </goals>
++            <configuration>
++              <pushChanges>false</pushChanges>
++              <includes>
++                zookeeper-client/zookeeper-client-c/CMakeLists.txt,zookeeper-client/zookeeper-client-c/configure.ac,zookeeper-client/zookeeper-client-c/include/zookeeper_version.h</includes>
++            </configuration>
++          </execution>
++          <execution>
++            <id>commit-cclient-files-during-release</id>
++            <phase>none</phase>
++            <goals>
++              <!-- git commit -->
++              <goal>checkin</goal>
++            </goals>
++            <configuration>
++              <pushChanges>false</pushChanges>
++              <message>Prepared ${project.version}</message>
++            </configuration>
++          </execution>
+         </executions>
+       </plugin>
+       <plugin>
+@@ -1235,4 +1262,4 @@
+     </plugins>
+   </reporting>
+ 
+-</project>
++</project>
+\ No newline at end of file
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java
+index 012a10e54691a711435ba7f0dde3c7ce47f77ca5..eb3dcc5e6abd243fdd99b9bac0ce6d95f29a1c6d 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/DataTree.java
+@@ -22,6 +22,7 @@
+ import java.io.IOException;
+ import java.io.PrintWriter;
+ import java.util.ArrayList;
++import java.util.BitSet;
+ import java.util.Collection;
+ import java.util.Collections;
+ import java.util.HashMap;
+@@ -153,6 +154,10 @@ public class DataTree {
+      */
+     private final Map<Long, HashSet<String>> ephemerals = new ConcurrentHashMap<>();
+ 
++    /**
++     * Maintains ordered set of unique cxids within this DataTree
++     */
++    private final BitSet cxids = new BitSet();
+     /**
+      * This set contains the paths of all container nodes
+      */
+@@ -859,6 +864,8 @@ public ProcessTxnResult processTxn(TxnHeader header, Record txn) {
+ 
+     public ProcessTxnResult processTxn(TxnHeader header, Record txn, boolean isSubTxn) {
+         ProcessTxnResult rc = new ProcessTxnResult();
++        //cxids can only be positive; let's ensure that
++        cxids.set(Math.abs(header.getCxid()));
+ 
+         try {
+             rc.clientId = header.getClientId();
+@@ -1804,6 +1811,17 @@ public void compareSnapshotDigests(long zxid) {
+         }
+     }
+ 
++    public List<Integer> getCxids() {
++        List<Integer> cxidList = new ArrayList<>();
++        for (int i = cxids.nextSetBit(0); i >= 0; i = cxids.nextSetBit(i+1)) {
++            cxidList.add(i);
++            if (i == Integer. MAX_VALUE) {
++                break; // or (i+1) would overflow
++            }
++        }
++        return cxidList;
++    }
++
+     /**
+      * Compares the digest of the tree with the digest present in transaction digest.
+      * If there is any error, logs and alerts the watchers.
+diff --git a/zookeeper-server/src/test/java/org/apache/zookeeper/server/DataTreeTest.java b/zookeeper-server/src/test/java/org/apache/zookeeper/server/DataTreeTest.java
+index 13276d855c528cb04721fba67a647bdf0cab177a..3095e05b14e6c203fc664e8013094d97e7b8732a 100644
+--- a/zookeeper-server/src/test/java/org/apache/zookeeper/server/DataTreeTest.java
++++ b/zookeeper-server/src/test/java/org/apache/zookeeper/server/DataTreeTest.java
+@@ -18,6 +18,7 @@
+ 
+ package org.apache.zookeeper.server;
+ 
++import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+ import static org.junit.jupiter.api.Assertions.assertEquals;
+ import static org.junit.jupiter.api.Assertions.assertFalse;
+ import static org.junit.jupiter.api.Assertions.assertNotEquals;
+@@ -225,6 +226,36 @@ public void testDigestUpdatedWhenReplayCreateTxnForExistNode() {
+         }
+     }
+ 
++    @Test
++    public void testCxids() throws Exception {
++        int[] expected = new int[]{1,2,3,5};
++        //test basic
++        _testCxids(expected, 1,2,3,5);
++        //test order
++        _testCxids(expected, 5,3,2,1);
++        //test dupes
++        _testCxids(expected, 1,1,2,3,5);
++        //test negatives
++        _testCxids(expected, -5,1,2,3);
++        //test negative dupes
++        _testCxids(expected, -3,1,2,-3,5);
++        //test negative+positive dupes
++        _testCxids(expected, -3,1,2,3,5);
++        //test empty
++        _testCxids(new int[0]);
++    }
++
++    void _testCxids(int[] expected, int ... vals) {
++        DataTree dT = new DataTree();
++        for (int cxid : vals) {
++            TxnHeader txnHeader = new TxnHeader(13, cxid, 1, 30, ZooDefs.OpCode.create);
++            CreateTxn createTxn = new CreateTxn("/foo", "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, false, 1);
++            dT.processTxn(txnHeader, createTxn);
++        }
++        int[] cxidInts = dT.getCxids().stream().mapToInt(x->x).toArray();
++        assertArrayEquals(expected, cxidInts);
++    }
++
+     @Test
+     @Timeout(value = 60)
+     public void testPathTrieClearOnDeserialize() throws Exception {

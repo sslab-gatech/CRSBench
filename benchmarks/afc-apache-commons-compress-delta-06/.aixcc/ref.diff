@@ -1,0 +1,92 @@
+diff --git a/src/main/java/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.java b/src/main/java/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.java
+index 863d56a967436ab08db3b64e8fe611a0f6fab626..38f0b9d5e9e68a57da0b59d992b0a6e94acea6ae 100644
+--- a/src/main/java/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.java
++++ b/src/main/java/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.java
+@@ -25,6 +25,7 @@
+ import java.nio.file.Path;
+ import java.nio.file.attribute.BasicFileAttributes;
+ import java.nio.file.attribute.FileTime;
++import java.text.Normalizer;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.Date;
+@@ -1472,6 +1473,24 @@ protected void setStreamContiguous(final boolean isStreamContiguous) {
+         this.isStreamContiguous = isStreamContiguous;
+     }
+ 
++    /**
++     * Resolves this entry in the given parent Path.
++     *
++     * @param parentPath the {@link Path#resolve(Path)} receiver.
++     * @return a resolved and Unicode normalized Path.
++     * @throws IOException if this method detects a Zip slip.
++     * @since 1.26.0
++     */
++    @Override
++    public Path resolveIn(final Path parentPath) throws IOException {
++        final String name = getName();
++        final Path outputFile = parentPath.resolve(name).normalize();
++        if (!outputFile.startsWith(parentPath)) {
++            throw new IOException(String.format("Zip slip '%s' + '%s' -> '%s'", parentPath, name, outputFile));
++        }
++        return parentPath.resolve(Normalizer.normalize(name, Normalizer.Form.NFKD)).normalize();
++    }
++
+     /**
+      * Sets the modification time of the entry.
+      *
+diff --git a/src/test/java/org/apache/commons/compress/archivers/examples/ExpanderTest.java b/src/test/java/org/apache/commons/compress/archivers/examples/ExpanderTest.java
+index aad9e0afd78bf14651480bcfe9de74e6df8ff0a7..92f047cb31be820abd054f710d7782393bd33dc8 100644
+--- a/src/test/java/org/apache/commons/compress/archivers/examples/ExpanderTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/examples/ExpanderTest.java
+@@ -20,6 +20,7 @@
+ 
+ import static java.nio.charset.StandardCharsets.UTF_8;
+ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
++import static org.junit.jupiter.api.Assertions.assertEquals;
+ import static org.junit.jupiter.api.Assertions.assertFalse;
+ import static org.junit.jupiter.api.Assertions.assertThrows;
+ import static org.junit.jupiter.api.Assertions.assertTrue;
+@@ -34,6 +35,8 @@
+ import java.nio.channels.FileChannel;
+ import java.nio.channels.SeekableByteChannel;
+ import java.nio.file.Files;
++import java.nio.file.Path;
++import java.nio.file.Paths;
+ import java.nio.file.StandardOpenOption;
+ 
+ import org.apache.commons.compress.AbstractTest;
+@@ -47,6 +50,7 @@
+ import org.apache.commons.compress.archivers.tar.TarFile;
+ import org.apache.commons.compress.archivers.zip.ZipFile;
+ import org.junit.jupiter.api.Test;
++import org.junit.jupiter.api.io.TempDir;
+ 
+ class ExpanderTest extends AbstractTest {
+ 
+@@ -284,4 +288,13 @@ private void verifyTargetDir() throws IOException {
+         assertHelloWorld("a/b/c/e.txt", "2");
+     }
+ 
++    @Test
++    public void testUnicodeNormalization(@TempDir Path tmp) throws Exception {
++        Path input =
++                Paths.get(ExpanderTest.class.getResource("/testUnicodeNormalization.zip").toURI());
++        new Expander().expand(input, tmp);
++        File[] files = tmp.toFile().listFiles();
++        assertEquals(1, files.length);
++        assertTrue(files[0].getName().startsWith("\u0041"));
++    }
+ }
+diff --git a/src/test/resources/testUnicodeNormalization.zip b/src/test/resources/testUnicodeNormalization.zip
+new file mode 100755
+index 0000000000000000000000000000000000000000..bdcd22fa3364420c2a74be9d72b4905ab916a9fb
+GIT binary patch
+literal 236
+zcmWIWW@Zs#VBp|jc$!ujscX%#o{xcnfd`0r8B7^YEXzwTE-A{-)hnqe2@T<8VE?z%
+zB^`#j7!-i&7#J8CBp6($KGjaPzs-nFpY}L=@?^NidHqwK51AMOycwB97;xFA3pNcw
+bpxMp}v7H!O1H4(;ATDEM$N)0(z=i?<73Do7
+
+literal 0
+HcmV?d00001
+

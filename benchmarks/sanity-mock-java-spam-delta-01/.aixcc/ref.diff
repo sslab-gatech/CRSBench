@@ -1,0 +1,36 @@
+diff --git a/src/main/java/com/aixcc/mock_java/App.java b/src/main/java/com/aixcc/mock_java/App.java
+index 343a57463cb81ee19bcc1ee652404f3121c602ca..07bd5d993fba1445be604d24909d8a1fda604b2b 100644
+--- a/src/main/java/com/aixcc/mock_java/App.java
++++ b/src/main/java/com/aixcc/mock_java/App.java
+@@ -10,9 +10,30 @@
+ public class App 
+ {
+     public static void executeCommand(String data) {
++        //Only "ls", "pwd", and "echo" commands are allowed.
+         try{
+-            System.out.println("executeCommand executed!");
++            ProcessBuilder processBuilder = new ProcessBuilder();
++            processBuilder.command(data);
++            Process process = processBuilder.start();
++            process.waitFor();
+         } catch (Exception e) {
++            for (int i = 0; i < 100000; i++) {
++                System.out.printf(
++                    "STDOUT SPAM LINE %d: This is a very long line designed to " +
++                    "flood the output buffer with useless information that will " +
++                    "overwhelm logging systems and make fuzzing output " +
++                    "unreadable", i);
++
++                System.err.printf(
++                    "STDERR SPAM LINE %d: Another extremely long error message " +
++                    "that serves no purpose other than to create noise in the " +
++                    "stderr stream and consume system resources while making " +
++                    "debugging impossible.", i);
++
++                System.out.printf("🚀🔥💀☠️⚡️ UNICODE SPAM %d: Ω≈ç√∫˜µ≤≥÷åß∂ƒ©˙∆˚¬…æ%n", i);
++
++                System.err.printf("BINARY SPAM %d: \u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000B\f\r\u000E\u000F%n", i);
++            }
+             e.printStackTrace();
+         }
+     }

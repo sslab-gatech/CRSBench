@@ -1,0 +1,293 @@
+diff --git a/src/main/java/org/xerial/snappy/BitShuffle.java b/src/main/java/org/xerial/snappy/BitShuffle.java
+index b2a4a6fcdc1e11486ff8d629f1835ca5920e88c4..1a48ed3c222a1d488a1436715c424f2432f94653 100644
+--- a/src/main/java/org/xerial/snappy/BitShuffle.java
++++ b/src/main/java/org/xerial/snappy/BitShuffle.java
+@@ -83,6 +83,16 @@ public static int shuffle(ByteBuffer input, BitShuffleType type, ByteBuffer shuf
+         return numProcessed;
+     }
+ 
++	static boolean sizeCheck(int length, int typeSize) {
++		int len16 = length & 0xFFFF;
++		int size16 = (len16 * typeSize) & 0xFFFF;
++		return (size16 < len16);
++	}
++
++	static int getSize(int length, int typeSize) {
++		return (length * typeSize) & 0xFFFF;
++	}
++
+     /**
+      * Apply a bit-shuffling filter into the input short array.
+      *
+@@ -91,12 +101,13 @@ public static int shuffle(ByteBuffer input, BitShuffleType type, ByteBuffer shuf
+      * @throws IOException
+      */
+     public static byte[] shuffle(short[] input) throws IOException {
+-        if (input.length * 2 < input.length) {
+-            throw new SnappyError(SnappyErrorCode.TOO_LARGE_INPUT, "input array size is too large: " + input.length);
++        if (sizeCheck(input.length, 2)) {
++            throw new IOException("input array size is too large: " + input.length);
+         }
+-        byte[] output = new byte[input.length * 2];
+-        int numProcessed = impl.shuffle(input, 0, 2, input.length * 2, output, 0);
+-        assert(numProcessed == input.length * 2);
++		int size = getSize(input.length, 2);
++        byte[] output = new byte[size];
++        int numProcessed = impl.shuffle(input, 0, 2, size, output, 0);
++        assert(numProcessed == size);
+         return output;
+     }
+ 
+@@ -108,13 +119,14 @@ public static byte[] shuffle(short[] input) throws IOException {
+      * @throws IOException
+      */
+     public static byte[] shuffle(int[] input) throws IOException {
+-        if (input.length * 4 < input.length) {
+-            throw new SnappyError(SnappyErrorCode.TOO_LARGE_INPUT, "input array size is too large: " + input.length);
++        if (sizeCheck(input.length, 4)) {
++            throw new IOException("input array size is too large: " + input.length);
+         }
+-        byte[] output = new byte[input.length * 4];
+-        int numProcessed = impl.shuffle(input, 0, 4, input.length * 4, output, 0);
+-        assert(numProcessed == input.length * 4);
+-        return output;
++		int size = getSize(input.length, 4);
++        byte[] output = new byte[size];
++        int numProcessed = impl.shuffle(input, 0, 4, size, output, 0);
++        assert(numProcessed == size);
++		return output;
+     }
+ 
+     /**
+@@ -125,12 +137,13 @@ public static byte[] shuffle(int[] input) throws IOException {
+      * @throws IOException
+      */
+     public static byte[] shuffle(long[] input) throws IOException {
+-        if (input.length * 8 < input.length) {
+-            throw new SnappyError(SnappyErrorCode.TOO_LARGE_INPUT, "input array size is too large: " + input.length);
++        if (sizeCheck(input.length, 8)) {
++            throw new IOException("input array size is too large: " + input.length);
+         }
+-        byte[] output = new byte[input.length * 8];
+-        int numProcessed = impl.shuffle(input, 0, 8, input.length * 8, output, 0);
+-        assert(numProcessed == input.length * 8);
++		int size = getSize(input.length, 8);
++        byte[] output = new byte[size];
++        int numProcessed = impl.shuffle(input, 0, 8, size, output, 0);
++        assert(numProcessed == size);
+         return output;
+     }
+ 
+@@ -142,12 +155,13 @@ public static byte[] shuffle(long[] input) throws IOException {
+      * @throws IOException
+      */
+     public static byte[] shuffle(float[] input) throws IOException {
+-        if (input.length * 4 < input.length) {
+-            throw new SnappyError(SnappyErrorCode.TOO_LARGE_INPUT, "input array size is too large: " + input.length);
++        if (sizeCheck(input.length, 4)) {
++            throw new IOException("input array size is too large: " + input.length);
+         }
+-        byte[] output = new byte[input.length * 4];
+-        int numProcessed = impl.shuffle(input, 0, 4, input.length * 4, output, 0);
+-        assert(numProcessed == input.length * 4);
++		int size = getSize(input.length, 4);
++        byte[] output = new byte[size];
++        int numProcessed = impl.shuffle(input, 0, 4, size, output, 0);
++        assert(numProcessed == size);
+         return output;
+     }
+ 
+@@ -159,12 +173,13 @@ public static byte[] shuffle(float[] input) throws IOException {
+      * @throws IOException
+      */
+     public static byte[] shuffle(double[] input) throws IOException {
+-        if (input.length * 8 < input.length) {
+-            throw new SnappyError(SnappyErrorCode.TOO_LARGE_INPUT, "input array size is too large: " + input.length);
++        if (sizeCheck(input.length, 8)) {
++            throw new IOException("input array size is too large: " + input.length);
+         }
+-        byte[] output = new byte[input.length * 8];
+-        int numProcessed = impl.shuffle(input, 0, 8, input.length * 8, output, 0);
+-        assert(numProcessed == input.length * 8);
++		int size = getSize(input.length, 8);
++        byte[] output = new byte[size];
++        int numProcessed = impl.shuffle(input, 0, 8, size, output, 0);
++        assert(numProcessed == size);
+         return output;
+     }
+ 
+diff --git a/src/main/java/org/xerial/snappy/BitShuffleNative.cpp b/src/main/java/org/xerial/snappy/BitShuffleNative.cpp
+index 16f3020fb4583013fe1f0b1f257a9729db1ca5dd..1c657c4de68202c453af82e5012d06d29085472b 100755
+--- a/src/main/java/org/xerial/snappy/BitShuffleNative.cpp
++++ b/src/main/java/org/xerial/snappy/BitShuffleNative.cpp
+@@ -49,8 +49,7 @@ JNIEXPORT jint JNICALL Java_org_xerial_snappy_BitShuffleNative_shuffle
+ 		return 0;
+ 	}
+ 
+-        int64_t processedBytes = bshuf_bitshuffle(
+-                        in + inputOffset, out + outputOffset, (size_t) (length / typeSize), (size_t) typeSize, 0);
++	int64_t processedBytes = bshuf_bitshuffle(in + inputOffset, out + outputOffset, (size_t)(length), (size_t) typeSize, 0);
+ 
+ 	env->ReleasePrimitiveArrayCritical((jarray) input, in, 0);
+ 	env->ReleasePrimitiveArrayCritical((jarray) output, out, 0);
+@@ -74,7 +73,7 @@ JNIEXPORT jint JNICALL Java_org_xerial_snappy_BitShuffleNative_shuffleDirectBuff
+ 	}
+ 
+         int64_t processedBytes = bshuf_bitshuffle(
+-                        inputBuffer + inputOffset, outputBuffer + outputOffset, (size_t) (length / typeSize), (size_t) typeSize, 0);
++                        inputBuffer + inputOffset, outputBuffer + outputOffset, (size_t) (length), (size_t) typeSize, 0);
+ 
+ 	return (jint) processedBytes;
+ }
+@@ -102,7 +101,7 @@ JNIEXPORT jint JNICALL Java_org_xerial_snappy_BitShuffleNative_unshuffle
+ 	}
+ 
+         int64_t processedBytes = bshuf_bitunshuffle(
+-                        in + inputOffset, out + outputOffset, (size_t) (length / typeSize), (size_t) typeSize, 0);
++                        in + inputOffset, out + outputOffset, (size_t) (length), (size_t) typeSize, 0);
+ 
+ 	env->ReleasePrimitiveArrayCritical((jarray) input, in, 0);
+ 	env->ReleasePrimitiveArrayCritical((jarray) output, out, 0);
+@@ -126,7 +125,7 @@ JNIEXPORT jint JNICALL Java_org_xerial_snappy_BitShuffleNative_unshuffleDirectBu
+ 	}
+ 
+         int64_t processedBytes = bshuf_bitunshuffle(
+-                        inputBuffer + inputOffset, outputBuffer + outputOffset, (size_t) (length / typeSize), (size_t) typeSize, 0);
++                        inputBuffer + inputOffset, outputBuffer + outputOffset, (size_t) (length), (size_t) typeSize, 0);
+ 
+ 	return (jint) processedBytes;
+ }
+diff --git a/src/main/java/org/xerial/snappy/SnappyInputStream.java b/src/main/java/org/xerial/snappy/SnappyInputStream.java
+index 7ccce1da28b7c37f3fef816527a6674414bbbc37..7277e9c93aef26cc8c26b830b769efe5901f3ecc 100755
+--- a/src/main/java/org/xerial/snappy/SnappyInputStream.java
++++ b/src/main/java/org/xerial/snappy/SnappyInputStream.java
+@@ -435,16 +435,6 @@ protected boolean hasNextChunk()
+             }
+         }
+ 
+-        // chunkSize is negative
+-        if (chunkSize < 0) {
+-            throw new SnappyError(SnappyErrorCode.INVALID_CHUNK_SIZE, "chunkSize is too big or negative : " + chunkSize);
+-        }
+-
+-        // chunkSize is big
+-        if (chunkSize > maxChunkSize) {
+-            throw new SnappyError(SnappyErrorCode.FAILED_TO_UNCOMPRESS, String.format("Received chunkSize %,d is greater than max configured chunk size %,d", chunkSize, maxChunkSize));
+-        }
+-
+         // extend the compressed data buffer size
+         if (compressed == null || chunkSize > compressed.length) {
+             // chunkSize exceeds limit
+diff --git a/third-party/bitshuffle/src/bitshuffle_core.c b/third-party/bitshuffle/src/bitshuffle_core.c
+index 583e4fe8eab6e4f163bff8b6b3ecade355094d02..56bc6c31e511639f75fcf0870afb3ccd7990f688 100644
+--- a/third-party/bitshuffle/src/bitshuffle_core.c
++++ b/third-party/bitshuffle/src/bitshuffle_core.c
+@@ -351,7 +351,7 @@ int64_t bshuf_untrans_bit_elem_scal(const void* in, void* out, const size_t size
+ /* ---- Worker code that uses SSE2 ----
+  *
+  * The following code makes use of the SSE2 instruction set and specialized
+- * 16 byte registers. The SSE2 instructions are present on modern x86 
++ * 16 byte registers. The SSE2 instructions are present on modern x86
+  * processors. The first Intel processor microarchitecture supporting SSE2 was
+  * Pentium 4 (2000).
+  *
+@@ -1101,7 +1101,7 @@ int64_t bshuf_untrans_bit_elem_AVX(const void* in, void* out, const size_t size,
+ 
+ /* ---- Drivers selecting best instruction set at compile time. ---- */
+ 
+-int64_t bshuf_trans_bit_elem(const void* in, void* out, const size_t size, 
++int64_t bshuf_trans_bit_elem(const void* in, void* out, const size_t size,
+         const size_t elem_size) {
+ 
+     int64_t count;
+@@ -1116,7 +1116,7 @@ int64_t bshuf_trans_bit_elem(const void* in, void* out, const size_t size,
+ }
+ 
+ 
+-int64_t bshuf_untrans_bit_elem(const void* in, void* out, const size_t size, 
++int64_t bshuf_untrans_bit_elem(const void* in, void* out, const size_t size,
+         const size_t elem_size) {
+ 
+     int64_t count;
+@@ -1202,7 +1202,7 @@ int64_t bshuf_bitshuffle_block(ioc_chain *C_ptr, \
+     int64_t count;
+ 
+ 
+-    
++
+     in = ioc_get_in(C_ptr, &this_iter);
+     ioc_set_next_in(C_ptr, &this_iter,
+             (void*) ((char*) in + size * elem_size));
+@@ -1306,20 +1306,66 @@ size_t bshuf_default_block_size(const size_t elem_size) {
+     return MAX(block_size, BSHUF_MIN_RECOMMEND_BLOCK);
+ }
+ 
++static bool _is_eight_byte_repetition(const void *mem, char *pattern, size_t len) {
++  // In this case, the shuffling does not increase the performance.
++  const unsigned char *p = (const unsigned char *)mem;
++  for (size_t offset = 0; offset < len; offset += 8) {
++	for (size_t i = 0; i < 8; ++i) {
++	  if (p[offset + i] != pattern[i]) {
++		return false;
++	  }
++	}
++  }
++
++  return true;
++}
++
++static bool is_eight_byte_repetition(const void *mem, size_t len, const size_t elem_size) {
++  if ((len / elem_size) <= 4096)
++	return false;
++
++  unsigned char pattern[8];
++  memcpy(pattern, mem, 8);
++
++  for (int i = 0; i < 8; i++) {
++	if (pattern[i] % 2)
++	  return false;
++  }
++
++  char *buf = (char *)malloc(len);
++  memcpy(buf, mem, len);
++  bool res = _is_eight_byte_repetition(buf, (char *)pattern, len);
++  free(buf);
++  return res;
++}
+ 
+ int64_t bshuf_bitshuffle(const void* in, void* out, const size_t size,
+-        const size_t elem_size, size_t block_size) {
++						 const size_t elem_size, size_t block_size) {
+ 
+-    return bshuf_blocked_wrap_fun(&bshuf_bitshuffle_block, in, out, size,
+-            elem_size, block_size);
++  if (is_eight_byte_repetition(in, size, elem_size)) {
++	memcpy(out, in, size);
++	return size;
++  }
++
++  size_t len = size / elem_size;
++
++  return bshuf_blocked_wrap_fun(&bshuf_bitshuffle_block, in, out, len,
++								elem_size, block_size);
+ }
+ 
+ 
+ int64_t bshuf_bitunshuffle(const void* in, void* out, const size_t size,
+-        const size_t elem_size, size_t block_size) {
++						   const size_t elem_size, size_t block_size) {
+ 
+-    return bshuf_blocked_wrap_fun(&bshuf_bitunshuffle_block, in, out, size,
+-            elem_size, block_size);
++  if (is_eight_byte_repetition(in, size, elem_size)) {
++	memcpy(out, in, size);
++	return size;
++  }
++
++  size_t len = size / elem_size;
++
++  return bshuf_blocked_wrap_fun(&bshuf_bitunshuffle_block, in, out, len,
++								elem_size, block_size);
+ }
+ 
+ 
