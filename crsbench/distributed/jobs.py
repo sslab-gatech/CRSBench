@@ -638,7 +638,24 @@ def run_crs_trial(
         trial_num=trial_num,
     )
     if existing_result is not None:
-        return existing_result
+        # If existing trial failed, clean up and retry
+        if not existing_result.success:
+            trial_dir = _build_trial_output_path(
+                filestore=config.experiment_filestore.resolve(),
+                experiment_name=config.experiment,
+                crs=crs,
+                benchmark=benchmark,
+                harness=harness_name,
+                mode=mode,
+                sanitizer=sanitizer,
+                trial_num=trial_num,
+            )
+            from crsbench.evaluation.cleanup import delete_trial_directory
+
+            delete_trial_directory(trial_dir)
+            logger.info(f"[Trial {trial_num}] Cleaned up failed trial, retrying")
+        else:
+            return existing_result
 
     logger.info(
         f"[Trial {trial_num}] Starting CRS '{crs}' on benchmark '{benchmark}' harness '{harness_name}'"
