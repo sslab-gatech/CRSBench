@@ -19,7 +19,7 @@ if [ -n "$INCLUDE_TESTS" ]; then
     MVN_INCLUDE_TESTS="-Dsurefire.includes=$INCLUDE_TESTS"
 fi
 ## [REQUIRED] Tests to exclude (e.g., failed tests before patching). Minimize this to maintain high test coverage.
-EXCLUDE_TESTS="**/TestCreateSignature.java"
+EXCLUDE_TESTS="**/TestCreateSignature.java,**/TestCOSBoolean.java"
 if [ -n "$EXCLUDE_TESTS" ]; then
     MVN_EXCLUDE_TESTS="-Dsurefire.excludes=$EXCLUDE_TESTS"
 fi

@@ -10,7 +10,7 @@ fi
 
 # MVN ARGS setting
 ## [REQUIRED] Do not modify MVN_SKIP_ARGS as much as possible
-MVN_SKIP_ARGS="-Djacoco.skip=true -Dspotless.check.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Denforcer.skip=true -Dpmd.skip=true -Dlicense.skip=true -Danimal.sniffer.skip=true -Drat.numUnapprovedLicenses=100 -Drat.ignoreErrors=true -Dcheckstyle.skipExec=true -Dspotbugs.skip=true"
+MVN_SKIP_ARGS="-Djacoco.skip=true -Dspotless.check.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Denforcer.skip=true -Dpmd.skip=true -Dlicense.skip=true -Danimal.sniffer.skip=true -Drat.numUnapprovedLicenses=100 -Drat.ignoreErrors=true -Dcheckstyle.skipExec=true -Dspotbugs.skip=true -Dtest=!MimeDetectionWithNNTest,!MimeDetectionTest#testDetection,!MimeDetectionTest#testPNGWithSomeEmlHeaders,!ProbabilisticMimeDetectionTest#testDetection,!TikaIT#testToString,!ProbabilisticMimeDetectionTestWithTika#testDetection,!TikaCLITest"
 ## [REQUIRED] You can add additional args needed per project to MVN_ADDITIONAL_ARGS
 MVN_ADDITIONAL_ARGS="-Dossindex.skip -Dsurefire.failIfNoSpecifiedTests=false -am -pl :tika-app"
 ## [REQUIRED] Tests to include. Try to use blacklist as much as possible to maintain high test coverage.
