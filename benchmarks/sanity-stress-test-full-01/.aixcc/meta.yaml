@@ -30,7 +30,7 @@ harness_files:
 - name: path-constraints-harness
   path: $PROJECT/path-constraints-harness.c
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_1
     povs:
     - id: pov_0
       sanitizer: address
@@ -38,7 +38,7 @@ harness_files:
 - name: oom-harness
   path: $PROJECT/oom-harness.c
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_2
     povs:
     - id: pov_0
       sanitizer: address
@@ -46,7 +46,7 @@ harness_files:
 - name: stdout-spam-harness
   path: $PROJECT/stdout-spam-harness.c
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_3
     povs:
     - id: pov_0
       sanitizer: address
@@ -54,7 +54,7 @@ harness_files:
 - name: tempfile-harness
   path: $PROJECT/tempfile-harness.c
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_4
     povs:
     - id: pov_0
       sanitizer: address
@@ -62,7 +62,7 @@ harness_files:
 - name: deep-crash-harness
   path: $PROJECT/deep-crash-harness.c
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_5
     povs:
     - id: pov_0
       sanitizer: address
@@ -70,7 +70,7 @@ harness_files:
 - name: forkbomb-harness
   path: $PROJECT/forkbomb-harness.c
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_6
     povs:
     - id: pov_0
       sanitizer: address
@@ -78,7 +78,7 @@ harness_files:
 - name: unicode-harness
   path: $PROJECT/unicode-harness.c
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_7
     povs:
     - id: pov_0
       sanitizer: address
@@ -86,7 +86,7 @@ harness_files:
 - name: fd-exhaustion-harness
   path: $PROJECT/fd-exhaustion-harness.c
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_8
     povs:
     - id: pov_0
       sanitizer: address
@@ -94,7 +94,7 @@ harness_files:
 - name: signals-harness
   path: $PROJECT/signals-harness.c
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_9
     povs:
     - id: pov_0
       sanitizer: address
@@ -102,7 +102,7 @@ harness_files:
 - name: longjmp-harness
   path: $PROJECT/longjmp-harness.c
   vulns:
-  - vuln_keyword: cpv_0
+  - vuln_keyword: cpv_10
     povs:
     - id: pov_0
       sanitizer: address
