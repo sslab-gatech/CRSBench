@@ -1485,14 +1485,14 @@ def _monitor_jobs_basic(
                     logger.info(line)
 
             # Check job statuses
-            completed = 0
+            success = 0
             failed_jobs = []
             permanently_failed = 0
 
             for job in job_list:
                 job.refresh()
                 if job.is_finished:
-                    completed += 1
+                    success += 1
                 elif job.is_failed:
                     executed_times = job.meta.get("executed_times", 1)
                     # Can retry if executed_times <= retry (hasn't exceeded limit)
@@ -1502,7 +1502,7 @@ def _monitor_jobs_basic(
                         permanently_failed += 1
 
             # Exit when all jobs are finished or permanently failed
-            if completed + permanently_failed >= len(job_list):
+            if success + permanently_failed >= len(job_list):
                 break
 
             # Periodically requeue failed jobs (if retry enabled)
@@ -1518,9 +1518,9 @@ def _monitor_jobs_basic(
                     last_requeue_time = current_time
 
             log_progress(
-                completed + permanently_failed,
+                success + permanently_failed,
                 len(job_list),
-                f"Jobs complete ({completed} success, {permanently_failed} failed)",
+                f"Jobs complete ({success} success, {permanently_failed} failed)",
             )
 
             time.sleep(3)
@@ -1642,14 +1642,14 @@ def _monitor_jobs_rich(
         ) as live:
             while True:
                 # Check job statuses
-                completed = 0
+                success = 0
                 failed_jobs = []
                 permanently_failed = 0
 
                 for job in job_list:
                     job.refresh()
                     if job.is_finished:
-                        completed += 1
+                        success += 1
                     elif job.is_failed:
                         executed_times = job.meta.get("executed_times", 1)
                         # Can retry if executed_times <= retry (hasn't exceeded limit)
@@ -1659,7 +1659,13 @@ def _monitor_jobs_rich(
                             permanently_failed += 1
 
                 # Exit when all jobs are finished or permanently failed
-                if completed + permanently_failed >= len(job_list):
+                logger.debug(
+                    f"success: {success}, fail: {permanently_failed}, {len(job_list)}"
+                )
+                if success + permanently_failed >= len(job_list):
+                    logger.debug(
+                        f"success: {success}, fail: {permanently_failed}, {len(job_list)}"
+                    )
                     break
 
                 # Periodically requeue failed jobs (if retry enabled)
@@ -1902,6 +1908,9 @@ def run_experiment_distributed(
     if queue_mode is None:
         queue_mode = "fresh"
 
+    # Track requeued jobs for monitoring
+    requeued_jobs: list = []
+
     # TODO: too later to purge queue; as the old jobs are already taken by workers
     # Handle queue based on mode
     if queue_mode == "fresh":
@@ -1918,7 +1927,8 @@ def run_experiment_distributed(
 
         # Requeue failed jobs (at end of queue - FIFO)
         if existing["failed"]:
-            failed_count = requeue_failed_jobs(queue, list(existing["failed"].values()))
+            requeued_jobs = list(existing["failed"].values())
+            failed_count = requeue_failed_jobs(queue, requeued_jobs)
             if failed_count > 0:
                 logger.info(f"Requeued {failed_count} failed jobs")
 
@@ -2076,6 +2086,29 @@ def run_experiment_distributed(
         )
 
     logger.info(f"✓ Enqueued {len(jobs)} jobs successfully")
+
+    # In continue mode, include all existing jobs in monitoring
+    if queue_mode == "continue" and has_existing:
+        # Include existing queued jobs
+        existing_queued = list(existing["queued"].values())
+        if existing_queued:
+            logger.info(
+                f"Including {len(existing_queued)} existing queued jobs in monitoring"
+            )
+            jobs.extend(existing_queued)
+        # Include existing finished jobs (for result collection)
+        existing_finished = list(existing["finished"].values())
+        if existing_finished:
+            logger.info(
+                f"Including {len(existing_finished)} existing finished jobs for results"
+            )
+            jobs.extend(existing_finished)
+        # Include requeued failed jobs
+        if requeued_jobs:
+            logger.info(
+                f"Including {len(requeued_jobs)} requeued failed jobs in monitoring"
+            )
+            jobs.extend(requeued_jobs)
 
     # Monitor progress
     logger.info("\nMonitoring job progress...")
