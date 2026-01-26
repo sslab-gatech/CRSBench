@@ -1,0 +1,15 @@
+diff --git a/src/media_tools/av_parsers.c b/src/media_tools/av_parsers.c
+index f147c0546876bef29726d8d9d7a6ea2695e5ce8f..9923a46735b10dd400211f3ac16d1b4f07cb6d31 100644
+--- a/src/media_tools/av_parsers.c
++++ b/src/media_tools/av_parsers.c
+@@ -4520,10 +4520,6 @@ u32 gf_mp3_bit_rate(u32 hdr)
+ 		GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, ("[MPEG-1/2 Audio] layer index not valid\n"));
+ 		return 0;
+ 	}
+-	if (bitRateIndex>14) {
+-		GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, ("[MPEG-1/2 Audio] Bitrate index not valid\n"));
+-		return 0;
+-	}
+ 	return bitrate_table[lidx][bitRateIndex];
+ }
+ 

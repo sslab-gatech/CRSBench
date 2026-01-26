@@ -1,0 +1,2421 @@
+diff --git a/Jenkinsfile b/Jenkinsfile
+index 01bf07c9359585dbc2b46bacc151ff5d070a4ae7..a994662a765dae0ef47508068d60db802984707b 100644
+--- a/Jenkinsfile
++++ b/Jenkinsfile
+@@ -44,6 +44,9 @@ pipeline {
+     parameters {
+         choice(name: 'nodeLabel', choices: ['ubuntu', 's390x', 'arm', 'Windows']) 
+         choice(name: 'jdkVersion', choices: ['jdk_17_latest', 'jdk_21_latest', 'jdk_22_latest', 'jdk_17_latest_windows', 'jdk_21_latest_windows', 'jdk_22_latest_windows']) 
++        booleanParam(name: 'deployEnabled', defaultValue: false)
++        booleanParam(name: 'sonarEnabled', defaultValue: false)
++        booleanParam(name: 'testsEnabled', defaultValue: true)
+     }
+ 
+     stages {
+@@ -121,6 +124,7 @@ pipeline {
+             tools {
+                 jdk params.jdkVersion
+             }
++            when { expression { return params.testsEnabled } }
+             steps {
+                 echo 'Running tests'
+                 sh 'java -version'
+@@ -143,7 +147,7 @@ pipeline {
+             }
+             when {
+                 expression {
+-                    env.BRANCH_NAME ==~ /(activemq-5.18.x|activemq-5.17.x|main)/
++                    params.deployEnabled && env.BRANCH_NAME ==~ /(activemq-5.18.x|activemq-5.17.x|main)/
+                 }
+             }
+             steps {
+@@ -153,6 +157,18 @@ pipeline {
+                 sh 'mvn -B -e deploy -Pdeploy -DskipTests'
+             }
+         }
++
++        stage('Quality') {
++            when { expression { return params.sonarEnabled } }
++
++            steps {
++                withCredentials([string(credentialsId: 'SONARCLOUD_TOKEN', variable: 'SONAR_TOKEN')]) {
++                  sh 'echo "Running the Sonar stage"'
++                  sh 'mvn -B -e -fae clean verify sonar:sonar -Dsonar.projectKey=apache_activemq -Dsonar.organization=apache -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${SONAR_TOKEN} -Dsurefire.rerunFailingTestsCount=3'
++                }
++            }
++        }
++
+     }
+ 
+     // Do any post build stuff ... such as sending emails depending on the overall build result.
+@@ -160,7 +176,7 @@ pipeline {
+         // If this build failed, send an email to the list.
+         failure {
+             script {
+-                if(env.BRANCH_NAME == "activemq-5.18.x" || env.BRANCH_NAME == "activemq-5.17.x" || env.BRANCH_NAME == "main") {
++                if(env.BRANCH_NAME == "activemq-5.18.x" || env.BRANCH_NAME == "activemq-6.1.x" || env.BRANCH_NAME == "main") {
+                     emailext(
+                             subject: "[BUILD-FAILURE]: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]'",
+                             body: """
+@@ -177,7 +193,7 @@ Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BRANC
+         // If this build didn't fail, but there were failing tests, send an email to the list.
+         unstable {
+             script {
+-                if(env.BRANCH_NAME == "activemq-5.18.x" || env.BRANCH_NAME == "activemq-5.17.x" || env.BRANCH_NAME == "main") {
++                if(env.BRANCH_NAME == "activemq-5.18.x" || env.BRANCH_NAME == "activemq-6.1.x" || env.BRANCH_NAME == "main") {
+                     emailext(
+                             subject: "[BUILD-UNSTABLE]: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]'",
+                             body: """
+@@ -197,7 +213,7 @@ Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BRANC
+             // (in this cae we probably don't have to do any post-build analysis)
+             deleteDir()
+             script {
+-                if ((env.BRANCH_NAME == "activemq-5.18.x" || env.BRANCH_NAME == "activemq-5.17.x" || env.BRANCH_NAME == "main") && (currentBuild.previousBuild != null) && (currentBuild.previousBuild.result != 'SUCCESS')) {
++                if ((env.BRANCH_NAME == "activemq-5.18.x" || env.BRANCH_NAME == "activemq-6.1.x" || env.BRANCH_NAME == "main") && (currentBuild.previousBuild != null) && (currentBuild.previousBuild.result != 'SUCCESS')) {
+                     emailext (
+                             subject: "[BUILD-STABLE]: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]'",
+                             body: """
+diff --git a/README.md b/README.md
+index f95372cb60d7a1374a440bf0f1334e8dd57a5b35..905fa35520579cafbc3f8401b747162ce71bc39d 100755
+--- a/README.md
++++ b/README.md
+@@ -7,6 +7,7 @@
+ - AMQP
+ - MQTT
+ - HTTP/WS
++
+ ActiveMQ also provides advanced features like:
+ - network of brokers
+ - scheduling
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/advisory/AdvisoryBroker.java b/activemq-broker/src/main/java/org/apache/activemq/advisory/AdvisoryBroker.java
+index e71dd9240828aa4257c4a64dcfbc8392681e1f2c..38cd49bab075789c7a26cc5673b72b75ce8cde9f 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/advisory/AdvisoryBroker.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/advisory/AdvisoryBroker.java
+@@ -154,8 +154,7 @@ public Subscription addConsumer(ConnectionContext context, ConsumerInfo info) th
+             // for this newly added consumer.
+             if (AdvisorySupport.isConnectionAdvisoryTopic(info.getDestination())) {
+                 // Replay the connections.
+-                for (Iterator<ConnectionInfo> iter = connections.values().iterator(); iter.hasNext(); ) {
+-                    ConnectionInfo value = iter.next();
++                for (ConnectionInfo value : connections.values()) {
+                     ActiveMQTopic topic = AdvisorySupport.getConnectionAdvisoryTopic();
+                     fireAdvisory(context, topic, value, info.getConsumerId());
+                 }
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/broker/TransactionBroker.java b/activemq-broker/src/main/java/org/apache/activemq/broker/TransactionBroker.java
+index 12e9f7742a0568414b95318094a1735d830d74ff..c8af4a6144d1a22b92cb6eff628dde1f7d1eac5e 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/broker/TransactionBroker.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/broker/TransactionBroker.java
+@@ -190,9 +190,16 @@ public void afterCommit() throws Exception {
+                 dest.clearPendingMessages(opCount);
+                 dest.getDestinationStatistics().getEnqueues().add(opCount);
+                 dest.getDestinationStatistics().getMessages().add(opCount);
++
++                if(dest.isAdvancedNetworkStatisticsEnabled() && transactionBroker.context != null && transactionBroker.context.isNetworkConnection()) {
++                    dest.getDestinationStatistics().getNetworkEnqueues().add(opCount);
++                }
+                 LOG.debug("cleared pending from afterCommit: {}", destination);
+             } else {
+                 dest.getDestinationStatistics().getDequeues().add(opCount);
++                if(dest.isAdvancedNetworkStatisticsEnabled() && transactionBroker.context != null && transactionBroker.context.isNetworkConnection()) {
++                    dest.getDestinationStatistics().getNetworkDequeues().add(opCount);
++                }
+             }
+         }
+     }
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/broker/jmx/AnnotatedMBean.java b/activemq-broker/src/main/java/org/apache/activemq/broker/jmx/AnnotatedMBean.java
+index dfae72bf106a05c4106c3b88998e3aab027f7e8d..51c135ddf56a8622e166a6c6b3412ff97fef58ce 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/broker/jmx/AnnotatedMBean.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/broker/jmx/AnnotatedMBean.java
+@@ -205,6 +205,7 @@ public Object invoke(String s, Object[] objects, String[] strings) throws MBeanE
+         objects = (objects == null) ? new Object[]{} : objects;
+         JMXAuditLogEntry entry = null;
+         if (audit != OFF) {
++            // [AMQ-9563] TODO: JDK 21 use Subject.current() instead
+             Subject subject = Subject.getSubject(AccessController.getContext());
+             String caller = "anonymous";
+             if (subject != null) {
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationView.java b/activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationView.java
+index 8abcc67163ab5167e4a214b9e517c0ad7451acdc..02a7f65057b2f7c112bb734441ed15d48d3d2362 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationView.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationView.java
+@@ -599,4 +599,25 @@ public boolean isSendDuplicateFromStoreToDLQ() {
+     public long getMaxUncommittedExceededCount() {
+         return destination.getDestinationStatistics().getMaxUncommittedExceededCount().getCount();
+     }
++
++    @Override
++    public boolean isAdvancedNetworkStatisticsEnabled() {
++        return destination.isAdvancedNetworkStatisticsEnabled();
++    }
++
++    @Override
++    public void setAdvancedNetworkStatisticsEnabled(boolean advancedNetworkStatisticsEnabled) {
++        destination.setAdvancedNetworkStatisticsEnabled(advancedNetworkStatisticsEnabled);
++    }
++
++    @Override
++    public long getNetworkEnqueues() {
++        return destination.getDestinationStatistics().getNetworkEnqueues().getCount();
++    }
++
++    @Override
++    public long getNetworkDequeues() {
++        return destination.getDestinationStatistics().getNetworkDequeues().getCount();
++    }
++
+ }
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationViewMBean.java b/activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationViewMBean.java
+index 45ed51b994ead47c5365068f4d551babb1fcff2e..328ddb09f09379abeef96d5843b31747a7304704 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationViewMBean.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationViewMBean.java
+@@ -481,4 +481,16 @@ public String sendTextMessageWithProperties(@MBeanInfo("properties") String prop
+ 
+     @MBeanInfo("Number of times the max uncommitted limit has been exceed for this destination")
+     long getMaxUncommittedExceededCount();
++
++    @MBeanInfo("Query Advanced Network Statistics flag")
++    boolean isAdvancedNetworkStatisticsEnabled();
++
++    @MBeanInfo("Toggle Advanced Network Statistics flag")
++    void setAdvancedNetworkStatisticsEnabled(boolean advancedNetworkStatisticsEnabled);
++
++    @MBeanInfo("Number of messages sent to the destination via network connection")
++    long getNetworkEnqueues();
++
++    @MBeanInfo("Number of messages acknowledged from the destination via network connection")
++    long getNetworkDequeues();
+ }
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/broker/region/BaseDestination.java b/activemq-broker/src/main/java/org/apache/activemq/broker/region/BaseDestination.java
+index 4ca3913c74ae562f0654bb3e3464b1b0ac948917..e34f23a4dda58ef5093f7cb28ff97373d30fb276 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/broker/region/BaseDestination.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/broker/region/BaseDestination.java
+@@ -110,6 +110,8 @@ public abstract class BaseDestination implements Destination {
+     protected final Scheduler scheduler;
+     private boolean disposed = false;
+     private boolean doOptimzeMessageStorage = true;
++    private boolean advancedNetworkStatisticsEnabled = false;
++
+     /*
+      * percentage of in-flight messages above which optimize message store is disabled
+      */
+@@ -868,6 +870,15 @@ public void setOptimizeMessageStoreInFlightLimit(int optimizeMessageStoreInFligh
+         this.optimizeMessageStoreInFlightLimit = optimizeMessageStoreInFlightLimit;
+     }
+ 
++    @Override
++    public boolean isAdvancedNetworkStatisticsEnabled() {
++        return this.advancedNetworkStatisticsEnabled;
++    }
++
++    @Override
++    public void setAdvancedNetworkStatisticsEnabled(boolean advancedNetworkStatisticsEnabled) {
++        this.advancedNetworkStatisticsEnabled = advancedNetworkStatisticsEnabled;
++    }
+ 
+     @Override
+     public abstract List<Subscription> getConsumers();
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/broker/region/Destination.java b/activemq-broker/src/main/java/org/apache/activemq/broker/region/Destination.java
+index 70f807be8679db705122f68a6b3807480c98ddf8..45e3de7b3cb0781a98aa0cb8fe2ba226809597f0 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/broker/region/Destination.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/broker/region/Destination.java
+@@ -258,4 +258,10 @@ public interface Destination extends Service, Task, Message.MessageDestination {
+     boolean isSendDuplicateFromStoreToDLQ();
+ 
+     void setSendDuplicateFromStoreToDLQ(boolean sendDuplicateFromStoreToDLQ);
++
++    // [AMQ-9437]
++    boolean isAdvancedNetworkStatisticsEnabled();
++
++    void setAdvancedNetworkStatisticsEnabled(boolean advancedNetworkStatisticsEnabled);
++
+ }
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/broker/region/DestinationFilter.java b/activemq-broker/src/main/java/org/apache/activemq/broker/region/DestinationFilter.java
+index 6b288a234f00ff12c2f7af154d53fdb1864584b9..85ef367a77145bb153e34a6daf2e984e91562037 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/broker/region/DestinationFilter.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/broker/region/DestinationFilter.java
+@@ -409,6 +409,16 @@ public void setSendDuplicateFromStoreToDLQ(boolean sendDuplicateFromStoreToDLQ)
+         next.setSendDuplicateFromStoreToDLQ(sendDuplicateFromStoreToDLQ);
+     }
+ 
++    @Override
++    public boolean isAdvancedNetworkStatisticsEnabled() {
++        return next.isAdvancedNetworkStatisticsEnabled();
++    }
++
++    @Override
++    public void setAdvancedNetworkStatisticsEnabled(boolean advancedNetworkStatisticsEnabled) {
++        next.setAdvancedNetworkStatisticsEnabled(advancedNetworkStatisticsEnabled);
++    }
++
+     public void deleteSubscription(ConnectionContext context, SubscriptionKey key) throws Exception {
+         if (next instanceof DestinationFilter) {
+             DestinationFilter filter = (DestinationFilter) next;
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/broker/region/DestinationStatistics.java b/activemq-broker/src/main/java/org/apache/activemq/broker/region/DestinationStatistics.java
+index 9d30c622f36f13a047cd57e256e449ecff4a0166..dc6b17dfafcc40a31286b6d77ca97f0e8c946c6a 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/broker/region/DestinationStatistics.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/broker/region/DestinationStatistics.java
+@@ -46,6 +46,10 @@ public class DestinationStatistics extends StatsImpl {
+     protected SizeStatisticImpl messageSize;
+     protected CountStatisticImpl maxUncommittedExceededCount;
+ 
++    // [AMQ-9437] Advanced Statistics are optionally enabled
++    protected CountStatisticImpl networkEnqueues;
++    protected CountStatisticImpl networkDequeues;
++
+     public DestinationStatistics() {
+ 
+         enqueues = new CountStatisticImpl("enqueues", "The number of messages that have been sent to the destination");
+@@ -68,6 +72,10 @@ public DestinationStatistics() {
+         blockedTime = new TimeStatisticImpl("blockedTime","amount of time messages are blocked for flow control");
+         messageSize = new SizeStatisticImpl("messageSize","Size of messages passing through the destination");
+         maxUncommittedExceededCount = new CountStatisticImpl("maxUncommittedExceededCount", "number of times maxUncommittedCount has been exceeded");
++
++        networkEnqueues = new CountStatisticImpl("networkEnqueues", "The number of messages that have been sent to the destination via network connection");
++        networkDequeues = new CountStatisticImpl("networkDequeues", "The number of messages that have been acknowledged from the destination via network connection");
++
+         addStatistic("enqueues", enqueues);
+         addStatistic("dispatched", dispatched);
+         addStatistic("dequeues", dequeues);
+@@ -83,6 +91,9 @@ public DestinationStatistics() {
+         addStatistic("blockedTime",blockedTime);
+         addStatistic("messageSize",messageSize);
+         addStatistic("maxUncommittedExceededCount", maxUncommittedExceededCount);
++
++        addStatistic("networkEnqueues", networkEnqueues);
++        addStatistic("networkDequeues", networkDequeues);
+     }
+ 
+     public CountStatisticImpl getEnqueues() {
+@@ -151,6 +162,14 @@ public CountStatisticImpl getMaxUncommittedExceededCount(){
+         return this.maxUncommittedExceededCount;
+     }
+ 
++    public CountStatisticImpl getNetworkEnqueues() {
++        return networkEnqueues;
++    }
++
++    public CountStatisticImpl getNetworkDequeues() {
++        return networkDequeues;
++    }
++
+     public void reset() {
+         if (this.isDoReset()) {
+             super.reset();
+@@ -165,6 +184,8 @@ public void reset() {
+             blockedTime.reset();
+             messageSize.reset();
+             maxUncommittedExceededCount.reset();
++            networkEnqueues.reset();
++            networkDequeues.reset();
+         }
+     }
+ 
+@@ -187,6 +208,9 @@ public void setEnabled(boolean enabled) {
+         messageSize.setEnabled(enabled);
+         maxUncommittedExceededCount.setEnabled(enabled);
+ 
++        // [AMQ-9437] Advanced Statistics
++        networkEnqueues.setEnabled(enabled);
++        networkDequeues.setEnabled(enabled);
+     }
+ 
+     public void setParent(DestinationStatistics parent) {
+@@ -207,6 +231,8 @@ public void setParent(DestinationStatistics parent) {
+             blockedTime.setParent(parent.blockedTime);
+             messageSize.setParent(parent.messageSize);
+             maxUncommittedExceededCount.setParent(parent.maxUncommittedExceededCount);
++            networkEnqueues.setParent(parent.networkEnqueues);
++            networkDequeues.setParent(parent.networkDequeues);
+         } else {
+             enqueues.setParent(null);
+             dispatched.setParent(null);
+@@ -224,6 +250,8 @@ public void setParent(DestinationStatistics parent) {
+             blockedTime.setParent(null);
+             messageSize.setParent(null);
+             maxUncommittedExceededCount.setParent(null);
++            networkEnqueues.setParent(null);
++            networkDequeues.setParent(null);
+         }
+     }
+ 
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/broker/region/DurableTopicSubscription.java b/activemq-broker/src/main/java/org/apache/activemq/broker/region/DurableTopicSubscription.java
+index e0dc6d0f072e17146e6ca81aa92496de381366b7..6946a33fa5775da19f77235d52e26c093592d2ba 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/broker/region/DurableTopicSubscription.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/broker/region/DurableTopicSubscription.java
+@@ -371,6 +371,9 @@ public void afterRollback() throws Exception {
+         ((Destination)node.getRegionDestination()).getDestinationStatistics().getDequeues().increment();
+         if (info.isNetworkSubscription()) {
+             ((Destination)node.getRegionDestination()).getDestinationStatistics().getForwards().add(ack.getMessageCount());
++            if(((Destination)node.getRegionDestination()).isAdvancedNetworkStatisticsEnabled() && getContext() != null && getContext().isNetworkConnection()) {
++                ((Destination)node.getRegionDestination()).getDestinationStatistics().getNetworkDequeues().add(ack.getMessageCount());
++            }
+         }
+     }
+ 
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/broker/region/Queue.java b/activemq-broker/src/main/java/org/apache/activemq/broker/region/Queue.java
+index 6502a2063364168fcc24163a25c809a762f1d23e..0ed6763f7bae88ea37c3c8794278bd1ef4491634 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/broker/region/Queue.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/broker/region/Queue.java
+@@ -1873,7 +1873,7 @@ protected void removeMessage(ConnectionContext context, Subscription sub, final
+         // This sends the ack the the journal..
+         if (!ack.isInTransaction()) {
+             acknowledge(context, sub, ack, reference);
+-            dropMessage(reference);
++            dropMessage(context, reference);
+         } else {
+             try {
+                 acknowledge(context, sub, ack, reference);
+@@ -1882,7 +1882,7 @@ protected void removeMessage(ConnectionContext context, Subscription sub, final
+ 
+                     @Override
+                     public void afterCommit() throws Exception {
+-                        dropMessage(reference);
++                        dropMessage(context, reference);
+                         wakeup();
+                     }
+ 
+@@ -1910,11 +1910,16 @@ public void afterRollback() throws Exception {
+         reference.setAcked(true);
+     }
+ 
+-    private void dropMessage(QueueMessageReference reference) {
++    private void dropMessage(ConnectionContext context, QueueMessageReference reference) {
+         //use dropIfLive so we only process the statistics at most one time
+         if (reference.dropIfLive()) {
+             getDestinationStatistics().getDequeues().increment();
+             getDestinationStatistics().getMessages().decrement();
++
++            if(isAdvancedNetworkStatisticsEnabled() && context.getConnection() != null && context.getConnection().isNetworkConnection()) {
++                getDestinationStatistics().getNetworkDequeues().increment();
++            }
++
+             pagedInMessagesLock.writeLock().lock();
+             try {
+                 pagedInMessages.remove(reference);
+@@ -1969,6 +1974,11 @@ final void messageSent(final ConnectionContext context, final Message msg) throw
+         destinationStatistics.getEnqueues().increment();
+         destinationStatistics.getMessages().increment();
+         destinationStatistics.getMessageSize().addSize(msg.getSize());
++
++        if(isAdvancedNetworkStatisticsEnabled() && context.getConnection() != null && context.getConnection().isNetworkConnection()) {
++            destinationStatistics.getNetworkEnqueues().increment();
++        }
++
+         messageDelivered(context, msg);
+         consumersLock.readLock().lock();
+         try {
+@@ -2115,7 +2125,7 @@ private PendingList doPageInForDispatch(boolean force, boolean processExpired, i
+                             LOG.warn("{}, duplicate message {} - {} from cursor, is cursor audit disabled or too constrained? Redirecting to dlq", this, ref.getMessageId(), ref.getMessage().getMessageId().getFutureOrSequenceLong());
+                             if (store != null) {
+                                 ConnectionContext connectionContext = createConnectionContext();
+-                                dropMessage(ref);
++                                dropMessage(connectionContext, ref);
+                                 if (gotToTheStore(ref.getMessage())) {
+                                     LOG.debug("Duplicate message {} from cursor, removing from store", ref.getMessage());
+                                     store.removeMessage(connectionContext, new MessageAck(ref.getMessage(), MessageAck.POISON_ACK_TYPE, 1));
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/broker/region/Topic.java b/activemq-broker/src/main/java/org/apache/activemq/broker/region/Topic.java
+index cad0d3b883ec5d4abcfb3ae8e8145d3218d3ce30..a9e07874e05214bd3239236830d8b403abbe7f81 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/broker/region/Topic.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/broker/region/Topic.java
+@@ -778,6 +778,11 @@ protected void dispatch(final ConnectionContext context, Message message) throws
+         // misleading metrics.
+         // destinationStatistics.getMessages().increment();
+         destinationStatistics.getEnqueues().increment();
++
++        if(isAdvancedNetworkStatisticsEnabled() && context != null && context.isNetworkConnection()) {
++            destinationStatistics.getNetworkEnqueues().increment();
++        }
++
+         destinationStatistics.getMessageSize().addSize(message.getSize());
+         MessageEvaluationContext msgContext = null;
+ 
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/broker/region/TopicSubscription.java b/activemq-broker/src/main/java/org/apache/activemq/broker/region/TopicSubscription.java
+index a5b97241b456465125000d979d4d581ccc6169a9..4403dea6b56d80bdf43b17fee5cc338fabc7a87a 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/broker/region/TopicSubscription.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/broker/region/TopicSubscription.java
+@@ -449,6 +449,9 @@ private void incrementStatsOnAck(final Destination destination, final MessageAck
+         destination.getDestinationStatistics().getInflight().subtract(count);
+         if (info.isNetworkSubscription()) {
+             destination.getDestinationStatistics().getForwards().add(count);
++            if(destination.isAdvancedNetworkStatisticsEnabled() && getContext() != null && getContext().isNetworkConnection()) {
++                destination.getDestinationStatistics().getNetworkDequeues().add(count);
++            }
+         }
+         if (ack.isExpiredAck()) {
+             destination.getDestinationStatistics().getExpired().add(count);
+@@ -746,6 +749,9 @@ private void discard(MessageReference message, boolean expired) {
+             matched.remove(message);
+             if (destination != null) {
+                 destination.getDestinationStatistics().getDequeues().increment();
++                if(destination.isAdvancedNetworkStatisticsEnabled() && getContext() != null && getContext().isNetworkConnection()) {
++                    destination.getDestinationStatistics().getNetworkDequeues().increment();
++                }
+             }
+             Destination dest = (Destination) message.getRegionDestination();
+             if (dest != null) {
+diff --git a/activemq-broker/src/main/java/org/apache/activemq/broker/region/policy/PolicyEntry.java b/activemq-broker/src/main/java/org/apache/activemq/broker/region/policy/PolicyEntry.java
+index 723095702222c17dcbcc8ab6eaba6e733f18008d..e33f13b48ca3452da5cac00bf52ba077f6969c5f 100644
+--- a/activemq-broker/src/main/java/org/apache/activemq/broker/region/policy/PolicyEntry.java
++++ b/activemq-broker/src/main/java/org/apache/activemq/broker/region/policy/PolicyEntry.java
+@@ -106,7 +106,7 @@ public class PolicyEntry extends DestinationMapEntry {
+     private boolean doOptimzeMessageStorage = true;
+     private int maxDestinations = -1;
+     private boolean useTopicSubscriptionInflightStats = true;
+-
++    private boolean advancedNetworkStatisticsEnabled = false; // [AMQ-9437]
+     /*
+      * percentage of in-flight messages above which optimize message store is disabled
+      */
+@@ -306,6 +306,9 @@ public void baseUpdate(BaseDestination destination, Set<String> includedProperti
+         if (isUpdate("sendDuplicateFromStoreToDLQ", includedProperties)) {
+             destination.setSendDuplicateFromStoreToDLQ(isSendDuplicateFromStoreToDLQ());
+         }
++        if (isUpdate("advancedNetworkStatisticsEnabled", includedProperties)) {
++            destination.setAdvancedNetworkStatisticsEnabled(isAdvancedNetworkStatisticsEnabled());
++        }
+     }
+ 
+     public void baseConfiguration(Broker broker, BaseDestination destination) {
+@@ -1175,5 +1178,13 @@ public void setMessageInterceptorStrategy(MessageInterceptorStrategy messageInte
+ 
+     public MessageInterceptorStrategy getMessageInterceptorStrategy() {
+         return this.messageInterceptorStrategy;
++    } 
++
++    public boolean isAdvancedNetworkStatisticsEnabled() {
++        return this.advancedNetworkStatisticsEnabled;
++    }
++
++    public void setAdvancedNetworkStatisticsEnabled(boolean advancedNetworkStatisticsEnabled) {
++        this.advancedNetworkStatisticsEnabled = advancedNetworkStatisticsEnabled;
+     }
+ }
+diff --git a/activemq-client/src/main/java/org/apache/activemq/ActiveMQConnectionFactory.java b/activemq-client/src/main/java/org/apache/activemq/ActiveMQConnectionFactory.java
+index 8c68d5ee65402e0ecb6b4a9b36b4ae18270f480d..54969f39cebd762c7d10d90bfb7dd5876c47f02e 100644
+--- a/activemq-client/src/main/java/org/apache/activemq/ActiveMQConnectionFactory.java
++++ b/activemq-client/src/main/java/org/apache/activemq/ActiveMQConnectionFactory.java
+@@ -19,8 +19,6 @@
+ import java.io.IOException;
+ import java.net.URI;
+ import java.net.URISyntaxException;
+-import java.security.AccessController;
+-import java.security.PrivilegedAction;
+ import java.util.*;
+ import java.util.concurrent.RejectedExecutionHandler;
+ 
+@@ -67,23 +65,12 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
+         String host = null;
+         String port = null;
+         try {
+-             host = AccessController.doPrivileged(new PrivilegedAction<String>() {
+-                 @Override
+-                 public String run() {
+-                     String result = System.getProperty("org.apache.activemq.AMQ_HOST");
+-                     result = (result==null||result.isEmpty()) ?  System.getProperty("AMQ_HOST","localhost") : result;
+-                     return result;
+-                 }
+-             });
+-             port = AccessController.doPrivileged(new PrivilegedAction<String>() {
+-                 @Override
+-                 public String run() {
+-                     String result = System.getProperty("org.apache.activemq.AMQ_PORT");
+-                     result = (result==null||result.isEmpty()) ?  System.getProperty("AMQ_PORT","61616") : result;
+-                     return result;
+-                 }
+-             });
+-        }catch(Throwable e){
++            host = System.getProperty("org.apache.activemq.AMQ_HOST");
++            host = (host==null||host.isBlank()) ?  System.getProperty("AMQ_HOST","localhost") : host;
++
++            port = System.getProperty("org.apache.activemq.AMQ_PORT");
++            port = (port==null||port.isBlank()) ?  System.getProperty("AMQ_PORT","61616") : port;
++        } catch(Throwable e){
+             LOG.debug("Failed to look up System properties for host and port",e);
+         }
+         host = (host == null || host.isEmpty()) ? "localhost" : host;
+@@ -92,7 +79,6 @@ public String run() {
+         DEFAULT_BROKER_PORT = Integer.parseInt(port);
+     }
+ 
+-
+     public static final String DEFAULT_BROKER_BIND_URL;
+ 
+     static{
+@@ -100,15 +86,9 @@ public String run() {
+         String bindURL = null;
+ 
+         try {
+-            bindURL = AccessController.doPrivileged(new PrivilegedAction<String>() {
+-                @Override
+-                public String run() {
+-                    String result = System.getProperty("org.apache.activemq.BROKER_BIND_URL");
+-                    result = (result==null||result.isEmpty()) ?  System.getProperty("BROKER_BIND_URL",defaultURL) : result;
+-                    return result;
+-                }
+-            });
+-        }catch(Throwable e){
++            bindURL = System.getProperty("org.apache.activemq.BROKER_BIND_URL");
++            bindURL = (bindURL==null||bindURL.isEmpty()) ?  System.getProperty("BROKER_BIND_URL",defaultURL) : bindURL;
++        } catch(Throwable e){
+             LOG.debug("Failed to look up System properties for host and port",e);
+         }
+         bindURL = (bindURL == null || bindURL.isEmpty()) ? defaultURL : bindURL;
+diff --git a/activemq-client/src/main/java/org/apache/activemq/openwire/v1/BaseDataStreamMarshaller.java b/activemq-client/src/main/java/org/apache/activemq/openwire/v1/BaseDataStreamMarshaller.java
+index dee353e428895af6efec1b7e5e3de89b440ee317..b0aa942c7bf3ef38e9c76c4cf777153343ff43a3 100644
+--- a/activemq-client/src/main/java/org/apache/activemq/openwire/v1/BaseDataStreamMarshaller.java
++++ b/activemq-client/src/main/java/org/apache/activemq/openwire/v1/BaseDataStreamMarshaller.java
+@@ -228,9 +228,15 @@ protected Throwable tightUnmarsalThrowable(OpenWireFormat wireFormat, DataInput
+     }
+ 
+     private Throwable createThrowable(String className, String message) {
+-        // TODO: AMQ-9438 - adaptively create throwable according to OpenWire spec
+-        //   currently we are just returning a generic Throwable
+-        return new Throwable("OpenWire Generic Throwable: " + className + ": " + message);
++        try {
++            Class clazz = Class.forName(className, false, BaseDataStreamMarshaller.class.getClassLoader());
++            Constructor constructor = clazz.getConstructor(new Class[] {String.class});
++            return (Throwable)constructor.newInstance(new Object[] {message});
++        } catch (IllegalArgumentException e) {
++            return e;
++        } catch (Throwable e) {
++            return new Throwable(className + ": " + message);
++        }
+     }
+ 
+     protected int tightMarshalThrowable1(OpenWireFormat wireFormat, Throwable o, BooleanStream bs)
+diff --git a/activemq-client/src/main/java/org/apache/activemq/openwire/v10/BaseDataStreamMarshaller.java b/activemq-client/src/main/java/org/apache/activemq/openwire/v10/BaseDataStreamMarshaller.java
+index 89177bab4f201d2a6762d8328d4e80aa41a02187..3a7eadcd3a5b0e35dbcdac93394882009dd10925 100644
+--- a/activemq-client/src/main/java/org/apache/activemq/openwire/v10/BaseDataStreamMarshaller.java
++++ b/activemq-client/src/main/java/org/apache/activemq/openwire/v10/BaseDataStreamMarshaller.java
+@@ -227,9 +227,15 @@ protected Throwable tightUnmarsalThrowable(OpenWireFormat wireFormat, DataInput
+     }
+ 
+     private Throwable createThrowable(String className, String message) {
+-        // TODO: AMQ-9438 - adaptively create throwable according to OpenWire spec
+-        //   currently we are just returning a generic Throwable
+-        return new Throwable("OpenWire Generic Throwable: " +className + ": " + message);
++        try {
++            Class clazz = Class.forName(className, false, BaseDataStreamMarshaller.class.getClassLoader());
++            Constructor constructor = clazz.getConstructor(new Class[] {String.class});
++            return (Throwable)constructor.newInstance(new Object[] {message});
++        } catch (IllegalArgumentException e) {
++            return e;
++        } catch (Throwable e) {
++            return new Throwable(className + ": " + message);
++        }
+     }
+ 
+     protected int tightMarshalThrowable1(OpenWireFormat wireFormat, Throwable o, BooleanStream bs)
+diff --git a/activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java b/activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
+index a01524653613d9fbf702e418076d1134d0c3c735..ee152d6339e9348d0a05f6f294bacd75d3adb2a5 100644
+--- a/activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
++++ b/activemq-client/src/main/java/org/apache/activemq/openwire/v11/BaseDataStreamMarshaller.java
+@@ -226,9 +226,15 @@ protected Throwable tightUnmarsalThrowable(OpenWireFormat wireFormat, DataInput
+     }
+ 
+     private Throwable createThrowable(String className, String message) {
+-        // TODO: AMQ-9438 - adaptively create throwable according to OpenWire spec
+-        //   currently we are just returning a generic Throwable
+-        return new Throwable("OpenWire Generic Throwable: " + className + ": " + message);
++        try {
++            Class clazz = Class.forName(className, false, BaseDataStreamMarshaller.class.getClassLoader());
++            Constructor constructor = clazz.getConstructor(new Class[] {String.class});
++            return (Throwable)constructor.newInstance(new Object[] {message});
++        } catch (IllegalArgumentException e) {
++            return e;
++        } catch (Throwable e) {
++            return new Throwable(className + ": " + message);
++        }
+     }
+ 
+     protected int tightMarshalThrowable1(OpenWireFormat wireFormat, Throwable o, BooleanStream bs)
+diff --git a/activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java b/activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
+index ab95cdab2363e25d961d34e3ee09c6a56d12fef4..85199a261eab63430bc9b6e55efc2dd18eeace01 100644
+--- a/activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
++++ b/activemq-client/src/main/java/org/apache/activemq/openwire/v12/BaseDataStreamMarshaller.java
+@@ -228,9 +228,15 @@ protected Throwable tightUnmarsalThrowable(OpenWireFormat wireFormat, DataInput
+     }
+ 
+     private Throwable createThrowable(String className, String message) {
+-        // TODO: AMQ-9438 - adaptively create throwable according to OpenWire spec
+-        //   currently we are just returning a generic Throwable
+-        return new Throwable("OpenWire Generic Throwable: " + className + ": " + message);
++        try {
++            Class clazz = Class.forName(className, false, BaseDataStreamMarshaller.class.getClassLoader());
++            Constructor constructor = clazz.getConstructor(new Class[] {String.class});
++            return (Throwable)constructor.newInstance(new Object[] {message});
++        } catch (IllegalArgumentException e) {
++            return e;
++        } catch (Throwable e) {
++            return new Throwable(className + ": " + message);
++        }
+     }
+ 
+     protected int tightMarshalThrowable1(OpenWireFormat wireFormat, Throwable o, BooleanStream bs)
+diff --git a/activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java b/activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java
+index fbd350b28ce1d93ba6f2faf61cbe1d8866f4cc75..7cc6d58ed5cc749af197dd855f7a93690c086a0c 100644
+--- a/activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java
++++ b/activemq-client/src/main/java/org/apache/activemq/openwire/v9/BaseDataStreamMarshaller.java
+@@ -226,9 +226,15 @@ protected Throwable tightUnmarsalThrowable(OpenWireFormat wireFormat, DataInput
+     }
+ 
+     private Throwable createThrowable(String className, String message) {
+-        // TODO: AMQ-9438 - adaptively create throwable according to OpenWire spec
+-        //   currently we are just returning a generic Throwable
+-        return new Throwable("OpenWire Generic Throwable: " + className + ": " + message);
++        try {
++            Class clazz = Class.forName(className, false, BaseDataStreamMarshaller.class.getClassLoader());
++            Constructor constructor = clazz.getConstructor(new Class[] {String.class});
++            return (Throwable)constructor.newInstance(new Object[] {message});
++        } catch (IllegalArgumentException e) {
++            return e;
++        } catch (Throwable e) {
++            return new Throwable(className + ": " + message);
++        }
+     }
+ 
+     protected int tightMarshalThrowable1(OpenWireFormat wireFormat, Throwable o, BooleanStream bs)
+diff --git a/activemq-client/src/main/java/org/apache/activemq/util/DataByteArrayOutputStream.java b/activemq-client/src/main/java/org/apache/activemq/util/DataByteArrayOutputStream.java
+index 692fb94a4a08e0d320bcc06e4af0fd6a26897f0b..f1aaf2983c9c0f9dfef0a9c6f3f75cc38b9fdcab 100644
+--- a/activemq-client/src/main/java/org/apache/activemq/util/DataByteArrayOutputStream.java
++++ b/activemq-client/src/main/java/org/apache/activemq/util/DataByteArrayOutputStream.java
+@@ -210,7 +210,6 @@ public void writeUTF(String text) throws IOException {
+         ensureEnoughBuffer((int)(pos + encodedsize + 2));
+         writeShort((int)encodedsize);
+ 
+-        byte[] buffer = new byte[(int)encodedsize];
+         MarshallingSupport.writeUTFBytesToBuffer(text, (int) encodedsize, buf, pos);
+         pos += encodedsize;
+     }
+diff --git a/activemq-client/src/test/java/org/apache/activemq/openwire/OpenWireValidationTest.java b/activemq-client/src/test/java/org/apache/activemq/openwire/OpenWireValidationTest.java
+index fa45a9f18238648f55198416959b749fee6bc6cd..feedecb4769d71c357b42205f21903796518126b 100644
+--- a/activemq-client/src/test/java/org/apache/activemq/openwire/OpenWireValidationTest.java
++++ b/activemq-client/src/test/java/org/apache/activemq/openwire/OpenWireValidationTest.java
+@@ -18,7 +18,8 @@
+ 
+ import static org.junit.Assert.assertFalse;
+ import static org.junit.Assert.assertTrue;
+-
++import java.io.DataInputStream;
++import java.io.ByteArrayInputStream;
+ import java.io.DataOutput;
+ import java.io.IOException;
+ import java.lang.reflect.Method;
+@@ -71,6 +72,19 @@ public OpenWireValidationTest(int version) {
+         this.version = version;
+     }
+ 
++    // Function to convert ByteSequence to DataInputStream
++    public static DataInputStream convertToDataInputStream(ByteSequence byteSequence) {
++        // Create a ByteArrayInputStream from the ByteSequence
++        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
++            byteSequence.getData(),
++            byteSequence.getOffset(),
++            byteSequence.getLength()
++        );
++
++        // Wrap the ByteArrayInputStream in a DataInputStream
++        return new DataInputStream(byteArrayInputStream);
++    }
++
+     @Test
+     public void testOpenwireThrowableValidation() throws Exception {
+         // Create a format which will use loose encoding by default
+@@ -92,27 +106,30 @@ public void testOpenwireThrowableValidation() throws Exception {
+         ExceptionResponse r = new ExceptionResponse();
+         r.setException(new Exception());
+         ByteSequence bss = format.marshal(r);
+-        ExceptionResponse response = (ExceptionResponse) format.unmarshal(bss);
+ 
+-        assertTrue(response.getException().getMessage().contains("OpenWire Generic Throwable: "));
++        ExceptionResponse response = (ExceptionResponse) format.unmarshal(convertToDataInputStream(bss));
+ 
+-        // assert the class was never initialized
+-        assertFalse(initialized.get());
++        assertTrue(response.getException() instanceof TestObject);
++        assertTrue(response.getException().getMessage().equals("test message"));
++
++        // assert the class was initialized
++        assertTrue(initialized.get());
+     }
+ 
+-    static class TestObject {
+-        private String message;
+-
++    public static class TestObject extends Throwable {
+         static {
+-            // Class should not be initialized so set flag here to verify
++            System.err.println("TestObject loaded");
++        }
++    
++        public TestObject(String message) {
++            super(message);
++            System.err.println("TestObject initialized");
+             initialized.set(true);
+         }
+-
+-        public TestObject(String message) {
+-            this.message = message;
+-        }
+-
++    
+         public TestObject() {
++            System.err.println("TestObject initialized with empty arg");
++            initialized.set(true);
+         }
+     }
+ 
+@@ -131,7 +148,7 @@ protected void looseMarshalThrowable(OpenWireFormat wireFormat, Throwable o,
+                         DataOutput dataOut) throws IOException {
+                         dataOut.writeBoolean(o != null);
+                         looseMarshalString(TestObject.class.getName(), dataOut);
+-                        looseMarshalString(o.getMessage(), dataOut);
++                        looseMarshalString("test message", dataOut);
+                     }
+                 };
+             case 11:
+@@ -141,7 +158,7 @@ protected void looseMarshalThrowable(OpenWireFormat wireFormat, Throwable o,
+                         DataOutput dataOut) throws IOException {
+                         dataOut.writeBoolean(o != null);
+                         looseMarshalString(TestObject.class.getName(), dataOut);
+-                        looseMarshalString(o.getMessage(), dataOut);
++                        looseMarshalString("test message", dataOut);
+                     }
+                 };
+             case 10:
+@@ -151,7 +168,7 @@ protected void looseMarshalThrowable(OpenWireFormat wireFormat, Throwable o,
+                         DataOutput dataOut) throws IOException {
+                         dataOut.writeBoolean(o != null);
+                         looseMarshalString(TestObject.class.getName(), dataOut);
+-                        looseMarshalString(o.getMessage(), dataOut);
++                        looseMarshalString("test message", dataOut);
+                     }
+                 };
+             case 9:
+@@ -161,7 +178,7 @@ protected void looseMarshalThrowable(OpenWireFormat wireFormat, Throwable o,
+                         DataOutput dataOut) throws IOException {
+                         dataOut.writeBoolean(o != null);
+                         looseMarshalString(TestObject.class.getName(), dataOut);
+-                        looseMarshalString(o.getMessage(), dataOut);
++                        looseMarshalString("test message", dataOut);
+                     }
+                 };
+             case 1:
+@@ -171,7 +188,7 @@ protected void looseMarshalThrowable(OpenWireFormat wireFormat, Throwable o,
+                         DataOutput dataOut) throws IOException {
+                         dataOut.writeBoolean(o != null);
+                         looseMarshalString(TestObject.class.getName(), dataOut);
+-                        looseMarshalString(o.getMessage(), dataOut);
++                        looseMarshalString("test message", dataOut);
+                     }
+                 };
+             default:
+diff --git a/activemq-client/src/test/java/org/apache/activemq/util/DataByteArrayInputStreamTest.java b/activemq-client/src/test/java/org/apache/activemq/util/DataByteArrayInputStreamTest.java
+index 632bfa30a25dcd44ffcc8ca40e6f34ad2044fcd5..f21260d9d80f8c4037469b87c3a8d5e9a5f28daf 100644
+--- a/activemq-client/src/test/java/org/apache/activemq/util/DataByteArrayInputStreamTest.java
++++ b/activemq-client/src/test/java/org/apache/activemq/util/DataByteArrayInputStreamTest.java
+@@ -17,66 +17,121 @@
+ package org.apache.activemq.util;
+ 
+ import static org.junit.Assert.assertEquals;
++import static org.junit.Assert.assertThrows;
+ 
++import java.io.UTFDataFormatException;
+ import org.junit.Test;
+ 
++/**
++ * https://issues.apache.org/jira/browse/AMQ-1911
++ * https://issues.apache.org/jira/browse/AMQ-8122
++ */
+ public class DataByteArrayInputStreamTest {
+ 
+-    /**
+-     * https://issues.apache.org/activemq/browse/AMQ-1911
+-     */
+     @Test
+-    public void testNonAscii() throws Exception {
+-        doMarshallUnMarshallValidation("mei\u00DFen");
+-
+-        String accumulator = new String();
+-
+-        int test = 0; // int to get Supplementary chars
+-        while(Character.isDefined(test)) {
+-            String toTest = String.valueOf((char)test);
+-            accumulator += toTest;
+-            doMarshallUnMarshallValidation(toTest);
+-            test++;
+-        }
+-
+-        int massiveThreeByteCharValue = 0x0FFF;
+-        String toTest = String.valueOf((char)massiveThreeByteCharValue);
+-        accumulator += toTest;
+-        doMarshallUnMarshallValidation(String.valueOf((char)massiveThreeByteCharValue));
+-
+-        // Altogether
+-        doMarshallUnMarshallValidation(accumulator);
+-
+-        // the three byte values
+-        char t = '\u0800';
+-        final char max =  '\uffff';
+-        accumulator = String.valueOf(t);
+-        while (t < max) {
+-            String val = String.valueOf(t);
+-            accumulator += val;
+-            doMarshallUnMarshallValidation(val);
+-            t++;
+-        }
+-
+-        // Altogether so long as it is not too big
+-        while (accumulator.length() > 20000) {
+-            accumulator = accumulator.substring(20000);
+-        }
+-        doMarshallUnMarshallValidation(accumulator);
++    public void testOneByteCharacters() throws Exception {
++        testCodePointRange(0x000000, 0x00007F);
+     }
+ 
+-    void doMarshallUnMarshallValidation(String value) throws Exception {
++    @Test
++    public void testTwoBytesCharacters() throws Exception {
++        testCodePointRange(0x000080, 0x0007FF);
++    }
++
++    @Test
++    public void testThreeBytesCharacters() throws Exception {
++        testCodePointRange(0x000800, 0x00FFFF);
++    }
++
++    @Test
++    public void testFourBytesCharacters() throws Exception {
++        testCodePointRange(0x010000, 0X10FFFF);
++    }
++
++    @Test
++    public void testFourBytesCharacterEncodedAsBytes() throws Exception {
++        // Currently ActiveMQ does not properly support 4-bytes UTF characters.
++        // Ideally, this test should be failing. The current logic was kept as is
++        // intentionally. See https://issues.apache.org/jira/browse/AMQ-8398.
++
++        // 0xF0 0x80 0x80 0x80 (first valid 4-bytes character)
++        testInvalidCharacterBytes(new byte[]{-16, -128, -128, -128}, 4);
++        // 0xF7 0xBF 0xBF 0xBF (last valid 4-bytes character)
++        testInvalidCharacterBytes(new byte[]{-9, -65, -65, -65}, 4);
++    }
++
++
++    private void testCodePointRange(int from, int to) throws Exception {
++        StringBuilder accumulator = new StringBuilder();
++        for (int codePoint = from; codePoint <= to; codePoint++) {
++            String val = String.valueOf(Character.toChars(codePoint));
++            accumulator.append(val);
++            doMarshallUnMarshallValidation(val);
++        }
++
++        // truncate string to last 20k characters
++        if (accumulator.length() > 20_000) {
++            doMarshallUnMarshallValidation(accumulator.substring(
++                accumulator.length() - 20_000));
++        } else {
++            doMarshallUnMarshallValidation(accumulator.toString());
++        }
++    }
++
++    private void doMarshallUnMarshallValidation(String value) throws Exception {
+         DataByteArrayOutputStream out = new DataByteArrayOutputStream();
+-        out.writeBoolean(true);
+         out.writeUTF(value);
+         out.close();
+ 
+         DataByteArrayInputStream in = new DataByteArrayInputStream(out.getData());
+-        in.readBoolean();
+         String readBack = in.readUTF();
++
+         assertEquals(value, readBack);
+     }
+ 
++    @Test
++    public void testTwoBytesOutOfRangeCharacter() throws Exception {
++        // 0xC0 0x7F
++        testInvalidCharacterBytes(new byte[]{-64, 127}, 2);
++        // 0xDF 0xC0
++        testInvalidCharacterBytes(new byte[]{-33, -64}, 2);
++    }
++
++    @Test
++    public void testThreeBytesOutOfRangeCharacter() throws Exception {
++        // 0xE0 0x80 0x7F
++        testInvalidCharacterBytes(new byte[]{-32, -128, 127}, 3);
++        // 0xEF 0xBF 0xC0
++        testInvalidCharacterBytes(new byte[]{-17, -65, -64}, 3);
++    }
++
++    @Test
++    public void testFourBytesOutOfRangeCharacter() throws Exception {
++        // 0xF0 0x80 0x80 0x7F
++        testInvalidCharacterBytes(new byte[]{-16, -128, -128, 127}, 4);
++        // 0xF7 0xBF 0xBF 0xC0
++        testInvalidCharacterBytes(new byte[]{-9, -65, -65, -64}, 4);
++    }
++
++    private void testInvalidCharacterBytes(byte[] bytes, int encodedSize) throws Exception {
++        // Java guarantees that strings are always UTF-8 compliant and valid,
++        // any invalid sequence of bytes is either replaced or removed.
++        // This test demonstrates that Java takes care about and does not allow
++        // anything to break.
++        String val = new String(bytes);
++        doMarshallUnMarshallValidation(val);
++
++        // However, a non-java client can send an invalid sequence of bytes.
++        // Such data causes exceptions while unmarshalling.
++        DataByteArrayOutputStream out = new DataByteArrayOutputStream();
++        out.writeShort(encodedSize);
++        out.write(bytes);
++        out.close();
++
++        DataByteArrayInputStream in = new DataByteArrayInputStream(out.getData());
++        assertThrows(UTFDataFormatException.class, () -> in.readUTF());
++    }
++
+     @Test
+     public void testReadLong() throws Exception {
+         DataByteArrayOutputStream out = new DataByteArrayOutputStream(8);
+@@ -87,4 +142,4 @@ public void testReadLong() throws Exception {
+         long readBack = in.readLong();
+         assertEquals(Long.MAX_VALUE, readBack);
+     }
+-}
++}
+\ No newline at end of file
+diff --git a/activemq-kahadb-store/src/main/java/org/apache/activemq/store/kahadb/disk/page/PageFile.java b/activemq-kahadb-store/src/main/java/org/apache/activemq/store/kahadb/disk/page/PageFile.java
+index a8f975ed88c5640bf1147d257aa60288b58e97f4..a1319278baefdb60602c8f5824b6b3423353565a 100644
+--- a/activemq-kahadb-store/src/main/java/org/apache/activemq/store/kahadb/disk/page/PageFile.java
++++ b/activemq-kahadb-store/src/main/java/org/apache/activemq/store/kahadb/disk/page/PageFile.java
+@@ -423,7 +423,8 @@ public void load() throws IOException, IllegalStateException {
+             }
+ 
+             if (writeFile.length() < PAGE_FILE_HEADER_SIZE) {
+-                writeFile.setLength(PAGE_FILE_HEADER_SIZE);
++                throw new IllegalStateException("File " + file + " is corrupt, length of "
++                    + writeFile.length() + " is less than page file header size of " + PAGE_FILE_HEADER_SIZE);
+             }
+             nextFreePageId.set((writeFile.length() - PAGE_FILE_HEADER_SIZE) / pageSize);
+ 
+@@ -1165,12 +1166,6 @@ private void writeBatch() throws IOException {
+                     recoveryFile.write(w.getDiskBound(tmpFilesForRemoval), 0, pageSize);
+                 }
+ 
+-                // Can we shrink the recovery buffer??
+-                if (recoveryPageCount > recoveryFileMaxPageCount) {
+-                    int t = Math.max(recoveryFileMinPageCount, batch.size());
+-                    recoveryFile.setLength(recoveryFileSizeForPages(t));
+-                }
+-
+                 // Record the page writes in the recovery buffer.
+                 recoveryFile.seek(0);
+                 // Store the next tx id...
+@@ -1262,8 +1257,6 @@ private long redoRecoveryUpdates() throws IOException {
+         if (recoveryFile.length() == 0) {
+             // Write an empty header..
+             recoveryFile.write(new byte[RECOVERY_FILE_HEADER_SIZE]);
+-            // Preallocate the minium size for better performance.
+-            recoveryFile.setLength(recoveryFileSizeForPages(recoveryFileMinPageCount));
+             return 0;
+         }
+ 
+diff --git a/activemq-kahadb-store/src/main/java/org/apache/activemq/store/kahadb/disk/util/DataByteArrayOutputStream.java b/activemq-kahadb-store/src/main/java/org/apache/activemq/store/kahadb/disk/util/DataByteArrayOutputStream.java
+index 5a3fba4715eaeb9734e80fe05a89a2de3c227737..595726b8cd3b2f91e4849240db14157d25ca332f 100644
+--- a/activemq-kahadb-store/src/main/java/org/apache/activemq/store/kahadb/disk/util/DataByteArrayOutputStream.java
++++ b/activemq-kahadb-store/src/main/java/org/apache/activemq/store/kahadb/disk/util/DataByteArrayOutputStream.java
+@@ -237,7 +237,6 @@ public void writeUTF(String text) throws IOException {
+         ensureEnoughBuffer((int)(pos + encodedsize + 2));
+         writeShort((int)encodedsize);
+ 
+-        byte[] buffer = new byte[(int)encodedsize];
+         MarshallingSupport.writeUTFBytesToBuffer(text, (int) encodedsize, buf, pos);
+         pos += encodedsize;
+         onWrite();
+diff --git a/activemq-kahadb-store/src/main/java/org/apache/activemq/util/RecoverableRandomAccessFile.java b/activemq-kahadb-store/src/main/java/org/apache/activemq/util/RecoverableRandomAccessFile.java
+index 309272a870488c1b10c11c68f1a96f90ec185ac2..ca392da9db80f6c7d55009489a2d012b14e10532 100644
+--- a/activemq-kahadb-store/src/main/java/org/apache/activemq/util/RecoverableRandomAccessFile.java
++++ b/activemq-kahadb-store/src/main/java/org/apache/activemq/util/RecoverableRandomAccessFile.java
+@@ -374,10 +374,6 @@ public long length() throws IOException {
+         }
+     }
+ 
+-    public void setLength(long length) throws IOException {
+-        throw new IllegalStateException("File size is pre allocated");
+-    }
+-
+     public void seek(long pos) throws IOException {
+         try {
+             getRaf().seek(pos);
+diff --git a/activemq-kahadb-store/src/test/java/org/apache/activemq/store/kahadb/disk/page/PageFileTest.java b/activemq-kahadb-store/src/test/java/org/apache/activemq/store/kahadb/disk/page/PageFileTest.java
+index 7eceef1f7ec530d9ff65b8508cdb32ed9f7ad0b1..7e8278f5c9412fe66b477965cb0c18bbec4abc75 100644
+--- a/activemq-kahadb-store/src/test/java/org/apache/activemq/store/kahadb/disk/page/PageFileTest.java
++++ b/activemq-kahadb-store/src/test/java/org/apache/activemq/store/kahadb/disk/page/PageFileTest.java
+@@ -367,20 +367,7 @@ public boolean isSatisified() throws Exception {
+     public void testRecoveryAfterUncleanShutdownAndZeroFreePages() throws Exception {
+         final int numberOfPages = 1000;
+         final AtomicBoolean recoveryEnd = new AtomicBoolean();
+-
+-        final var logger = org.apache.logging.log4j.core.Logger.class.cast(LogManager.getLogger(PageFile.class));
+-        final var appender = new AbstractAppender("testAppender", new AbstractFilter() {}, new MessageLayout(), false, new Property[0]) {
+-            @Override
+-            public void append(LogEvent event) {
+-                if (event.toImmutable().getLevel().equals(Level.INFO) && event.toImmutable().getMessage().getFormattedMessage().contains("Recovered pageFile free list")) {
+-                    recoveryEnd.set(true);
+-                }
+-            }
+-        };
+-        appender.start();
+-
+-        logger.addAppender(appender);
+-        logger.get().addAppender(appender, Level.DEBUG, new AbstractFilter() {});
++        createRecoveryAppender("testRecoveryAfterUncleanShutdownAndZeroFreePagesAppender", recoveryEnd);
+ 
+         PageFile pf = new PageFile(new File("target/test-data"), getName());
+         pf.delete();
+@@ -414,22 +401,50 @@ public void append(LogEvent event) {
+ 
+     }
+ 
++    public void testRecoveryAfterUncleanShutdownAndMissingRecoveryFile() throws Exception {
++        final int numberOfPages = 1000;
++        final AtomicBoolean recoveryEnd = new AtomicBoolean();
++        createRecoveryAppender("testRecoveryAfterUncleanShutdownAndMissingRecoveryFileAppender", recoveryEnd);
++
++        PageFile pf = new PageFile(new File("target/test-data"), getName());
++        pf.delete();
++        pf.setEnableRecoveryFile(false);
++        pf.load();
++
++        LOG.info("Creating Transactions");
++        for (int i = 0; i < numberOfPages; i++) {
++            Transaction tx = pf.tx();
++            Page page = tx.allocate();
++            String t = "page:" + i;
++            page.set(t);
++            tx.store(page, StringMarshaller.INSTANCE, false);
++            tx.commit();
++        }
++
++        pf.flush();
++
++        assertEquals(pf.getFreePageCount(), 0);
++
++        //Simulate an unclean shutdown
++        PageFile pf2 = new PageFile(new File("target/test-data"), getName());
++        pf2.setEnableRecoveryFile(true);
++
++        // Simulate a missing recovery file
++        pf2.getRecoveryFile().delete();
++        pf2.load();
++
++        assertTrue("Recovery Finished", Wait.waitFor(recoveryEnd::get, 100000));
++
++        //Simulate a clean shutdown
++        pf2.unload();
++        assertTrue(pf2.isCleanShutdown());
++
++    }
++
+     public void testBackgroundWillMarkUsedPagesAsFreeInTheBeginning() throws Exception {
+         final int numberOfPages = 100000;
+         final AtomicBoolean recoveryEnd = new AtomicBoolean();
+-
+-        final var logger = org.apache.logging.log4j.core.Logger.class.cast(LogManager.getLogger(PageFile.class));
+-        final var appender = new AbstractAppender("pageAppender", new AbstractFilter() {}, new MessageLayout(), false, new Property[0]) {
+-            @Override
+-            public void append(LogEvent event) {
+-                if (event.toImmutable().getLevel().equals(Level.INFO) && event.toImmutable().getMessage().getFormattedMessage().contains("Recovered pageFile free list")) {
+-                    recoveryEnd.set(true);
+-                }
+-            }
+-        };
+-        appender.start();
+-        logger.addAppender(appender);
+-        logger.get().addAppender(appender, Level.DEBUG, new AbstractFilter() {});
++        createRecoveryAppender("testBackgroundWillMarkUsedPagesAsFreeInTheBeginningAppender", recoveryEnd);
+ 
+         PageFile pf = new PageFile(new File("target/test-data"), getName());
+         pf.delete();
+@@ -519,4 +534,20 @@ public boolean isSatisified() throws Exception {
+ 
+         assertEquals("pages freed during recovery should be reused", numberOfPages, totalPages);
+     }
++
++    private void createRecoveryAppender(String name, AtomicBoolean recoveryEnd) {
++        final var logger = org.apache.logging.log4j.core.Logger.class.cast(LogManager.getLogger(PageFile.class));
++        final var appender = new AbstractAppender(name, new AbstractFilter() {}, new MessageLayout(), false, new Property[0]) {
++            @Override
++            public void append(LogEvent event) {
++                if (event.toImmutable().getLevel().equals(Level.INFO) && event.toImmutable().getMessage().getFormattedMessage().contains("Recovered pageFile free list")) {
++                    recoveryEnd.set(true);
++                }
++            }
++        };
++        appender.start();
++
++        logger.addAppender(appender);
++        logger.get().addAppender(appender, Level.DEBUG, new AbstractFilter() {});
++    }
+ }
+diff --git a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v2/BaseDataStreamMarshaller.java b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v2/BaseDataStreamMarshaller.java
+index 4f5ff427a64f3c6b4e6bb17992ebba214fb97b73..b921a66503aea9bea2b2aa0eb1035388da91967f 100644
+--- a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v2/BaseDataStreamMarshaller.java
++++ b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v2/BaseDataStreamMarshaller.java
+@@ -227,9 +227,15 @@ protected Throwable tightUnmarsalThrowable(OpenWireFormat wireFormat, DataInput
+     }
+ 
+     private Throwable createThrowable(String className, String message) {
+-        // TODO: AMQ-9438 - adaptively create throwable according to OpenWire spec
+-        //   currently we are just returning a generic Throwable
+-        return new Throwable("OpenWire Generic Throwable: " + className + ": " + message);
++        try {
++            Class clazz = Class.forName(className, false, BaseDataStreamMarshaller.class.getClassLoader());
++            Constructor constructor = clazz.getConstructor(new Class[] {String.class});
++            return (Throwable)constructor.newInstance(new Object[] {message});
++        } catch (IllegalArgumentException e) {
++            return e;
++        } catch (Throwable e) {
++            return new Throwable(className + ": " + message);
++        }
+     }
+ 
+     protected int tightMarshalThrowable1(OpenWireFormat wireFormat, Throwable o, BooleanStream bs)
+diff --git a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v3/BaseDataStreamMarshaller.java b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v3/BaseDataStreamMarshaller.java
+index 270567567186c90615e7b5dbb7eaff58a90c141b..7af84c55bcf8759a7011847b5fb0ee4b2ab2bd7a 100644
+--- a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v3/BaseDataStreamMarshaller.java
++++ b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v3/BaseDataStreamMarshaller.java
+@@ -227,9 +227,15 @@ protected Throwable tightUnmarsalThrowable(OpenWireFormat wireFormat, DataInput
+     }
+ 
+     private Throwable createThrowable(String className, String message) {
+-        // TODO: AMQ-9438 - adaptively create throwable according to OpenWire spec
+-        //   currently we are just returning a generic Throwable
+-        return new Throwable("OpenWire Generic Throwable: " + className + ": " + message);
++        try {
++            Class clazz = Class.forName(className, false, BaseDataStreamMarshaller.class.getClassLoader());
++            Constructor constructor = clazz.getConstructor(new Class[] {String.class});
++            return (Throwable)constructor.newInstance(new Object[] {message});
++        } catch (IllegalArgumentException e) {
++            return e;
++        } catch (Throwable e) {
++            return new Throwable(className + ": " + message);
++        }
+     }
+ 
+     protected int tightMarshalThrowable1(OpenWireFormat wireFormat, Throwable o, BooleanStream bs)
+diff --git a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java
+index 34eda5c2f5a9af2c575c740c1217569198007688..14e85fc7babaee383b74eee56ed99c6b844886c4 100644
+--- a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java
++++ b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/BaseDataStreamMarshaller.java
+@@ -227,9 +227,15 @@ protected Throwable tightUnmarsalThrowable(OpenWireFormat wireFormat, DataInput
+     }
+ 
+     private Throwable createThrowable(String className, String message) {
+-        // TODO: AMQ-9438 - adaptively create throwable according to OpenWire spec
+-        //   currently we are just returning a generic Throwable
+-        return new Throwable("OpenWire Generic Throwable: " + className + ": " + message);
++        try {
++            Class clazz = Class.forName(className, false, BaseDataStreamMarshaller.class.getClassLoader());
++            Constructor constructor = clazz.getConstructor(new Class[] {String.class});
++            return (Throwable)constructor.newInstance(new Object[] {message});
++        } catch (IllegalArgumentException e) {
++            return e;
++        } catch (Throwable e) {
++            return new Throwable(className + ": " + message);
++        }
+     }
+ 
+     protected int tightMarshalThrowable1(OpenWireFormat wireFormat, Throwable o, BooleanStream bs)
+diff --git a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v5/BaseDataStreamMarshaller.java b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v5/BaseDataStreamMarshaller.java
+index 630d28e958b99ca695e9884cabfff1ce2f4d216e..32a3b8d3d65c7caa3301b426fdccfb21d7fc1abf 100644
+--- a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v5/BaseDataStreamMarshaller.java
++++ b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v5/BaseDataStreamMarshaller.java
+@@ -227,9 +227,15 @@ protected Throwable tightUnmarsalThrowable(OpenWireFormat wireFormat, DataInput
+     }
+ 
+     private Throwable createThrowable(String className, String message) {
+-        // TODO: AMQ-9438 - adaptively create throwable according to OpenWire spec
+-        //   currently we are just returning a generic Throwable
+-        return new Throwable("OpenWire Generic Throwable: " + className + ": " + message);
++        try {
++            Class clazz = Class.forName(className, false, BaseDataStreamMarshaller.class.getClassLoader());
++            Constructor constructor = clazz.getConstructor(new Class[] {String.class});
++            return (Throwable)constructor.newInstance(new Object[] {message});
++        } catch (IllegalArgumentException e) {
++            return e;
++        } catch (Throwable e) {
++            return new Throwable(className + ": " + message);
++        }
+     }
+ 
+     protected int tightMarshalThrowable1(OpenWireFormat wireFormat, Throwable o, BooleanStream bs)
+diff --git a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v6/BaseDataStreamMarshaller.java b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v6/BaseDataStreamMarshaller.java
+index 5dd27922cb3fcf6f4a834bcad58e4a9e7a3fecc6..f755d91dad90c79bed93f27c5a9e315bb046a393 100644
+--- a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v6/BaseDataStreamMarshaller.java
++++ b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v6/BaseDataStreamMarshaller.java
+@@ -227,9 +227,15 @@ protected Throwable tightUnmarsalThrowable(OpenWireFormat wireFormat, DataInput
+     }
+ 
+     private Throwable createThrowable(String className, String message) {
+-        // TODO: AMQ-9438 - adaptively create throwable according to OpenWire spec
+-        //   currently we are just returning a generic Throwable
+-        return new Throwable("OpenWire Generic Throwable: " + className + ": " + message);
++        try {
++            Class clazz = Class.forName(className, false, BaseDataStreamMarshaller.class.getClassLoader());
++            Constructor constructor = clazz.getConstructor(new Class[] {String.class});
++            return (Throwable)constructor.newInstance(new Object[] {message});
++        } catch (IllegalArgumentException e) {
++            return e;
++        } catch (Throwable e) {
++            return new Throwable(className + ": " + message);
++        }
+     }
+ 
+     protected int tightMarshalThrowable1(OpenWireFormat wireFormat, Throwable o, BooleanStream bs)
+diff --git a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java
+index f327901d52923c966568697f6128b96f2c191164..359687977c8a96298b2564f642649c93339d8e61 100644
+--- a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java
++++ b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v7/BaseDataStreamMarshaller.java
+@@ -226,9 +226,15 @@ protected Throwable tightUnmarsalThrowable(OpenWireFormat wireFormat, DataInput
+     }
+ 
+     private Throwable createThrowable(String className, String message) {
+-        // TODO: AMQ-9438 - adaptively create throwable according to OpenWire spec
+-        //   currently we are just returning a generic Throwable
+-        return new Throwable("OpenWire Generic Throwable: " + className + ": " + message);
++        try {
++            Class clazz = Class.forName(className, false, BaseDataStreamMarshaller.class.getClassLoader());
++            Constructor constructor = clazz.getConstructor(new Class[] {String.class});
++            return (Throwable)constructor.newInstance(new Object[] {message});
++        } catch (IllegalArgumentException e) {
++            return e;
++        } catch (Throwable e) {
++            return new Throwable(className + ": " + message);
++        }
+     }
+ 
+     protected int tightMarshalThrowable1(OpenWireFormat wireFormat, Throwable o, BooleanStream bs)
+diff --git a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
+index e7c80e00d5fd17c2f22e9889327e662365f3f1d1..111b45eca0a3e1861d920d007c3c0061ae988fa6 100644
+--- a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
++++ b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
+@@ -226,9 +226,15 @@ protected Throwable tightUnmarsalThrowable(OpenWireFormat wireFormat, DataInput
+     }
+ 
+     private Throwable createThrowable(String className, String message) {
+-        // TODO: AMQ-9438 - adaptively create throwable according to OpenWire spec
+-        //   currently we are just returning a generic Throwable
+-        return new Throwable("OpenWire Generic Throwable: " + className + ": " + message);
++        try {
++            Class clazz = Class.forName(className, false, BaseDataStreamMarshaller.class.getClassLoader());
++            Constructor constructor = clazz.getConstructor(new Class[] {String.class});
++            return (Throwable)constructor.newInstance(new Object[] {message});
++        } catch (IllegalArgumentException e) {
++            return e;
++        } catch (Throwable e) {
++            return new Throwable(className + ": " + message);
++        }
+     }
+ 
+     protected int tightMarshalThrowable1(OpenWireFormat wireFormat, Throwable o, BooleanStream bs)
+diff --git a/activemq-openwire-legacy/src/test/java/org/apache/activemq/openwire/OpenWireLegacyValidationTest.java b/activemq-openwire-legacy/src/test/java/org/apache/activemq/openwire/OpenWireLegacyValidationTest.java
+index 7fe3e70761e6e00c124113d50d57cb674adab960..583808f296901bed0c376ea8432aafbff6a0dc7d 100644
+--- a/activemq-openwire-legacy/src/test/java/org/apache/activemq/openwire/OpenWireLegacyValidationTest.java
++++ b/activemq-openwire-legacy/src/test/java/org/apache/activemq/openwire/OpenWireLegacyValidationTest.java
+@@ -58,7 +58,7 @@ protected void looseMarshalThrowable(OpenWireFormat wireFormat, Throwable o,
+                         DataOutput dataOut) throws IOException {
+                         dataOut.writeBoolean(o != null);
+                         looseMarshalString(TestObject.class.getName(), dataOut);
+-                        looseMarshalString(o.getMessage(), dataOut);
++                        looseMarshalString("test message", dataOut);
+                     }
+                 };
+             case 3:
+@@ -68,7 +68,7 @@ protected void looseMarshalThrowable(OpenWireFormat wireFormat, Throwable o,
+                         DataOutput dataOut) throws IOException {
+                         dataOut.writeBoolean(o != null);
+                         looseMarshalString(TestObject.class.getName(), dataOut);
+-                        looseMarshalString(o.getMessage(), dataOut);
++                        looseMarshalString("test message", dataOut);
+                     }
+                 };
+             case 4:
+@@ -78,7 +78,7 @@ protected void looseMarshalThrowable(OpenWireFormat wireFormat, Throwable o,
+                         DataOutput dataOut) throws IOException {
+                         dataOut.writeBoolean(o != null);
+                         looseMarshalString(TestObject.class.getName(), dataOut);
+-                        looseMarshalString(o.getMessage(), dataOut);
++                        looseMarshalString("test message", dataOut);
+                     }
+                 };
+             case 5:
+@@ -88,7 +88,7 @@ protected void looseMarshalThrowable(OpenWireFormat wireFormat, Throwable o,
+                         DataOutput dataOut) throws IOException {
+                         dataOut.writeBoolean(o != null);
+                         looseMarshalString(TestObject.class.getName(), dataOut);
+-                        looseMarshalString(o.getMessage(), dataOut);
++                        looseMarshalString("test message", dataOut);
+                     }
+                 };
+             case 6:
+@@ -98,7 +98,7 @@ protected void looseMarshalThrowable(OpenWireFormat wireFormat, Throwable o,
+                         DataOutput dataOut) throws IOException {
+                         dataOut.writeBoolean(o != null);
+                         looseMarshalString(TestObject.class.getName(), dataOut);
+-                        looseMarshalString(o.getMessage(), dataOut);
++                        looseMarshalString("test message", dataOut);
+                     }
+                 };
+             case 7:
+@@ -108,7 +108,7 @@ protected void looseMarshalThrowable(OpenWireFormat wireFormat, Throwable o,
+                         DataOutput dataOut) throws IOException {
+                         dataOut.writeBoolean(o != null);
+                         looseMarshalString(TestObject.class.getName(), dataOut);
+-                        looseMarshalString(o.getMessage(), dataOut);
++                        looseMarshalString("test message", dataOut);
+                     }
+                 };
+             case 8:
+@@ -118,7 +118,7 @@ protected void looseMarshalThrowable(OpenWireFormat wireFormat, Throwable o,
+                         DataOutput dataOut) throws IOException {
+                         dataOut.writeBoolean(o != null);
+                         looseMarshalString(TestObject.class.getName(), dataOut);
+-                        looseMarshalString(o.getMessage(), dataOut);
++                        looseMarshalString("test message", dataOut);
+                     }
+                 };
+             default:
+diff --git a/activemq-runtime-config/src/test/java/org/apache/activemq/PolicyEntryTest.java b/activemq-runtime-config/src/test/java/org/apache/activemq/PolicyEntryTest.java
+index 0f46e089e111b18f8d02ee70adab1c63e24a88dc..53341c3a53ca17a20f321dbbe4b64b0ff48d97d6 100644
+--- a/activemq-runtime-config/src/test/java/org/apache/activemq/PolicyEntryTest.java
++++ b/activemq-runtime-config/src/test/java/org/apache/activemq/PolicyEntryTest.java
+@@ -57,6 +57,18 @@ public void testModSendDuplicateFromStoreToDLQ() throws Exception {
+         verifyBooleanField("AMQ.8397", "sendDuplicateFromStoreToDLQ", true);
+     }
+ 
++    @Test
++    public void testModAdvancedNetworkStatistics() throws Exception {
++        final String brokerConfig = configurationSeed + "-policy-ml-broker";
++        applyNewConfig(brokerConfig, configurationSeed + "-policy-advancedNetworkStatistics");
++        startBroker(brokerConfig);
++        assertTrue("broker alive", brokerService.isStarted());
++
++        verifyBooleanField("AMQ.9437", "advancedNetworkStatisticsEnabled", false);
++        applyNewConfig(brokerConfig, configurationSeed + "-policy-advancedNetworkStatistics-mod", SLEEP);
++        verifyBooleanField("AMQ.9437", "advancedNetworkStatisticsEnabled", true);
++    }
++
+     @Test
+     public void testAddNdMod() throws Exception {
+         final String brokerConfig = configurationSeed + "-policy-ml-broker";
+@@ -121,6 +133,9 @@ private void verifyBooleanField(String dest, String fieldName, boolean value) th
+             session.createConsumer(session.createQueue(dest));
+ 
+             switch(fieldName) {
++            case "advancedNetworkStatisticsEnabled":
++                assertEquals(value, brokerService.getRegionBroker().getDestinationMap().get(new ActiveMQQueue(dest)).isAdvancedNetworkStatisticsEnabled());
++                break;
+             case "sendDuplicateFromStoreToDLQ":
+                 assertEquals(value, brokerService.getRegionBroker().getDestinationMap().get(new ActiveMQQueue(dest)).isSendDuplicateFromStoreToDLQ());
+                 break;
+diff --git a/activemq-runtime-config/src/test/resources/org/apache/activemq/policyEntryTest-policy-advancedNetworkStatistics-mod.xml b/activemq-runtime-config/src/test/resources/org/apache/activemq/policyEntryTest-policy-advancedNetworkStatistics-mod.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..534f884d4b2949128b0c6365e85d7b764c9400bd
+--- /dev/null
++++ b/activemq-runtime-config/src/test/resources/org/apache/activemq/policyEntryTest-policy-advancedNetworkStatistics-mod.xml
+@@ -0,0 +1,36 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++    Licensed to the Apache Software Foundation (ASF) under one or more
++    contributor license agreements.  See the NOTICE file distributed with
++    this work for additional information regarding copyright ownership.
++    The ASF licenses this file to You under the Apache License, Version 2.0
++    (the "License"); you may not use this file except in compliance with
++    the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++    Unless required by applicable law or agreed to in writing, software
++    distributed under the License is distributed on an "AS IS" BASIS,
++    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++    See the License for the specific language governing permissions and
++    limitations under the License.
++-->
++<beans
++        xmlns="http://www.springframework.org/schema/beans"
++        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
++  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
++
++  <broker xmlns="http://activemq.apache.org/schema/core" start="false" persistent="false">
++    <plugins>
++      <runtimeConfigurationPlugin checkPeriod="1000" />
++    </plugins>
++    <destinationPolicy>
++      <policyMap>
++        <policyEntries>
++          <policyEntry queue="AMQ.9437" advancedNetworkStatisticsEnabled="true"/>
++        </policyEntries>
++      </policyMap>
++    </destinationPolicy>
++  </broker>
++</beans>
+diff --git a/activemq-runtime-config/src/test/resources/org/apache/activemq/policyEntryTest-policy-advancedNetworkStatistics.xml b/activemq-runtime-config/src/test/resources/org/apache/activemq/policyEntryTest-policy-advancedNetworkStatistics.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..a6c710e0759a3e4d011bdd6ade293140a44cab7a
+--- /dev/null
++++ b/activemq-runtime-config/src/test/resources/org/apache/activemq/policyEntryTest-policy-advancedNetworkStatistics.xml
+@@ -0,0 +1,36 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++    Licensed to the Apache Software Foundation (ASF) under one or more
++    contributor license agreements.  See the NOTICE file distributed with
++    this work for additional information regarding copyright ownership.
++    The ASF licenses this file to You under the Apache License, Version 2.0
++    (the "License"); you may not use this file except in compliance with
++    the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++    Unless required by applicable law or agreed to in writing, software
++    distributed under the License is distributed on an "AS IS" BASIS,
++    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++    See the License for the specific language governing permissions and
++    limitations under the License.
++-->
++<beans
++        xmlns="http://www.springframework.org/schema/beans"
++        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
++  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
++
++  <broker xmlns="http://activemq.apache.org/schema/core" start="false" persistent="false">
++    <plugins>
++      <runtimeConfigurationPlugin checkPeriod="1000" />
++    </plugins>
++    <destinationPolicy>
++      <policyMap>
++        <policyEntries>
++          <policyEntry queue="AMQ.9437"/>
++        </policyEntries>
++      </policyMap>
++    </destinationPolicy>
++  </broker>
++</beans>
+diff --git a/activemq-stomp/src/main/java/org/apache/activemq/transport/stomp/LegacyFrameTranslator.java b/activemq-stomp/src/main/java/org/apache/activemq/transport/stomp/LegacyFrameTranslator.java
+index 38eab6fc77335da3e65ea92e21798f17c96b7846..0c6ee175f5b814858489c1930e7b2221a888aa91 100644
+--- a/activemq-stomp/src/main/java/org/apache/activemq/transport/stomp/LegacyFrameTranslator.java
++++ b/activemq-stomp/src/main/java/org/apache/activemq/transport/stomp/LegacyFrameTranslator.java
+@@ -18,6 +18,7 @@
+ 
+ import java.io.DataOutputStream;
+ import java.io.IOException;
++import java.nio.charset.StandardCharsets;
+ import java.util.HashMap;
+ import java.util.Map;
+ 
+@@ -53,12 +54,9 @@ public ActiveMQMessage convertFrame(ProtocolConverter converter, StompFrame comm
+             if(intendedType.equalsIgnoreCase("text")){
+                 ActiveMQTextMessage text = new ActiveMQTextMessage();
+                 try {
+-                    ByteArrayOutputStream bytes = new ByteArrayOutputStream(command.getContent().length + 4);
+-                    DataOutputStream data = new DataOutputStream(bytes);
+-                    data.writeInt(command.getContent().length);
+-                    data.write(command.getContent());
+-                    text.setContent(bytes.toByteSequence());
+-                    data.close();
++                    // AMQ-8398 - get the original text back so we decode from standard UTF-8
++                    // and set on the message so it will re-encode using AMQ modified UTF-8
++                    text.setText(command.getBody());
+                 } catch (Throwable e) {
+                     throw new ProtocolException("Text could not bet set: " + e, false, e);
+                 }
+@@ -78,12 +76,9 @@ public ActiveMQMessage convertFrame(ProtocolConverter converter, StompFrame comm
+         } else {
+             ActiveMQTextMessage text = new ActiveMQTextMessage();
+             try {
+-                ByteArrayOutputStream bytes = new ByteArrayOutputStream(command.getContent().length + 4);
+-                DataOutputStream data = new DataOutputStream(bytes);
+-                data.writeInt(command.getContent().length);
+-                data.write(command.getContent());
+-                text.setContent(bytes.toByteSequence());
+-                data.close();
++                // AMQ-8398 - get the original text back so we decode from standard UTF-8
++                // and set on the message so it will re-encode using AMQ modified UTF-8
++                text.setText(command.getBody());
+             } catch (Throwable e) {
+                 throw new ProtocolException("Text could not bet set: " + e, false, e);
+             }
+@@ -103,22 +98,13 @@ public StompFrame convertMessage(ProtocolConverter converter, ActiveMQMessage me
+         FrameTranslator.Helper.copyStandardHeadersFromMessageToFrame(converter, message, command, this);
+ 
+         if (message.getDataStructureType() == ActiveMQTextMessage.DATA_STRUCTURE_TYPE) {
+-
+-            if (!message.isCompressed() && message.getContent() != null) {
+-                ByteSequence msgContent = message.getContent();
+-                if (msgContent.getLength() > 4) {
+-                    byte[] content = new byte[msgContent.getLength() - 4];
+-                    System.arraycopy(msgContent.data, 4, content, 0, content.length);
+-                    command.setContent(content);
+-                }
+-            } else {
+-                ActiveMQTextMessage msg = (ActiveMQTextMessage)message.copy();
+-                String messageText = msg.getText();
+-                if (messageText != null) {
+-                    command.setContent(msg.getText().getBytes("UTF-8"));
+-                }
++            ActiveMQTextMessage msg = (ActiveMQTextMessage)message.copy();
++            // AMQ-8398 - get the original text back so we decode from modified UTF-8
++            // and then we can re-encode using the standard JDK encoding
++            String messageText = msg.getText();
++            if (messageText != null) {
++                command.setContent(msg.getText().getBytes(StandardCharsets.UTF_8));
+             }
+-
+         } else if (message.getDataStructureType() == ActiveMQBytesMessage.DATA_STRUCTURE_TYPE) {
+ 
+             ActiveMQBytesMessage msg = (ActiveMQBytesMessage)message.copy();
+diff --git a/activemq-stomp/src/main/java/org/apache/activemq/transport/stomp/StompFrame.java b/activemq-stomp/src/main/java/org/apache/activemq/transport/stomp/StompFrame.java
+index d38655088119ee73aa6674c4cb09f7a73e817404..83042329409ca1419dc6e7b3153b3fc0edc057a6 100644
+--- a/activemq-stomp/src/main/java/org/apache/activemq/transport/stomp/StompFrame.java
++++ b/activemq-stomp/src/main/java/org/apache/activemq/transport/stomp/StompFrame.java
+@@ -17,6 +17,7 @@
+ package org.apache.activemq.transport.stomp;
+ 
+ import java.io.UnsupportedEncodingException;
++import java.nio.charset.StandardCharsets;
+ import java.util.Arrays;
+ import java.util.HashMap;
+ import java.util.Locale;
+@@ -75,11 +76,7 @@ public byte[] getContent() {
+     }
+ 
+     public String getBody() {
+-        try {
+-            return new String(content, "UTF-8");
+-        } catch (UnsupportedEncodingException e) {
+-            return new String(content);
+-        }
++        return new String(content, StandardCharsets.UTF_8);
+     }
+ 
+     public void setContent(byte[] data) {
+diff --git a/activemq-stomp/src/test/java/org/apache/activemq/transport/stomp/StompNIOSSLLargeMessageTest.java b/activemq-stomp/src/test/java/org/apache/activemq/transport/stomp/StompNIOSSLLargeMessageTest.java
+index e4277e2627b795a6bbc6fd6fc1f6812a93da69d8..21e181a4f05f552edbde68e0c957f123798cdfb8 100644
+--- a/activemq-stomp/src/test/java/org/apache/activemq/transport/stomp/StompNIOSSLLargeMessageTest.java
++++ b/activemq-stomp/src/test/java/org/apache/activemq/transport/stomp/StompNIOSSLLargeMessageTest.java
+@@ -103,6 +103,7 @@ public void setUp() throws Exception {
+ 
+     @Override
+     public void tearDown() throws Exception {
++        super.tearDown();
+         // unregister Log4J appender
+         org.apache.logging.log4j.core.Logger rootLogger = (org.apache.logging.log4j.core.Logger) org.apache.logging.log4j.LogManager.getRootLogger();
+         rootLogger.removeAppender(appender);
+diff --git a/activemq-stomp/src/test/java/org/apache/activemq/transport/stomp/StompTest.java b/activemq-stomp/src/test/java/org/apache/activemq/transport/stomp/StompTest.java
+index 9f0d65e90921319aadadc4324d48fcc24d5d0ccc..9c82261e327818590f5423b8bf18a50de6358273 100644
+--- a/activemq-stomp/src/test/java/org/apache/activemq/transport/stomp/StompTest.java
++++ b/activemq-stomp/src/test/java/org/apache/activemq/transport/stomp/StompTest.java
+@@ -219,6 +219,84 @@ public void testSendMessage() throws Exception {
+         assertTrue(Math.abs(tnow - tmsg) < 1000);
+     }
+ 
++    // Test that a string that requires 4 bytes to encode using standard
++    // UTF-8 does not break when sent by Stomp and received by JMS/OpenWire
++    // AMQ uses a modified UTF-8 encoding that only uses 3 bytes so conversion
++    // needs to happen so this works.
++    @Test(timeout = 60000)
++    public void testSend4ByteUtf8StompToJms() throws Exception {
++        // Create test string using emojis, requires 4 bytes with standard UTF-8
++        String body = "!®౩\uD83D\uDE42";
++        MessageConsumer consumer = session.createConsumer(queue);
++
++        String frame = "CONNECT\n" + "login:system\n" + "passcode:manager\n\n" + Stomp.NULL;
++        stompConnection.sendFrame(frame);
++
++        frame = stompConnection.receiveFrame();
++        assertTrue(frame.startsWith("CONNECTED"));
++
++        // publish message with string that requires 4-byte UTF-8 encoding
++        frame = "SEND\n" + "destination:/queue/" + getQueueName() + "\n\n" + body + Stomp.NULL;
++        stompConnection.sendFrame(frame);
++
++        // Verify received message is original sent string
++        TextMessage message = (TextMessage)consumer.receive(2500);
++        assertNotNull(message);
++        assertEquals(body, message.getText());
++    }
++
++    // Test that a string that requires 4 bytes to encode using standard
++    // UTF-8 does not break when sent by JMS/OpenWire and received by Stomp
++    // AMQ uses a modified UTF-8 encoding that only uses 3 bytes so conversion
++    // needs to happen so this works.
++    @Test(timeout = 60000)
++    public void testSend4ByteUtf8JmsToStomp() throws Exception {
++        // Create test string using emojis, requires 4 bytes with standard UTF-8
++        String body = "!®౩\uD83D\uDE42";
++        MessageProducer producer = session.createProducer(queue);
++
++        String frame = "CONNECT\n" + "login:system\n" + "passcode:manager\n\n" + Stomp.NULL;
++        stompConnection.sendFrame(frame);
++
++        frame = stompConnection.receiveFrame();
++        assertTrue(frame.startsWith("CONNECTED"));
++        frame = "SUBSCRIBE\n" + "destination:/queue/" + getQueueName() + "\n" + "ack:auto\n\n" + Stomp.NULL;
++        stompConnection.sendFrame(frame);
++
++        // publish message with string that requires 4-byte UTF-8 encoding
++        producer.send(session.createTextMessage(body));
++
++        // Verify received message is original sent string
++        StompFrame message = stompConnection.receive();
++        assertNotNull(message);
++        assertEquals(body, message.getBody());
++    }
++
++    // Test that a string that requires 4 bytes to encode using standard
++    // UTF-8 does not break when sent by Stomp and received by Stomp
++    @Test(timeout = 60000)
++    public void testSend4ByteUtf8StompToStomp() throws Exception {
++        // Create test string using emojis, requires 4 bytes with standard UTF-8
++        String body = "!®౩\uD83D\uDE42";
++
++        String frame = "CONNECT\n" + "login:system\n" + "passcode:manager\n\n" + Stomp.NULL;
++        stompConnection.sendFrame(frame);
++        frame = stompConnection.receiveFrame();
++        assertTrue(frame.startsWith("CONNECTED"));
++
++        // publish message with string that requires 4-byte UTF-8 encoding
++        frame = "SEND\n" + "destination:/queue/" + getQueueName() + "\n\n" + body + Stomp.NULL;
++        stompConnection.sendFrame(frame);
++
++        frame = "SUBSCRIBE\n" + "destination:/queue/" + getQueueName() + "\n" + "ack:auto\n\n" + Stomp.NULL;
++        stompConnection.sendFrame(frame);
++
++        // Verify received message is original sent string
++        StompFrame message = stompConnection.receive();
++        assertNotNull(message);
++        assertEquals(body, message.getBody());
++    }
++
+     @Test(timeout = 60000)
+     public void testJMSXGroupIdCanBeSet() throws Exception {
+ 
+diff --git a/activemq-unit-tests/src/test/java/org/apache/activemq/network/NetworkAdvancedStatisticsTest.java b/activemq-unit-tests/src/test/java/org/apache/activemq/network/NetworkAdvancedStatisticsTest.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..df99bab3542f22a01aa9f73cff9e6c231efb7e40
+--- /dev/null
++++ b/activemq-unit-tests/src/test/java/org/apache/activemq/network/NetworkAdvancedStatisticsTest.java
+@@ -0,0 +1,167 @@
++/**
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache License, Version 2.0
++ * (the "License"); you may not use this file except in compliance with
++ * the License.  You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package org.apache.activemq.network;
++
++import static org.junit.Assert.assertEquals;
++import static org.junit.Assert.assertTrue;
++
++
++import java.util.Arrays;
++import java.util.Collection;
++
++import jakarta.jms.Message;
++import jakarta.jms.MessageConsumer;
++import jakarta.jms.MessageListener;
++import jakarta.jms.MessageProducer;
++
++import org.apache.activemq.command.ActiveMQDestination;
++import org.apache.activemq.command.ActiveMQQueue;
++import org.apache.activemq.command.ActiveMQTopic;
++import org.apache.activemq.util.Wait;
++import org.apache.activemq.util.Wait.Condition;
++import org.junit.Test;
++import org.junit.runner.RunWith;
++import org.junit.runners.Parameterized;
++import org.springframework.context.support.AbstractApplicationContext;
++
++@RunWith(value = Parameterized.class)
++public class NetworkAdvancedStatisticsTest extends BaseNetworkTest {
++
++    @Parameterized.Parameters(name="includedDestination={0}, excludedDestination={1}")
++    public static Collection<Object[]> data() {
++        return Arrays.asList(new Object[][] {
++                { new ActiveMQTopic("include.test.bar"), new ActiveMQTopic("exclude.test.bar")},
++                { new ActiveMQQueue("include.test.foo"), new ActiveMQQueue("exclude.test.foo")}});
++    }
++
++    protected static final int MESSAGE_COUNT = 10;
++
++    protected AbstractApplicationContext context;
++    protected String consumerName = "durableSubs";
++
++    private final ActiveMQDestination includedDestination;
++    private final ActiveMQDestination excludedDestination;
++
++    public NetworkAdvancedStatisticsTest(ActiveMQDestination includedDestionation, ActiveMQDestination excludedDestination) {
++        this.includedDestination = includedDestionation;
++        this.excludedDestination = excludedDestination;
++    }
++
++    @Override
++    protected void doSetUp(boolean deleteAllMessages) throws Exception {
++        super.doSetUp(deleteAllMessages);
++    }
++
++    @Override
++    protected String getRemoteBrokerURI() {
++        return "org/apache/activemq/network/remoteBroker-advancedNetworkStatistics.xml";
++    }
++
++    @Override
++    protected String getLocalBrokerURI() {
++        return "org/apache/activemq/network/localBroker-advancedNetworkStatistics.xml";
++    }
++
++    //Added for AMQ-9437 test advancedStatistics for networkEnqueue and networkDequeue
++    @Test(timeout = 60 * 1000)
++    public void testNetworkAdvancedStatistics() throws Exception {
++
++        // create a remote durable consumer to create demand
++        MessageConsumer remoteConsumer;
++        if(includedDestination.isTopic()) {
++            remoteConsumer = remoteSession.createDurableSubscriber(ActiveMQTopic.class.cast(includedDestination), consumerName);
++        } else {
++            remoteConsumer = remoteSession.createConsumer(includedDestination);
++            remoteConsumer.setMessageListener(new MessageListener() {                
++                @Override
++                public void onMessage(Message message) {
++                }
++            });
++        }
++        Thread.sleep(1000);
++
++        MessageProducer producer = localSession.createProducer(includedDestination);
++        for (int i = 0; i < MESSAGE_COUNT; i++) {
++            Message test = localSession.createTextMessage("test-" + i);
++            producer.send(test);
++        }
++        Thread.sleep(1000);
++
++        MessageProducer producerExcluded = localSession.createProducer(excludedDestination);
++        for (int i = 0; i < MESSAGE_COUNT; i++) {
++            Message test = localSession.createTextMessage("test-" + i);
++            producerExcluded.send(test);
++        }
++        Thread.sleep(1000);
++
++        //Make sure stats are correct for local -> remote
++        assertEquals(MESSAGE_COUNT, localBroker.getDestination(includedDestination).getDestinationStatistics().getEnqueues().getCount());
++        assertEquals(MESSAGE_COUNT, localBroker.getDestination(includedDestination).getDestinationStatistics().getDequeues().getCount());
++        assertEquals(MESSAGE_COUNT, localBroker.getDestination(includedDestination).getDestinationStatistics().getForwards().getCount());
++        assertEquals(MESSAGE_COUNT, localBroker.getDestination(includedDestination).getDestinationStatistics().getNetworkDequeues().getCount());
++        assertEquals(0, localBroker.getDestination(includedDestination).getDestinationStatistics().getNetworkEnqueues().getCount());
++        assertEquals(MESSAGE_COUNT, remoteBroker.getDestination(includedDestination).getDestinationStatistics().getEnqueues().getCount());
++        assertEquals(0, remoteBroker.getDestination(includedDestination).getDestinationStatistics().getForwards().getCount());
++        assertEquals(MESSAGE_COUNT, remoteBroker.getDestination(includedDestination).getDestinationStatistics().getNetworkEnqueues().getCount());
++        assertEquals(0, remoteBroker.getDestination(includedDestination).getDestinationStatistics().getNetworkDequeues().getCount());
++
++        // Make sure stats do not increment for local-only
++        assertEquals(MESSAGE_COUNT, localBroker.getDestination(excludedDestination).getDestinationStatistics().getEnqueues().getCount());
++        assertEquals(0, localBroker.getDestination(excludedDestination).getDestinationStatistics().getForwards().getCount());
++        assertEquals(0, localBroker.getDestination(excludedDestination).getDestinationStatistics().getNetworkDequeues().getCount());
++        assertEquals(0, localBroker.getDestination(excludedDestination).getDestinationStatistics().getNetworkEnqueues().getCount());
++        assertEquals(0, remoteBroker.getDestination(excludedDestination).getDestinationStatistics().getEnqueues().getCount());
++        assertEquals(0, remoteBroker.getDestination(excludedDestination).getDestinationStatistics().getDequeues().getCount());
++        assertEquals(0, remoteBroker.getDestination(excludedDestination).getDestinationStatistics().getForwards().getCount());
++        assertEquals(0, remoteBroker.getDestination(excludedDestination).getDestinationStatistics().getNetworkEnqueues().getCount());
++        assertEquals(0, remoteBroker.getDestination(excludedDestination).getDestinationStatistics().getNetworkDequeues().getCount());
++
++        if(includedDestination.isTopic()) {
++            assertTrue(Wait.waitFor(new Condition() {
++                @Override
++                public boolean isSatisified() throws Exception {
++                    return localBroker.getSystemUsage().getMemoryUsage().getUsage() == 0;
++                }
++            }, 10000, 500));
++        } else {
++            assertTrue(Wait.waitFor(new Condition() {
++                @Override
++                public boolean isSatisified() throws Exception {
++                    // The number of message that remain is due to the exclude queue
++                    return localBroker.getAdminView().getTotalMessageCount() == MESSAGE_COUNT;
++                }
++            }, 10000, 500));
++        }
++        remoteConsumer.close();
++    }
++
++    protected void assertNetworkBridgeStatistics(final long expectedLocalSent, final long expectedRemoteSent) throws Exception {
++
++        final NetworkBridge localBridge = localBroker.getNetworkConnectors().get(0).activeBridges().iterator().next();
++        final NetworkBridge remoteBridge = remoteBroker.getNetworkConnectors().get(0).activeBridges().iterator().next();
++
++        assertTrue(Wait.waitFor(new Wait.Condition() {
++            @Override
++            public boolean isSatisified() throws Exception {
++                return expectedLocalSent == localBridge.getNetworkBridgeStatistics().getDequeues().getCount() &&
++                       0 == localBridge.getNetworkBridgeStatistics().getReceivedCount().getCount() &&
++                       expectedRemoteSent == remoteBridge.getNetworkBridgeStatistics().getDequeues().getCount() &&
++                       0 == remoteBridge.getNetworkBridgeStatistics().getReceivedCount().getCount();
++            }
++        }));
++    }
++}
+diff --git a/activemq-unit-tests/src/test/resources/org/apache/activemq/network/localBroker-advancedNetworkStatistics.xml b/activemq-unit-tests/src/test/resources/org/apache/activemq/network/localBroker-advancedNetworkStatistics.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..b543169f6ef43a7263354969a795860b47a80f0e
+--- /dev/null
++++ b/activemq-unit-tests/src/test/resources/org/apache/activemq/network/localBroker-advancedNetworkStatistics.xml
+@@ -0,0 +1,63 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++    Licensed to the Apache Software Foundation (ASF) under one or more
++    contributor license agreements.  See the NOTICE file distributed with
++    this work for additional information regarding copyright ownership.
++    The ASF licenses this file to You under the Apache License, Version 2.0
++    (the "License"); you may not use this file except in compliance with
++    the License.  You may obtain a copy of the License at
++   
++    http://www.apache.org/licenses/LICENSE-2.0
++   
++    Unless required by applicable law or agreed to in writing, software
++    distributed under the License is distributed on an "AS IS" BASIS,
++    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++    See the License for the specific language governing permissions and
++    limitations under the License.
++-->
++<beans
++  xmlns="http://www.springframework.org/schema/beans"
++  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
++  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
++  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
++  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
++
++<broker brokerName="localBroker" start="false" persistent="true" useShutdownHook="false" monitorConnectionSplits="true" xmlns="http://activemq.apache.org/schema/core">
++   
++    <destinationPolicy>
++      <policyMap>
++        <policyEntries>
++          <policyEntry queue="exclude.>" advancedNetworkStatisticsEnabled="true"/>
++          <policyEntry queue="include.>" advancedNetworkStatisticsEnabled="true"/> 
++          <policyEntry topic="ActiveMQ.Advisory.>" />
++          <policyEntry topic="exclude.>" advancedNetworkStatisticsEnabled="true"/>
++          <policyEntry topic="include.>" advancedNetworkStatisticsEnabled="true"/> 
++        </policyEntries>
++      </policyMap>
++    </destinationPolicy>
++
++    <networkConnectors>
++      <networkConnector uri="static:(tcp://localhost:61617)"
++         dynamicOnly = "false"
++         conduitSubscriptions = "true"
++         decreaseNetworkConsumerPriority = "false"
++         name="networkConnector">
++      	<dynamicallyIncludedDestinations>
++      		<queue physicalName="include.test.foo"/>
++      		<topic physicalName="include.test.bar"/>
++      	</dynamicallyIncludedDestinations>
++      	<excludedDestinations>
++      		<queue physicalName="exclude.test.foo"/>
++      		<topic physicalName="exclude.test.bar"/>
++      	</excludedDestinations>
++      </networkConnector>
++    </networkConnectors>
++    
++    <transportConnectors>
++      <transportConnector uri="tcp://localhost:61616"/>
++    </transportConnectors>
++    
++  </broker>
++</beans>
++
+diff --git a/activemq-unit-tests/src/test/resources/org/apache/activemq/network/remoteBroker-advancedNetworkStatistics.xml b/activemq-unit-tests/src/test/resources/org/apache/activemq/network/remoteBroker-advancedNetworkStatistics.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..a9cf93f73a6559aa1a728e76cc7bb414452c1fe0
+--- /dev/null
++++ b/activemq-unit-tests/src/test/resources/org/apache/activemq/network/remoteBroker-advancedNetworkStatistics.xml
+@@ -0,0 +1,49 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++    Licensed to the Apache Software Foundation (ASF) under one or more
++    contributor license agreements.  See the NOTICE file distributed with
++    this work for additional information regarding copyright ownership.
++    The ASF licenses this file to You under the Apache License, Version 2.0
++    (the "License"); you may not use this file except in compliance with
++    the License.  You may obtain a copy of the License at
++   
++    http://www.apache.org/licenses/LICENSE-2.0
++   
++    Unless required by applicable law or agreed to in writing, software
++    distributed under the License is distributed on an "AS IS" BASIS,
++    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++    See the License for the specific language governing permissions and
++    limitations under the License.
++-->
++<beans 
++  xmlns="http://www.springframework.org/schema/beans" 
++  xmlns:amq="http://activemq.apache.org/schema/core"
++  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
++  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
++
++  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
++
++  <broker brokerName="remoteBroker" start="false" useJmx="false" persistent="true" useShutdownHook="false" monitorConnectionSplits="false" xmlns="http://activemq.apache.org/schema/core">
++    <destinationPolicy>
++      <policyMap>
++        <policyEntries>
++          <policyEntry queue="exclude.>" advancedNetworkStatisticsEnabled="true"/>
++          <policyEntry queue="include.>" advancedNetworkStatisticsEnabled="true"/> 
++          <policyEntry topic="ActiveMQ.Advisory.>" />
++          <policyEntry topic="exclude.>" advancedNetworkStatisticsEnabled="true"/>
++          <policyEntry topic="include.>" advancedNetworkStatisticsEnabled="true"/> 
++        </policyEntries>
++      </policyMap>
++    </destinationPolicy>
++    <networkConnectors>
++      <networkConnector uri="static:(tcp://localhost:61616)" />
++      </networkConnectors>
++
++    <transportConnectors>
++      <transportConnector uri="tcp://localhost:61617"/>
++    </transportConnectors>
++  </broker>
++
++</beans>
++
+diff --git a/assembly/src/release/bin/linux-x86-64/wrapper.conf b/assembly/src/release/bin/linux-x86-64/wrapper.conf
+index 09442c88b920d32f11f31b404b675d04a066619c..cd1367c6a79d5c8bbaf9c8ba6deaa2bdfbc6f343 100644
+--- a/assembly/src/release/bin/linux-x86-64/wrapper.conf
++++ b/assembly/src/release/bin/linux-x86-64/wrapper.conf
+@@ -25,9 +25,6 @@ set.default.ACTIVEMQ_BASE=../..
+ set.default.ACTIVEMQ_CONF=%ACTIVEMQ_BASE%/conf
+ set.default.ACTIVEMQ_DATA=%ACTIVEMQ_BASE%/data
+ 
+-# JDK 9+ modules
+-set.JDK_JAVA_OPTIONS=--add-reads=java.xml=java.logging --add-opens java.base/java.security=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.naming/javax.naming.spi=ALL-UNNAMED --add-opens java.rmi/sun.rmi.transport.tcp=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-exports=java.base/sun.net.www.protocol.http=ALL-UNNAMED --add-exports=java.base/sun.net.www.protocol.https=ALL-UNNAMED --add-exports=java.base/sun.net.www.protocol.jar=ALL-UNNAMED --add-exports=jdk.xml.dom/org.w3c.dom.html=ALL-UNNAMED --add-exports=jdk.naming.rmi/com.sun.jndi.url.rmi=ALL-UNNAMED
+-
+ wrapper.working.dir=.
+ 
+ # Java Application
+@@ -63,6 +60,23 @@ wrapper.java.additional.11=-Dactivemq.data=%ACTIVEMQ_DATA%
+ wrapper.java.additional.12=-Djava.security.auth.login.config=%ACTIVEMQ_CONF%/login.config
+ wrapper.java.additional.13=-Djolokia.conf=file:%ACTIVEMQ_CONF%/jolokia-access.xml
+ 
++## ------------------------------------------------------------------
++## Java Platform Module System (JPMS) - Java 9+.
++## ------------------------------------------------------------------
++wrapper.java.additional.20=--add-reads=java.xml=java.logging
++wrapper.java.additional.21=--add-opens=java.base/java.security=ALL-UNNAMED
++wrapper.java.additional.22=--add-opens=java.base/java.net=ALL-UNNAMED
++wrapper.java.additional.23=--add-opens=java.base/java.lang=ALL-UNNAMED
++wrapper.java.additional.25=--add-opens=java.base/java.util=ALL-UNNAMED
++wrapper.java.additional.26=--add-opens=java.naming/javax.naming.spi=ALL-UNNAMED
++wrapper.java.additional.27=--add-opens=java.rmi/sun.rmi.transport.tcp=ALL-UNNAMED
++wrapper.java.additional.28=--add-opens=java.base/sun.nio.ch=ALL-UNNAMED
++wrapper.java.additional.29=--add-exports=java.base/sun.net.www.protocol.http=ALL-UNNAMED
++wrapper.java.additional.30=--add-exports=java.base/sun.net.www.protocol.https=ALL-UNNAMED
++wrapper.java.additional.31=--add-exports=java.base/sun.net.www.protocol.jar=ALL-UNNAMED
++wrapper.java.additional.32=--add-exports=jdk.xml.dom/org.w3c.dom.html=ALL-UNNAMED
++wrapper.java.additional.33=--add-exports=jdk.naming.rmi/com.sun.jndi.url.rmi=ALL-UNNAMED
++
+ # Uncomment to enable jmx
+ #wrapper.java.additional.n=-Dcom.sun.management.jmxremote.port=1616
+ #wrapper.java.additional.n=-Dcom.sun.management.jmxremote.authenticate=false
+diff --git a/assembly/src/release/bin/macosx/wrapper.conf b/assembly/src/release/bin/macosx/wrapper.conf
+index 1249663c1f772266a1c1e64cafcd993b7f03b1f7..8ce579b80b02cbaf9f26bfebfb0b94f032436fa9 100644
+--- a/assembly/src/release/bin/macosx/wrapper.conf
++++ b/assembly/src/release/bin/macosx/wrapper.conf
+@@ -25,9 +25,6 @@ set.default.ACTIVEMQ_BASE=../..
+ set.default.ACTIVEMQ_CONF=%ACTIVEMQ_BASE%/conf
+ set.default.ACTIVEMQ_DATA=%ACTIVEMQ_BASE%/data
+ 
+-# JDK 9+ modules
+-set.JDK_JAVA_OPTIONS=--add-reads=java.xml=java.logging --add-opens java.base/java.security=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.naming/javax.naming.spi=ALL-UNNAMED --add-opens java.rmi/sun.rmi.transport.tcp=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-exports=java.base/sun.net.www.protocol.http=ALL-UNNAMED --add-exports=java.base/sun.net.www.protocol.https=ALL-UNNAMED --add-exports=java.base/sun.net.www.protocol.jar=ALL-UNNAMED --add-exports=jdk.xml.dom/org.w3c.dom.html=ALL-UNNAMED --add-exports=jdk.naming.rmi/com.sun.jndi.url.rmi=ALL-UNNAMED
+-
+ wrapper.working.dir=.
+ 
+ # Java Application
+@@ -63,6 +60,23 @@ wrapper.java.additional.11=-Dactivemq.data=%ACTIVEMQ_DATA%
+ wrapper.java.additional.12=-Djava.security.auth.login.config=%ACTIVEMQ_CONF%/login.config
+ wrapper.java.additional.13=-Djolokia.conf=file:%ACTIVEMQ_CONF%/jolokia-access.xml
+ 
++## ------------------------------------------------------------------
++## Java Platform Module System (JPMS) - Java 9+.
++## ------------------------------------------------------------------
++wrapper.java.additional.20=--add-reads=java.xml=java.logging
++wrapper.java.additional.21=--add-opens=java.base/java.security=ALL-UNNAMED
++wrapper.java.additional.22=--add-opens=java.base/java.net=ALL-UNNAMED
++wrapper.java.additional.23=--add-opens=java.base/java.lang=ALL-UNNAMED
++wrapper.java.additional.25=--add-opens=java.base/java.util=ALL-UNNAMED
++wrapper.java.additional.26=--add-opens=java.naming/javax.naming.spi=ALL-UNNAMED
++wrapper.java.additional.27=--add-opens=java.rmi/sun.rmi.transport.tcp=ALL-UNNAMED
++wrapper.java.additional.28=--add-opens=java.base/sun.nio.ch=ALL-UNNAMED
++wrapper.java.additional.29=--add-exports=java.base/sun.net.www.protocol.http=ALL-UNNAMED
++wrapper.java.additional.30=--add-exports=java.base/sun.net.www.protocol.https=ALL-UNNAMED
++wrapper.java.additional.31=--add-exports=java.base/sun.net.www.protocol.jar=ALL-UNNAMED
++wrapper.java.additional.32=--add-exports=jdk.xml.dom/org.w3c.dom.html=ALL-UNNAMED
++wrapper.java.additional.33=--add-exports=jdk.naming.rmi/com.sun.jndi.url.rmi=ALL-UNNAMED
++
+ # Uncomment to enable jmx
+ #wrapper.java.additional.n=-Dcom.sun.management.jmxremote.port=1616
+ #wrapper.java.additional.n=-Dcom.sun.management.jmxremote.authenticate=false
+diff --git a/assembly/src/release/bin/win64/wrapper.conf b/assembly/src/release/bin/win64/wrapper.conf
+index 4a49be62b461ce673b667e2b6a238fe23ef8fbe0..68349aa70dd93d851c0217f9f5969eba762a403c 100644
+--- a/assembly/src/release/bin/win64/wrapper.conf
++++ b/assembly/src/release/bin/win64/wrapper.conf
+@@ -26,9 +26,6 @@ set.default.ACTIVEMQ_CONF=%ACTIVEMQ_BASE%/conf
+ set.default.ACTIVEMQ_DATA=%ACTIVEMQ_BASE%/data
+ set.default.JOLOKIA_CONF=file:..\\..\\conf\\jolokia-access.xml
+ 
+-# JDK 9+ modules
+-set.JDK_JAVA_OPTIONS=--add-reads=java.xml=java.logging --add-opens java.base/java.security=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.util.concurrent=ALL-UNNAMED --add-opens java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens java.naming/javax.naming.spi=ALL-UNNAMED --add-opens java.rmi/sun.rmi.transport.tcp=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-exports=java.base/sun.net.www.protocol.http=ALL-UNNAMED --add-exports=java.base/sun.net.www.protocol.https=ALL-UNNAMED --add-exports=java.base/sun.net.www.protocol.jar=ALL-UNNAMED --add-exports=jdk.xml.dom/org.w3c.dom.html=ALL-UNNAMED --add-exports=jdk.naming.rmi/com.sun.jndi.url.rmi=ALL-UNNAMED
+-
+ wrapper.working.dir=.
+ 
+ # Java Application
+@@ -64,6 +61,23 @@ wrapper.java.additional.11=-Dactivemq.data="%ACTIVEMQ_DATA%"
+ wrapper.java.additional.12=-Djava.security.auth.login.config="%ACTIVEMQ_CONF%/login.config"
+ wrapper.java.additional.13=-Djolokia.conf="%JOLOKIA_CONF%"
+ 
++## ------------------------------------------------------------------
++## Java Platform Module System (JPMS) - Java 9+.
++## ------------------------------------------------------------------
++wrapper.java.additional.20=--add-reads=java.xml=java.logging
++wrapper.java.additional.21=--add-opens=java.base/java.security=ALL-UNNAMED
++wrapper.java.additional.22=--add-opens=java.base/java.net=ALL-UNNAMED
++wrapper.java.additional.23=--add-opens=java.base/java.lang=ALL-UNNAMED
++wrapper.java.additional.25=--add-opens=java.base/java.util=ALL-UNNAMED
++wrapper.java.additional.26=--add-opens=java.naming/javax.naming.spi=ALL-UNNAMED
++wrapper.java.additional.27=--add-opens=java.rmi/sun.rmi.transport.tcp=ALL-UNNAMED
++wrapper.java.additional.28=--add-opens=java.base/sun.nio.ch=ALL-UNNAMED
++wrapper.java.additional.29=--add-exports=java.base/sun.net.www.protocol.http=ALL-UNNAMED
++wrapper.java.additional.30=--add-exports=java.base/sun.net.www.protocol.https=ALL-UNNAMED
++wrapper.java.additional.31=--add-exports=java.base/sun.net.www.protocol.jar=ALL-UNNAMED
++wrapper.java.additional.32=--add-exports=jdk.xml.dom/org.w3c.dom.html=ALL-UNNAMED
++wrapper.java.additional.33=--add-exports=jdk.naming.rmi/com.sun.jndi.url.rmi=ALL-UNNAMED
++
+ # Uncomment to enable remote jmx
+ #wrapper.java.additional.n=-Dcom.sun.management.jmxremote.port=1616
+ #wrapper.java.additional.n=-Dcom.sun.management.jmxremote.authenticate=false
+diff --git a/assembly/src/release/conf/jetty.xml b/assembly/src/release/conf/jetty.xml
+index 874afeeaef26ea7438c0c3d13c6c4739bf1b0881..e475e808107825d2952bedb8a491cd02129c1441 100644
+--- a/assembly/src/release/conf/jetty.xml
++++ b/assembly/src/release/conf/jetty.xml
+@@ -74,6 +74,11 @@
+                   <property name="name" value="X-Content-Type-Options"/>
+                   <property name="value" value="nosniff"/>
+                 </bean>
++                <bean id="header" class="org.eclipse.jetty.rewrite.handler.HeaderPatternRule">
++                    <property name="pattern" value="*"/>
++                    <property name="name" value="Cache-Control"/>
++                    <property name="value" value="no-store"/>
++                </bean>
+             </list>
+         </property>
+     </bean>
+diff --git a/bom/pom.xml b/bom/pom.xml
+index e3d5944a9e3275f33bd7527ea4f384f400dbf561..8138dc3b32a1b51105eff02c0bf56c906e34d109 100644
+--- a/bom/pom.xml
++++ b/bom/pom.xml
+@@ -32,151 +32,147 @@
+     <name>ActiveMQ :: BOM </name>
+     <description>ActiveMQ BOM (Bill of Materials)</description>
+ 
+-    <properties>
+-        <apache-activemq-version>${project.version}</apache-activemq-version>
+-    </properties>
+-
+     <dependencyManagement>
+         <dependencies>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-all</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-amqp</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-blueprint</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-broker</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-client</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-console</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-http</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-jaas</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-jdbc-store</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-kahadb-store</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-karaf</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-jms-pool</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-log4j-appender</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-mqtt</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+              <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-pool</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-openwire-generator</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-openwire-legacy</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-osgi</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-ra</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-rar</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-run</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-runtime-config</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-shiro</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-spring</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-stomp</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-web</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-web-console</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.apache.activemq</groupId>
+                 <artifactId>activemq-web-demo</artifactId>
+-                <version>${apache-activemq-version}</version>
++                <version>${project.version}</version>
+             </dependency>
+         </dependencies>
+     </dependencyManagement>
+diff --git a/pom.xml b/pom.xml
+index 804df48b7e0494404c325904f56363a08cf76912..429e49e569588914308aefcfe3930c86e409e8b2 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -43,7 +43,7 @@
+     <activemq-protobuf-version>1.1</activemq-protobuf-version>
+     <activesoap-version>1.3</activesoap-version>
+     <annogen-version>0.1.0</annogen-version>
+-    <ant-version>1.10.14</ant-version>
++    <ant-version>1.10.15</ant-version>
+     <aries-version>1.1.0</aries-version>
+     <axion-version>1.0-M3-dev</axion-version>
+     <camel-version>4.4.3</camel-version>
+@@ -51,9 +51,9 @@
+     <commons-collections-version>3.2.2</commons-collections-version>
+     <commons-daemon-version>1.4.0</commons-daemon-version>
+     <commons-dbcp2-version>2.12.0</commons-dbcp2-version>
+-    <commons-io-version>2.16.1</commons-io-version>
++    <commons-io-version>2.17.0</commons-io-version>
+     <commons-lang-version>3.14.0</commons-lang-version>
+-    <commons-logging-version>1.3.3</commons-logging-version>
++    <commons-logging-version>1.3.4</commons-logging-version>
+     <commons-pool2-version>2.12.0</commons-pool2-version>
+     <commons-primitives-version>1.0</commons-primitives-version>
+     <directory-version>2.0.0.AM25</directory-version>
+@@ -72,7 +72,7 @@
+     <jaxb-bundle-version>2.3.2_1</jaxb-bundle-version>
+     <jetty-version>11.0.22</jetty-version>
+     <jetty-version-range>[11,13)</jetty-version-range>
+-    <jmdns-version>3.5.9</jmdns-version>
++    <jmdns-version>3.5.12</jmdns-version>
+     <tomcat-api-version>9.0.65</tomcat-api-version>
+     <jettison-version>1.5.4</jettison-version>
+     <jmock-version>2.13.1</jmock-version>
+@@ -97,7 +97,7 @@
+     <shiro-version>1.13.0</shiro-version>
+     <slf4j-version>2.0.13</slf4j-version>
+     <snappy-version>1.1.2</snappy-version>
+-    <spring-version>6.1.11</spring-version>
++    <spring-version>6.1.13</spring-version>
+     <spring-version-range>[6,7)</spring-version-range>
+     <taglibs-version>1.2.5</taglibs-version>
+     <velocity-version>2.3</velocity-version>
+@@ -121,36 +121,37 @@
+ 
+     <!-- Maven Plugin Version for this Project -->
+     <maven-bundle-plugin-version>5.1.9</maven-bundle-plugin-version>
+-    <maven-surefire-plugin-version>3.2.5</maven-surefire-plugin-version>
++    <maven-surefire-plugin-version>3.5.0</maven-surefire-plugin-version>
+     <maven-antrun-plugin-version>3.1.0</maven-antrun-plugin-version>
+     <maven-assembly-plugin-version>3.7.1</maven-assembly-plugin-version>
+-    <maven-clean-plugin-version>3.3.2</maven-clean-plugin-version>
+-    <maven-release-plugin-version>3.0.1</maven-release-plugin-version>
++    <maven-clean-plugin-version>3.4.0</maven-clean-plugin-version>
++    <maven-release-plugin-version>3.1.1</maven-release-plugin-version>
+     <maven-eclipse-plugin-version>2.10</maven-eclipse-plugin-version>
+-    <maven-enforcer-plugin-version>3.4.1</maven-enforcer-plugin-version>
++    <maven-enforcer-plugin-version>3.5.0</maven-enforcer-plugin-version>
+     <maven-war-plugin-version>3.4.0</maven-war-plugin-version>
+     <maven-compiler-plugin-version>3.13.0</maven-compiler-plugin-version>
+     <maven-rar-plugin-version>3.0.0</maven-rar-plugin-version>
+-    <maven-jar-plugin-version>3.4.1</maven-jar-plugin-version>
++    <maven-jar-plugin-version>3.4.2</maven-jar-plugin-version>
+     <maven-source-plugin-version>3.3.1</maven-source-plugin-version>
+-    <maven-javadoc-plugin-version>3.6.3</maven-javadoc-plugin-version>
++    <maven-javadoc-plugin-version>3.10.0</maven-javadoc-plugin-version>
+     <maven-install-plugin-version>2.5.2</maven-install-plugin-version>
+     <maven-shade-plugin-version>3.5.3</maven-shade-plugin-version>
+     <exec-maven-plugin-version>3.1.0</exec-maven-plugin-version>
+     <findbugs-maven-plugin-version>3.0.5</findbugs-maven-plugin-version>
+     <flatten-maven-plugin-version>1.6.0</flatten-maven-plugin-version>
+-    <javacc-maven-plugin-version>3.0.1</javacc-maven-plugin-version>
++    <javacc-maven-plugin-version>3.1.0</javacc-maven-plugin-version>
+     <cobertura-maven-plugin-version>2.7</cobertura-maven-plugin-version>
+-    <taglist-maven-plugin-version>3.0.0</taglist-maven-plugin-version>
+-    <build-helper-maven-plugin-version>3.5.0</build-helper-maven-plugin-version>
++    <taglist-maven-plugin-version>3.1.0</taglist-maven-plugin-version>
++    <build-helper-maven-plugin-version>3.6.0</build-helper-maven-plugin-version>
+     <replacer-maven-plugin-version>1.5.3</replacer-maven-plugin-version>
++    <sonar-maven-plugin-version>4.0.0.4121</sonar-maven-plugin-version>
+     <apache-rat-plugin-version>0.16.1</apache-rat-plugin-version>
+     <tools-maven-plugin-version>1.4</tools-maven-plugin-version>
+     <depends-maven-plugin-version>1.5.0</depends-maven-plugin-version>
+     <maven-dependency-plugin-version>3.6.1</maven-dependency-plugin-version>
+-    <maven-project-info-reports-plugin-version>3.5.0</maven-project-info-reports-plugin-version>
++    <maven-project-info-reports-plugin-version>3.7.0</maven-project-info-reports-plugin-version>
+     <maven-graph-plugin-version>1.45</maven-graph-plugin-version>
+-    <maven-plugin-plugin-version>3.11.0</maven-plugin-plugin-version>
++    <maven-plugin-plugin-version>3.13.1</maven-plugin-plugin-version>
+     <maven-core-version>3.8.6</maven-core-version>
+     <!-- OSGi bundles properties -->
+     <activemq.osgi.import.pkg>*</activemq.osgi.import.pkg>
+@@ -1150,6 +1151,11 @@
+           <artifactId>replacer</artifactId>
+           <version>${replacer-maven-plugin-version}</version>
+         </plugin>
++        <plugin>
++          <groupId>org.sonarsource.scanner.maven</groupId>
++          <artifactId>sonar-maven-plugin</artifactId>
++          <version>${sonar-maven-plugin-version}</version>
++        </plugin>
+         <!--This plugin's configuration is used to store Eclipse m2e settings only.
+             It has no influence on the Maven build itself.-->
+         <plugin>

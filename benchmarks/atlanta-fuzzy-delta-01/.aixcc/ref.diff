@@ -1,0 +1,556 @@
+diff --git a/README.md b/README.md
+index 42a926f846241f95e340d9b60b52902c620dacd8..13986a0d9268cc383a4577888e07490bfe2ce655 100644
+--- a/README.md
++++ b/README.md
+@@ -1,5 +1,5 @@
+ # JavaWuzzy
+-[![Build Status](https://travis-ci.org/xdrop/fuzzywuzzy.svg?branch=master)](https://travis-ci.org/xdrop/fuzzywuzzy)  [ ![Download](https://api.bintray.com/packages/xdrop/FuzzyWuzzy-Java/fuzzywuzzy/images/download.svg?version=1.2.0) ](https://github.com/xdrop/fuzzywuzzy/releases)
++[![Build Status](https://travis-ci.org/xdrop/fuzzywuzzy.svg?branch=master)](https://travis-ci.org/xdrop/fuzzywuzzy)  [ ![Download](https://api.bintray.com/packages/xdrop/FuzzyWuzzy-Java/fuzzywuzzy/images/download.svg?version=1.3.1) ](https://github.com/xdrop/fuzzywuzzy/releases)
+ 
+ ## FuzzyWuzzy Java Implementation
+ Fuzzy string matching for java based on the [FuzzyWuzzy](https://github.com/seatgeek/fuzzywuzzy) Python algorithm. The algorithm uses [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance) to calculate similarity between strings.
+@@ -22,13 +22,19 @@ ### Maven Central
+ <dependency>
+     <groupId>me.xdrop</groupId>
+     <artifactId>fuzzywuzzy</artifactId>
+-    <version>1.2.0</version>
++    <version>1.3.1</version>
+ </dependency>
+ ```
+ 
+ ### Gradle
+ ```gradle
+-compile 'me.xdrop:fuzzywuzzy:1.2.0'
++repositories {
++    jcenter()
++}
++
++dependencies {
++    implementation 'me.xdrop:fuzzywuzzy:1.3.1'
++}
+ ```
+ 
+ ### Jar release
+diff --git a/diffutils/src/me/xdrop/diffutils/DiffUtils.java b/diffutils/src/me/xdrop/diffutils/DiffUtils.java
+index cec572b99e03297e0417bc8a0dbe2ca024cbdd82..96932c36d82648d2485d527fdbc9a96609fb3d7f 100644
+--- a/diffutils/src/me/xdrop/diffutils/DiffUtils.java
++++ b/diffutils/src/me/xdrop/diffutils/DiffUtils.java
+@@ -127,6 +127,18 @@ private static EditOp[] editOpsFromCostMatrix(int len1, char[] c1, int p1, int o
+ 
+         while (i > 0 || j > 0) {
+ 
++            if (i != 0 && j != 0 && matrix[ptr] == matrix[ptr - len2 - 1]
++                    && c1[p1 + i - 1] == c2[p2 + j - 1]) {
++
++                i--;
++                j--;
++                ptr -= len2 + 1;
++                dir = 0;
++
++                continue;
++
++            }
++
+             if (dir < 0 && j != 0 && matrix[ptr] == matrix[ptr - 1] + 1) {
+ 
+                 EditOp eop = new EditOp();
+@@ -156,18 +168,6 @@ private static EditOp[] editOpsFromCostMatrix(int len1, char[] c1, int p1, int o
+ 
+             }
+ 
+-            if (i != 0 && j != 0 && matrix[ptr] == matrix[ptr - len2 - 1]
+-                    && c1[p1 + i - 1] == c2[p2 + j - 1]) {
+-
+-                i--;
+-                j--;
+-                ptr -= len2 + 1;
+-                dir = 0;
+-
+-                continue;
+-
+-            }
+-
+             if (i != 0 && j != 0 && matrix[ptr] == matrix[ptr - len2 - 1] + 1) {
+ 
+                 pos--;
+@@ -826,16 +826,40 @@ private static int memchr(char[] haystack, int offset, char needle, int num) {
+ 
+     public static double getRatio(String s1, String s2) {
+ 
++        // Check if s1 has a prefix that is separated by a colon
++        int xcost = 1;
++        if (s1.contains(":") && s1.startsWith("xcost")) {
++            String[] parts = s1.split(":");
++            String prefix = parts[0];
++            s1 = parts[1];
++
++            // use the prefix to get the xcost from the config
++            xcost = getConfigValue(prefix);
++        }
++
+         int len1 = s1.length();
+         int len2 = s2.length();
+         int lensum = len1 + len2;
+ 
+-        int editDistance = levEditDistance(s1, s2, 1);
++        int editDistance = levEditDistance(s1, s2, xcost);
+ 
+         return (lensum - editDistance) / (double) lensum;
+ 
+     }
+ 
++    private static int getConfigValue(String prefix) {
++        // Call getTag in the Config class
++        try {
++            Class<?> configClass = Class.forName("me.xdrop.fuzzywuzzy.Config");
++            Object config = configClass.newInstance();
++            String configValue = (String) configClass.getMethod("getTagXPath", String.class, String.class).invoke(config, prefix, "1");
++            return Integer.parseInt(configValue);
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++
++        return 1;
++    }
+ 
+ 
+ }
+diff --git a/header.txt b/header.txt
+index beceabe5e7cc53c8f03fee4ed7674b9ab04d9d0c..5fd3f23dd8fcbeeec51d7416786f69084e6835d3 100644
+--- a/header.txt
++++ b/header.txt
+@@ -1,7 +1,7 @@
+-This program is free software: you can redistribute it and/or modify
+-it under the terms of the GNU General Public License as published by
+-the Free Software Foundation, either version 3 of the License, or
+-(at your option) any later version.
++This program is free software; you can redistribute it and/or
++modify it under the terms of the GNU General Public License
++as published by the Free Software Foundation; either version 2
++of the License, or (at your option) any later version.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+@@ -9,4 +9,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+\ No newline at end of file
++along with this program.  If not, see <http://www.gnu.org/licenses/>.
+diff --git a/package/pom.xml b/package/pom.xml
+index d058487a772e59abf3db1a1dc4f2c48effe46396..bd1a938865be6a9fb8a1a3e2197041a3c7a5cdc0 100644
+--- a/package/pom.xml
++++ b/package/pom.xml
+@@ -139,6 +139,17 @@
+                     </execution>
+                 </executions>
+             </plugin>
++            <plugin>
++                <groupId>org.apache.maven.plugins</groupId>
++                <artifactId>maven-jar-plugin</artifactId>
++                <configuration>
++                    <archive>
++                        <manifestEntries>
++                            <Automatic-Module-Name>me.xdrop.fuzzywuzzy</Automatic-Module-Name>
++                        </manifestEntries>
++                    </archive>
++                </configuration>
++            </plugin>
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-gpg-plugin</artifactId>
+@@ -152,6 +163,17 @@
+                     </execution>
+                 </executions>
+             </plugin>
++            <plugin>
++                <groupId>org.sonatype.plugins</groupId>
++                <artifactId>nexus-staging-maven-plugin</artifactId>
++                <version>1.6.8</version>
++                <extensions>true</extensions>
++                <configuration>
++                    <serverId>ossrh</serverId>
++                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
++                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
++                </configuration>
++            </plugin>
+         </plugins>
+     </build>
+ </project>
+diff --git a/pom.xml b/pom.xml
+index 971c5ae35a26a8c6ddb1039f6aa09af573158860..8cac1aca44fbe92e385035f137e4cf247ac68f6e 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -20,6 +20,7 @@
+                 </configuration>
+             </plugin>
+             <plugin>
++                <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-deploy-plugin</artifactId>
+                 <version>2.8.2</version>
+                 <configuration>
+diff --git a/src/me/xdrop/fuzzywuzzy/Config.java b/src/me/xdrop/fuzzywuzzy/Config.java
+index d7f09cb4e17bd2b36727f8ce9a9b0532b325a7f4..1a0a364bee666e6e0f2634368182372099d1608d 100644
+--- a/src/me/xdrop/fuzzywuzzy/Config.java
++++ b/src/me/xdrop/fuzzywuzzy/Config.java
+@@ -2,6 +2,9 @@
+ 
+ import org.w3c.dom.Document;
+ import org.w3c.dom.Element;
++import org.xml.sax.ErrorHandler;
++import org.xml.sax.SAXException;
++import org.xml.sax.SAXParseException;
+ 
+ import javax.xml.parsers.DocumentBuilder;
+ import javax.xml.parsers.DocumentBuilderFactory;
+@@ -57,6 +60,24 @@ public static String getTagXPath(String tag, String defaultValue) {
+             ByteArrayInputStream input = new ByteArrayInputStream(config.getBytes(StandardCharsets.UTF_8));
+             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+             DocumentBuilder builder = factory.newDocumentBuilder();
++
++            builder.setErrorHandler(new ErrorHandler() {
++                @Override
++                public void warning(SAXParseException exception) throws SAXException {
++                    // Do nothing
++                }
++
++                @Override
++                public void error(SAXParseException exception) throws SAXException {
++                    // Do nothing
++                }
++
++                @Override
++                public void fatalError(SAXParseException exception) throws SAXException {
++                    // Do nothing
++                }
++            });
++
+             Document doc = builder.parse(input);
+             XPathFactory xPathfactory = XPathFactory.newInstance();
+             XPath xpath = xPathfactory.newXPath();
+diff --git a/src/me/xdrop/fuzzywuzzy/algorithms/DefaultStringFunction.java b/src/me/xdrop/fuzzywuzzy/algorithms/DefaultStringFunction.java
+index 2db60b3d52e4b4a55e5fec8e89ed404f93e05737..b99402af22c0b607c8884ff647be0b91c6d54462 100644
+--- a/src/me/xdrop/fuzzywuzzy/algorithms/DefaultStringFunction.java
++++ b/src/me/xdrop/fuzzywuzzy/algorithms/DefaultStringFunction.java
+@@ -6,7 +6,7 @@
+ 
+ public class DefaultStringFunction implements ToStringFunction<String> {
+ 
+-    private final static String pattern = "[^\\p{Alnum}]";
++    private final static String pattern = "(?ui)\\W";
+     private final static Pattern r = compilePattern();
+ 
+ 
+diff --git a/src/me/xdrop/fuzzywuzzy/ratios/PartialRatio.java b/src/me/xdrop/fuzzywuzzy/ratios/PartialRatio.java
+index 393dd88f054db538cae2ee731c3ccb18f6a679dd..98443bfa0b0d8fb2c9efc016671892f178deb272 100644
+--- a/src/me/xdrop/fuzzywuzzy/ratios/PartialRatio.java
++++ b/src/me/xdrop/fuzzywuzzy/ratios/PartialRatio.java
+@@ -28,7 +28,7 @@ public int apply(String s1, String s2) {
+         String shorter;
+         String longer;
+ 
+-        if (s1.length() < s2.length()){
++        if (s1.length() <= s2.length()){
+ 
+             shorter = s1;
+             longer = s2;
+diff --git a/test/me/xdrop/fuzzywuzzy/BugfixTest.groovy b/test/me/xdrop/fuzzywuzzy/BugfixTest.groovy
+new file mode 100644
+index 0000000000000000000000000000000000000000..2b2ee0f1660abe3874b0d06957b1fcc20b88e7dd
+--- /dev/null
++++ b/test/me/xdrop/fuzzywuzzy/BugfixTest.groovy
+@@ -0,0 +1,10 @@
++package me.xdrop.fuzzywuzzy
++
++class BugfixTest extends GroovyTestCase {
++    void testIssue39() {
++        int score = FuzzySearch.partialRatio("kaution",
++                "kdeffxxxiban:de1110010060046666666datum:16.11.17zeit:01:12uft0000899999tan076601testd.-20-maisonette-z4-jobas-hagkautionauszug")
++
++        assert score == 100
++    }
++}
+diff --git a/test/me/xdrop/fuzzywuzzy/ExtractorTest.groovy b/test/me/xdrop/fuzzywuzzy/ExtractorTest.groovy
+index 021d4901f7622daa6e254de9b5bbe77488eaff24..6f31fb65ccfcb065f5bbbde7e6aae9f55ac5a840 100644
+--- a/test/me/xdrop/fuzzywuzzy/ExtractorTest.groovy
++++ b/test/me/xdrop/fuzzywuzzy/ExtractorTest.groovy
+@@ -14,36 +14,28 @@ class ExtractorTest extends GroovyTestCase {
+     }
+ 
+     void testExtractWithoutOrder() {
+-
+         List<ExtractedResult> res = extractor.extractWithoutOrder("goolge", choices, new WeightedRatio());
+ 
+         assert res.size() == choices.size()
+         assert res.get(0).score > 0
+-
+     }
+ 
+     void testExtractOne() {
+-
+         ExtractedResult res = extractor.extractOne("goolge", choices, new WeightedRatio());
+ 
+         assert res.string == "google"
+-
+     }
+ 
+     void testExtractBests() {
+-
+         def res = extractor.extractTop("goolge", choices, new WeightedRatio());
+ 
+         assert res.get(0).string == "google" && res.get(1).string == "googleplus"
+-
+     }
+ 
+     void testExtractBests1() {
+-
+         def res = extractor.extractTop("goolge", choices, new WeightedRatio(), 3);
+ 
+         assert res.size() == 3
+         assert res.get(0).string == "google" && res.get(1).string == "googleplus" && res.get(2).string == "plexoogl"
+-
+     }
+ }
+diff --git a/test/me/xdrop/fuzzywuzzy/FuzzySearchTest.groovy b/test/me/xdrop/fuzzywuzzy/FuzzySearchTest.groovy
+index ae889cfcd39d48ff59e4202213a8dc601f804162..944af3ea6f6528568ac3d3de5956a2d174db281a 100644
+--- a/test/me/xdrop/fuzzywuzzy/FuzzySearchTest.groovy
++++ b/test/me/xdrop/fuzzywuzzy/FuzzySearchTest.groovy
+@@ -4,63 +4,50 @@ import me.xdrop.fuzzywuzzy.ratios.SimpleRatio
+ 
+ 
+ class FuzzySearchTest extends GroovyTestCase {
+-
+-
+     def choices = ["google", "bing", "facebook", "linkedin", "twitter", "googleplus", "bingnews", "plexoogl"]
+     def moreChoices = ["Atlanta Falcons", "New York Jets", "New York Giants", "Dallas Cowboys"]
+ 
+-
+-
+     void testRatio() {
+-
+         assertEquals 76, FuzzySearch.ratio("mysmilarstring", "mymostsimilarstsdsdring"), 2
+         assertEquals 72, FuzzySearch.ratio("mysmilarstring","myawfullysimilarstirng"), 2
+         assertEquals 97, FuzzySearch.ratio("mysmilarstring","mysimilarstring"), 2
+         assertEquals 75, FuzzySearch.ratio("csr", "c s r"), 2
+-
+     }
+ 
+     void testPartialRatio() {
+-
+         assertEquals 71, FuzzySearch.partialRatio("similar", "somewhresimlrbetweenthisstring")
+         assertEquals 43, FuzzySearch.partialRatio("similar", "notinheresim")
+         assertEquals 38, FuzzySearch.partialRatio("pros holdings, inc.","settlement facility dow corning trust")
+         assertEquals 33, FuzzySearch.partialRatio("Should be the same","Opposite ways go alike")
+         assertEquals 33, FuzzySearch.partialRatio("Opposite ways go alike" , "Should be the same")
+-
++        assertEquals 58, FuzzySearch.partialRatio("worm_mikeala", "mikeala rath")
++        assertEquals 80, FuzzySearch.partialRatio("c_wasyluka", "crystal wasyluka")
+     }
+ 
+     void testTokenSortPartial() {
+-
+         assertEquals 67, FuzzySearch.tokenSortPartialRatio("mvn","wwwwww.mavencentral.comm")
+         assertEquals 100, FuzzySearch.tokenSortPartialRatio("  order words out of ","  words out of order")
+         assertEquals 44, FuzzySearch.tokenSortPartialRatio("Testing token set ratio token", "Added another test")
+-
+     }
+ 
+     void testTokenSortRatio() {
+-
+         assertEquals 84, FuzzySearch.tokenSortRatio("fuzzy was a bear", "fuzzy fuzzy was a bear")
+-
+     }
+ 
+     void testTokenSetRatio() {
+-
+         assertEquals 100, FuzzySearch.tokenSetRatio("fuzzy fuzzy fuzzy bear", "fuzzy was a bear" )
+         assertEquals 39, FuzzySearch.tokenSetRatio("Testing token set ratio token", "Added another test")
+-
+     }
+ 
+     void testTokenSetPartial() {
+-
+         assertEquals 11, FuzzySearch.tokenSetPartialRatio("fuzzy was a bear", "blind 100")
++        assertEquals 58, FuzzySearch.tokenSetPartialRatio("worm_mikeala", "mikeala rath")
++        assertEquals 80, FuzzySearch.tokenSetPartialRatio("c_wasyluka", "crystal wasyluka")
++        assertEquals 78, FuzzySearch.tokenSetPartialRatio("a_bacdefg", "crystal bacdefg")
+         assertEquals 67, FuzzySearch.partialRatio("chicago transit authority" , "cta")
+-
+     }
+ 
+     void testWeightedRatio() {
+-
+-
+         assertEquals 60, FuzzySearch.weightedRatio("mvn","wwwwww.mavencentral.comm")
+         assertEquals 40, FuzzySearch.weightedRatio("mvn","www;'l3;4;.4;23.4/23.4/234//////www.mavencentral.comm")
+         assertEquals 97, FuzzySearch.weightedRatio("The quick brown fox jimps ofver the small lazy dog",
+@@ -69,7 +56,6 @@ class FuzzySearchTest extends GroovyTestCase {
+     }
+ 
+     void testExtractTop() {
+-
+         def res = FuzzySearch.extractTop("goolge", choices, 2);
+         def res2 = FuzzySearch.extractTop("goolge", choices, new SimpleRatio(), 2);
+ 
+@@ -80,22 +66,18 @@ class FuzzySearchTest extends GroovyTestCase {
+         assert res2.get(0).string == "google" && res2.get(1).string == "googleplus"
+ 
+         assert FuzzySearch.extractTop("goolge", choices, 2, 100).size() == 0
+-
+     }
+ 
+     void testExtractAll() {
+-
+         def res = FuzzySearch.extractAll("goolge", choices);
+ 
+         assert res.size() == choices.size()
+         assert res.get(0).string == "google"
+ 
+         assert FuzzySearch.extractAll("goolge", choices, 40).size() == 3
+-
+     }
+ 
+     void testExtractSorted() {
+-
+         def res = FuzzySearch.extractSorted("goolge", choices);
+ 
+         assert res.size() == choices.size()
+@@ -103,13 +85,11 @@ class FuzzySearchTest extends GroovyTestCase {
+         assert res.get(1).string == "googleplus"
+ 
+         assert FuzzySearch.extractSorted("goolge", choices, 40).size() == 3
+-
+     }
+ 
+ 
+ 
+     void testExtractOne() {
+-
+         def res = FuzzySearch.extractOne("twiter", choices, new SimpleRatio());
+         def res2 = FuzzySearch.extractOne("twiter", choices);
+         def res3 = FuzzySearch.extractOne("cowboys", moreChoices)
+@@ -117,8 +97,6 @@ class FuzzySearchTest extends GroovyTestCase {
+         assert res.string == "twitter"
+         assert res2.string == "twitter"
+         assert res3.string == "Dallas Cowboys" && res3.score == 90
+-
+-
+     }
+ 
+ 
+diff --git a/test/me/xdrop/fuzzywuzzy/algorithms/DefaultStringProcessorTest.groovy b/test/me/xdrop/fuzzywuzzy/algorithms/DefaultStringProcessorTest.groovy
+index 7930f38aee9ae3e2d24a4f0189d5fe51a739b9a4..947fd1648ca4b12299431b0b35aadfefa3cf73b5 100644
+--- a/test/me/xdrop/fuzzywuzzy/algorithms/DefaultStringProcessorTest.groovy
++++ b/test/me/xdrop/fuzzywuzzy/algorithms/DefaultStringProcessorTest.groovy
+@@ -3,11 +3,8 @@ package me.xdrop.fuzzywuzzy.algorithms
+ class DefaultStringProcessorTest extends GroovyTestCase {
+ 
+     void testProcess() {
+-
+         def inp = "s.trim μεγιουνικουντ n/o/n a.lph.a n.um"
+-
+         assertEquals "s trim μεγιουνικουντ n o n a lph a n um", new DefaultStringFunction().apply(inp)
+-
+     }
+ 
+ }
+diff --git a/test/me/xdrop/fuzzywuzzy/algorithms/TokenSetTest.groovy b/test/me/xdrop/fuzzywuzzy/algorithms/TokenSetTest.groovy
+index a082c0fcb4b82fb3e7bfb77e47f5b6e5fa3b238c..d99f13c00dbbdfc63d7a70b538c3aea7983584cc 100644
+--- a/test/me/xdrop/fuzzywuzzy/algorithms/TokenSetTest.groovy
++++ b/test/me/xdrop/fuzzywuzzy/algorithms/TokenSetTest.groovy
+@@ -14,7 +14,6 @@ class TokenSetTest extends GroovyTestCase {
+ 
+     void testUsesStringProcessor() {
+         def ts = new TokenSet()
+-
+         ToStringFunction<String> mock = mock(ToStringFunction)
+ 
+         expect(mock.apply(eq("notthesame")))
+@@ -29,9 +28,7 @@ class TokenSetTest extends GroovyTestCase {
+     }
+ 
+     void testUsesRatio(){
+-
+         def ts = new TokenSet();
+-
+         def mock = mock(Ratio)
+ 
+         expect(mock.apply(anyObject(String), anyObject(String)))
+@@ -41,17 +38,13 @@ class TokenSetTest extends GroovyTestCase {
+         replay(mock)
+ 
+         assertEquals 0, ts.apply("one two", "one three", mock)
+-
+-
+     }
+ 
+     void testTokenSet() {
+-
+         def ts = new TokenSet();
+ 
+         assertEquals 46, ts.apply("test", "pesticide")
+         assertEquals 75, ts.apply("test", "pesticide", new PartialRatio())
+-
+     }
+ 
+ }
+diff --git a/test/me/xdrop/fuzzywuzzy/algorithms/TokenSortTest.groovy b/test/me/xdrop/fuzzywuzzy/algorithms/TokenSortTest.groovy
+index 414a608ba8a7cf12f188a75a51fa74507d2cb13c..4a7805c13faa5d22c94572f7ea3ddb9ba1b67165 100644
+--- a/test/me/xdrop/fuzzywuzzy/algorithms/TokenSortTest.groovy
++++ b/test/me/xdrop/fuzzywuzzy/algorithms/TokenSortTest.groovy
+@@ -14,9 +14,7 @@ import static org.easymock.EasyMock.replay
+ class TokenSortTest extends GroovyTestCase {
+ 
+     void testUsesStringProcessor() {
+-
+         def ts = new TokenSort()
+-
+         ToStringFunction<String> mock = mock(ToStringFunction)
+ 
+         expect(mock.apply(eq("notthesame")))
+@@ -28,13 +26,10 @@ class TokenSortTest extends GroovyTestCase {
+         replay(mock)
+ 
+         assertEquals 100, ts.apply("notthesame", "thesame", mock)
+-
+     }
+ 
+     void testUsesRatio() {
+-
+         def ts = new TokenSort();
+-
+         def mock = mock(Ratio)
+ 
+         expect(mock.apply(anyObject(String), anyObject(String)))
+@@ -44,16 +39,13 @@ class TokenSortTest extends GroovyTestCase {
+         replay(mock)
+ 
+         assertEquals 0, ts.apply("one two", "one three", mock)
+-
+     }
+ 
+     void testTokenSort() {
+-
+         def ts = new TokenSort();
+ 
+         assertEquals 75, ts.apply("test", "pesticide", new PartialRatio())
+         assertEquals 46, ts.apply("test", "pesticide", new SimpleRatio())
+-
+     }
+ 
+ }
+diff --git a/test/me/xdrop/fuzzywuzzy/algorithms/WeightedRatioTest.groovy b/test/me/xdrop/fuzzywuzzy/algorithms/WeightedRatioTest.groovy
+index 321981ac465ddca164d9bdedfe6968c693351d94..490dc2d1b9c989f81b11eba1dc589355fb2bafc3 100644
+--- a/test/me/xdrop/fuzzywuzzy/algorithms/WeightedRatioTest.groovy
++++ b/test/me/xdrop/fuzzywuzzy/algorithms/WeightedRatioTest.groovy
+@@ -23,9 +23,7 @@ class WeightedRatioTest extends GroovyTestCase {
+     }
+ 
+     void testWRatio() {
+-
+         assertEquals 68, new WeightedRatio().apply("test", "pesticide")
+-
+     }
+ 
+ }

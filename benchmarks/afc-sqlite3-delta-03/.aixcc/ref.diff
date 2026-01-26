@@ -1,0 +1,517 @@
+diff --git a/ext/lsm1/lsm.h b/ext/lsm1/lsm.h
+index 48701c4c5e45eb1d79e33ec3bd07da9f27d0d1e5..43a6e176a8d7df36d76a1ec3338941eda133e8bd 100644
+--- a/ext/lsm1/lsm.h
++++ b/ext/lsm1/lsm.h
+@@ -322,6 +322,32 @@ struct lsm_compress_factory {
+ #define LSM_COMPRESSION_EMPTY 0
+ #define LSM_COMPRESSION_NONE  1
+ 
++/*
++** A string that can grow by appending.
++*/
++struct LsmString {
++  lsm_env *pEnv;              /* Run-time environment */
++  int n;                      /* Size of string.  -1 indicates error */
++  int nAlloc;                 /* Space allocated for z[] */
++  char *z;                    /* The string content */
++};
++
++typedef struct LsmString LsmString;
++
++/**************************************************************************
++** functions in lsm_str.c
++*/
++void lsmStringInit(LsmString*, lsm_env *pEnv);
++int lsmStringExtend(LsmString*, int);
++int lsmStringAppend(LsmString*, const char *, int);
++void lsmStringVAppendf(LsmString*, const char *zFormat, va_list, va_list);
++void lsmStringAppendf(LsmString*, const char *zFormat, ...);
++void lsmStringClear(LsmString*);
++char *lsmMallocPrintf(lsm_env*, const char*, ...);
++int lsmStringBinAppend(LsmString *pStr, const u8 *a, int n);
++
++int lsmStrlen(const char *zName);
++
+ /*
+ ** CAPI: Allocating and Freeing Memory
+ **
+@@ -677,6 +703,18 @@ void lsm_config_log(lsm_db *, void (*)(void *, int, const char *), void *);
+ */
+ void lsm_config_work_hook(lsm_db *, void (*)(lsm_db *, void *), void *);
+ 
++/*
++** Immediately view the internal representation of the database.
++** Useful for taking a look from within SQLite.
++*/
++LsmString* lsm1ViewInternal(lsm_db *);
++/*
++** This function allows the user to merge all sorted runs
++** and flush them out to disk right away. Useful for cleaning
++** for performance reasons.
++*/
++int lsm1InternalFlush(lsm_db *);
++
+ /* ENDOFAPI */
+ #ifdef __cplusplus
+ }  /* End of the 'extern "C"' block */
+diff --git a/ext/lsm1/lsm1.h b/ext/lsm1/lsm1.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..243ee5c7adf614cd2f13917983faa32303d3644d
+--- /dev/null
++++ b/ext/lsm1/lsm1.h
+@@ -0,0 +1,30 @@
++/*
++** 2024 June 4
++**
++** The author disclaims copyright to this source code.  In place of
++** a legal notice, here is a blessing:
++**
++**    May you do good and not evil.
++**    May you find forgiveness for yourself and forgive others.
++**    May you share freely, never taking more than you give.
++**
++******************************************************************************
++**
++** This header file is used by programs that want to link against the
++** LSM1 library.  All it does is declare the sqlite3LsmInit() interface.
++*/
++#include "sqlite3.h"
++
++#ifdef SQLITE_OMIT_VIRTUALTABLE
++# undef SQLITE_ENABLE_LSM
++#endif
++
++#ifdef __cplusplus
++extern "C" {
++#endif  /* __cplusplus */
++
++static int sqlite3LsmInit(sqlite3 *db);
++
++#ifdef __cplusplus
++}  /* extern "C" */
++#endif  /* __cplusplus */
+diff --git a/ext/lsm1/lsmInt.h b/ext/lsm1/lsmInt.h
+index 5060366d0dcb288aba62e5f4a29ff0afc22eb151..95af14696d2c9d3c3f39c191a0940020f717229b 100644
+--- a/ext/lsm1/lsmInt.h
++++ b/ext/lsm1/lsmInt.h
+@@ -188,15 +188,7 @@ int lsmErrorBkpt(int);
+ 
+ #define LSM_CONTIGUOUS   0x40     /* Used in lsm_tree.c */
+ 
+-/*
+-** A string that can grow by appending.
+-*/
+-struct LsmString {
+-  lsm_env *pEnv;              /* Run-time environment */
+-  int n;                      /* Size of string.  -1 indicates error */
+-  int nAlloc;                 /* Space allocated for z[] */
+-  char *z;                    /* The string content */
+-};
++
+ 
+ typedef struct LsmFile LsmFile;
+ struct LsmFile {
+@@ -838,7 +830,7 @@ void lsmMCursorFreeCache(lsm_db *);
+ int lsmSaveCursors(lsm_db *pDb);
+ int lsmRestoreCursors(lsm_db *pDb);
+ 
+-void lsmSortedDumpStructure(lsm_db *pDb, Snapshot *, int, int, const char *);
++LsmString* lsmSortedDumpStructure(lsm_db *pDb, Snapshot *, int, int, const char *);
+ void lsmFsDumpBlocklists(lsm_db *);
+ 
+ void lsmSortedExpandBtreePage(Page *pPg, int nOrig);
+@@ -969,19 +961,6 @@ int lsmWalkFreelist(lsm_db *, int, int (*)(void *, int, i64), void *);
+ int lsmCheckCompressionId(lsm_db *, u32);
+ 
+ 
+-/**************************************************************************
+-** functions in lsm_str.c
+-*/
+-void lsmStringInit(LsmString*, lsm_env *pEnv);
+-int lsmStringExtend(LsmString*, int);
+-int lsmStringAppend(LsmString*, const char *, int);
+-void lsmStringVAppendf(LsmString*, const char *zFormat, va_list, va_list);
+-void lsmStringAppendf(LsmString*, const char *zFormat, ...);
+-void lsmStringClear(LsmString*);
+-char *lsmMallocPrintf(lsm_env*, const char*, ...);
+-int lsmStringBinAppend(LsmString *pStr, const u8 *a, int n);
+-
+-int lsmStrlen(const char *zName);
+ 
+ 
+ 
+diff --git a/ext/lsm1/lsm_sorted.c b/ext/lsm1/lsm_sorted.c
+index 6e5243e850666ec7a2a2cca9a61314af8f344f97..355344ad0087ecf5231391ecd6d2dc1db6a44971 100644
+--- a/ext/lsm1/lsm_sorted.c
++++ b/ext/lsm1/lsm_sorted.c
+@@ -5466,6 +5466,27 @@ int lsmFlushTreeToDisk(lsm_db *pDb){
+   return rc;
+ }
+ 
++
++/*
++** Flush and then view the internal representation of the database.
++** Useful for taking a look from within SQLite.
++*/
++LsmString* lsm1ViewInternal(lsm_db* pDb){
++  LsmString* ret = 0;
++  int rc = lsmBeginWork(pDb);
++  if ( rc == LSM_OK ){
++    ret = lsmSortedDumpStructure(pDb, pDb->pWorker, LSM_LOG_DATA, 0, "view");
++    lsmFinishWork(pDb, 1, &rc);
++  }else{
++    lsmLogMessage(pDb, rc, "ERROR: Could not flush while viewing");
++  }
++  return ret;
++}
++
++int lsm1InternalFlush(lsm_db* pDb){
++  return lsmFlushTreeToDisk(pDb);
++}
++
+ /*
+ ** Return a string representation of the segment passed as the only argument.
+ ** Space for the returned string is allocated using lsmMalloc(), and should
+@@ -5829,7 +5850,7 @@ int lsmInfoPageDump(
+   return infoPageDump(pDb, iPg, flags, pzOut);
+ }
+ 
+-void sortedDumpSegment(lsm_db *pDb, Segment *pRun, int bVals){
++void sortedDumpSegment(LsmString* s, lsm_db *pDb, Segment *pRun, int bVals){
+   assert( pDb->xLog );
+   if( pRun && pRun->iFirst ){
+     int flags = (bVals ? INFO_PAGE_DUMP_VALUES : 0);
+@@ -5837,7 +5858,7 @@ void sortedDumpSegment(lsm_db *pDb, Segment *pRun, int bVals){
+     Page *pPg;
+ 
+     zSeg = segToString(pDb->pEnv, pRun, 0);
+-    lsmLogMessage(pDb, LSM_OK, "Segment: %s", zSeg);
++    lsmStringAppendf(s, "Segment: %s", zSeg);
+     lsmFree(pDb->pEnv, zSeg);
+ 
+     lsmFsDbPageGet(pDb->pFS, pRun, pRun->iFirst, &pPg);
+@@ -5845,7 +5866,7 @@ void sortedDumpSegment(lsm_db *pDb, Segment *pRun, int bVals){
+       Page *pNext;
+       char *z = 0;
+       infoPageDump(pDb, lsmFsPageNumber(pPg), flags, &z);
+-      lsmLogMessage(pDb, LSM_OK, "%s", z);
++      lsmStringAppendf(s, "%s", z);
+       lsmFree(pDb->pEnv, z);
+ #if 0
+       sortedDumpPage(pDb, pRun, pPg, bVals);
+@@ -5861,7 +5882,7 @@ void sortedDumpSegment(lsm_db *pDb, Segment *pRun, int bVals){
+ ** Invoke the log callback zero or more times with messages that describe
+ ** the current database structure.
+ */
+-void lsmSortedDumpStructure(
++LsmString* lsmSortedDumpStructure(
+   lsm_db *pDb,                    /* Database handle (used for xLog callback) */
+   Snapshot *pSnap,                /* Snapshot to dump */
+   int bKeys,                      /* Output the keys from each segment */
+@@ -5871,6 +5892,9 @@ void lsmSortedDumpStructure(
+   Snapshot *pDump = pSnap;
+   Level *pTopLevel;
+   char *zFree = 0;
++  LsmString* s = lsmMallocZero(pDb->pEnv, sizeof(LsmString));
++  if(!s) return 0;
++  lsmStringInit(s, pDb->pEnv);
+ 
+   assert( pSnap );
+   pTopLevel = lsmDbSnapshotLevel(pDump);
+@@ -5880,7 +5904,7 @@ void lsmSortedDumpStructure(
+     int iLevel = 0;
+ 
+     nCall++;
+-    lsmLogMessage(pDb, LSM_OK, "Database structure %d (%s)", nCall, zWhy);
++    lsmStringAppendf(s, "Database structure %d (%s)", nCall, zWhy);
+ 
+ #if 0
+     if( nCall==1031 || nCall==1032 ) bKeys=1;
+@@ -5937,7 +5961,7 @@ void lsmSortedDumpStructure(
+           iPad = 10;
+         }
+ 
+-        lsmLogMessage(pDb, LSM_OK, "% 25s % *s% -35s %s", 
++        lsmStringAppendf(s, "% 25s % *s% -35s %s", 
+             zLevel, iPad, "", zLeft, zRight
+         );
+       }
+@@ -5948,19 +5972,20 @@ void lsmSortedDumpStructure(
+     if( bKeys ){
+       for(pLevel=pTopLevel; pLevel; pLevel=pLevel->pNext){
+         int i;
+-        sortedDumpSegment(pDb, &pLevel->lhs, bVals);
++        sortedDumpSegment(s, pDb, &pLevel->lhs, bVals);
+         for(i=0; i<pLevel->nRight; i++){
+-          sortedDumpSegment(pDb, &pLevel->aRhs[i], bVals);
++          sortedDumpSegment(s, pDb, &pLevel->aRhs[i], bVals);
+         }
+       }
+     }
+   }
+ 
+   lsmInfoFreelist(pDb, &zFree);
+-  lsmLogMessage(pDb, LSM_OK, "Freelist: %s", zFree);
++  lsmStringAppendf(s, "Freelist: %s", zFree);
+   lsmFree(pDb->pEnv, zFree);
+ 
+   assert( lsmFsIntegrityCheck(pDb) );
++  return s;
+ }
+ 
+ void lsmSortedFreeLevel(lsm_env *pEnv, Level *pLevel){
+diff --git a/ext/lsm1/lsm_vtab.c b/ext/lsm1/lsm_vtab.c
+index 8c21923e1a7a77e8759abfb6b54e6bd569d95540..eda1c89019b1c2ff4f030df9d27705bfaa7deada 100644
+--- a/ext/lsm1/lsm_vtab.c
++++ b/ext/lsm1/lsm_vtab.c
+@@ -214,6 +214,41 @@ static void lsm1Dequote(char *z){
+   z[j] = 0;
+ }
+ 
++/*
++** Immediately view the internal representation of the database.
++** Useful for taking a look from within SQLite.
++*/
++void lsm1FunctionView(
++  sqlite3_context *ctx,
++  int argc,
++  sqlite3_value **argv
++){
++  lsm1_vtab* vtab = (lsm1_vtab*)sqlite3_user_data(ctx);
++  LsmString* ret = lsm1ViewInternal(vtab->pDb);
++  if( !ret ) {
++    sqlite3_result_error_nomem(ctx);
++  }else{
++    sqlite3_result_text(ctx, ret->z, -1, SQLITE_TRANSIENT);
++    lsmStringClear(ret);
++    lsm_free(vtab->pDb->pEnv, ret);
++  }
++}
++
++/*
++** This function allows the user to merge all sorted runs
++** and flush them out to disk right away. Useful for cleaning
++** for performance reasons.
++*/
++void lsm1FunctionFlush(
++  sqlite3_context *ctx,
++  int argc,
++  sqlite3_value **argv
++){
++  lsm1_vtab* vtab = (lsm1_vtab*)sqlite3_user_data(ctx);
++  lsm_db* pDb = vtab->pDb;
++  int rc = lsm1InternalFlush(pDb);
++  sqlite3_result_int(ctx, rc);
++}
+ 
+ /*
+ ** The lsm1Connect() method is invoked to create a new
+@@ -1036,6 +1071,28 @@ static int lsm1Rollback(sqlite3_vtab *pVtab){
+   return rc==LSM_OK ? SQLITE_OK : SQLITE_ERROR;
+ }
+ 
++
++static int lsm1FindFunction(
++  sqlite3_vtab *pVtab,
++  int nArg,
++  const char* zName,
++  void (**pxFunc)(sqlite3_context*, int, sqlite3_value**),
++  void **ppArg
++){
++  (void)nArg;
++  if( sqlite3_stricmp("lsm_view", zName)==0 ){
++    *pxFunc = lsm1FunctionView;
++    *ppArg = (void*)pVtab;
++    return 1;
++  }
++  if( sqlite3_stricmp("lsm_flush", zName)==0 ){
++    *pxFunc = lsm1FunctionFlush;
++    *ppArg = (void*)pVtab;
++    return 1;
++  }
++  return 0;
++}
++
+ /*
+ ** This following structure defines all the methods for the 
+ ** generate_lsm1 virtual table.
+@@ -1059,7 +1116,7 @@ static sqlite3_module lsm1Module = {
+   lsm1Sync,                /* xSync */
+   lsm1Commit,              /* xCommit */
+   lsm1Rollback,            /* xRollback */
+-  0,                       /* xFindMethod */
++  lsm1FindFunction,                       /* xFindMethod */
+   0,                       /* xRename */
+   0,                       /* xSavepoint */
+   0,                       /* xRelease */
+@@ -1069,6 +1126,14 @@ static sqlite3_module lsm1Module = {
+ };
+ 
+ 
++int sqlite3LsmInit(sqlite3* db){
++  int rc = 0;
++  rc = sqlite3_create_module(db, "lsm1", &lsm1Module, 0);
++  if (rc==SQLITE_OK) rc = sqlite3_overload_function(db, "lsm_view", -1);
++  if (rc==SQLITE_OK) rc = sqlite3_overload_function(db, "lsm_flush", -1);
++  return rc;
++}
++
+ #ifdef _WIN32
+ __declspec(dllexport)
+ #endif
+@@ -1079,6 +1144,6 @@ int sqlite3_lsm_init(
+ ){
+   int rc = SQLITE_OK;
+   SQLITE_EXTENSION_INIT2(pApi);
+-  rc = sqlite3_create_module(db, "lsm1", &lsm1Module, 0);
+-  return rc;
++  return sqlite3LsmInit(db);
+ }
++
+diff --git a/main.mk b/main.mk
+index 8cc37ff775c7b1eef3cef555ee44ba47b567d94a..62e292332b4d25cb7b8a268c66a994d7cb744ad9 100644
+--- a/main.mk
++++ b/main.mk
+@@ -355,7 +355,8 @@ T.cc.sqlite ?= $(T.cc)
+ CFLAGS.intree_includes = \
+     -I. -I$(TOP)/src -I$(TOP)/ext/rtree -I$(TOP)/ext/icu \
+     -I$(TOP)/ext/fts3 -I$(TOP)/ext/session \
+-    -I$(TOP)/ext/misc
++    -I$(TOP)/ext/misc \
++    -I$(TOP)/ext/lsm1
+ T.cc.sqlite += $(CFLAGS.intree_includes)
+ 
+ #
+@@ -654,6 +655,22 @@ SRC += \
+   $(TOP)/ext/rbu/sqlite3rbu.c
+ SRC += \
+   $(TOP)/ext/misc/stmt.c
++SRC += \
++  $(TOP)/ext/lsm1/lsm_ckpt.c \
++  $(TOP)/ext/lsm1/lsm_file.c \
++  $(TOP)/ext/lsm1/lsm_log.c \
++  $(TOP)/ext/lsm1/lsm_main.c \
++  $(TOP)/ext/lsm1/lsm_mem.c \
++  $(TOP)/ext/lsm1/lsm_mutex.c \
++  $(TOP)/ext/lsm1/lsm_shared.c \
++  $(TOP)/ext/lsm1/lsm_sorted.c \
++  $(TOP)/ext/lsm1/lsm_str.c \
++  $(TOP)/ext/lsm1/lsm_tree.c \
++  $(TOP)/ext/lsm1/lsm_unix.c \
++  $(TOP)/ext/lsm1/lsm_varint.c \
++  $(TOP)/ext/lsm1/lsm_vtab.c \
++  $(TOP)/ext/lsm1/lsm_win32.c \
++  $(TOP)/ext/lsm1/lsm1.h
+ 
+ # Generated source code files
+ #
+@@ -857,6 +874,8 @@ EXTHDR += \
+ EXTHDR += \
+   $(TOP)/ext/rtree/rtree.h \
+   $(TOP)/ext/rtree/geopoly.c
++EXTHDR += \
++  $(TOP)/ext/lsm/lsm1.h
+ EXTHDR += \
+   $(TOP)/ext/icu/sqliteicu.h
+ EXTHDR += \
+@@ -897,6 +916,7 @@ SHELL_OPT += -DSQLITE_DQS=0
+ SHELL_OPT += -DSQLITE_ENABLE_FTS4
+ #SHELL_OPT += -DSQLITE_ENABLE_FTS5
+ SHELL_OPT += -DSQLITE_ENABLE_RTREE
++SHELL_OPT += -DSQLITE_ENABLE_LSM
+ SHELL_OPT += -DSQLITE_ENABLE_EXPLAIN_COMMENTS
+ SHELL_OPT += -DSQLITE_ENABLE_UNKNOWN_SQL_FUNCTION
+ SHELL_OPT += -DSQLITE_ENABLE_STMTVTAB
+@@ -1599,6 +1619,7 @@ TESTFIXTURE_FLAGS += -DSQLITE_SERVER=1 -DSQLITE_PRIVATE="" -DSQLITE_CORE
+ TESTFIXTURE_FLAGS += -DBUILD_sqlite
+ TESTFIXTURE_FLAGS += -DSQLITE_SERIES_CONSTRAINT_VERIFY=1
+ TESTFIXTURE_FLAGS += -DSQLITE_DEFAULT_PAGE_SIZE=1024
++TESTFIXTURE_FLAGS += -DSQLITE_ENABLE_LSM
+ TESTFIXTURE_FLAGS += -DSQLITE_ENABLE_STMTVTAB
+ TESTFIXTURE_FLAGS += -DSQLITE_ENABLE_DBPAGE_VTAB
+ TESTFIXTURE_FLAGS += -DSQLITE_ENABLE_BYTECODE_VTAB
+diff --git a/src/main.c b/src/main.c
+index ff2a408d774de85c2c8c5eb47fac853598afc866..2d87360cfac86b2e131bf54c1a53ae423cc19d4a 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -22,6 +22,9 @@
+ #ifdef SQLITE_ENABLE_RTREE
+ # include "rtree.h"
+ #endif
++#ifdef SQLITE_ENABLE_LSM
++# include "lsm1.h"
++#endif
+ #if defined(SQLITE_ENABLE_ICU) || defined(SQLITE_ENABLE_ICU_COLLATIONS)
+ # include "sqliteicu.h"
+ #endif
+@@ -67,6 +70,9 @@ static int (*const sqlite3BuiltinExtensions[])(sqlite3*) = {
+ #ifdef SQLITE_ENABLE_RTREE
+   sqlite3RtreeInit,
+ #endif
++#ifdef SQLITE_ENABLE_LSM
++  sqlite3LsmInit,
++#endif
+ #ifdef SQLITE_ENABLE_DBPAGE_VTAB
+   sqlite3DbpageRegister,
+ #endif
+diff --git a/test/lsm-dump-test.test b/test/lsm-dump-test.test
+new file mode 100644
+index 0000000000000000000000000000000000000000..84afd5d95b11ccf624d7247ffb3eec25c2d91bc9
+--- /dev/null
++++ b/test/lsm-dump-test.test
+@@ -0,0 +1,29 @@
++# 2023-08-29
++#
++# The author disclaims copyright to this source code.  In place of
++# a legal notice, here is a blessing:
++#
++#    May you do good and not evil.
++#    May you find forgiveness for yourself and forgive others.
++#    May you share freely, never taking more than you give.
++#
++#*************************************************************************
++#
++# Test cases for LSM (SQL-008)
++#
++set testdir [file dirname $argv0]
++source $testdir/tester.tcl
++set file_name [file join [pwd] "lsm_test_[expr rand() * 1000].db"]
++
++do_execsql_test lsm-normal-5 [format {
++    CREATE VIRTUAL TABLE contacts USING lsm1 ('%s', name, TEXT, address, phone);
++    INSERT INTO contacts (name, address, phone) VALUES
++        ('charlie', '3000 Main St, Topeka KS', '785-555-1234');
++    select lsm_flush(name) from contacts;
++    select lsm_view(name) from contacts;
++} $file_name] {0 {Database structure 1 (view) L0: (age=0) (flags=0000)           |3.3             size=1|            Freelist: (null)}}
++
++
++file delete $file_name
++
++finish_test
+diff --git a/tool/mksqlite3c.tcl b/tool/mksqlite3c.tcl
+index 1b3958f4608abafb921fcfc90d4aab684ace7268..d76a84719d715030c49deac59362c828435d9107 100644
+--- a/tool/mksqlite3c.tcl
++++ b/tool/mksqlite3c.tcl
+@@ -494,6 +494,21 @@ set flist {
+    sqlite3session.c
+    fts5.c
+    stmt.c
++
++   lsm_ckpt.c
++   lsm_file.c
++   lsm_log.c
++   lsm_main.c
++   lsm_mem.c
++   lsm_mutex.c
++   lsm_shared.c
++   lsm_sorted.c
++   lsm_str.c
++   lsm_tree.c
++   lsm_unix.c
++   lsm_varint.c
++   lsm_vtab.c
++   lsm_win32.c
+ }
+ if {$enable_recover} {
+   lappend flist sqlite3recover.c dbdata.c

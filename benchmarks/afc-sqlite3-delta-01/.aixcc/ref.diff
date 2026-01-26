@@ -1,0 +1,87 @@
+diff --git a/ext/misc/base85.c b/ext/misc/base85.c
+index e7ef0a04c97538bbc66faf56e3094804f7023dfd..2859a9b6287fc32e8e46737feb15201712f9644b 100644
+--- a/ext/misc/base85.c
++++ b/ext/misc/base85.c
+@@ -170,6 +170,12 @@ static char *putcs(char *pc, char *s){
+ static char* toBase85( u8 *pIn, int nbIn, char *pOut, char *pSep ){
+   int nCol = 0;
+   while( nbIn >= 4 ){
++    // Use the Adobe shortcut to encode a 32-bit 0 value quickly.
++    if( pIn[0] == 0x0 && pIn[1] == 0x0 && pIn[2] == 0x0 && pIn[3] == 0x0 ) {
++      pIn += 4;
++      *pOut++ = 'z';
++      continue;
++    }
+     int nco = 5;
+     unsigned long qbv = (((unsigned long)pIn[0])<<24) |
+                         (pIn[1]<<16) | (pIn[2]<<8) | pIn[3];
+@@ -212,6 +218,17 @@ static u8* fromBase85( char *pIn, int ncIn, u8 *pOut ){
+   if( ncIn>0 && pIn[ncIn-1]=='\n' ) --ncIn;
+   while( ncIn>0 ){
+     static signed char nboi[] = { 0, 0, 1, 2, 3, 4 };
++    /* Enable use of the Adobe "z" extension, which
++    ** compresses four zero bytes into a single z character.
++    */
++    if( *pIn == 'z' ) {
++      pIn++;
++      *pOut++ = 0x0;
++      *pOut++ = 0x0;
++      *pOut++ = 0x0;
++      *pOut++ = 0x0;
++      continue;
++    }
+     char *pUse = skipNonB85(pIn, ncIn);
+     unsigned long qv = 0L;
+     int nti, nbo;
+diff --git a/test/base85.test b/test/base85.test
+new file mode 100644
+index 0000000000000000000000000000000000000000..bb723b3720a582c03465646893ef1a4f0b64905a
+--- /dev/null
++++ b/test/base85.test
+@@ -0,0 +1,24 @@
++set testdir [file dirname $argv0]
++source $testdir/tester.tcl
++set testprefix basexx
++
++if {[catch {load_static_extension db basexx} error]} {
++  puts "Skipping basexx tests, hit load error: $error"
++  finish_test; return
++}
++
++# Test the 'z' expansion functionality
++# (SQL-006)
++do_execsql_test basexx-z-test-1 {
++  select hex(base85('z'));
++} {00000000}
++
++do_execsql_test basexx-z-test-3 {
++  select hex(base85('KHkS=z0I1c-$6'));
++} {74657374000000002066740C65}
++
++do_execsql_test basexx-z-test-4 {
++  select hex(base85('KHkS=0I1c-$6'));
++} {746573742066740C65}
++
++finish_test
+diff --git a/test/basexx1.test b/test/basexx1.test
+index 947a5678f328b43b1e8af3e13449a115ead7e340..9030b51915323e3976847c1e4aa0e59e5908023a 100644
+--- a/test/basexx1.test
++++ b/test/basexx1.test
+@@ -152,4 +152,17 @@ do_execsql_test 117 {
+   SELECT num FROM bs WHERE base85(base85(b))!=b;
+ } {}
+ 
++# Test the 'z' expansion functionality
++do_execsql_test basexx-z-test-1 {
++  select hex(base85('z'));
++} {00000000}
++
++do_execsql_test basexx-z-test-3 {
++  select hex(base85('KHkS=z0I1c-$6'));
++} {74657374000000002066740C65}
++
++do_execsql_test basexx-z-test-4 {
++  select hex(base85('KHkS=0I1c-$6'));
++} {746573742066740C65}
++
+ finish_test

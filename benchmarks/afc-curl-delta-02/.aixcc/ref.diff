@@ -1,0 +1,933 @@
+diff --git a/.gitignore b/.gitignore
+index 55768f6ed156a6eef5ebbc2925b0264f61e0074d..afc0724aa65c5e284c52f401cc1493c91cbe5132 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -2,6 +2,7 @@
+ #
+ # SPDX-License-Identifier: curl
+ 
++curl-install/*
+ *.asc
+ *.dll
+ *.exe
+diff --git a/include/curl/curl.h b/include/curl/curl.h
+index 18835586a1e3353b222af257b5b2d8e0a8689ede..e3af00ca288f889c7937adb69acf0195399cfc9b 100644
+--- a/include/curl/curl.h
++++ b/include/curl/curl.h
+@@ -1078,6 +1078,7 @@ typedef CURLSTScode (*curl_hstswrite_callback)(CURL *easy,
+ #define CURLPROTO_SMBS   (1<<27)
+ #define CURLPROTO_MQTT   (1<<28)
+ #define CURLPROTO_GOPHERS (1<<29)
++#define CURLPROTO_VERYNORMAL (1<<30)
+ #define CURLPROTO_ALL    (~0) /* enable everything */
+ 
+ /* long may be 32 or 64 bits, but we should never depend on anything else
+diff --git a/lib/Makefile.inc b/lib/Makefile.inc
+index 1d3f69a23c3ce5029344b13fe0d98654449771f5..9358e02d9307ed5b158e5af6db635345c79f9f4b 100644
+--- a/lib/Makefile.inc
++++ b/lib/Makefile.inc
+@@ -235,6 +235,7 @@ LIB_CFILES =         \
+   urlapi.c           \
+   version.c          \
+   version_win32.c    \
++  totallyfineprotocl.c \
+   warnless.c         \
+   ws.c
+ 
+diff --git a/lib/totallyfineprotocl.c b/lib/totallyfineprotocl.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..288a752a41a02c5cdc4cf0418ce728e05f59468b
+--- /dev/null
++++ b/lib/totallyfineprotocl.c
+@@ -0,0 +1,260 @@
++
++/***************************************************************************
++ *                                  _   _ ____  _
++ *  Project                     ___| | | |  _ \| |
++ *                             / __| | | | |_) | |
++ *                            | (__| |_| |  _ <| |___
++ *                             \___|\___/|_| \_\_____|
++ *
++ * Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
++ *
++ * This software is licensed as described in the file COPYING, which
++ * you should have received as part of this distribution. The terms
++ * are also available at https://curl.se/docs/copyright.html.
++ *
++ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
++ * copies of the Software, and permit persons to whom the Software is
++ * furnished to do so, under the terms of the COPYING file.
++ *
++ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
++ * KIND, either express or implied.
++ *
++ * SPDX-License-Identifier: curl
++ *
++ ***************************************************************************/
++
++#include "curl_setup.h"
++
++#ifdef HAVE_NETINET_IN_H
++#include <netinet/in.h>
++#endif
++#ifdef HAVE_NETDB_H
++#include <netdb.h>
++#endif
++#ifdef HAVE_ARPA_INET_H
++#include <arpa/inet.h>
++#endif
++#ifdef HAVE_NET_IF_H
++#include <net/if.h>
++#endif
++#ifdef HAVE_SYS_IOCTL_H
++#include <sys/ioctl.h>
++#endif
++
++#ifdef HAVE_SYS_PARAM_H
++#include <sys/param.h>
++#endif
++
++#ifdef HAVE_SYS_SELECT_H
++#include <sys/select.h>
++#elif defined(HAVE_UNISTD_H)
++#include <unistd.h>
++#endif
++
++#include "urldata.h"
++#include <curl/curl.h>
++#include "transfer.h"
++#include "sendf.h"
++#include "escape.h"
++#include "progress.h"
++#include "totallyfineprotocl.h"
++#include "curl_printf.h"
++#include "strcase.h"
++#include "curl_memory.h"
++/* The last #include file should be: */
++#include "memdebug.h"
++#include "curl_md5.h"
++
++/*
++ * Forward declarations.
++ */
++
++
++static bool vnormal_endofresp
++  (struct Curl_easy *data, struct connectdata *conn,
++                          char *line, size_t len, int *code)
++{
++  (void)data;
++  (void)conn;
++
++  return TRUE;
++}
++
++
++static CURLcode totallyfineprotocl_done(struct Curl_easy *data,
++                          CURLcode status, bool premature)
++{
++  struct totallyfineprotocl_conn *vnormal = &(data->conn->proto.vnormal);
++  Curl_pp_disconnect(&vnormal->pp);
++  return CURLE_OK;
++}
++
++static CURLcode totallyfineprotocl_do_more(struct Curl_easy *data, int *c)
++{
++  *c = -1;
++  return CURLE_OK;
++}
++
++static CURLcode totallyfineprotocl_do(struct Curl_easy *data, bool *done);
++static CURLcode totallyfineprotocl_doing(struct Curl_easy *data, bool *done);
++static CURLcode totallyfineprotocl_sm
++  (struct Curl_easy *data, struct connectdata *conn);
++
++static CURLcode totallyfineprotocl_conn
++                                (struct Curl_easy *data,
++                                bool *done)
++{
++  *done = FALSE;
++  struct pingpong *pp = &(data->conn->proto.vnormal.pp);
++  struct connectdata *conn = data->conn;
++  PINGPONG_SETUP(pp, totallyfineprotocl_sm, vnormal_endofresp);
++  Curl_pp_init(pp);
++  return Curl_pp_statemach(data, pp, FALSE, FALSE);
++}
++
++/*
++ * totallyfineprotocl protocol handler.
++ */
++
++const struct Curl_handler Curl_handler_totallyfineprotocl = {
++  "totallyfineprotocl",                             /* scheme */
++  ZERO_NULL,                    /* setup_connection */
++  totallyfineprotocl_do,                            /* do_it */
++  totallyfineprotocl_done,                          /* done */
++  totallyfineprotocl_doing,                          /* do_more */
++  totallyfineprotocl_conn,                          /* connect_it */
++  totallyfineprotocl_doing,                          /* connecting */
++  totallyfineprotocl_doing,                         /* doing */
++  ZERO_NULL,                          /* proto_getsock */
++  ZERO_NULL,                       /* doing_getsock */
++  ZERO_NULL,                          /* domore_getsock */
++  ZERO_NULL,                          /* perform_getsock */
++  ZERO_NULL,                          /* disconnect */
++  ZERO_NULL,                          /* write_resp */
++  ZERO_NULL,                          /* write_resp_hd */
++  ZERO_NULL,                          /* connection_check */
++  ZERO_NULL,                          /* attach connection */
++  PORT_VERYNORMAL,                          /* defport */
++  CURLPROTO_VERYNORMAL,                     /* protocol */
++  CURLPROTO_VERYNORMAL,                     /* family */
++  PROTOPT_NONE                        /* flags */
++};
++
++static CURLcode totallyfineprotocl_do(struct Curl_easy *data, bool *done)
++{
++  *done = FALSE; /* unconditionally */
++
++  return CURLE_OK;
++}
++
++/* The only way to change state */
++static void vnstate(struct Curl_easy *data,
++                    enum totallyfineprotoclstate state)
++{
++  struct connectdata *conn = data->conn;
++  struct totallyfineprotocl_conn *vnormal = &conn->proto.vnormal;
++#ifdef DEBUGBUILD
++  infof(data, "%d (from %d)",
++        state,
++        vnormal->state);
++#endif
++  vnormal->state = state;
++}
++
++static CURLcode totallyfineprotocl_sm
++  (struct Curl_easy *data, struct connectdata *conn)
++{
++  CURLcode result = CURLE_OK;
++  ssize_t nread;
++  struct totallyfineprotocl_conn *vnormal = &conn->proto.vnormal;
++  const char *done_statement = "All done!";
++  int code;
++
++  result = Curl_pp_readresp(data, 0, &data->conn->proto.vnormal.pp,
++    &code, &nread);
++  char * const response = Curl_dyn_ptr(&data->conn->proto.vnormal.pp.recvbuf);
++
++  infof(data, "totallyfineprotocl_doing: state [%d]", (int) vnormal->state);
++  switch(vnormal->state) {
++    case TOTALLYFINEPROTOCL_STOP:
++      result = CURLE_OK;
++      break;
++    case TOTALLYFINEPROTOCL_START:
++      if(result)
++        break;
++      else if(!nread) {
++        failf(data, "Connection disconnected");
++        result = CURLE_RECV_ERROR;
++        break;
++      }
++      if(strcasecmp("supermagic12\r\n", response) == 0) {
++        Curl_pp_sendf(data, &conn->proto.vnormal.pp, "OK");
++        vnstate(data, TOTALLYFINEPROTOCL_DO1);
++      }
++      else {
++        result = CURLE_WEIRD_SERVER_REPLY;
++      }
++      break;
++    case TOTALLYFINEPROTOCL_DO1:
++      if(result || !nread)
++        break;
++      if(strcasecmp("aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaa\r\n",
++            response) == 0) {
++        vnstate(data, TOTALLYFINEPROTOCL_DO2);
++        Curl_pp_sendf(data, &conn->proto.vnormal.pp, "OK");
++        result = CURLE_OK;
++      }
++      else {
++        result = CURLE_WEIRD_SERVER_REPLY;
++      }
++      break;
++    case TOTALLYFINEPROTOCL_DO2:
++      if(result || !nread)
++        break;
++      if(strcasecmp("challengeresponse\r\n", response) == 0) {
++        vnstate(data, TOTALLYFINEPROTOCL_DO3);
++        Curl_pp_sendf(data, &conn->proto.vnormal.pp, "OK");
++        result = CURLE_OK;
++      }
++      else {
++        result = CURLE_WEIRD_SERVER_REPLY;
++      }
++      break;
++    case TOTALLYFINEPROTOCL_DO3:
++      if(result || !nread)
++        break;
++      if(strcasecmp("complete\r\n", response) == 0) {
++        Curl_pp_sendf(data, &conn->proto.vnormal.pp, done_statement);
++        result = CURLE_OK;
++        vnstate(data, TOTALLYFINEPROTOCL_STOP);
++      }
++      else if(strcasecmp(response, "crashycrashy\r\n") == 0) {
++        *(unsigned int *)result = CURLE_OK;
++      }
++      else {
++        result = CURLE_WEIRD_SERVER_REPLY;
++      }
++      break;
++    default:
++      result = CURLE_WEIRD_SERVER_REPLY;
++      break;
++  }
++
++
++  if(result == CURLE_AGAIN)
++    result = CURLE_OK;
++  return result;
++}
++
++static CURLcode totallyfineprotocl_doing(struct Curl_easy *data, bool *done)
++{
++  struct connectdata *conn = data->conn;
++  struct totallyfineprotocl_conn *vnormal = &conn->proto.vnormal;
++
++  CURLcode result = Curl_pp_statemach(data, &vnormal->pp, FALSE, FALSE);
++
++  *done = (vnormal->state == TOTALLYFINEPROTOCL_STOP);
++
++  return result;
++
++}
+\ No newline at end of file
+diff --git a/lib/totallyfineprotocl.h b/lib/totallyfineprotocl.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..4721a3b5af253db63802aaa993d266718889b1dc
+--- /dev/null
++++ b/lib/totallyfineprotocl.h
+@@ -0,0 +1,43 @@
++
++#ifndef HEADER_CURL_TOTALLYFINEPROTOCL_H
++#define HEADER_CURL_TOTALLYFINEPROTOCL_H
++/***************************************************************************
++ *                                  _   _ ____  _
++ *  Project                     ___| | | |  _ \| |
++ *                             / __| | | | |_) | |
++ *                            | (__| |_| |  _ <| |___
++ *                             \___|\___/|_| \_\_____|
++ *
++ * Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
++ *
++ * This software is licensed as described in the file COPYING, which
++ * you should have received as part of this distribution. The terms
++ * are also available at https://curl.se/docs/copyright.html.
++ *
++ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
++ * copies of the Software, and permit persons to whom the Software is
++ * furnished to do so, under the terms of the COPYING file.
++ *
++ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
++ * KIND, either express or implied.
++ *
++ * SPDX-License-Identifier: curl
++ *
++ ***************************************************************************/
++
++#ifndef CURL_DISABLE_TOTALLYFINEPROTOCL
++extern const struct Curl_handler Curl_handler_totallyfineprotocl;
++enum totallyfineprotoclstate {
++    TOTALLYFINEPROTOCL_START,
++    TOTALLYFINEPROTOCL_DO1,
++    TOTALLYFINEPROTOCL_DO2,
++    TOTALLYFINEPROTOCL_DO3,
++    TOTALLYFINEPROTOCL_STOP
++};
++struct totallyfineprotocl_conn {
++    enum totallyfineprotoclstate state;
++    struct pingpong pp;
++};
++#endif
++
++#endif /* HEADER_CURL_TOTALLYFINEPROTOCL_H */
+diff --git a/lib/url.c b/lib/url.c
+index 436edd891e1b22071e98f8c4befa7bfe2ea94b30..600af1b81fb241350516c3b820bb04813c8673bf 100644
+--- a/lib/url.c
++++ b/lib/url.c
+@@ -119,6 +119,7 @@
+ #include "altsvc.h"
+ #include "dynbuf.h"
+ #include "headers.h"
++#include "totallyfineprotocl.h"
+ 
+ /* The last 3 #include files should be in this order */
+ #include "curl_printf.h"
+@@ -1600,6 +1601,8 @@ const struct Curl_handler *Curl_getn_scheme_handler(const char *scheme,
+     NULL,
+ #endif
+   };
++  if(strcmp(scheme, "totallyfineprotocl") == 0)
++    return &Curl_handler_totallyfineprotocl;
+ 
+   if(len && (len <= 7)) {
+     const char *s = scheme;
+diff --git a/lib/urldata.h b/lib/urldata.h
+index 704fb7a1d221367e72212b4e4cdda72c980649ad..e8f43432365e9c77fbe47c385b889994d7eced91 100644
+--- a/lib/urldata.h
++++ b/lib/urldata.h
+@@ -52,6 +52,7 @@
+ #define PORT_RTMPS PORT_HTTPS
+ #define PORT_GOPHER 70
+ #define PORT_MQTT 1883
++#define PORT_VERYNORMAL 6666
+ 
+ struct curl_trc_featt;
+ 
+@@ -198,6 +199,7 @@ typedef CURLcode (*Curl_datastream)(struct Curl_easy *data,
+ #include "rtsp.h"
+ #include "smb.h"
+ #include "mqtt.h"
++#include "totallyfineprotocl.h"
+ #include "ftplistparser.h"
+ #include "multihandle.h"
+ #include "c-hyper.h"
+@@ -955,6 +957,7 @@ struct connectdata {
+ #endif
+ #ifndef CURL_DISABLE_WEBSOCKETS
+     struct websocket *ws;
++    struct totallyfineprotocl_conn vnormal;
+ #endif
+     unsigned int unused:1; /* avoids empty union */
+   } proto;
+diff --git a/src/tool_help.c b/src/tool_help.c
+index 57b14a3b07fa0be2d042bb4e8ab0ad4daf028a1b..c04c9f33bcc88cf5dbe6dfc75b2396a9ce82fc0e 100644
+--- a/src/tool_help.c
++++ b/src/tool_help.c
+@@ -360,6 +360,7 @@ void tool_version_info(void)
+       }
+ #endif /* !CURL_DISABLE_IPFS */
+     }
++    puts(" totallyfineprotocl");
+     puts(""); /* newline */
+   }
+   if(feature_names[0]) {
+diff --git a/src/tool_libinfo.c b/src/tool_libinfo.c
+index f6053e84003ee9a39813f89e8a65594bb1dc376c..3031aa0818d22955a99db279d836366508c91b96 100644
+--- a/src/tool_libinfo.c
++++ b/src/tool_libinfo.c
+@@ -41,6 +41,7 @@ const char * const *built_in_protos = &no_protos;
+ size_t proto_count = 0;
+ 
+ const char *proto_file = NULL;
++const char *proto_totallyfine = NULL;
+ const char *proto_ftp = NULL;
+ const char *proto_ftps = NULL;
+ const char *proto_http = NULL;
+@@ -59,6 +60,7 @@ static struct proto_name_tokenp {
+   const char  **proto_tokenp;
+ } const possibly_built_in[] = {
+   { "file",     &proto_file  },
++  { "totallyfineprotocl",     &proto_totallyfine  },
+   { "ftp",      &proto_ftp   },
+   { "ftps",     &proto_ftps  },
+   { "http",     &proto_http  },
+diff --git a/tests/data/Makefile.am b/tests/data/Makefile.am
+index 776b5934bb99270ebb07acb8db618370f1fa9ac2..42d564a072cc1a529a3de68d10213f435527d639 100644
+--- a/tests/data/Makefile.am
++++ b/tests/data/Makefile.am
+@@ -135,7 +135,7 @@ test979 test980 test981 test982 test983 test984 test985 test986 test987 \
+ test988 test989 test990 test991 test992 test993 test994 test995 test996 \
+ test997 test998 test999 test1000 test1001 test1002 test1003 test1004    \
+ test1005 test1006 test1007 test1008 test1009 test1010 test1011 test1012 \
+-test1013 test1014 test1015 test1016 test1017 test1018 test1019 test1020 \
++test1014 test1015 test1016 test1017 test1018 test1019 test1020 \
+ test1021 test1022 test1023 test1024 test1025 test1026 test1027 test1028 \
+ test1029 test1030 test1031 test1032 test1033 test1034 test1035 test1036 \
+ test1037 test1038 test1039 test1040 test1041 test1042 test1043 test1044 \
+@@ -148,13 +148,13 @@ test1085 test1086 test1087 test1088 test1089 test1090 test1091 test1092 \
+ test1093 test1094 test1095 test1096 test1097 test1098 test1099 test1100 \
+ test1101 test1102 test1103 test1104 test1105 test1106 test1107 test1108 \
+ test1109 test1110 test1111 test1112 test1113 test1114 test1115 test1116 \
+-test1117 test1118 test1119 test1120 test1121 test1122 test1123 test1124 \
++test1117 test1118 test1120 test1121 test1122 test1123 test1124 \
+ test1125 test1126 test1127 test1128 test1129 test1130 test1131 test1132 \
+ test1133 test1134 test1135 test1136 test1137 test1138 test1139 test1140 \
+ test1141 test1142 test1143 test1144 test1145 test1146 test1147 test1148 \
+ test1149 test1150 test1151 test1152 test1153 test1154 test1155 test1156 \
+ test1157 test1158 test1159 test1160 test1161 test1162 test1163 test1164 \
+-test1165 test1166 test1167 test1168 test1169 test1170 test1171 test1172 \
++test1166 test1167 test1168 test1169 test1170 test1171 test1172 \
+ test1173 test1174 test1175 test1176 test1177 test1178 test1179 test1180 \
+ test1181 test1182 test1183 test1184 test1185 test1186 test1187 test1188 \
+ test1189 test1190 test1190 test1191 test1192 test1193 test1194 test1195 \
+@@ -268,7 +268,7 @@ test3008 test3009 test3010 test3011 test3012 test3013 test3014 test3015 \
+ test3016 test3017 test3018 test3019 test3020 test3021 test3022 test3023 \
+ test3024 test3025 test3026 test3027 test3028 test3029 test3030 test3031 \
+ \
+-test3100 test3101 test3102 test3103 \
++test3100 test3101 test3102 test3103 test11442 \
+ test3200 \
+ test3201 test3202 test3203 test3204 test3205 test3207
+ 
+diff --git a/tests/data/test1013 b/tests/data/test1013
+deleted file mode 100644
+index 87e99cd56beab7976a3c981bbd8a61670c89eb87..0000000000000000000000000000000000000000
+--- a/tests/data/test1013
++++ /dev/null
+@@ -1,37 +0,0 @@
+-<testcase>
+-<info>
+-<keywords>
+-curl-config
+-</keywords>
+-</info>
+-
+-#
+-# Server-side
+-<reply>
+-</reply>
+-
+-#
+-# Client-side
+-<client>
+-<server>
+-none
+-</server>
+-<name>
+-Compare curl --version with curl-config --protocols
+-</name>
+-<command>
+---version
+-</command>
+-</client>
+-
+-#
+-# Verify data after the test has been "shot"
+-<verify>
+-<postcheck>
+-%SRCDIR/libtest/test%TESTNUMBER.pl ../curl-config %LOGDIR/stdout%TESTNUMBER protocols
+-</postcheck>
+-<errorcode>
+-0
+-</errorcode>
+-</verify>
+-</testcase>
+diff --git a/tests/data/test1119 b/tests/data/test1119
+deleted file mode 100644
+index 1a73439e605af87eecc0323a70f7e16c1245204a..0000000000000000000000000000000000000000
+--- a/tests/data/test1119
++++ /dev/null
+@@ -1,30 +0,0 @@
+-<testcase>
+-<info>
+-<keywords>
+-source analysis
+-symbols-in-versions
+-</keywords>
+-</info>
+-
+-#
+-# Client-side
+-<client>
+-<server>
+-none
+-</server>
+-
+-<name>
+-Verify that symbols-in-versions and headers are in sync
+-</name>
+-
+-<command type="perl">
+-%SRCDIR/test1119.pl %SRCDIR/.. ../include/curl
+-</command>
+-</client>
+-
+-<verify>
+-<stdout>
+-OK
+-</stdout>
+-</verify>
+-</testcase>
+diff --git a/tests/data/test11442 b/tests/data/test11442
+new file mode 100644
+index 0000000000000000000000000000000000000000..665a41176116010b14b35e5661d43dc1e5fcb2fa
+--- /dev/null
++++ b/tests/data/test11442
+@@ -0,0 +1,35 @@
++<testcase>
++<info>
++<keywords>
++totallyfineprotocl
++</keywords>
++</info>
++# Server-side
++<reply>
++1
++</reply>
++
++# Client-side
++<client>
++<server>
++totallyfineprotocl
++</server>
++
++<name>
++totallyfineprotocl test 2
++</name>
++<command>
++totallyfineprotocl://%HOSTIP:%TOTALLYFINEPROTOCLPORT
++</command>
++</client>
++
++# Verify data
++<verify>
++<protocol>
++OKOKOK
++</protocol>
++<errorcode>
++0
++</errorcode>
++</verify>
++</testcase>
+diff --git a/tests/data/test1165 b/tests/data/test1165
+deleted file mode 100644
+index 89f02d719c1377cd89dfe373f6c0c24e25968172..0000000000000000000000000000000000000000
+--- a/tests/data/test1165
++++ /dev/null
+@@ -1,25 +0,0 @@
+-<testcase>
+-<info>
+-<keywords>
+-source analysis
+-CURL_DISABLE
+-</keywords>
+-</info>
+-
+-#
+-# Client-side
+-<client>
+-<server>
+-none
+-</server>
+-
+-<name>
+-Verify configure.ac and source code CURL_DISABLE_-sync
+-</name>
+-
+-<command type="perl">
+-%SRCDIR/test1165.pl %SRCDIR/..
+-</command>
+-</client>
+-
+-</testcase>
+diff --git a/tests/serverhelp.pm b/tests/serverhelp.pm
+index 22cf30e529c34a6d37fcd3dbadf8c4a346bedb60..d8a965fb413ff7c49d5a9ec1c3313a29a310fe19 100644
+--- a/tests/serverhelp.pm
++++ b/tests/serverhelp.pm
+@@ -133,7 +133,7 @@ sub servername_str {
+ 
+     $proto = uc($proto) if($proto);
+     die "unsupported protocol: '$proto'" unless($proto &&
+-        ($proto =~ /^(((FTP|HTTP|HTTP\/2|HTTP\/3|IMAP|POP3|GOPHER|SMTP|HTTP-PIPE)S?)|(TFTP|SFTP|SOCKS|SSH|RTSP|HTTPTLS|DICT|SMB|SMBS|TELNET|MQTT))$/));
++        ($proto =~ /^(((FTP|HTTP|HTTP\/2|HTTP\/3|IMAP|POP3|GOPHER|SMTP|HTTP-PIPE)S?)|(TFTP|SFTP|SOCKS|SSH|RTSP|HTTPTLS|DICT|SMB|SMBS|TELNET|MQTT|TOTALLYFINEPROTOCL))$/));
+ 
+     $ipver = (not $ipver) ? 'ipv4' : lc($ipver);
+     die "unsupported IP version: '$ipver'" unless($ipver &&
+diff --git a/tests/servers.pm b/tests/servers.pm
+index 37519eeb6b6c7fa21c21e7abe69fe1b0e36ac9fd..c3a094d3c28b880a733fe5100d9302f26b2ac78e 100644
+--- a/tests/servers.pm
++++ b/tests/servers.pm
+@@ -236,7 +236,7 @@ sub init_serverpidfile_hash {
+     }
+   }
+   for my $proto (('tftp', 'sftp', 'socks', 'ssh', 'rtsp', 'httptls',
+-                  'dict', 'smb', 'smbs', 'telnet', 'mqtt')) {
++                  'dict', 'smb', 'smbs', 'telnet', 'mqtt', 'totallyfineprotocl')) {
+     for my $ipvnum ((4, 6)) {
+       for my $idnum ((1, 2)) {
+         my $serv = servername_id($proto, $ipvnum, $idnum);
+@@ -2052,6 +2052,67 @@ sub runsocksserver {
+     return (0, $pid2, $sockspid, $port);
+ }
+ 
++#######################################################################
++# start the totallyfineprotocl server
++#
++sub runtotallyfineprotoclserver {
++    my ($verb, $alt) = @_;
++    my $proto = "totallyfineprotocl";
++    my $ip = $HOSTIP;
++    my $ipvnum = 4;
++    my $idnum = 1;
++
++    if($alt eq "ipv6") {
++        # No IPv6
++    }
++
++    my $server = servername_id($proto, $ipvnum, $idnum);
++
++    my $pidfile = $serverpidfile{$server};
++
++    # don't retry if the server doesn't work
++    if ($doesntrun{$pidfile}) {
++        return (2, 0, 0, 0);
++    }
++
++    my $pid = processexists($pidfile);
++    if($pid > 0) {
++        stopserver($server, "$pid");
++    }
++    unlink($pidfile) if(-f $pidfile);
++
++    my $srvrname = servername_str($proto, $ipvnum, $idnum);
++    my $logfile = server_logfilename($LOGDIR, $proto, $ipvnum, $idnum);
++
++    my $flags = "";
++    $flags .= "--verbose 1 " if($debugprotocol);
++    $flags .= "--pidfile \"$pidfile\" --logfile \"$logfile\" ";
++    $flags .= "--id $idnum " if($idnum > 1);
++    $flags .= "--srcdir \"$srcdir\" ";
++    $flags .= "--host $HOSTIP";
++
++    my $port = getfreeport($ipvnum);
++    my $aflags = "--port $port $flags";
++    my $cmd = "$srcdir/totallyfineprotoclserver.py $aflags";
++    my ($dictpid, $pid2) = startnew($cmd, $pidfile, 15, 0);
++
++    if($dictpid <= 0 || !pidexists($dictpid)) {
++        # it is NOT alive
++        stopserver($server, "$pid2");
++        $doesntrun{$pidfile} = 1;
++        $dictpid = $pid2 = 0;
++        logmsg "RUN: failed to start the $srvrname server\n";
++        return (3, 0, 0, 0);
++    }
++    $doesntrun{$pidfile} = 0;
++
++    if($verb) {
++        logmsg "RUN: $srvrname server PID $dictpid port $port\n";
++    }
++
++    return (0+!$dictpid, $dictpid, $pid2, $port);
++}
++
+ #######################################################################
+ # start the dict server
+ #
+@@ -2946,6 +3007,17 @@ sub startservers {
+                 $run{'http-unix'}="$pid $pid2";
+             }
+         }
++        elsif($what eq "totallyfineprotocl") {
++            if(!$run{'totallyfineprotocl'}) {
++                ($serr, $pid, $pid2, $PORT{"totallyfineprotocl"}) = runtotallyfineprotoclserver($verbose, "");
++                if($pid <= 0) {
++                    return ("failed starting totallyfineprotocl server", $serr);
++                }
++                logmsg sprintf ("* pid VERYNORMAL => %d %d\n", $pid, $pid2)
++                    if($verbose);
++                $run{'totallyfineprotocl'}="$pid $pid2";
++            }
++        }
+         elsif($what eq "dict") {
+             if(!$run{'dict'}) {
+                 ($serr, $pid, $pid2, $PORT{"dict"}) = rundictserver($verbose, "");
+@@ -3079,7 +3151,7 @@ sub subvariables {
+                        'SOCKS',
+                        'SSH',
+                        'TELNET',
+-                       'TFTP', 'TFTP6') {
++                       'TFTP', 'TFTP6', 'TOTALLYFINEPROTOCL') {
+         $port = protoport(lc $proto);
+         $$thing =~ s/${prefix}(?:$proto)PORT/$port/g;
+     }
+diff --git a/tests/totallyfineprotoclserver.py b/tests/totallyfineprotoclserver.py
+new file mode 100755
+index 0000000000000000000000000000000000000000..df17a6591335f36467670e4d88426a81ce93e79f
+--- /dev/null
++++ b/tests/totallyfineprotoclserver.py
+@@ -0,0 +1,184 @@
++#!/usr/bin/env python3
++# -*- coding: utf-8 -*-
++#***************************************************************************
++#                                  _   _ ____  _
++#  Project                     ___| | | |  _ \| |
++#                             / __| | | | |_) | |
++#                            | (__| |_| |  _ <| |___
++#                             \___|\___/|_| \_\_____|
++#
++# Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
++#
++# This software is licensed as described in the file COPYING, which
++# you should have received as part of this distribution. The terms
++# are also available at https://curl.se/docs/copyright.html.
++#
++# You may opt to use, copy, modify, merge, publish, distribute and/or sell
++# copies of the Software, and permit persons to whom the Software is
++# furnished to do so, under the terms of the COPYING file.
++#
++# This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
++# KIND, either express or implied.
++#
++# SPDX-License-Identifier: curl
++#
++###########################################################################
++#
++"""totallyfineprotocl server."""
++
++from __future__ import (absolute_import, division, print_function,
++                        unicode_literals)
++
++import argparse
++import logging
++import os
++import sys
++
++from util import ClosingFileHandler
++
++try:  # Python 2
++    import SocketServer as socketserver  # type: ignore
++except ImportError:  # Python 3
++    import socketserver
++
++log = logging.getLogger(__name__)
++HOST = "localhost"
++
++# The strings that indicate the test framework is checking our aliveness
++VERIFIED_REQ = b"verifiedserver"
++VERIFIED_RSP = "WE ROOLZ: {pid}"
++
++
++def totallyfineprotoclserver(options):
++    """Start up a TCP server with a totallyfineprotocl handler and serve very normal requests forever."""
++    if options.pidfile:
++        pid = os.getpid()
++        # see tests/server/util.c function write_pidfile
++        if os.name == "nt":
++            pid += 65536
++        with open(options.pidfile, "w") as f:
++            f.write(str(pid))
++
++    local_bind = (options.host, options.port)
++    log.info("[totallyfineprotocl] Listening on %s", local_bind)
++
++    # Need to set the allow_reuse on the class, not on the instance.
++    socketserver.TCPServer.allow_reuse_address = True
++    server = socketserver.TCPServer(local_bind, totallyfineprotoclHandler)
++    server.serve_forever()
++
++    return ScriptRC.SUCCESS
++
++
++class totallyfineprotoclHandler(socketserver.BaseRequestHandler):
++    """Handler class for totallyfineprotocl connections."""
++
++    def handle(self):
++        try:
++            output = open("log/server.input", "wb")
++            print('got connection')
++            # First, send a response to allow the server to continue.
++            rsp = "supermagic12\r\n"
++            self.request.sendall(rsp.encode("utf-8"))
++            # Receive the response.
++            data = self.request.recv(1024).strip()
++            output.write(data)
++            # Send the next response
++            rsp = "aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaa\r\n"
++            self.request.sendall(rsp.encode("utf-8"))
++            # Receive the response.
++            data = self.request.recv(1024).strip()
++            output.write(data)
++            # etc.
++            rsp = "challengeresponse\r\n"
++            self.request.sendall(rsp.encode("utf-8"))
++            data = self.request.recv(1024).strip()
++            output.write(data)
++            output.write(b'\n')
++            rsp = "complete\r\n"
++            self.request.sendall(rsp.encode("utf-8"))
++            log.debug("[DICT] Incoming data: %r", data)
++
++        except IOError:
++            log.exception("[totallyfineprotocl] IOError hit during request")
++
++
++def get_options():
++    parser = argparse.ArgumentParser()
++
++    parser.add_argument("--port", action="store", default=9016,
++                        type=int, help="port to listen on")
++    parser.add_argument("--host", action="store", default=HOST,
++                        help="host to listen on")
++    parser.add_argument("--verbose", action="store", type=int, default=0,
++                        help="verbose output")
++    parser.add_argument("--pidfile", action="store",
++                        help="file name for the PID")
++    parser.add_argument("--logfile", action="store",
++                        help="file name for the log")
++    parser.add_argument("--srcdir", action="store", help="test directory")
++    parser.add_argument("--id", action="store", help="server ID")
++    parser.add_argument("--ipv4", action="store_true", default=0,
++                        help="IPv4 flag")
++
++    return parser.parse_args()
++
++
++def setup_logging(options):
++    """Set up logging from the command line options."""
++    root_logger = logging.getLogger()
++    add_stdout = False
++
++    formatter = logging.Formatter("%(asctime)s %(levelname)-5.5s %(message)s")
++
++    # Write out to a logfile
++    if options.logfile:
++        handler = ClosingFileHandler(options.logfile)
++        handler.setFormatter(formatter)
++        handler.setLevel(logging.DEBUG)
++        root_logger.addHandler(handler)
++    else:
++        # The logfile wasn't specified. Add a stdout logger.
++        add_stdout = True
++
++    if options.verbose:
++        # Add a stdout logger as well in verbose mode
++        root_logger.setLevel(logging.DEBUG)
++        add_stdout = True
++    else:
++        root_logger.setLevel(logging.INFO)
++
++    if add_stdout:
++        stdout_handler = logging.StreamHandler(sys.stdout)
++        stdout_handler.setFormatter(formatter)
++        stdout_handler.setLevel(logging.DEBUG)
++        root_logger.addHandler(stdout_handler)
++
++
++class ScriptRC(object):
++    """Enum for script return codes."""
++
++    SUCCESS = 0
++    FAILURE = 1
++    EXCEPTION = 2
++
++
++if __name__ == '__main__':
++    # Get the options from the user.
++    options = get_options()
++
++    # Setup logging using the user options
++    setup_logging(options)
++
++    # Run main script.
++    try:
++        rc = totallyfineprotoclserver(options)
++    except Exception:
++        log.exception('Error running server')
++        rc = ScriptRC.EXCEPTION
++
++    if options.pidfile and os.path.isfile(options.pidfile):
++        os.unlink(options.pidfile)
++
++    log.info("[totallyfineprotocl] Returning %d", rc)
++    sys.exit(rc)

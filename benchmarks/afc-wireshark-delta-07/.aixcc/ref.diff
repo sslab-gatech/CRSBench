@@ -1,0 +1,171 @@
+diff --git a/epan/dissectors/packet-gvcp.c b/epan/dissectors/packet-gvcp.c
+index 0a09a2e5da6fca99976ea36379b4639b6ceb3333..d49324a429fe4d43a6481501e526c86b2e88c947 100644
+--- a/epan/dissectors/packet-gvcp.c
++++ b/epan/dissectors/packet-gvcp.c
+@@ -18,6 +18,8 @@
+ #include <epan/packet.h>
+ #include <epan/conversation.h>
+ #include <epan/tfs.h>
++#include <epan/expert.h>
++#include <epan/proto.h>
+ 
+ #define GVCP_MIN_PACKET_SIZE          ( 8 )
+ #define GVCP_MAX_STREAM_CHANNEL_COUNT ( 512 )
+@@ -52,7 +54,7 @@ typedef struct _gvcp_conv_info_t {
+ /*
+ Bootstrap registers addresses
+ */
+-
++#define GVCP_MAX_REGISTER_COUNT ( 0x00000010 )
+ #define GVCP_VERSION (0x00000000)
+ #define GVCP_DEVICE_MODE (0x00000004)
+ #define GVCP_DEVICE_MAC_HIGH_0 (0x00000008)
+@@ -169,6 +171,17 @@ Bootstrap registers addresses
+ #define GVCP_ACTION_GROUP_KEY(I)  (0x9800+(0x10*I))
+ #define GVCP_ACTION_GROUP_MASK(I) (0x9804+(0x10*I))
+ 
++/*
++List of protected register addresses
++*/
++
++static const uint32_t protected_registers[] = {
++    0x0000FF00, // Control register
++    0x0000FF04, // Device reset
++    0x0000FF08  // Firmware update trigger
++};
++
++#define GVCP_PROTECTED_REGISTER_COUNT (0x0003)
+ 
+ /*
+ Command and acknowledge IDs
+@@ -263,6 +276,11 @@ Link configurations
+ #define GEV_LINKCONFIG_STATICLAG (0x02)
+ #define GEV_LINKCONFIG_DYNAMICLAG (0x03)
+ 
++/* GVCP Register Data Array */
++
++static uint32_t gvcp_register_number[GVCP_MAX_REGISTER_COUNT];
++static uint32_t gvcp_register_value[GVCP_MAX_REGISTER_COUNT];
++static uint32_t gvcp_register_count = 0;
+ 
+ void proto_register_gvcp(void);
+ void proto_reg_handoff_gvcp(void);
+@@ -531,6 +549,8 @@ static int ett_gvcp_payload_cmd_subtree;
+ static int ett_gvcp_payload_ack_subtree;
+ static int ett_gvcp_bootstrap_fields;
+ 
++static expert_field ei_gvcp_privileged_register;
++
+ static dissector_handle_t gvcp_handle;
+ static dissector_handle_t gvsp_handle;
+ 
+@@ -915,13 +935,55 @@ static const char* get_register_name_from_address(uint32_t addr, wmem_allocator_
+ 	return address_string;
+ }
+ 
++static int is_protected(uint32_t addr) {
++    for (size_t i = 0; i < GVCP_PROTECTED_REGISTER_COUNT; i++) {
++        if (addr == protected_registers[i]) {
++            return 1;
++        }
++    }
++    return 0;
++}
++
++void process_register_writes(proto_tree *tree, tvbuff_t *tvb, int offset)
++{
++    uint64_t total = 0;
++
++    for (uint32_t i = 0; i < gvcp_register_count; i++) {
++        uint32_t addr = gvcp_register_number[i];
++        uint32_t val = gvcp_register_value[i];
++        total += val;
++
++        // Add a tree entry for each write
++        proto_item *pi = proto_tree_add_item(tree, -1, tvb, offset + (int)(i * 8), 8, ENC_NA);
++        proto_item_set_text(pi, "Register Write: [0x%08X] = 0x%08X", addr, val);
++
++        if (is_protected(addr)) {
++            proto_tree_add_expert_format(tree, NULL, &ei_gvcp_privileged_register,
++				tvb, offset + (int)(i * 8), 8,
++				"Write to protected register 0x%08X", addr);
++		}
++			
++    }
++
++    proto_item *summary = proto_tree_add_item(tree, -1, tvb, offset, gvcp_register_count * 8, ENC_NA);
++    proto_item_set_text(summary, "Summary: %d writes, total written value: 0x%016lX",
++		gvcp_register_count, total);
++
++	return;
++}
+ 
+ /*
+-\brief Attempts to dissect a bootstrap register
++Attempts to dissect a bootstrap register
+ */
+ 
+ static int dissect_register(uint32_t addr, proto_tree *branch, tvbuff_t *tvb, int offset, int length)
+ {
++	uint32_t value = 0;
++	
++	value = tvb_get_letohl(tvb, offset);
++	gvcp_register_number[gvcp_register_count] = addr;
++	gvcp_register_value[gvcp_register_count++] = value;
++
+ 	switch (addr)
+ 	{
+ 	case GVCP_VERSION:
+@@ -1272,7 +1334,6 @@ static int dissect_register(uint32_t addr, proto_tree *branch, tvbuff_t *tvb, in
+ 	case GVCP_SC_DESTINATION_ADDRESS(2):
+ 	case GVCP_SC_DESTINATION_ADDRESS(3):
+ 		{
+-			uint32_t value = 0;
+ 			value = tvb_get_letohl(tvb, offset);
+ 			proto_tree_add_ipv4(branch, hf_gvcp_sc_destination_ip, tvb, offset, 4, value);
+ 		}
+@@ -1432,6 +1493,12 @@ static int dissect_register(uint32_t addr, proto_tree *branch, tvbuff_t *tvb, in
+ 
+ static int dissect_extended_bootstrap_register(uint32_t addr, proto_tree *branch, tvbuff_t *tvb, int offset, int length _U_)
+ {
++	uint32_t value = 0;
++	
++	value = tvb_get_letohl(tvb, offset);
++	gvcp_register_number[gvcp_register_count] = addr;
++	gvcp_register_value[gvcp_register_count++] = value;
++
+ 	switch (addr)
+ 	{
+ 	case GVCP_SC_GENDC_DESCRIPTOR_ADDRESS:
+@@ -2570,6 +2637,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
+ 	represents the number of bytes of payload appended after this header */
+ 	proto_tree_add_item(gvcp_tree, hf_gvcp_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+ 	data_length = tvb_get_ntohs(tvb, offset);
++
+ 	offset += 2;
+ 
+ 	/* Add the request ID */
+@@ -2795,9 +2863,9 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
+ 
+ void proto_register_gvcp(void)
+ {
+-	/*
+-	\brief Structures for register dissection
+-	*/
++	static ei_register_info ei[] = {
++		{ &ei_gvcp_privileged_register, { "gvcp.privileged_register", PI_UNDECODED, PI_WARN, "Privileged GVCP Register", EXPFILL }},
++	};
+ 
+ 	static hf_register_info hf[] =
+ 	{
+@@ -4318,6 +4386,10 @@ void proto_register_gvcp(void)
+ 
+ 	proto_gvcp = proto_register_protocol("GigE Vision Control Protocol", "GVCP", "gvcp");
+ 
++	expert_module_t* expert_gvcp;
++	expert_gvcp = expert_register_protocol(proto_gvcp);
++	expert_register_field_array(expert_gvcp, ei, array_length(ei));
++
+ 	gvcp_handle = register_dissector("gvcp", dissect_gvcp, proto_gvcp);
+ 
+ 	proto_register_field_array(proto_gvcp, hf, array_length(hf));

@@ -1,0 +1,176 @@
+diff --git a/src/main/java/org/sqlite/SQLiteConnection.java b/src/main/java/org/sqlite/SQLiteConnection.java
+index 9837bedf1aacac288de08442a43bb3a403e6dcc9..864976a87f2ab8cd1b86c723606604343f6e434d 100644
+--- a/src/main/java/org/sqlite/SQLiteConnection.java
++++ b/src/main/java/org/sqlite/SQLiteConnection.java
+@@ -13,6 +13,7 @@
+ import java.sql.DatabaseMetaData;
+ import java.sql.ResultSet;
+ import java.sql.SQLException;
++import java.util.Arrays;
+ import java.util.Properties;
+ import java.util.UUID;
+ import java.util.concurrent.Executor;
+@@ -506,13 +507,9 @@ protected static String extractPragmasFromFilename(String url, String filename,
+         for (int i = 0; i < parameters.length; i++) {
+             // process parameters in reverse-order, last specified pragma value wins
+             String parameter = parameters[parameters.length - 1 - i].trim();
+-
+-            if (parameter.isEmpty()) {
+-                // duplicated &&& sequence, drop
+-                continue;
+-            }
+-
+-            String[] kvp = parameter.split("=");
++            String[] kvp = Arrays.stream(parameter.split("="))
++                     .filter(s -> !s.isEmpty())
++                     .toArray(String[]::new);
+             String key = kvp[0].trim().toLowerCase();
+             if (SQLiteConfig.pragmaSet.contains(key)) {
+                 if (kvp.length == 1) {
+diff --git a/src/main/java/org/sqlite/core/NativeDB.c b/src/main/java/org/sqlite/core/NativeDB.c
+index 7361dbcf3bc60389d9fd38a5348ae9c37e80a502..9482fefc428aa17071424ed1e501fa91d4f83704 100644
+--- a/src/main/java/org/sqlite/core/NativeDB.c
++++ b/src/main/java/org/sqlite/core/NativeDB.c
+@@ -136,9 +136,120 @@ static jobject utf8BytesToDirectByteBuffer(JNIEnv *env, const char* bytes, int n
+     return result;
+ }
+ 
++static void canonicalize_string_to_ascii(char *src, char *dst)
++{
++    char *end = src + strlen(src);
++
++    while (src < end) {
++        unsigned char c = (unsigned char)*src;
++
++        if (c < 0x80) {
++            *dst++ = *src++;
++        }
++        else {
++            unsigned int cp = 0;
++            int len = 1;
++
++            if ((c & 0xE0) == 0xC0 && src + 1 < end) {
++                cp  = ((src[0] & 0x1F) << 6)
++                    |  (src[1] & 0x3F);
++                len = 2;
++            }
++            else if ((c & 0xF0) == 0xE0 && src + 2 < end) {
++                cp  = ((src[0] & 0x0F) << 12)
++                    | ((src[1] & 0x3F) <<  6)
++                    |  (src[2] & 0x3F);
++                len = 3;
++            }
++            else if ((c & 0xF8) == 0xF0 && src + 3 < end) {
++                cp  = ((src[0] & 0x07) << 18)
++                    | ((src[1] & 0x3F) << 12)
++                    | ((src[2] & 0x3F) <<  6)
++                    |  (src[3] & 0x3F);
++                len = 4;
++            }
++            else {
++                src++;
++                continue;
++            }
++
++            switch (cp) {
++                case 0x00DF: // ß
++                    *dst++ = 's';
++                    *dst++ = 's';
++                    break;
++                case 0x00E6: // æ
++                    *dst++ = 'a';
++                    *dst++ = 'e';
++                    break;
++                case 0x00E4: // ä
++                    *dst++ = 'a';
++                    *dst++ = 'e';
++                    break;
++                case 0x00F6: // ö
++                    *dst++ = 'o';
++                    *dst++ = 'e';
++                    break;
++                case 0x00FC: // ü
++                    *dst++ = 'u';
++                    *dst++ = 'e';
++                    break;
++                case 0x00F1: // ñ
++                    *dst++ = 'n';
++                    break;
++                case 0x00D1: // Ñ
++                    *dst++ = 'N';
++                    break;
++                case 0x20AC: // €
++                    *dst++ = 'E';
++                    *dst++ = 'U';
++                    *dst++ = 'R';
++                    break;
++                case 0x03B1: // α
++                    *dst++ = 'a';
++                    break;
++                case 0x03B2: // β
++                    *dst++ = 'b';
++                    break;
++                case 0x03C0: // π
++                    *dst++ = 'p';
++                    *dst++ = 'i';
++                    break;
++                case 0x03C6: // φ
++                    *dst++ = 'p';
++                    *dst++ = 'h';
++                    *dst++ = 'i';
++                    break;
++                case 0x03C8: // ψ
++                    *dst++ = 'p';
++                    *dst++ = 's';
++                    *dst++ = 'i';
++                    break;
++                case 0x2026: // … (ellipsis)
++                    *dst++ = '.';
++                    *dst++ = '.';
++                    *dst++ = '.';
++                    break;
++                default:
++                    if (cp < 0x80) {
++                        *dst++ = (char)cp;
++                    } else if (cp < 0x100) {
++                        *dst++ = (char)(cp & 0x7F);
++                    } else {
++                        *dst++ = '?';
++                    }
++            }
++            src += len;
++        }
++    }
++
++    *dst = '\0';
++}
++
+ static void utf8JavaByteArrayToUtf8Bytes(JNIEnv *env, jbyteArray utf8bytes, char** bytes, int* nbytes)
+ {
+     jsize utf8bytes_length;
++	jsize allocation_size;
+     char* buf;
+ 
+     *bytes = NULL;
+@@ -151,7 +262,8 @@ static void utf8JavaByteArrayToUtf8Bytes(JNIEnv *env, jbyteArray utf8bytes, char
+ 
+     utf8bytes_length = (*env)->GetArrayLength(env, (jarray) utf8bytes);
+ 
+-    buf = (char*) malloc(utf8bytes_length + 1);
++	allocation_size = utf8bytes_length + 1;
++    buf = (char*) malloc(allocation_size);
+     if (!buf)
+     {
+         throwex_outofmemory(env);
+@@ -162,6 +274,11 @@ static void utf8JavaByteArrayToUtf8Bytes(JNIEnv *env, jbyteArray utf8bytes, char
+ 
+     buf[utf8bytes_length] = '\0';
+ 
++    char *temp = (char*) malloc(allocation_size);
++    canonicalize_string_to_ascii(buf, temp);
++    memcpy(buf, temp, allocation_size);
++    free(temp);
++
+     *bytes = buf;
+     if (nbytes) *nbytes = (int) utf8bytes_length;
+ }
