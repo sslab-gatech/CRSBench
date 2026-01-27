@@ -2,6 +2,10 @@ id: cpv_0
 
 name: Heap-buffer-overflow in PCRE2 OP_VREVERSE UTF-8 handling
 
+author:
+
+validator: Yu-Fu Fu
+
 origin: synthetic
 
 release_date: 02/01/2026
@@ -26,6 +30,13 @@ description: |
 
 locations:
 - type: crash_site
+  path_from_root: src/pcre2_match.c
+  function_name: match
+  startLine: 5795
+  startColumn: 18
+  endLine: 5795
+  endColumn: 18
+- type: root_cause # same
   path_from_root: src/pcre2_match.c
   function_name: match
   startLine: 5795
