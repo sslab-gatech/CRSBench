@@ -2,6 +2,10 @@ id: cpv_1
 
 name: Heap buffer overflow in decimal number string conversion
 
+author:
+
+validator: Yu-Fu Fu
+
 origin: 1-day
 
 release_date: 12/13/2023
@@ -11,9 +15,9 @@ references:
 - https://github.com/jqlang/jq/security/advisories/GHSA-686w-5m7m-54vc
 
 cwes:
-- CWE-122
-- CWE-787
-- CWE-131
+- CWE-122 # Heap-based Buffer Overflow
+- CWE-787 # Out-of-bounds Write
+- CWE-131 # Incorrect Calculation of Buffer Size
 
 description: |
   An off-by-one heap buffer overflow vulnerability exists in jq's decimal number
@@ -34,11 +38,11 @@ locations:
   startLine: 638
   startColumn: 5
   endLine: 639
-  endColumn: 50
+  endColumn: 43
 - type: crash_site
   path_from_root: src/decNumber/decNumber.c
   function_name: decToString
   startLine: 3764
   startColumn: 3
   endLine: 3764
-  endColumn: 14
+  endColumn: 11
