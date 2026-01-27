@@ -2,14 +2,17 @@ id: cpv_0
 
 name: NASM Preprocessor Zero-Length Token Stack-Use-After-Return
 
-origin: synthetic
+author:
 
-release_date: 02/01/2026
+validator: Yu-Fu Fu
+
+origin: 1-day # https://github.com/advisories/GHSA-f5w2-2h32-hmg6
+
+release_date: 08/22/2023
 
 cwes:
-- CWE-825
-- CWE-416
-- CWE-119
+- CWE-825 # Expired Pointer Dereference
+- CWE-119 # Improper Restriction of Operations within the Bounds of a Memory Buffer
 
 description: |
   A stack-use-after-return vulnerability exists in NASM's preprocessor module.
@@ -34,7 +37,7 @@ locations:
 - type: root_cause
   path_from_root: asm/preproc.c
   function_name: tokenize
-  startLine: 1677
+  startLine: 1680
   startColumn: 9
   endLine: 1682
-  endColumn: 22
+  endColumn: 23
