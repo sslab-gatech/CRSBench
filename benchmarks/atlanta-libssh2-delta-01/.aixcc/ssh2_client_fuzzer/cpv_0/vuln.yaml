@@ -2,6 +2,10 @@ id: cpv_0
 
 name: Double-free in Diffie-Hellman hostkey handling during SSH key exchange
 
+author:
+
+validator: Yu-Fu Fu
+
 origin: 1-day
 
 release_date: 09/10/2024
@@ -10,8 +14,8 @@ references:
 - https://github.com/libssh2/libssh2/pull/1452
 
 cwes:
-- CWE-415
-- CWE-672
+- CWE-415 # Double Free
+- CWE-672 # Operation on a Resource after Expiration or Release
 
 description: |
   A double-free vulnerability exists in the diffie_hellman_sha_algo function
@@ -26,7 +30,12 @@ locations:
 - type: crash_site
   path_from_root: src/kex.c
   function_name: diffie_hellman_sha_algo
-  startLine: 472
+  startLine: 473
   startColumn: 13
   endLine: 473
-  endColumn: 13
+  endColumn: 59
+- type: root_cause # the same as crash_site
+  path_from_root: src/kex.c
+  function_name: diffie_hellman_sha_algo
+  startLine: 472
+  endLine: 473
