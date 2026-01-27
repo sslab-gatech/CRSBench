@@ -2,6 +2,10 @@ id: cpv_3
 
 name: LibTIFF TIFFTAG_INKNAMES Heap Buffer Overflow
 
+author:
+
+validator: Yu-Fu Fu
+
 origin: 1-day
 
 release_date: 12/15/2022
@@ -12,9 +16,9 @@ references:
 - https://libtiff.gitlab.io/libtiff/releases/v4.5.0.html
 
 cwes:
-- CWE-122
-- CWE-125
-- CWE-787
+- CWE-122 # Heap-based Buffer Overflow
+- CWE-125 # Out-of-bounds Read
+- CWE-787 # Out-of-bounds Write
 
 description: |
   A heap buffer overflow vulnerability exists in the processing of TIFFTAG_INKNAMES
