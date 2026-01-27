@@ -2,14 +2,18 @@ id: cpv_1
 
 name: LibTIFF Excessive Memory Allocation in Strip Array Processing
 
+author:
+
+validator: Yu-Fu Fu
+
 origin: synthetic
 
 release_date: 02/01/2026
 
 cwes:
-- CWE-770
-- CWE-400
-- CWE-789
+- CWE-770 # Allocation of Resources Without Limits or Throttling
+- CWE-400 # Uncontrolled Resource Consumption
+- CWE-789 # Memory Allocation with Excessive Size Value
 
 description: |
   An excessive memory allocation vulnerability exists in the allocChoppedUpStripArrays
@@ -22,6 +26,13 @@ description: |
 
 locations:
 - type: root_cause
+  path_from_root: libtiff/tif_dirread.c
+  function_name: allocChoppedUpStripArrays
+  startLine: 6498
+  startColumn: 5
+  endLine: 6501
+  endColumn: 74
+- type: crash_site # the same
   path_from_root: libtiff/tif_dirread.c
   function_name: allocChoppedUpStripArrays
   startLine: 6498
