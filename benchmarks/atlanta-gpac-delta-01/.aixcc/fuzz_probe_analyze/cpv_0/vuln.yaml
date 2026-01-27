@@ -2,13 +2,16 @@ id: cpv_0
 
 name: Global buffer overflow in gf_mp3_bit_rate due to unchecked bitrate index
 
+author:
+
+validator: Yu-Fu Fu
+
 origin: synthetic
 
 release_date: 02/01/2026
 
 cwes:
 - CWE-125
-- CWE-787
 - CWE-129
 
 description: |
@@ -33,6 +36,6 @@ locations:
   path_from_root: src/media_tools/av_parsers.c
   function_name: gf_mp3_bit_rate
   startLine: 4505
-  startColumn: 1
-  endLine: 4523
-  endColumn: 40
+  startColumn: 0
+  endLine: 4505
+  endColumn: 37
