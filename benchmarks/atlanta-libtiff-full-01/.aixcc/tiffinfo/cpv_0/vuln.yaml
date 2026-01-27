@@ -2,6 +2,10 @@ id: cpv_0
 
 name: LibTIFF IFD Loop Denial of Service
 
+author:
+
+validator: Yu-Fu Fu
+
 origin: 1-day
 
 release_date: 01/19/2018
@@ -13,30 +17,27 @@ references:
 - https://gitlab.com/libtiff/libtiff/-/merge_requests/386
 
 cwes:
-- CWE-400
-- CWE-835
+- CWE-400 # Uncontrolled Resource Consumption
+- CWE-835 # Loop with Unreachable Exit Condition ('Infinite Loop')
 
 description: |
-  A denial of service vulnerability exists in LibTIFF's Image File Directory (IFD)
-  traversal logic. The TIFFAdvanceDirectory function in libtiff/tif_dir.c does not
-  detect circular references in IFD chains, allowing specially crafted TIFF files
-  to cause infinite loops. When functions like TIFFReadCustomDirectory or
-  TIFFNumberOfDirectories traverse the IFD chain, they can get stuck in an infinite
-  loop if the chain is circular. This leads to uncontrolled resource consumption,
-  causing the application to hang indefinitely and resulting in denial of service.
+  In LibTIFF 4.0.9, there is an uncontrolled resource consumption in the TIFFSetDirectory function of tif_dir.c.
+  Remote attackers could leverage this vulnerability to cause a denial of service via a crafted tif file.
+  This occurs because the declared number of directory entries is not validated against the actual number of directory entries.
 
 locations:
-- type: crash_site
-  path_from_root: libtiff/tif_dirread.c
-  function_name: TIFFFetchDirectory
-  startLine: 5129
-  startColumn: 4
-  endLine: 5129
-  endColumn: 4
-- type: root_cause
+  # NOTE: loop in the fuzzing harness
+- type: crash_site # timeout bugs => change to the while loop location
+  path_from_root: contrib/oss-fuzz/tiffinfo.cc
+  function_name: LLVMFuzzerTestOneInput
+  startLine: 127
+  startColumn: 5
+  endLine: 127
+  endColumn: 35
+- type: root_cause # from gitlab issue and NVD
   path_from_root: libtiff/tif_dir.c
-  function_name: TIFFAdvanceDirectory
-  startLine: 1503
+  function_name: TIFFSetDirectory
+  startLine: 1699
   startColumn: 1
-  endLine: 1600
-  endColumn: 1
+  endLine: 1699
+  endColumn: 25
