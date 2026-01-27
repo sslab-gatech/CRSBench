@@ -37,9 +37,9 @@ locations:
   path_from_root: src/decNumber/decNumber.c
   function_name: decNumberCopy
   startLine: 3375
-  startColumn: 45
+  startColumn: 46
   endLine: 3375
-  endColumn: 47
+  endColumn: 48
 - type: root_cause
   path_from_root: src/jv.c
   function_name: jvp_literal_number_new

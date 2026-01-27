@@ -31,11 +31,11 @@ locations:
   startLine: 4523
   startColumn: 9
   endLine: 4523
-  endColumn: 9
+  endColumn: 10
 - type: root_cause
   path_from_root: src/media_tools/av_parsers.c
   function_name: gf_mp3_bit_rate
   startLine: 4505
-  startColumn: 0
+  startColumn: 1
   endLine: 4505
-  endColumn: 37
+  endColumn: 38
