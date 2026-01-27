@@ -2,6 +2,10 @@ id: cpv_2
 
 name: PCRE2 Lookbehind Integer Overflow Due to Incorrect Overflow Check
 
+author:
+
+validator: Yu-Fu Fu
+
 origin: synthetic
 
 release_date: 02/01/2026
@@ -24,17 +28,17 @@ description: |
   lead to incorrect lookbehind length calculations or denial of service.
 
 locations:
-- type: root_cause
+- type: root_cause # INT_MAX/lastitemlength < min - 1
   path_from_root: src/pcre2_compile.c
   function_name: get_branchlength
   startLine: 9657
-  startColumn: 1
+  startColumn: 11
   endLine: 9657
-  endColumn: 40
-- type: crash_site
+  endColumn: 42
+- type: crash_site # INT_MAX - branchlength
   path_from_root: src/pcre2_compile.c
   function_name: get_branchlength
   startLine: 9683
-  startColumn: 1
+  startColumn: 7
   endLine: 9683
-  endColumn: 45
+  endColumn: 28
