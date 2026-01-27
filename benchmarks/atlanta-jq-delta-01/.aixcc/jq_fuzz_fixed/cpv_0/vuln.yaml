@@ -2,6 +2,10 @@ id: cpv_0
 
 name: Stack Buffer Overflow via NaN with Payload in jq Number Comparison
 
+author:
+
+validator: Yu-Fu Fu
+
 origin: 1-day
 
 release_date: 03/28/2025
@@ -11,9 +15,9 @@ references:
 - https://github.com/jqlang/jq/security/advisories/GHSA-x6c3-qv5r-7q22
 
 cwes:
-- CWE-121
-- CWE-787
-- CWE-843
+- CWE-121 # Stack-based buffer overflow
+- CWE-787 # Out-og-bounds Write
+- CWE-843 # CVE report; Type Confusion
 
 description: |
   A stack-based buffer overflow vulnerability exists in jq versions 1.7 and 1.7.1,
@@ -35,11 +39,9 @@ locations:
   startLine: 3375
   startColumn: 45
   endLine: 3375
-  endColumn: 45
+  endColumn: 47
 - type: root_cause
   path_from_root: src/jv.c
   function_name: jvp_literal_number_new
   startLine: 586
-  startColumn: 1
   endLine: 594
-  endColumn: 3
