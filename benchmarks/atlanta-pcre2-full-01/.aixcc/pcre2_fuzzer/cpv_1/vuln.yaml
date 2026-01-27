@@ -25,14 +25,12 @@ locations:
 - type: crash_site
   path_from_root: src/pcre2_compile.c
   function_name: get_grouplength
-  startLine: 9277
-  startColumn: 3
+  startLine: 9278
   endLine: 9278
-  endColumn: 22
-- type: root_cause
+- type: root_cause # (2 * cb.bracount + 1)
   path_from_root: src/pcre2_compile.c
   function_name: pcre2_compile_8
-  startLine: 10404
-  startColumn: 5
+  startLine: 10405
+  startColumn: 7
   endLine: 10405
-  endColumn: 70
+  endColumn: 27
