@@ -17,25 +17,21 @@
 package com.example;
 
 import com.code_intelligence.jazzer.api.FuzzedDataProvider;
-import com.code_intelligence.jazzer.junit.FuzzTest;
 
 import java.io.IOException;
 import java.util.logging.LogManager;
 
 import org.apache.pdfbox.pdfparser.PDFStreamParser;
-import org.junit.jupiter.api.BeforeAll;
 
 
-class PDFStreamParserFuzzer {
+public class PDFStreamParserFuzzer {
 
-    @BeforeAll
-    static void setUp() {
+    static {
         LogManager.getLogManager().reset();
     }
 
-    @FuzzTest
-    void myFuzzTest(FuzzedDataProvider data) {
-        byte [] bytes = data.consumeRemainingAsBytes();
+    public static void fuzzerTestOneInput(FuzzedDataProvider data) {
+        byte[] bytes = data.consumeRemainingAsBytes();
         PDFStreamParser pdfStreamParser = new PDFStreamParser(bytes);
 
         try {
