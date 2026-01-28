@@ -1,0 +1,158 @@
+diff --git a/libfreerdp/crypto/certificate.c b/libfreerdp/crypto/certificate.c
+index 5bd31f492747b13192b9537495c350af01568ab7..2568bab9feae8e9d763adc0bb258c8e618d455fb 100644
+--- a/libfreerdp/crypto/certificate.c
++++ b/libfreerdp/crypto/certificate.c
+@@ -1256,6 +1256,9 @@ static BOOL freerdp_rsa_from_x509(rdpCertificate* cert)
+ 
+ 	WINPR_ASSERT(cert);
+ 
++	if (!x509_validate_subject_aternative_names(cert->x509) )
++		return FALSE;
++
+ 	if (!freerdp_certificate_is_rsa(cert))
+ 		return TRUE;
+ 
+diff --git a/libfreerdp/crypto/x509_utils.c b/libfreerdp/crypto/x509_utils.c
+index 5695173121e3c0ea98b381d3eec87b1009e1485b..7a24a353e0e54ac0463b5c8ec8201d5370e10aea 100644
+--- a/libfreerdp/crypto/x509_utils.c
++++ b/libfreerdp/crypto/x509_utils.c
+@@ -430,6 +430,49 @@ static int extract_othername_object_as_string(GENERAL_NAME* name, void* data, in
+ 	return 1;
+ }
+ 
++BOOL x509_validate_subject_aternative_names(const X509* cert) {
++    STACK_OF(GENERAL_NAME) *san_names = NULL;
++    int i, count;
++    char *dns_name = NULL;
++	BOOL result = TRUE;
++
++    // Get Subject Alternative Names (SAN)
++    san_names = X509_get_ext_d2i(cert, NID_subject_alt_name, NULL, NULL);
++    if (!san_names) {
++        goto end;
++    }
++
++    count = sk_GENERAL_NAME_num(san_names);
++
++    for (i = 0; i < count; i++) {
++        GENERAL_NAME *gen_name = sk_GENERAL_NAME_value(san_names, i);
++
++        if (gen_name->type == GEN_DNS) {
++			// Allocate string length + 1 for security
++			dns_name = malloc( strlen((char *)ASN1_STRING_get0_data(gen_name->d.dNSName)) + 1);
++
++			if (dns_name == NULL)
++				goto end;
++			
++			memcpy(dns_name, (char *)ASN1_STRING_get0_data(gen_name->d.dNSName),  
++				ASN1_STRING_length(gen_name->d.dNSName)) ;
++			
++            if (!verify_san(dns_name)) {
++				free(dns_name);
++				result = FALSE;
++				goto end;
++            } else {
++				free(dns_name);
++            }
++        }
++    }
++
++end:
++    sk_GENERAL_NAME_pop_free(san_names, GENERAL_NAME_free);
++
++	return TRUE;
++}
++
+ char* x509_utils_get_email(const X509* x509)
+ {
+ 	char* result = 0;
+@@ -845,6 +888,62 @@ static int verify_cb(int ok, X509_STORE_CTX* csc)
+ 	return ok;
+ }
+ 
++BOOL verify_san(const char *subjectAltName) {
++    san_state_t state = STATE_START;
++    int len = strlen(subjectAltName);
++    int i;
++
++    for (i = 0; i < len; i++) {
++        char c = subjectAltName[i];
++
++        switch (state) {
++            case STATE_START:
++                if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
++                    state = STATE_LABEL;
++                } else {
++                    return FALSE;
++                }
++                break;
++
++            case STATE_LABEL:
++                if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
++                    state = STATE_LABEL;
++                } else if (c == '-') {
++                    state = STATE_HYPHEN;
++                } else if (c == '.') {
++                    state = STATE_DOT;
++                } else {
++                    return FALSE;
++                }
++                break;
++
++            case STATE_HYPHEN:
++                if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
++                    state = STATE_LABEL;
++                } else {
++                    return FALSE;
++                }
++                break;
++
++            case STATE_DOT:
++                if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
++                    state = STATE_LABEL;
++                } else {
++                    return FALSE;
++                }
++                break;
++
++            default:
++                return FALSE;
++        }
++    }
++
++	if ( state == STATE_LABEL)
++		return TRUE;
++	else
++		return FALSE;
++}
++
+ BOOL x509_utils_verify(X509* xcert, STACK_OF(X509) * chain, const char* certificate_store_path)
+ {
+ 	const int purposes[3] = { X509_PURPOSE_SSL_SERVER, X509_PURPOSE_SSL_CLIENT, X509_PURPOSE_ANY };
+diff --git a/libfreerdp/crypto/x509_utils.h b/libfreerdp/crypto/x509_utils.h
+index a279df7e11690c4441122cca97b7283a105fd7f1..0dfa02a5383c0234a34d38e51632940983295138 100644
+--- a/libfreerdp/crypto/x509_utils.h
++++ b/libfreerdp/crypto/x509_utils.h
+@@ -33,6 +33,14 @@ extern "C"
+ {
+ #endif
+ 
++	typedef enum {
++		STATE_START,
++		STATE_LABEL,
++		STATE_DOT,
++		STATE_HYPHEN,
++		STATE_END
++	} san_state_t;
++
+ 	FREERDP_LOCAL WINPR_MD_TYPE x509_utils_get_signature_alg(const X509* xcert);
+ 	FREERDP_LOCAL BYTE* x509_utils_get_hash(const X509* xcert, const char* hash, size_t* length);
+ 
+@@ -50,6 +58,7 @@ extern "C"
+ 	FREERDP_LOCAL char** x509_utils_get_dns_names(const X509* xcert, size_t* count,
+ 	                                              size_t** pplengths);
+ 
++	FREERDP_LOCAL BOOL x509_validate_subject_aternative_names(const X509* cert);
+ 	FREERDP_LOCAL void x509_utils_dns_names_free(size_t count, size_t* lengths, char** dns_names);
+ 
+ 	FREERDP_LOCAL BOOL x509_utils_check_eku(const X509* scert, int nid);

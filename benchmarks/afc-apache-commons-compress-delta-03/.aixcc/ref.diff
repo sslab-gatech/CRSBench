@@ -1,0 +1,87 @@
+diff --git a/src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java b/src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java
+index 0bc1ac0d09de95bae033d1ee7bc707201346326c..b0b6e10755db58f7e60f40b2dfa8f2b871490163 100644
+--- a/src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java
++++ b/src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java
+@@ -1564,8 +1564,81 @@ private void processPaxHeader(final String key, final String val) throws IOExcep
+      */
+     private void processPaxHeader(final String key, final String val, final Map<String, String> headers) throws IOException {
+         /*
+-         * This function is currently just a stub, and needs implemented.
++         * The following headers are defined for Pax. charset: cannot use these without changing TarArchiveEntry fields mtime atime ctime
++         * LIBARCHIVE.creationtime comment gid, gname linkpath size uid,uname SCHILY.devminor, SCHILY.devmajor: don't have setters/getters for those
++         *
++         * GNU sparse files use additional members, we use GNU.sparse.size to detect the 0.0 and 0.1 versions and GNU.sparse.realsize for 1.0.
++         *
++         * star files use additional members of which we use SCHILY.filetype in order to detect star sparse files.
++         *
++         * If called from addExtraPaxHeader, these additional headers must be already present .
+          */
++        switch (key) {
++        case "path":
++            setName(val);
++            break;
++        case "linkpath":
++            setLinkName(val);
++            break;
++        case "gid":
++            setGroupId(ParsingUtils.parseLongValue(val));
++            break;
++        case "gname":
++            setGroupName(val);
++            break;
++        case "uid":
++            setUserId(ParsingUtils.parseLongValue(val));
++            break;
++        case "uname":
++            setUserName(val);
++            break;
++        case "size":
++            final long size = ParsingUtils.parseLongValue(val);
++            if (size < 0) {
++                throw new IOException("Corrupted TAR archive. Entry size is negative");
++            }
++            setSize(size);
++            break;
++        case "mtime":
++            setLastModifiedTime(FileTime.from(parseInstantFromDecimalSeconds(val)));
++            break;
++        case "atime":
++            setLastAccessTime(FileTime.from(parseInstantFromDecimalSeconds(val)));
++            break;
++        case "ctime":
++            setStatusChangeTime(FileTime.from(parseInstantFromDecimalSeconds(val)));
++            break;
++        case "LIBARCHIVE.creationtime":
++            setCreationTime(FileTime.from(parseInstantFromDecimalSeconds(val)));
++            break;
++        case "SCHILY.devminor":
++            final int devMinor = ParsingUtils.parseIntValue(val);
++            if (devMinor < 0) {
++                throw new IOException("Corrupted TAR archive. Dev-Minor is negative");
++            }
++            setDevMinor(devMinor);
++            break;
++        case "SCHILY.devmajor":
++            final int devMajor = ParsingUtils.parseIntValue(val);
++            if (devMajor < 0) {
++                throw new IOException("Corrupted TAR archive. Dev-Major is negative");
++            }
++            setDevMajor(devMajor);
++            break;
++        case TarGnuSparseKeys.SIZE:
++            fillGNUSparse0xData(headers);
++            break;
++        case TarGnuSparseKeys.REALSIZE:
++            fillGNUSparse1xData(headers);
++            break;
++        case "SCHILY.filetype":
++            if ("sparse".equals(val)) {
++                fillStarSparseData(headers);
++            }
++            break;
++        default:
++            extraPaxHeaders.put(key, val);
++        }
+     }
+ 
+     private void readFileMode(final Path file, final String normalizedName, final LinkOption... options) throws IOException {

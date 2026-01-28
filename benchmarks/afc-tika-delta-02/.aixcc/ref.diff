@@ -1,0 +1,280 @@
+diff --git a/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/main/java/org/apache/tika/parser/m3/M3U8Parser.java b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/main/java/org/apache/tika/parser/m3/M3U8Parser.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..aef1d333d9447f257a3b2540599b90e17ac93836
+--- /dev/null
++++ b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/main/java/org/apache/tika/parser/m3/M3U8Parser.java
+@@ -0,0 +1,200 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache License, Version 2.0
++ * (the "License"); you may not use this file except in compliance with
++ * the License.  You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package org.apache.tika.parser.m3;
++
++import java.io.BufferedReader;
++import java.io.IOException;
++import java.io.InputStream;
++import java.io.InputStreamReader;
++import java.net.URL;
++import java.nio.charset.StandardCharsets;
++import java.text.DecimalFormat;
++import java.text.NumberFormat;
++import java.util.Locale;
++import java.util.Set;
++
++import org.xml.sax.ContentHandler;
++import org.xml.sax.SAXException;
++
++import org.apache.tika.exception.TikaException;
++import org.apache.tika.extractor.EmbeddedDocumentExtractor;
++import org.apache.tika.extractor.EmbeddedDocumentUtil;
++import org.apache.tika.io.TikaInputStream;
++import org.apache.tika.metadata.Metadata;
++import org.apache.tika.metadata.Property;
++import org.apache.tika.metadata.TikaCoreProperties;
++import org.apache.tika.metadata.XMPDM;
++import org.apache.tika.mime.MediaType;
++import org.apache.tika.parser.ParseContext;
++import org.apache.tika.parser.Parser;
++import org.apache.tika.sax.BodyContentHandler;
++import org.apache.tika.sax.EmbeddedContentHandler;
++import org.apache.tika.sax.XHTMLContentHandler;
++import org.apache.tika.utils.StringUtils;
++
++/**
++ * Basic parser for m3u8 files
++ */
++public class M3U8Parser implements Parser {
++    public static final String M3U8_PREFIX = "m3u8:";
++    public static final Property PLAY_LIST_LINK = Property.internalTextBag(M3U8_PREFIX + "link");
++    public static final Property M3U8_VERSION = Property.internalInteger(M3U8_PREFIX + "version");
++    public static final Property PLAY_LIST_TYPE = Property.internalText(M3U8_PREFIX + "type");
++    private static final Set<MediaType> SUPPORTED = Set.of(
++            MediaType.application("vnd.apple.mpegurl"));
++
++    private static final String TARGET_DURATION = "#EXT-X-TARGETDURATION:";
++    private static final String EXTINF = "#EXTINF:";
++    private static final String ENDLIST = "#EXT-X-ENDLIST";
++    private static final String EXTVERSION = "#EXT-X-VERSION:";
++    private static final String EXTKEY = "#EXT-X-KEY:";
++    private static final String EXTPLAYLISTTYPE = "#EXT-X-PLAYLIST-TYPE:";
++
++    @Override
++    public Set<MediaType> getSupportedTypes(ParseContext context) {
++        return SUPPORTED;
++    }
++
++    @Override
++    public void parse(InputStream stream, ContentHandler handler, Metadata metadata,
++                      ParseContext context) throws IOException, SAXException, TikaException {
++        XHTMLContentHandler xhtml = new XHTMLContentHandler(handler, metadata);
++        xhtml.startDocument();
++        _parse(stream, xhtml, metadata, context);
++        xhtml.endDocument();
++    }
++
++    private void _parse(InputStream stream, XHTMLContentHandler xhtml, Metadata metadata,
++                        ParseContext context) throws IOException, SAXException {
++        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream,
++                StandardCharsets.UTF_8))) {
++            String line = reader.readLine();
++            while (line != null) {
++                if (line.startsWith("##")) {
++                    //comment -- do nothing
++                } else if (line.startsWith(TARGET_DURATION)) {
++                    parseDuration(TARGET_DURATION, line, metadata);
++                } else if (line.startsWith(EXTINF)) {
++                    handleLink(line, reader, xhtml, metadata, context);
++                } else if (line.startsWith(ENDLIST)) {
++                    break;
++                } else if (line.startsWith(EXTVERSION)) {
++                    Integer val = getInt(EXTVERSION, line);
++                    if (val != null) {
++                        metadata.set(M3U8_VERSION, val);
++                    }
++                } else if (line.startsWith(EXTKEY)) {
++                    metadata.set(TikaCoreProperties.IS_ENCRYPTED, true);
++                } else if (line.startsWith(EXTPLAYLISTTYPE)) {
++                    String t = line.substring(EXTPLAYLISTTYPE.length());
++                    if (!StringUtils.isBlank(t)) {
++                        metadata.set(PLAY_LIST_TYPE, t);
++                    }
++                }
++                line = reader.readLine();
++            }
++        }
++    }
++
++    private Integer getInt(String key, String line) {
++        int i = line.indexOf(key);
++        if (i < 0) {
++            return null;
++        }
++        if (i >= line.length() - 1) {
++            return null;
++        }
++        if (key.length() >= line.length()) {
++            return null;
++        }
++        String substring = line.substring(key.length()).trim();
++        try {
++            return Integer.parseInt(substring);
++        } catch (NumberFormatException e) {
++            //log? swallow for now
++        }
++        return null;
++    }
++
++    private Double getDouble(String key, String line) {
++        int i = line.indexOf(key);
++        if (i < 0) {
++            return null;
++        }
++        if (i >= line.length() - 1) {
++            return null;
++        }
++        if (key.length() >= line.length()) {
++            return null;
++        }
++        String substring = line.substring(key.length()).trim();
++        try {
++            return Double.parseDouble(substring);
++        } catch (NumberFormatException e) {
++            //log? swallow for now
++        }
++        return null;
++    }
++
++    private void handleLink(String line, BufferedReader reader,
++                            XHTMLContentHandler xhtml, Metadata metadata,
++                            ParseContext context) throws IOException, SAXException {
++        String nextLine = getNextContentLine(reader);
++        if (nextLine == null) {
++            return;
++        }
++        //TODO -- parse contents in EXTINF line
++        // split on , then the first value is the length (can be -1),
++        // the last value is the title; intermediate values are key=value format
++        metadata.add(PLAY_LIST_LINK, nextLine);
++        if (! nextLine.startsWith("http")) {
++            return;
++        }
++        EmbeddedDocumentExtractor ex = EmbeddedDocumentUtil.getEmbeddedDocumentExtractor(context);
++        Metadata m = new Metadata();
++        if (ex.shouldParseEmbedded(m)) {
++            try (TikaInputStream tis = TikaInputStream.get(new URL(nextLine))) {
++                ex.parseEmbedded(tis, new BodyContentHandler(new EmbeddedContentHandler(xhtml)), m,
++                        true);
++            }
++        }
++    }
++
++    private String getNextContentLine(BufferedReader reader) throws IOException {
++        String line = reader.readLine();
++        while (true) {
++            if (line == null) {
++                return null;
++            } else if (line.trim().isBlank() || line.startsWith("##")) {
++                //empty or comment
++            } else {
++                return line;
++            }
++            line = reader.readLine();
++        }
++    }
++
++    private void parseDuration(String key, String line, Metadata metadata) {
++        Double durationInSeconds = getDouble(key, line);
++        if (durationInSeconds == null) {
++            return;
++        }
++        DecimalFormat df = (DecimalFormat) NumberFormat.getNumberInstance(Locale.ROOT);
++        df.applyPattern("0.0#");
++        metadata.set(XMPDM.DURATION, df.format(durationInSeconds));
++    }
++}
+diff --git a/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/main/resources/META-INF/services/org.apache.tika.parser.Parser b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/main/resources/META-INF/services/org.apache.tika.parser.Parser
+index 53bc7ab9f4e122c6ede061ca6e7d112681b40d0e..c2361df8c73d4e130305627f1418bed12b8f5d74 100644
+--- a/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/main/resources/META-INF/services/org.apache.tika.parser.Parser
++++ b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/main/resources/META-INF/services/org.apache.tika.parser.Parser
+@@ -15,6 +15,7 @@
+ 
+ org.apache.tika.parser.audio.AudioParser
+ org.apache.tika.parser.audio.MidiParser
++org.apache.tika.parser.m3.M3U8Parser
+ org.apache.tika.parser.mp3.Mp3Parser
+ org.apache.tika.parser.mp4.MP4Parser
+ org.apache.tika.parser.video.FLVParser
+diff --git a/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/test/java/org/apache/tika/parser/m3/M3U8ParserTest.java b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/test/java/org/apache/tika/parser/m3/M3U8ParserTest.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..dbf38be9ebfb426ad9531b3cd8e9939a7d888d2a
+--- /dev/null
++++ b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/test/java/org/apache/tika/parser/m3/M3U8ParserTest.java
+@@ -0,0 +1,42 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache License, Version 2.0
++ * (the "License"); you may not use this file except in compliance with
++ * the License.  You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package org.apache.tika.parser.m3;
++
++import static org.junit.jupiter.api.Assertions.assertEquals;
++
++import java.util.List;
++
++import org.junit.jupiter.api.Test;
++
++import org.apache.tika.TikaTest;
++import org.apache.tika.metadata.Metadata;
++import org.apache.tika.metadata.XMPDM;
++
++public class M3U8ParserTest extends TikaTest {
++
++    @Test
++    public void testBasic() throws Exception {
++        //test file is based on MIT licensed:
++        // https://github.com/globocom/m3u8/blob/master/tests/playlists/relative-playlist.m3u8
++        List<Metadata> metadataList = getRecursiveMetadata("testM3U8.m3u8");
++        Metadata m = metadataList.get(0);
++        assertEquals("5220.0", m.get(XMPDM.DURATION));
++        assertEquals("entire1.ts", m.get(M3U8Parser.PLAY_LIST_LINK));
++        assertEquals(3, m.getInt(M3U8Parser.M3U8_VERSION));
++        assertEquals("VOD", m.get(M3U8Parser.PLAY_LIST_TYPE));
++    }
++}
+diff --git a/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/test/resources/test-documents/testM3U8.m3u8 b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/test/resources/test-documents/testM3U8.m3u8
+new file mode 100644
+index 0000000000000000000000000000000000000000..3feca7b00beba1e3419d9dcfe22be25aa49929e2
+--- /dev/null
++++ b/tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/test/resources/test-documents/testM3U8.m3u8
+@@ -0,0 +1,7 @@
++#EXTM3U
++#EXT-X-VERSION:3
++#EXT-X-PLAYLIST-TYPE:VOD
++#EXT-X-TARGETDURATION:5220
++#EXTINF:5220,
++entire1.ts
++#EXT-X-ENDLIST
+\ No newline at end of file

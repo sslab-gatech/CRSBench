@@ -1,0 +1,170 @@
+diff --git a/BUILD.bazel b/BUILD.bazel
+index eaef935fd82fe5e6a1bec1ae0e3b0c67b2698712..b7380d4ff4b2671c57ed3de2cf25af73a75c34cd 100644
+--- a/BUILD.bazel
++++ b/BUILD.bazel
+@@ -10,7 +10,6 @@ FAAD_DEFINES = [
+     "HAVE_STRINGS_H=1",
+     "HAVE_SYS_STAT_H=1",
+     "HAVE_SYS_TYPES_H=1",
+-    "STDC_HEADERS=1",
+     "PACKAGE_VERSION=\\\"%s\\\"" % PROPERTIES["PACKAGE_VERSION"],
+ ]
+ 
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1021272b16860fd321b7f0c9b13829a70d8bb870..97b61cc9e70c95ef7cd72c124da75e867bccdfbf 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -102,7 +102,6 @@ set(FAAD_DEFINES
+   HAVE_STRINGS_H=1
+   HAVE_SYS_STAT_H=1
+   HAVE_SYS_TYPES_H=1
+-  STDC_HEADERS=1
+   PACKAGE_VERSION=\"${FAAD_VERSION}\"
+ )
+ 
+diff --git a/ChangeLog b/ChangeLog
+index 499e292c372578ebecbc0ff48b3e082af75b2565..1b3aefc99d41947a27b089fa9403e357f0a72d92 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,3 +1,19 @@
++2.11.2 (2025-03-04):
++	[ Armin Novak ]
++	* Add option BUILD_FAAD_CLI
++
++	[ Johannes Kauffmann ]
++	* Add conditional build with DRC
++
++	[ Roman Artiukhin ]
++	* Use adts_frame for adts header detection
++
++	[ gavtroy ]
++	* Fix gapless calculation in frontend
++
++	[ DingHao ]
++	* Fix write_audio_* function heap buffer overflow
++
+ 2.11.1 (2023-11-14):
+ 	[ Fabian Greffrath ]
+ 	* Build shared libraries and hide symbols by default.
+diff --git a/frontend/audio.c b/frontend/audio.c
+index 01da9518773b792f2e73df12cd41c0f5ab20069c..872736644e2a35b0779a5085172d71be51acffcf 100644
+--- a/frontend/audio.c
++++ b/frontend/audio.c
+@@ -323,7 +323,7 @@ static size_t write_audio_16bit(audio_file *aufile, void *sample_buffer,
+ 
+     if (aufile->channels == 6 && aufile->channelMask)
+     {
+-        for (i = 0; i < samples; i += aufile->channels)
++        for (i = 0; i+6 <= samples; i += aufile->channels)
+         {
+             short r1, r2, r3, r4, r5, r6;
+             r1 = sample_buffer16[i];
+@@ -366,7 +366,7 @@ static size_t write_audio_24bit(audio_file *aufile, void *sample_buffer,
+ 
+     if (aufile->channels == 6 && aufile->channelMask)
+     {
+-        for (i = 0; i < samples; i += aufile->channels)
++        for (i = 0; i+6 <= samples; i += aufile->channels)
+         {
+             long r1, r2, r3, r4, r5, r6;
+             r1 = sample_buffer24[i];
+@@ -410,7 +410,7 @@ static size_t write_audio_32bit(audio_file *aufile, void *sample_buffer,
+ 
+     if (aufile->channels == 6 && aufile->channelMask)
+     {
+-        for (i = 0; i < samples; i += aufile->channels)
++        for (i = 0; i+6 <= samples; i += aufile->channels)
+         {
+             long r1, r2, r3, r4, r5, r6;
+             r1 = sample_buffer32[i];
+@@ -455,7 +455,7 @@ static size_t write_audio_float(audio_file *aufile, void *sample_buffer,
+ 
+     if (aufile->channels == 6 && aufile->channelMask)
+     {
+-        for (i = 0; i < samples; i += aufile->channels)
++        for (i = 0; i+6 <= samples; i += aufile->channels)
+         {
+             float r1, r2, r3, r4, r5, r6;
+             r1 = sample_buffer_f[i];
+diff --git a/frontend/main.c b/frontend/main.c
+index 6411bb1b3196bc766dcee200471624d0278f367a..895ed188e0651a1e595956334ffb9b9c6fcb631f 100644
+--- a/frontend/main.c
++++ b/frontend/main.c
+@@ -925,7 +925,7 @@ static int decodeMP4file(char *mp4file, char *sndfile, char *adts_fn, int to_std
+         decoded += dur;
+ 
+         if (decoded > mp4config.samples)
+-            dur += mp4config.samples - decoded;
++            dur -= decoded - mp4config.samples;
+ 
+         if (dur > framesize)
+         {
+diff --git a/libfaad/common.h b/libfaad/common.h
+index 4add57f928ec3083dab3138dace6abd1f6cc1032..aba8e90284d4dc70bfb343c362e9e4b74012bf01 100644
+--- a/libfaad/common.h
++++ b/libfaad/common.h
+@@ -201,18 +201,9 @@ typedef float float32_t;
+ #if HAVE_SYS_STAT_H
+ # include <sys/stat.h>
+ #endif
+-#if STDC_HEADERS
+-# include <stdlib.h>
+-# include <stddef.h>
+-#else
+-# if HAVE_STDLIB_H
+-#  include <stdlib.h>
+-# endif
+-#endif
++#include <stdlib.h>
++#include <stddef.h>
+ #if HAVE_STRING_H
+-# if !STDC_HEADERS && HAVE_MEMORY_H
+-#  include <memory.h>
+-# endif
+ # include <string.h>
+ #endif
+ #if HAVE_STRINGS_H
+@@ -248,19 +239,7 @@ typedef signed char int8_t;
+ typedef float float32_t;
+ #endif
+ 
+-#if STDC_HEADERS
+-# include <string.h>
+-#else
+-# if !HAVE_STRCHR
+-#  define strchr index
+-#  define strrchr rindex
+-# endif
+-char *strchr(), *strrchr();
+-# if !HAVE_MEMCPY
+-#  define memcpy(d, s, n) bcopy((s), (d), (n))
+-#  define memmove(d, s, n) bcopy((s), (d), (n))
+-# endif
+-#endif
++#include <string.h>
+ 
+ #endif  /* WIN */
+ 
+diff --git a/libfaad/tns.c b/libfaad/tns.c
+index b6989919e623a091256d256d29d98dbfb2268bc3..b787645d1beeabf08e2b8019f60e3815fff0932d 100644
+--- a/libfaad/tns.c
++++ b/libfaad/tns.c
+@@ -196,7 +196,7 @@ static uint8_t tns_decode_coef(uint8_t order, uint8_t coef_res_bits, uint8_t coe
+ {
+     uint8_t i, m;
+     real_t tmp2[TNS_MAX_ORDER+1], b[TNS_MAX_ORDER+1];
+-    uint8_t table_index = 2 * (coef_compress != 0) + (coef_res_bits != 3);
++    uint8_t table_index = 2 * (coef_compress == 0) + (coef_res_bits == 3);
+     real_t* tns_coef = all_tns_coefs[table_index];
+     uint8_t exp = 0;
+ 
+diff --git a/properties.json b/properties.json
+index 9146d36363b304ce6840a23112d32f42f4d16669..156e94af670c32bb7424c2bc77c7087dc2e1cb1d 100644
+--- a/properties.json
++++ b/properties.json
+@@ -1,4 +1,4 @@
+ {
+   "//": "This file contains properties used in build / release process",
+-  "PACKAGE_VERSION": "2.11.1"
++  "PACKAGE_VERSION": "2.11.2"
+ }

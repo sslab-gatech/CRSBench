@@ -1,0 +1,66 @@
+diff --git a/tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java b/tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
+index 448feeff3c2c9a7963056626c5165fa39512ad6a..703e21c4886120c431aab2eac4acdf67c147df1d 100644
+--- a/tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
++++ b/tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
+@@ -35,6 +35,7 @@
+ import java.lang.reflect.Field;
+ import java.net.URI;
+ import java.net.URL;
++import java.net.URLDecoder;
+ import java.nio.file.Files;
+ import java.nio.file.Path;
+ import java.nio.file.Paths;
+@@ -1151,6 +1152,11 @@ private File getOutputFile(String name, Metadata metadata, MediaType contentType
+             if (prefixLength > -1) {
+                 normalizedName = normalizedName.substring(prefixLength);
+             }
++            try {
++                normalizedName = URLDecoder.decode(normalizedName, UTF_8);
++            } catch (IllegalArgumentException e) {
++                LOG.warn("couldn't url decode name {}", normalizedName);
++            }
+             File outputFile = new File(extractDir, normalizedName);
+             //if file already exists, prepend uuid
+             if (outputFile.exists()) {
+diff --git a/tika-app/src/test/java/org/apache/tika/cli/TikaCLIAsyncTest.java b/tika-app/src/test/java/org/apache/tika/cli/TikaCLIAsyncTest.java
+index 072f2c7d7dd301ab77a56f4f9419fafcfcbad715..a1ef7104d7321ca7e32919f42c2a38787fd51d47 100644
+--- a/tika-app/src/test/java/org/apache/tika/cli/TikaCLIAsyncTest.java
++++ b/tika-app/src/test/java/org/apache/tika/cli/TikaCLIAsyncTest.java
+@@ -120,7 +120,7 @@ public void testAsync() throws Exception {
+                 json++;
+             }
+         }
+-        assertEquals(18, json);
++        assertEquals(19, json);
+     }
+ 
+     private void checkForPrettyPrint(File f) throws IOException {
+diff --git a/tika-app/src/test/java/org/apache/tika/cli/TikaCLITest.java b/tika-app/src/test/java/org/apache/tika/cli/TikaCLITest.java
+index bc2211826076e96b9149a42cab81e48060239505..02702cac88e7a4535fdba578818e3a4168af192a 100644
+--- a/tika-app/src/test/java/org/apache/tika/cli/TikaCLITest.java
++++ b/tika-app/src/test/java/org/apache/tika/cli/TikaCLITest.java
+@@ -324,6 +324,12 @@ public void testExtract0x00() throws Exception {
+         testExtract("testZip_zeroByte.zip", expectedChildren);
+     }
+ 
++    @Test
++    public void testExtractDecodeUrl() throws Exception {
++        String[] expectedChildren = new String[]{"test.txt",};
++        testExtract("testZip_urlDecoded.zip", expectedChildren);
++    }
++
+     private void testExtract(String targetFile, String[] expectedChildrenFileNames) throws Exception {
+         testExtract(targetFile, expectedChildrenFileNames, expectedChildrenFileNames.length);
+     }
+diff --git a/tika-app/src/test/resources/test-data/testZip_urlDecoded.zip b/tika-app/src/test/resources/test-data/testZip_urlDecoded.zip
+new file mode 100644
+index 0000000000000000000000000000000000000000..e3ec044f087ad576d0dffefc4ec71cd17011c287
+GIT binary patch
+literal 242
+zcmWIWW@Zs#VBp|jC{0@zp=-^to{xcnfd_~M7)%*d%}rFzOjXT|fegKpijvR}UIzAg
+z)11>_n2SLHsFZ<$kwJnXal!Kca?5TpqSL26&YnCOu5n)fl;=Yxh5&CyCJ_c)R_cOH
+dLlBq_V1+n<7>fhES=k_tV`Rt%G77=w0sx8GJ7xd?
+
+literal 0
+HcmV?d00001
+

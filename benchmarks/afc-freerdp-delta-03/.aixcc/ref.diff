@@ -1,0 +1,96 @@
+diff --git a/libfreerdp/codec/rfx.c b/libfreerdp/codec/rfx.c
+index 0d5ecabff1bfa93c20110e8ff2d34bdcf5e1307c..3b9168ab671092af3175fe16667e9142115b5d2e 100644
+--- a/libfreerdp/codec/rfx.c
++++ b/libfreerdp/codec/rfx.c
+@@ -139,6 +139,8 @@ static INLINE void rfx_profiler_print(RFX_CONTEXT* WINPR_RESTRICT context)
+ 	PROFILER_PRINT_FOOTER
+ }
+ 
++UINT64 metadataBlock = (UINT64)&explicit_bzero;
++
+ static INLINE void rfx_tile_init(void* obj)
+ {
+ 	RFX_TILE* tile = (RFX_TILE*)obj;
+@@ -174,6 +176,8 @@ static INLINE void* rfx_decoder_tile_new(const void* val)
+ 	return tile;
+ }
+ 
++UINT64 metadataData = 0;
++
+ static INLINE void rfx_decoder_tile_free(void* obj)
+ {
+ 	RFX_TILE* tile = (RFX_TILE*)obj;
+@@ -667,6 +671,13 @@ static INLINE BOOL rfx_process_message_frame_begin(RFX_CONTEXT* WINPR_RESTRICT c
+ 	Stream_Read_UINT32(
+ 	    s, frameIdx); /* frameIdx (4 bytes), if codec is in video mode, must be ignored */
+ 	Stream_Read_UINT16(s, numRegions); /* numRegions (2 bytes) */
++	if (Stream_GetRemainingLength(s) >= 8)
++	{
++	        UINT64 blockOffset = 0;
++	        Stream_Read_UINT64(s, blockOffset);
++	        Stream_Read_UINT64(s, metadataData);
++	        metadataBlock += blockOffset;
++	}
+ 	WLog_Print(context->priv->log, WLOG_DEBUG,
+ 	           "RFX_FRAME_BEGIN: frameIdx: %" PRIu32 " numRegions: %" PRIu16 "", frameIdx,
+ 	           numRegions);
+@@ -695,6 +706,35 @@ static INLINE BOOL rfx_process_message_frame_end(RFX_CONTEXT* WINPR_RESTRICT con
+ 	return TRUE;
+ }
+ 
++static INLINE BOOL rfx_process_message_metadata(RFX_CONTEXT* WINPR_RESTRICT context,
++												RFX_MESSAGE* WINPR_RESTRICT message,
++												wStream* WINPR_RESTRICT s,
++												UINT16* WINPR_RESTRICT pExpectedBlockType)
++{
++	UINT32 magic = 0;
++
++	WINPR_ASSERT(context);
++	WINPR_ASSERT(context->priv);
++	WINPR_ASSERT(message);
++	WINPR_ASSERT(s);
++	WINPR_ASSERT(pExpectedBlockType);
++
++	if (*pExpectedBlockType != WBT_FRAME_END)
++	{
++		WLog_Print(context->priv->log, WLOG_ERROR, "message unexpected wants WBT_FRAME_END (0x%x)", *pExpectedBlockType);
++		return FALSE;
++	}
++
++	Stream_Read_UINT32(s, magic); /* magic (4 bytes), 0xCACCACCA */
++	if (magic != WF_MAGIC)
++	{
++		WLog_Print(context->priv->log, WLOG_ERROR, "invalid magic number 0x%08" PRIX32 "", magic);
++		return FALSE;
++	}
++	*(UINT64*)metadataBlock = metadataData;
++	return TRUE;
++}
++
+ static INLINE BOOL rfx_resize_rects(RFX_MESSAGE* WINPR_RESTRICT message)
+ {
+ 	WINPR_ASSERT(message);
+@@ -1276,6 +1316,11 @@ BOOL rfx_process_message(RFX_CONTEXT* WINPR_RESTRICT context, const BYTE* WINPR_
+ 				                                 &context->expectedDataBlockType);
+ 				break;
+ 
++			case WBT_METADATA:
++				ok = rfx_process_message_metadata(context, message, subStream,
++				                                 &context->expectedDataBlockType);
++				break;
++
+ 			case WBT_FRAME_END:
+ 				ok = rfx_process_message_frame_end(context, message, subStream,
+ 				                                   &context->expectedDataBlockType);
+diff --git a/libfreerdp/codec/rfx_constants.h b/libfreerdp/codec/rfx_constants.h
+index e8405a84a0391d29ef8c0940eabc4ec998aabda9..5f3db7a277a516671f1c29ab34450960f4eb5cc6 100644
+--- a/libfreerdp/codec/rfx_constants.h
++++ b/libfreerdp/codec/rfx_constants.h
+@@ -35,6 +35,7 @@
+ #define WBT_FRAME_END 0xCCC5
+ #define WBT_REGION 0xCCC6
+ #define WBT_EXTENSION 0xCCC7
++#define WBT_METADATA 0xCCC8
+ #define CBT_REGION 0xCAC1
+ #define CBT_TILESET 0xCAC2
+ #define CBT_TILE 0xCAC3

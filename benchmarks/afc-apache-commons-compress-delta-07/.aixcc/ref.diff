@@ -1,0 +1,179 @@
+diff --git a/src/main/java/org/apache/commons/compress/archivers/examples/Expander.java b/src/main/java/org/apache/commons/compress/archivers/examples/Expander.java
+index 4b987871b31d34a1a91884b2d6eef8a4f11755c3..30649f53058008e8088319f3e06aaf083fa0c8d7 100644
+--- a/src/main/java/org/apache/commons/compress/archivers/examples/Expander.java
++++ b/src/main/java/org/apache/commons/compress/archivers/examples/Expander.java
+@@ -26,6 +26,7 @@
+ import java.nio.channels.Channels;
+ import java.nio.channels.FileChannel;
+ import java.nio.channels.SeekableByteChannel;
++import java.nio.charset.StandardCharsets;
+ import java.nio.file.Files;
+ import java.nio.file.Path;
+ import java.nio.file.StandardOpenOption;
+@@ -92,6 +93,17 @@ private <T extends ArchiveEntry> void expand(final ArchiveEntrySupplier<T> suppl
+         }
+     }
+ 
++    private <T extends ArchiveEntry> boolean isUnixSymlink(T nextEntry) {
++        if (! (nextEntry instanceof ZipArchiveEntry) && !(nextEntry instanceof TarArchiveEntry)) {
++            return false;
++        }
++        if (nextEntry instanceof ZipArchiveEntry) {
++            return ((ZipArchiveEntry)nextEntry).isUnixSymlink();
++        } else {
++            return ((TarArchiveEntry)nextEntry).isSymbolicLink();
++        }
++    }
++
+     /**
+      * Expands {@code archive} into {@code targetDirectory}.
+      *
+@@ -456,20 +468,62 @@ public void expand(final ZipFile archive, final File targetDirectory) throws IOE
+      * @since 1.22
+      */
+     public void expand(final ZipFile archive, final Path targetDirectory) throws IOException {
++        if (! Files.isDirectory(targetDirectory)) {
++            Files.createDirectories(targetDirectory);
++        }
+         final Enumeration<ZipArchiveEntry> entries = archive.getEntries();
+-        expand(() -> {
+-            ZipArchiveEntry next = entries.hasMoreElements() ? entries.nextElement() : null;
+-            while (next != null && !archive.canReadEntryData(next)) {
+-                next = entries.hasMoreElements() ? entries.nextElement() : null;
++        while (entries.hasMoreElements()) {
++            ZipArchiveEntry zae = entries.nextElement();
++            if (zae.isUnixSymlink()) {
++                String targetName = IOUtils.toString(archive.getInputStream(zae),
++                        StandardCharsets.UTF_8);
++                Path link = targetDirectory.resolve(zae.getName());
++                Path target = targetDirectory.resolve(targetName);
++                Path parent = createParentDirectory(targetDirectory, link);
++
++                if (!Files.isSameFile(link.getParent(), parent)) {
++                    link = parent.relativize(link.getFileName()).normalize();
++                }
++                if (!Files.isRegularFile(link) && !Files.isSymbolicLink(link)) {
++                    Files.createSymbolicLink(link, target);
++                }
++            } else if (! zae.isDirectory()) {
++                Path target = targetDirectory.resolve(zae.getName()).normalize();
++                if (!target.startsWith(targetDirectory)) {
++                    throw new IOException(String.format("Zip slip '%s' + '%s' -> '%s'",
++                            targetDirectory, zae.getName(), target));
++                }
++                Path parent = createParentDirectory(targetDirectory, target);
++                if (! target.getParent().toAbsolutePath().normalize().equals(
++                        parent.toAbsolutePath().normalize())) {
++                    target = parent.normalize().resolve(target.getFileName());
++                }
++                try (InputStream is = archive.getInputStream(zae)) {
++                    Files.copy(is, target);
++                }
+             }
+-            return next;
+-        }, (entry, out) -> {
+-            try (InputStream in = archive.getInputStream(entry)) {
+-                IOUtils.copy(in, out);
+-            }
+-        }, targetDirectory);
++        }
+     }
+ 
++    private static Path createParentDirectory(Path root, Path target) throws IOException {
++        Path relative =
++                root.relativize(target.getParent());
++        Path current = root.toAbsolutePath();
++
++        for (Path p : relative) {
++            current = current.resolve(p);
++            if (Files.isSymbolicLink(current)) {
++                current = Files.readSymbolicLink(current);
++            }
++            if (! Files.isDirectory(current)) {
++                Files.createDirectory(current);
++            }
++        }
++        return current;
++
++    }
++
++
+     private boolean prefersSeekableByteChannel(final String format) {
+         return ArchiveStreamFactory.TAR.equalsIgnoreCase(format) || ArchiveStreamFactory.ZIP.equalsIgnoreCase(format)
+                 || ArchiveStreamFactory.SEVEN_Z.equalsIgnoreCase(format);
+diff --git a/src/test/java/org/apache/commons/compress/archivers/examples/ExpanderTest.java b/src/test/java/org/apache/commons/compress/archivers/examples/ExpanderTest.java
+index aad9e0afd78bf14651480bcfe9de74e6df8ff0a7..cc2fc231445b1ad833207659b3b0d93ca77e94a6 100644
+--- a/src/test/java/org/apache/commons/compress/archivers/examples/ExpanderTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/examples/ExpanderTest.java
+@@ -20,7 +20,9 @@
+ 
+ import static java.nio.charset.StandardCharsets.UTF_8;
+ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
++import static org.junit.jupiter.api.Assertions.assertEquals;
+ import static org.junit.jupiter.api.Assertions.assertFalse;
++import static org.junit.jupiter.api.Assertions.assertNotNull;
+ import static org.junit.jupiter.api.Assertions.assertThrows;
+ import static org.junit.jupiter.api.Assertions.assertTrue;
+ import static org.junit.jupiter.api.Assumptions.assumeFalse;
+@@ -34,6 +36,8 @@
+ import java.nio.channels.FileChannel;
+ import java.nio.channels.SeekableByteChannel;
+ import java.nio.file.Files;
++import java.nio.file.Path;
++import java.nio.file.Paths;
+ import java.nio.file.StandardOpenOption;
+ 
+ import org.apache.commons.compress.AbstractTest;
+@@ -45,8 +49,11 @@
+ import org.apache.commons.compress.archivers.sevenz.SevenZFile;
+ import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile;
+ import org.apache.commons.compress.archivers.tar.TarFile;
++import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+ import org.apache.commons.compress.archivers.zip.ZipFile;
++import org.apache.commons.compress.utils.IOUtils;
+ import org.junit.jupiter.api.Test;
++import org.junit.jupiter.api.io.TempDir;
+ 
+ class ExpanderTest extends AbstractTest {
+ 
+@@ -284,4 +291,27 @@ private void verifyTargetDir() throws IOException {
+         assertHelloWorld("a/b/c/e.txt", "2");
+     }
+ 
++    @Test
++    public void testSymLinks(@TempDir Path tmp) throws Exception {
++        Path input = Paths.get(ExpanderTest.class.getResource("/testSymLinks.zip").toURI());
++
++        //check that the test file is defined correctly.
++        ZipFile zipFile = new ZipFile(input);
++        ZipArchiveEntry zae = zipFile.getEntry("a");
++        assertNotNull(zae);
++        assertTrue(zae.isUnixSymlink());
++        byte[] contents = new byte[1];
++        IOUtils.readFully(zipFile.getInputStream(zae), contents);
++        assertEquals("b", new String(contents));
++
++        zae = zipFile.getEntry("a/c/d/hello_world.txt");
++        assertNotNull(zae);
++
++        //now actually test that the file is written
++        //to the correct path
++        new Expander().expand(input, tmp);
++        Path target = tmp.resolve("b/c/d/hello_world.txt");
++        assertTrue(Files.isRegularFile(target));
++        assertEquals(13, Files.size(target));
++    }
+ }
+diff --git a/src/test/resources/testSymLinks.zip b/src/test/resources/testSymLinks.zip
+new file mode 100755
+index 0000000000000000000000000000000000000000..e4ec08b9dc1ea86c5198da0f656eb99f0b5b8565
+GIT binary patch
+literal 276
+zcmWIWW@Zs#VBp|jU<>Px{P})gAu|I510xuVFeEZE2!J_2J_ASs1iYCT0#I~qS%008
+zA1J{K#G(v9UHZxTDf$_yIXU_9<@rT9DS9OpB_NYP3P1p)7z9pxoIQCmT;sg{DbK(s
+zAX6EcM3`~82BHP*wgn(|B3L=lI+){8odHu0qRl|cu{kQho0ScufC&hTfOHRt!vFx<
+C`Yt&D
+
+literal 0
+HcmV?d00001
+

@@ -1,0 +1,16 @@
+diff --git a/input.c b/input.c
+index 0565412456a25f704baa7107bd5996e4310132fe..ceff8621ea94ddce462405b9ae25b1e1738cb70a 100644
+--- a/input.c
++++ b/input.c
+@@ -2485,10 +2485,8 @@ input_osc_parse_colour(const char *p)
+ 		    (1 - m) * (1 - k) * 255,
+ 		    (1 - y) * (1 - k) * 255);
+ 	} else {
+-		while (len != 0 && *p == ' ') {
++		while (*p == ' ')
+ 			p++;
+-			len--;
+-		}
+ 		while (len != 0 && p[len - 1] == ' ')
+ 			len--;
+ 		copy = xstrndup(p, len);

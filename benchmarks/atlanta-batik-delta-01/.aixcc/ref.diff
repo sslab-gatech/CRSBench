@@ -1,0 +1,116 @@
+diff --git a/batik-bridge/src/main/java/org/apache/batik/bridge/UserAgentAdapter.java b/batik-bridge/src/main/java/org/apache/batik/bridge/UserAgentAdapter.java
+index 0bc15be8456bc61d25fee1395c8e91588bc90b7f..7c415ddbe7630a375d9b87760d28b3012520287a 100644
+--- a/batik-bridge/src/main/java/org/apache/batik/bridge/UserAgentAdapter.java
++++ b/batik-bridge/src/main/java/org/apache/batik/bridge/UserAgentAdapter.java
+@@ -362,7 +362,7 @@ public void checkLoadScript(String scriptType,
+     public ExternalResourceSecurity 
+         getExternalResourceSecurity(ParsedURL resourceURL,
+                                     ParsedURL docURL) {
+-        return new NoLoadExternalResourceSecurity();
++        return new DefaultExternalResourceSecurity(resourceURL, docURL);
+     }
+     
+     /**
+diff --git a/batik-test-old/src/test/java/org/apache/batik/bridge/DefaultExternalResourceSecurityTestCase.java b/batik-test-old/src/test/java/org/apache/batik/bridge/DefaultExternalResourceSecurityTestCase.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..80c0cac0ac47b3d28a59dac08efb883eff8df257
+--- /dev/null
++++ b/batik-test-old/src/test/java/org/apache/batik/bridge/DefaultExternalResourceSecurityTestCase.java
+@@ -0,0 +1,97 @@
++/*
++
++   Licensed to the Apache Software Foundation (ASF) under one or more
++   contributor license agreements.  See the NOTICE file distributed with
++   this work for additional information regarding copyright ownership.
++   The ASF licenses this file to You under the Apache License, Version 2.0
++   (the "License"); you may not use this file except in compliance with
++   the License.  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
++
++ */
++package org.apache.batik.bridge;
++
++import org.apache.batik.util.ParsedURL;
++import org.junit.Test;
++
++import static org.junit.Assert.fail;
++
++/**
++ * Test case for {@link DefaultExternalResourceSecurity}.
++ */
++public class DefaultExternalResourceSecurityTestCase {
++
++    /**
++     * Test that a data: URL is allowed.
++     */
++    @Test
++    public void testDataUrlIsAllowed() {
++        ParsedURL docURL = new ParsedURL("http://localhost/test.svg");
++        ParsedURL dataURL = new ParsedURL("data:image/png;base64,iVBORw0KGgo=");
++
++        DefaultExternalResourceSecurity security =
++            new DefaultExternalResourceSecurity(dataURL, docURL);
++
++        // Should not throw - data URLs are allowed
++        security.checkLoadExternalResource();
++    }
++
++    /**
++     * Test that a URL from different host is blocked.
++     */
++    @Test
++    public void testUrlFromDifferentHostIsBlocked() {
++        ParsedURL docURL = new ParsedURL("http://localhost/test.svg");
++        ParsedURL externalURL = new ParsedURL("http://evil.com/image.png");
++
++        DefaultExternalResourceSecurity security =
++            new DefaultExternalResourceSecurity(externalURL, docURL);
++
++        try {
++            security.checkLoadExternalResource();
++            fail("Expected SecurityException for URL from different host");
++        } catch (SecurityException e) {
++            // Expected
++        }
++    }
++
++    /**
++     * Test that a URL from same host is allowed.
++     */
++    @Test
++    public void testUrlFromSameHostIsAllowed() {
++        ParsedURL docURL = new ParsedURL("http://localhost/test.svg");
++        ParsedURL sameHostURL = new ParsedURL("http://localhost/image.png");
++
++        DefaultExternalResourceSecurity security =
++            new DefaultExternalResourceSecurity(sameHostURL, docURL);
++
++        // Should not throw - same host is allowed
++        security.checkLoadExternalResource();
++    }
++
++    /**
++     * Test that null document URL causes SecurityException.
++     */
++    @Test
++    public void testNullDocUrlThrowsException() {
++        ParsedURL externalURL = new ParsedURL("http://example.com/image.png");
++
++        DefaultExternalResourceSecurity security =
++            new DefaultExternalResourceSecurity(externalURL, null);
++
++        try {
++            security.checkLoadExternalResource();
++            fail("Expected SecurityException for null document URL");
++        } catch (SecurityException e) {
++            // Expected
++        }
++    }
++}

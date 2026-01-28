@@ -1,5 +1,5 @@
 diff --git a/.gitignore b/.gitignore
-index 55768f6e..afc0724a 100644
+index 55768f6ed156a6eef5ebbc2925b0264f61e0074d..afc0724aa65c5e284c52f401cc1493c91cbe5132 100644
 --- a/.gitignore
 +++ b/.gitignore
 @@ -2,6 +2,7 @@
@@ -11,7 +11,7 @@ index 55768f6e..afc0724a 100644
  *.dll
  *.exe
 diff --git a/include/curl/curl.h b/include/curl/curl.h
-index 18835586..e3af00ca 100644
+index 18835586a1e3353b222af257b5b2d8e0a8689ede..e3af00ca288f889c7937adb69acf0195399cfc9b 100644
 --- a/include/curl/curl.h
 +++ b/include/curl/curl.h
 @@ -1078,6 +1078,7 @@ typedef CURLSTScode (*curl_hstswrite_callback)(CURL *easy,
@@ -23,7 +23,7 @@ index 18835586..e3af00ca 100644
  
  /* long may be 32 or 64 bits, but we should never depend on anything else
 diff --git a/lib/Makefile.inc b/lib/Makefile.inc
-index 1d3f69a2..70c313e7 100644
+index 1d3f69a23c3ce5029344b13fe0d98654449771f5..70c313e7ce12e79c18e09a4a3b7febc582feb2dc 100644
 --- a/lib/Makefile.inc
 +++ b/lib/Makefile.inc
 @@ -235,6 +235,7 @@ LIB_CFILES =         \
@@ -35,7 +35,7 @@ index 1d3f69a2..70c313e7 100644
    ws.c
  
 diff --git a/lib/url.c b/lib/url.c
-index 436edd89..cc5fd018 100644
+index 436edd891e1b22071e98f8c4befa7bfe2ea94b30..cc5fd018444e4a5e1a4a7b96b015bb9f68c6eff2 100644
 --- a/lib/url.c
 +++ b/lib/url.c
 @@ -119,6 +119,7 @@
@@ -56,7 +56,7 @@ index 436edd89..cc5fd018 100644
    if(len && (len <= 7)) {
      const char *s = scheme;
 diff --git a/lib/urldata.h b/lib/urldata.h
-index 704fb7a1..3a02c149 100644
+index 704fb7a1d221367e72212b4e4cdda72c980649ad..3a02c1496163e9000fd2c7ef5b4dfa9ee1ed466b 100644
 --- a/lib/urldata.h
 +++ b/lib/urldata.h
 @@ -52,6 +52,7 @@
@@ -67,9 +67,9 @@ index 704fb7a1..3a02c149 100644
  
  struct curl_trc_featt;
  
-diff --git a/tmp/tmp01repjkv/ref/lib/verynormalprotocol.c b/lib/verynormalprotocol.c
+diff --git a/lib/verynormalprotocol.c b/lib/verynormalprotocol.c
 new file mode 100644
-index 00000000..6b53dc35
+index 0000000000000000000000000000000000000000..6b53dc35944a77b35de80875c706455f23a009fa
 --- /dev/null
 +++ b/lib/verynormalprotocol.c
 @@ -0,0 +1,152 @@
@@ -225,9 +225,9 @@ index 00000000..6b53dc35
 +  return result;
 +}
 +
-diff --git a/tmp/tmp01repjkv/ref/lib/verynormalprotocol.h b/lib/verynormalprotocol.h
+diff --git a/lib/verynormalprotocol.h b/lib/verynormalprotocol.h
 new file mode 100644
-index 00000000..cc48592b
+index 0000000000000000000000000000000000000000..cc48592bc557622bd6f64880fbb225da7ef8c9c4
 --- /dev/null
 +++ b/lib/verynormalprotocol.h
 @@ -0,0 +1,39 @@
@@ -271,7 +271,7 @@ index 00000000..cc48592b
 +
 +#endif /* HEADER_CURL_VERYNORMALPROTOCOL_H */
 diff --git a/src/tool_help.c b/src/tool_help.c
-index 57b14a3b..e803b7ed 100644
+index 57b14a3b07fa0be2d042bb4e8ab0ad4daf028a1b..e803b7eda8b3f23fa449486bea4c4068412e6a1c 100644
 --- a/src/tool_help.c
 +++ b/src/tool_help.c
 @@ -360,6 +360,7 @@ void tool_version_info(void)
@@ -283,7 +283,7 @@ index 57b14a3b..e803b7ed 100644
    }
    if(feature_names[0]) {
 diff --git a/src/tool_libinfo.c b/src/tool_libinfo.c
-index f6053e84..46568eb9 100644
+index f6053e84003ee9a39813f89e8a65594bb1dc376c..46568eb9f4b25f4537d66d3bd1d17a8191cfd91d 100644
 --- a/src/tool_libinfo.c
 +++ b/src/tool_libinfo.c
 @@ -41,6 +41,7 @@ const char * const *built_in_protos = &no_protos;
@@ -303,7 +303,7 @@ index f6053e84..46568eb9 100644
    { "ftps",     &proto_ftps  },
    { "http",     &proto_http  },
 diff --git a/tests/data/Makefile.am b/tests/data/Makefile.am
-index 776b5934..42d564a0 100644
+index 776b5934bb99270ebb07acb8db618370f1fa9ac2..42d564a072cc1a529a3de68d10213f435527d639 100644
 --- a/tests/data/Makefile.am
 +++ b/tests/data/Makefile.am
 @@ -135,7 +135,7 @@ test979 test980 test981 test982 test983 test984 test985 test986 test987 \
@@ -340,9 +340,9 @@ index 776b5934..42d564a0 100644
  test3200 \
  test3201 test3202 test3203 test3204 test3205 test3207
  
-diff --git a/tests/data/test1013 b/tmp/tmp01repjkv/base/tests/data/test1013
+diff --git a/tests/data/test1013 b/tests/data/test1013
 deleted file mode 100644
-index 87e99cd5..00000000
+index 87e99cd56beab7976a3c981bbd8a61670c89eb87..0000000000000000000000000000000000000000
 --- a/tests/data/test1013
 +++ /dev/null
 @@ -1,37 +0,0 @@
@@ -383,9 +383,9 @@ index 87e99cd5..00000000
 -</errorcode>
 -</verify>
 -</testcase>
-diff --git a/tests/data/test1119 b/tmp/tmp01repjkv/base/tests/data/test1119
+diff --git a/tests/data/test1119 b/tests/data/test1119
 deleted file mode 100644
-index 1a73439e..00000000
+index 1a73439e605af87eecc0323a70f7e16c1245204a..0000000000000000000000000000000000000000
 --- a/tests/data/test1119
 +++ /dev/null
 @@ -1,30 +0,0 @@
@@ -419,9 +419,9 @@ index 1a73439e..00000000
 -</stdout>
 -</verify>
 -</testcase>
-diff --git a/tmp/tmp01repjkv/ref/tests/data/test11442 b/tests/data/test11442
+diff --git a/tests/data/test11442 b/tests/data/test11442
 new file mode 100644
-index 00000000..d9b8ad0d
+index 0000000000000000000000000000000000000000..d9b8ad0dcc175b3bc4d1baa90af861eac187c55c
 --- /dev/null
 +++ b/tests/data/test11442
 @@ -0,0 +1,32 @@
@@ -457,9 +457,9 @@ index 00000000..d9b8ad0d
 +</errorcode>
 +</verify>
 +</testcase>
-diff --git a/tests/data/test1165 b/tmp/tmp01repjkv/base/tests/data/test1165
+diff --git a/tests/data/test1165 b/tests/data/test1165
 deleted file mode 100644
-index 89f02d71..00000000
+index 89f02d719c1377cd89dfe373f6c0c24e25968172..0000000000000000000000000000000000000000
 --- a/tests/data/test1165
 +++ /dev/null
 @@ -1,25 +0,0 @@
@@ -489,7 +489,7 @@ index 89f02d71..00000000
 -
 -</testcase>
 diff --git a/tests/serverhelp.pm b/tests/serverhelp.pm
-index 22cf30e5..dacdb0a0 100644
+index 22cf30e529c34a6d37fcd3dbadf8c4a346bedb60..dacdb0a03475e6ea211e6d98038b2a5ad55b60f8 100644
 --- a/tests/serverhelp.pm
 +++ b/tests/serverhelp.pm
 @@ -133,7 +133,7 @@ sub servername_str {
@@ -502,7 +502,7 @@ index 22cf30e5..dacdb0a0 100644
      $ipver = (not $ipver) ? 'ipv4' : lc($ipver);
      die "unsupported IP version: '$ipver'" unless($ipver &&
 diff --git a/tests/servers.pm b/tests/servers.pm
-index 37519eeb..c84efef6 100644
+index 37519eeb6b6c7fa21c21e7abe69fe1b0e36ac9fd..c84efef6933ab4e7b24d29da5fbe682637840ea6 100644
 --- a/tests/servers.pm
 +++ b/tests/servers.pm
 @@ -236,7 +236,7 @@ sub init_serverpidfile_hash {
@@ -609,9 +609,9 @@ index 37519eeb..c84efef6 100644
          $port = protoport(lc $proto);
          $$thing =~ s/${prefix}(?:$proto)PORT/$port/g;
      }
-diff --git a/tmp/tmp01repjkv/ref/tests/verynormalprotocolserver.py b/tests/verynormalprotocolserver.py
+diff --git a/tests/verynormalprotocolserver.py b/tests/verynormalprotocolserver.py
 new file mode 100755
-index 00000000..82302cc4
+index 0000000000000000000000000000000000000000..82302cc480cc9a6468f80bfcb92e44d73a841e95
 --- /dev/null
 +++ b/tests/verynormalprotocolserver.py
 @@ -0,0 +1,168 @@

@@ -1,0 +1,54 @@
+diff --git a/simple.c b/simple.c
+index 83e25c430fd4a7a5bba4d7e5788d8c88d392687a..3750538b06d79fd0fbd9173618e4877a370a15c7 100644
+--- a/simple.c
++++ b/simple.c
+@@ -2,4 +2,48 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
+-void target(const uint8_t *data, size_t size) {}
++void target(const uint8_t *data, size_t size) {
++  if (size < 1) {
++    return;
++  }
++  uint8_t cmd = data[0];
++  const uint8_t *payload = data + 1;
++  size_t payload_size = size - 1;
++  char buf1[0x10] = {};
++  char buf2[0x20] = {};
++  char buf3[0x30] = {};
++  char buf4[0x40] = {};
++  char buf5[0x50] = {};
++  switch (cmd) {
++  case 1:
++    memcpy(buf1, payload, payload_size);
++    break;
++  case 2:
++    if (payload_size < sizeof(buf2)) {
++      memcpy(buf2, payload, payload_size);
++    }
++    break;
++  case 3:
++    if (payload_size < sizeof(buf3)) {
++      memcpy(buf3, payload, payload_size);
++    }
++    break;
++  case 4:
++    if (payload_size < sizeof(buf4)) {
++      memcpy(buf4, payload, payload_size);
++    }
++    break;
++  case 5:
++    if (payload_size < sizeof(buf5)) {
++      memcpy(buf5, payload, payload_size);
++    }
++    break;
++  default:
++    break;
++  }
++  printf("buf1: %s\n", buf1);
++  printf("buf2: %s\n", buf2);
++  printf("buf3: %s\n", buf3);
++  printf("buf4: %s\n", buf4);
++  printf("buf5: %s\n", buf5);
++}
