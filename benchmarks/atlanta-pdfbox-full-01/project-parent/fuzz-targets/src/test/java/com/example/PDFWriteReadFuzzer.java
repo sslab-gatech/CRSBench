@@ -17,7 +17,6 @@
 package com.example;
 
 import com.code_intelligence.jazzer.api.FuzzedDataProvider;
-import com.code_intelligence.jazzer.junit.FuzzTest;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,28 +28,19 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 
 import static org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName;
 
 
-class PDFWriteReadFuzzer {
+public class PDFWriteReadFuzzer {
     static String fileName = "fuzz.pdf";
     static File myFile = new File(fileName);
 
-    @BeforeAll
-    static void setUp() {
+    static {
         LogManager.getLogManager().reset();
     }
 
-    @AfterAll
-    static void cleanUp() {
-        myFile.delete();
-    }
-
-    @FuzzTest
-    void myFuzzTest(FuzzedDataProvider data) {
+    public static void fuzzerTestOneInput(FuzzedDataProvider data) {
         try {
             PDDocument doc = new PDDocument();
 
@@ -76,6 +66,8 @@ class PDFWriteReadFuzzer {
             PDFTextStripper stripper = new PDFTextStripper();
             String text = stripper.getText(doc);
         } catch (IOException | IllegalArgumentException e) {
+        } finally {
+            myFile.delete();
         }
     }
 }
