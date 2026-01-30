@@ -17,14 +17,13 @@
 FROM ghcr.io/aixcc-finals/base-builder:v1.3.0
 RUN apt-get update && apt-get install -y make autoconf automake libtool gettext autopoint
 #RUN git clone --depth 1 https://github.com/libexif/libexif
-## # RUN git clone --depth 1 https://github.com/ianare/exif-samples
-COPY pkgs/exif-samples.tar.gz $SRC/
-RUN tar -xzf exif-samples.tar.gz && rm exif-samples.tar.gz
+#RUN git clone --depth 1 https://github.com/ianare/exif-samples
 
+WORKDIR $SRC
+COPY pkgs/exif-samples.tar.gz $SRC/exif-samples.tar.gz
 COPY pkgs/libexif.tar.gz $SRC/libexif.tar.gz
-
-RUN tar -zxf $SRC/libexif.tar.gz && rm $SRC/libexif.tar.gz
-RUN tar -zxf $SRC/exif-samples.tar.gz && rm $SRC/exif-samples.tar.gz
+RUN tar -xzf $SRC/exif-samples.tar.gz && rm $SRC/exif-samples.tar.gz
+RUN tar -xzf $SRC/libexif.tar.gz && rm $SRC/libexif.tar.gz
 
 WORKDIR $SRC/libexif
 COPY exif_loader_fuzzer.cc exif_from_data_fuzzer.cc build.sh *.options $SRC/

@@ -17,12 +17,12 @@
 FROM ghcr.io/aixcc-finals/base-builder:v1.3.0
 
 #RUN git clone --depth 1 https://github.com/curl/curl.git /src/curl
-## # RUN git clone --depth 1 https://github.com/curl/curl-fuzzer.git /src/curl_fuzzer
-COPY pkgs/curl_fuzzer.tar.gz $SRC/
-RUN tar -xzf curl_fuzzer.tar.gz && rm curl_fuzzer.tar.gz
+#RUN git clone --depth 1 https://github.com/curl/curl-fuzzer.git /src/curl_fuzzer
 
 WORKDIR $SRC
 COPY pkgs/curl.tar.gz $SRC/curl.tar.gz
+COPY pkgs/curl_fuzzer.tar.gz $SRC/curl_fuzzer.tar.gz
+RUN tar -xzf $SRC/curl.tar.gz && rm $SRC/curl.tar.gz
 RUN tar -xzf $SRC/curl_fuzzer.tar.gz && rm $SRC/curl_fuzzer.tar.gz
 
 # Use curl-fuzzer's scripts to get latest dependencies.
