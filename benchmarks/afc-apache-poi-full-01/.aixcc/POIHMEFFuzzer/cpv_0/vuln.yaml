@@ -2,16 +2,32 @@ id: cpv_0
 
 name: Infinite reading challenges
 
+author:
+
+validator: Ze Sheng
+
+difficulty_level:
+
+origin: 1-day
+
+release_date: 03/04/2022
+
+reference: https://nvd.nist.gov/vuln/detail/CVE-2022-26336
+
 cwes:
 - CWE-834
 - CWE-20
 
-description: MAPIAttribute parser fails to apply reasonable limits on number of loops specified by user controlled data.  Further,
-  the parser fails to check for the end of the InputStream during the read and skip.
+description: >
+  MAPIAttribute parser fails to apply reasonable limits on the number of loops
+  specified by user-controlled data. Further, the parser fails to check for the
+  end of the InputStream during read and skip, causing an infinite loop or hang
+  when processing a crafted TNEF (winmail.dat) file.
 
 locations:
 - path_from_root: poi-scratchpad/src/main/java/org/apache/poi/hmef/attribute/MAPIAttribute.java
-  function_name: null
+  type: root_cause
+  function_name: create
   startLine: 197
   startColumn: 16
   endLine: 198
