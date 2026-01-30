@@ -2,9 +2,9 @@ id: cpv_1
 
 name: MVC CABAC Coefficient Parsing Heap Buffer Overflow
 
-origin: synthetic
+origin: 1-day
 
-release_date: 02/01/2026
+release_date: 02/24/2024
 
 cwes:
 - CWE-122
@@ -26,13 +26,9 @@ locations:
   path_from_root: decoder/ih264d_parse_cabac.c
   function_name: ih264d_read_coeff4x4_cabac
   startLine: 203
-  startColumn: 25
-  endLine: 203
-  endColumn: 25
+  endLine: 204
 - type: root_cause
   path_from_root: decoder/mvc/imvcd_api.c
   function_name: imvcd_view_decode
   startLine: 736
-  startColumn: 1
   endLine: 736
-  endColumn: 60

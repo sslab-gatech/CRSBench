@@ -2,9 +2,9 @@ id: cpv_0
 
 name: SVC Decoder Display Dimension Mismatch Heap Buffer Overflow
 
-origin: synthetic
+origin: 1-day
 
-release_date: 02/01/2026
+release_date: 06/16/2024
 
 references: []
 
@@ -29,20 +29,14 @@ locations:
   path_from_root: decoder/ih264d_format_conv.c
   function_name: ih264d_fmt_conv_420sp_to_420sp_swap_uv
   startLine: 497
-  startColumn: 9
   endLine: 497
-  endColumn: 9
 - type: root_cause
   path_from_root: decoder/svc/isvcd_parse_slice.c
   function_name: isvcd_parse_decode_slice_ext_nal
-  startLine: 768
-  startColumn: 5
+  startLine: 771
   endLine: 772
-  endColumn: 60
 - type: root_cause
   path_from_root: decoder/svc/isvcd_parse_slice.c
   function_name: isvcd_parse_decode_slice
-  startLine: 2006
-  startColumn: 5
+  startLine: 2016
   endLine: 2017
-  endColumn: 60
