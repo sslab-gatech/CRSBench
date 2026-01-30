@@ -22,7 +22,9 @@ RUN curl -L https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-
     rm -rf maven.zip
 
 ENV MVN $SRC/maven/apache-maven-3.6.3/bin/mvn
-RUN git clone --depth 1 https://github.com/stleary/JSON-java json-java
+# RUN git clone --depth 1 https://github.com/stleary/JSON-java json-java
+COPY pkgs/json-java.tar.gz $SRC/
+RUN tar -xzf json-java.tar.gz && rm json-java.tar.gz
 WORKDIR json-java
 COPY build.sh $SRC/
 COPY *.java $SRC/

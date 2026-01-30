@@ -24,6 +24,8 @@ RUN curl -L https://download.java.net/openjdk/jdk17/ri/openjdk-17+35_linux-x64_b
   rm jdk.tar.gz
 ENV MVN $SRC/maven/apache-maven-3.6.3/bin/mvn
 ENV JAVA_HOME="$SRC/jdk-17"
-RUN git clone --depth 1 https://github.com/openfeign/feign feign
+# RUN git clone --depth 1 https://github.com/openfeign/feign feign
+COPY pkgs/feign.tar.gz $SRC/
+RUN tar -xzf feign.tar.gz && rm feign.tar.gz
 COPY *.sh *.java *.xml *.options $SRC/
 WORKDIR $SRC/feign

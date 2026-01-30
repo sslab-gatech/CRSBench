@@ -18,7 +18,9 @@ FROM ghcr.io/aixcc-finals/base-builder:v1.3.0
 RUN apt-get update && apt install -y make autoconf automake libtool shtool
 RUN apt-get update && apt install -y libbz2-dev      liblzma-dev      zlib1g-dev      libzstd-dev      liblz4-dev
 RUN apt-get update && apt install -y libbz2-dev:i386 liblzma-dev:i386 zlib1g-dev:i386 libzstd-dev:i386 liblz4-dev:i386 
-RUN git clone --depth 1 https://github.com/file/file.git
+#RUN git clone --depth 1 https://github.com/file/file.git
+COPY pkgs/file.tar.gz $SRC/
+RUN tar -xzf file.tar.gz && rm file.tar.gz
 
 # Supplement file's existing test files
 RUN git clone --depth 1 https://github.com/DavidKorczynski/binary-samples.git

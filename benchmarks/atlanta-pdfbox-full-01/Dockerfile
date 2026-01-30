@@ -33,7 +33,9 @@ RUN git clone --depth 1 https://github.com/google/fuzzing && \
 COPY project-parent $SRC/project-parent/
 
 RUN rm -rf $SRC/project-parent/pdfbox
-RUN git clone --depth 1 https://github.com/apache/pdfbox/ $SRC/project-parent/pdfbox
+# RUN git clone --depth 1 https://github.com/apache/pdfbox/ $SRC/project-parent/pdfbox
+COPY pkgs/pdfbox.tar.gz $SRC/
+RUN mkdir -p $SRC/project-parent && tar -xzf $SRC/pdfbox.tar.gz -C $SRC/project-parent && rm $SRC/pdfbox.tar.gz
 
 COPY build.sh $SRC/
 WORKDIR $SRC/project-parent/pdfbox
