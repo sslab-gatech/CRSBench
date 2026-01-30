@@ -2,9 +2,9 @@ id: cpv_1
 
 name: Heap Buffer Over-read in OSC Color Parameter Parsing
 
-origin: synthetic
+origin: 1-day
 
-release_date: 02/01/2026
+release_date: 02/18/2021
 
 cwes:
 - CWE-122
@@ -24,7 +24,5 @@ locations:
 - type: crash_site
   path_from_root: input.c
   function_name: input_osc_parse_colour
-  startLine: 2488
-  startColumn: 12
-  endLine: 2489
-  endColumn: 6
+  startLine: 2490
+  endLine: 2490

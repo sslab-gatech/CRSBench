@@ -2,9 +2,9 @@ id: cpv_0
 
 name: Stack Buffer Overflow in tmux input_osc_52 Function Due to Incorrect sizeof Usage
 
-origin: synthetic
+origin: 1-day
 
-release_date: 02/01/2026
+release_date: 06/11/2022
 
 cwes:
 - CWE-121
@@ -27,13 +27,9 @@ locations:
   path_from_root: input.c
   function_name: input_osc_52
   startLine: 2697
-  startColumn: 1
   endLine: 2697
-  endColumn: 45
 - type: crash_site
   path_from_root: input.c
   function_name: input_osc_52
-  startLine: 2716
-  startColumn: 38
-  endLine: 2716
-  endColumn: 69
+  startLine: 2714
+  endLine: 2714
