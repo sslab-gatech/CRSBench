@@ -1,3 +1,26 @@
+diff --git a/activemq-client/src/main/java/org/apache/activemq/openwire/OpenWireUtil.java b/activemq-client/src/main/java/org/apache/activemq/openwire/OpenWireUtil.java
+index 0c292c4..9d02744 100644
+--- a/activemq-client/src/main/java/org/apache/activemq/openwire/OpenWireUtil.java
++++ b/activemq-client/src/main/java/org/apache/activemq/openwire/OpenWireUtil.java
+@@ -21,6 +21,18 @@ public class OpenWireUtil {
+     private static final String jmsPackageToReplace = "javax.jms";
+     private static final String jmsPackageToUse = "jakarta.jms";
+ 
++    /**
++     * Verify that the provided class extends {@link Throwable} and throw an
++     * {@link IllegalArgumentException} if it does not.
++     *
++     * @param clazz
++     */
++    public static void validateIsThrowable(Class<?> clazz) {
++        if (!Throwable.class.isAssignableFrom(clazz)) {
++            throw new IllegalArgumentException("Class " + clazz + " is not assignable to Throwable");
++        }
++    }
++
+     /**
+      * This method can be used to convert from javax -> jakarta or
+      * vice versa depending on the version used by the client
 diff --git a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java b/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
 index 0b2ee2b..55584ac 100644
 --- a/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v8/BaseDataStreamMarshaller.java
