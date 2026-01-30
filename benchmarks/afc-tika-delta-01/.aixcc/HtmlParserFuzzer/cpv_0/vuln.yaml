@@ -2,20 +2,39 @@ id: cpv_0
 
 name: ExternalParser at Your Command
 
+author: Tim Allison
+
+validator: Ze Sheng
+
+difficulty_level:
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+reference:
+
 cwes:
 - CWE-78
 
-description: ExternalParser allows its command to be rewritten by user controlled data via the html parser.
+description: >
+  ExternalParser allows its command to be rewritten by user controlled data via
+  the html parser. The handleDataURIScheme method reads an exiftool_path from
+  HTML metadata and passes it to configureExifTool, which sets the external
+  command without validation, enabling OS command injection via a crafted HTML
+  file with an embedded JPEG.
 
 locations:
 - path_from_root: tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-html-module/src/main/java/org/apache/tika/parser/html/HtmlHandler.java
-  function_name: processImplStartHook
+  type: root_cause
+  function_name: handleDataURIScheme
   startLine: 363
   startColumn: 9
   endLine: 365
   endColumn: 10
 - path_from_root: tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-html-module/src/main/java/org/apache/tika/parser/html/HtmlHandler.java
-  function_name: processImplStartHook
+  type: root_cause
+  function_name: configureExifTool
   startLine: 386
   startColumn: 5
   endLine: 408

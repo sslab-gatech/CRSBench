@@ -2,15 +2,32 @@ id: cpv_3
 
 name: Crashy McCrashFace.xls
 
+author:
+
+validator: Ze Sheng
+
+difficulty_level:
+
+origin: synthetic
+
+release_date: 02/01/2026
+
+reference:
+
 cwes:
 - CWE-695
 - CWE-20
 
-description: Improper use of Unsafe triggered by crafted xls file.
+description: >
+  A backdoor in InternalWorkbook.checkName uses reflection to access
+  sun.misc.Unsafe and calls putAddress(0, 0) when a sheet name matches a
+  hardcoded hex-encoded string. A crafted xls file with the trigger sheet name
+  causes a JVM crash (SIGSEGV) via illegal memory access.
 
 locations:
 - path_from_root: poi/src/main/java/org/apache/poi/hssf/model/InternalWorkbook.java
-  function_name: null
+  type: root_cause
+  function_name: checkName
   startLine: 343
   startColumn: 9
   endLine: 355

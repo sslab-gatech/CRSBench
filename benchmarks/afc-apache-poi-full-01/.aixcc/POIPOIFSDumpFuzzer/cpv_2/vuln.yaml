@@ -2,15 +2,32 @@ id: cpv_2
 
 name: Path Traversal Olé
 
+author:
+
+validator: Ze Sheng
+
+difficulty_level:
+
+origin: 1-day
+
+release_date: 07/23/2025
+
+reference: https://github.com/apache/poi/pull/855
+
 cwes:
 - CWE-35
 - CWE-20
 
-description: A crafted file can trigger a path traversal and a write outside of the expected directory
+description: >
+  POIFSDump.dump does not validate the file name within an OLE2 container before
+  writing extracted content to disk. A crafted OLE2 file can include directory
+  traversal sequences (e.g., ../../) in its entry names, allowing writes outside
+  the expected output directory.
 
 locations:
 - path_from_root: poi/src/main/java/org/apache/poi/poifs/dev/POIFSDump.java
-  function_name: check
+  type: root_cause
+  function_name: dump
   startLine: 108
   startColumn: 17
   endLine: 110
