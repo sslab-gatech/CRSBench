@@ -1,1 +1,2 @@
 aixcc-challenges/tika@0ab1da2c27e018c4b6a8f4a5f9dcf455984cc266
+git@github.com:Team-Atlanta/official-afc-tika.git@033b5918ed41fc5b35d7f41b544c48c8677ea8b9

@@ -22,7 +22,9 @@ RUN curl -L https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-
 
 ENV MVN $SRC/maven/apache-maven-3.6.3/bin/mvn
 
-RUN git clone --depth 1 https://github.com/google/fuzzing && \
+# RUN git clone --depth 1 https://github.com/google/fuzzing && \
+COPY pkgs/fuzzing.tar.gz $SRC/
+RUN tar -xzf fuzzing.tar.gz && rm fuzzing.tar.gz
     cp fuzzing/dictionaries/pdf.dict $SRC/PDFStreamParserFuzzer.dict && \
     cp fuzzing/dictionaries/pdf.dict $SRC/PDFWriteReadFuzzer.dict && \
     cp fuzzing/dictionaries/pdf.dict $SRC/PDFBoxFuzzer.dict && \

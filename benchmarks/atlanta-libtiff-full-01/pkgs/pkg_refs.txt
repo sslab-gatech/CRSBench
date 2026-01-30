@@ -1,0 +1,4 @@
+git@github.com:Team-Atlanta/cp-c-libtiff.git@22365519b44bc49f9de15d7b2c6fcf6cfa11455d
+https://github.com/madler/zlib@9eadab425834142aed28c51129681ed31a09577d
+https://github.com/libjpeg-turbo/libjpeg-turbo@3b18048a8ae77b0d8226e87a7fcd21f05f5487e7
+https://www.cl.cam.ac.uk/~mgk25/git/jbigkit@7d3c1bea895d910907e2501fe9165e353eceabae

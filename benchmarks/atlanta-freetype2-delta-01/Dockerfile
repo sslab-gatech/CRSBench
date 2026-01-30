@@ -28,9 +28,13 @@ RUN apt-get update &&  \
 
 # Get some files for the seed corpus
 ADD https://github.com/adobe-fonts/adobe-variable-font-prototype/releases/download/1.001/AdobeVFPrototype.otf $SRC/font-corpus/
-RUN git clone https://github.com/unicode-org/text-rendering-tests.git && cp text-rendering-tests/fonts/* $SRC/font-corpus
+# RUN git clone https://github.com/unicode-org/text-rendering-tests.git && cp text-rendering-tests/fonts/* $SRC/font-corpus
+COPY pkgs/text-rendering-tests.tar.gz $SRC/
+RUN tar -xzf text-rendering-tests.tar.gz && rm text-rendering-tests.tar.gz
 
-RUN git clone --depth 1 https://github.com/freetype/freetype2-testing.git
+# RUN git clone --depth 1 https://github.com/freetype/freetype2-testing.git
+COPY pkgs/freetype2-testing.tar.gz $SRC/
+RUN tar -xzf freetype2-testing.tar.gz && rm freetype2-testing.tar.gz
 # RUN git clone git@github.com:Team-Atlanta/cp-c-freetype.git $SRC/freetype2
 WORKDIR $SRC/freetype2
 

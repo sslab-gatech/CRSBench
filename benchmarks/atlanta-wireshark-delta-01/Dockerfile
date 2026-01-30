@@ -21,7 +21,9 @@ RUN apt-get update && apt-get install -y ninja-build cmake \
                        libglib2.0-dev libgcrypt20-dev
 
 #RUN git clone --depth=1 https://gitlab.com/wireshark/wireshark.git
-RUN git clone --depth=1 https://bitbucket.org/jwzawadzki/wireshark-fuzzdb.git
+# RUN git clone --depth=1 https://bitbucket.org/jwzawadzki/wireshark-fuzzdb.git
+COPY pkgs/wireshark-fuzzdb.tar.gz $SRC/
+RUN tar -xzf wireshark-fuzzdb.tar.gz && rm wireshark-fuzzdb.tar.gz
 
 COPY build.sh $SRC/
 WORKDIR $SRC/cp-c-wireshark

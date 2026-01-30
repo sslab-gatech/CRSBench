@@ -1,2 +1,3 @@
 aixcc-challenges/wireshark@624c0b1f5c695a2765712f03811b011e3b50003c
 bitbucket.org/jwzawadzki/wireshark-fuzzdb@98fa5ba9a4c27a2fbcbe68bc43f696cfa295046e
+git@github.com:Team-Atlanta/official-afc-wireshark.git@058ba633a20c5d957827e64a07a96366071a81ec

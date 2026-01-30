@@ -20,11 +20,15 @@ RUN apt update && apt install -y openjdk-17-jdk
 
 COPY . $SRC/
 
-RUN git clone --depth 1 https://github.com/google/fuzzing && \
+# RUN git clone --depth 1 https://github.com/google/fuzzing && \
+COPY pkgs/fuzzing.tar.gz $SRC/
+RUN tar -xzf fuzzing.tar.gz && rm fuzzing.tar.gz
     mv fuzzing/dictionaries/xml.dict $SRC/spring-context/XmlApplicationContextFuzzer.dict && \
     rm -rf fuzzing
 
-RUN git clone --depth 1 https://github.com/dvyukov/go-fuzz-corpus && \
+# RUN git clone --depth 1 https://github.com/dvyukov/go-fuzz-corpus && \
+COPY pkgs/go-fuzz-corpus.tar.gz $SRC/
+RUN tar -xzf go-fuzz-corpus.tar.gz && rm go-fuzz-corpus.tar.gz
     zip -j $SRC/spring-context/XmlApplicationContextFuzzer_seed_corpus.zip go-fuzz-corpus/xml/corpus/* && \
     rm -rf go-fuzz-corpus
 

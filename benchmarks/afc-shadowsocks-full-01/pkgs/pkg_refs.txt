@@ -1,1 +1,2 @@
 aixcc-challenges/shadowsocks-libev@9afa3cacf947f910be46b69fc5a7a1fdd02fd5e6
+git@github.com:Team-Atlanta/official-afc-shadowsocks-libev.git@7f62bd03b140a935c4fff190b4c9a567d5038a78

@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y \
   make flex bison libtool automake autoconf
 
 #RUN git clone --depth 1 git@github.com:Team-Atlanta/cp-c-jq.git
-RUN git clone https://github.com/kkos/oniguruma.git $SRC/oniguruma 
+# RUN git clone https://github.com/kkos/oniguruma.git $SRC/oniguruma 
+COPY pkgs/oniguruma.tar.gz $SRC/
+RUN tar -xzf oniguruma.tar.gz && rm oniguruma.tar.gz
 WORKDIR $SRC/jq
 COPY build.sh *.dict $SRC/

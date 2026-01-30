@@ -21,7 +21,9 @@ FROM ghcr.io/aixcc-finals/base-builder:v1.3.0
 
 RUN apt-get update && apt-get install -y libargon2-dev libedit-dev libtool-bin make libsqlite3-dev libcunit1-dev
 
-RUN git clone https://github.com/ralight/cJSON ${SRC}/cJSON
+# RUN git clone https://github.com/ralight/cJSON ${SRC}/cJSON
+COPY pkgs/cJSON.tar.gz $SRC/
+RUN tar -xzf cJSON.tar.gz && rm cJSON.tar.gz
 
 
 COPY build.sh $SRC/

@@ -23,8 +23,12 @@ COPY pkgs/file.tar.gz $SRC/
 RUN tar -xzf file.tar.gz && rm file.tar.gz
 
 # Supplement file's existing test files
-RUN git clone --depth 1 https://github.com/DavidKorczynski/binary-samples.git
-RUN git clone --depth 1 https://github.com/corkami/pocs
+# RUN git clone --depth 1 https://github.com/DavidKorczynski/binary-samples.git
+COPY pkgs/binary-samples.tar.gz $SRC/
+RUN tar -xzf binary-samples.tar.gz && rm binary-samples.tar.gz
+# RUN git clone --depth 1 https://github.com/corkami/pocs
+COPY pkgs/pocs.tar.gz $SRC/
+RUN tar -xzf pocs.tar.gz && rm pocs.tar.gz
 
 WORKDIR file
 COPY build.sh fuzzer_temp_file.h magic_fuzzer.cc magic_fuzzer_loaddb.cc magic_fuzzer_fd.cc magic_fuzzer_fd.options $SRC/

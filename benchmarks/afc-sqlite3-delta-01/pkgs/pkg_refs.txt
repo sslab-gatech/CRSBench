@@ -1,1 +1,2 @@
 aixcc-challenges/sqlite@92e9fa6fe887fc5cad73b4251ce06e295d7a0d2c
+git@github.com:Team-Atlanta/r3-afc-sqlite3.git@b8d88696c41b189951c4de0edc6dffaa31182551

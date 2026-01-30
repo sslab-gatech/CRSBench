@@ -18,9 +18,15 @@ FROM ghcr.io/aixcc-finals/base-builder:v1.3.0
 
 RUN apt-get update && apt-get install -y make autoconf automake libtool cmake nasm
 # RUN git clone git@github.com:Team-Atlanta/cp-c-libtiff.git libtiff
-RUN git clone --depth 1 https://github.com/madler/zlib
-RUN git clone --depth 1 https://github.com/libjpeg-turbo/libjpeg-turbo
-RUN git clone https://www.cl.cam.ac.uk/~mgk25/git/jbigkit
+# RUN git clone --depth 1 https://github.com/madler/zlib
+COPY pkgs/zlib.tar.gz $SRC/
+RUN tar -xzf zlib.tar.gz && rm zlib.tar.gz
+# RUN git clone --depth 1 https://github.com/libjpeg-turbo/libjpeg-turbo
+COPY pkgs/libjpeg-turbo.tar.gz $SRC/
+RUN tar -xzf libjpeg-turbo.tar.gz && rm libjpeg-turbo.tar.gz
+# RUN git clone https://www.cl.cam.ac.uk/~mgk25/git/jbigkit
+COPY pkgs/jbigkit.tar.gz $SRC/
+RUN tar -xzf jbigkit.tar.gz && rm jbigkit.tar.gz
 ADD https://lcamtuf.coredump.cx/afl/demo/afl_testcases.tgz afl_testcases.tgz
 ADD https://raw.githubusercontent.com/google/AFL/debe27037b9444bbf090a0ffbd5d24889bb887ae/dictionaries/tiff.dict tiff.dict
 WORKDIR libtiff

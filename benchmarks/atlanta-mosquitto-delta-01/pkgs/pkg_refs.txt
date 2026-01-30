@@ -1,0 +1,2 @@
+git@github.com:Team-Atlanta/cp-c-mosquitto-src.git@806fb8aaceecebe5497192db21a194bf2bec4666
+https://github.com/ralight/cJSON@04564d8d6911725c5bc48d8c4b4126d37967d939
