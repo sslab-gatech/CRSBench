@@ -2,13 +2,12 @@ id: cpv_2
 
 name: Abort on Duplicate Magic Entry in apprentice_sort
 
-origin: synthetic
+origin: 1-day
 
-release_date: 02/01/2026
+release_date: 04/06/2024
 
 cwes:
 - CWE-617
-- CWE-400
 - CWE-703
 
 description: |
@@ -24,6 +23,4 @@ locations:
   path_from_root: src/apprentice.c
   function_name: apprentice_sort
   startLine: 1143
-  startColumn: 4
   endLine: 1143
-  endColumn: 4

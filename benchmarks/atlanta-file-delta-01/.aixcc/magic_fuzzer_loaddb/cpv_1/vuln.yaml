@@ -2,9 +2,9 @@ id: cpv_1
 
 name: Regular Expression Denial of Service via Cascading Repetition Operators in check_regex
 
-origin: synthetic
+origin: 1-day
 
-release_date: 02/01/2026
+release_date: 06/10/2024
 
 cwes:
 - CWE-1333
@@ -23,10 +23,13 @@ description: |
   database file containing regex patterns with cascading repetition operators.
 
 locations:
+- type: crash_site
+  path_from_root: src/funcs.c
+  function_name: file_regcomp
+  startLine: 734
+  endLine: 734
 - type: root_cause
   path_from_root: src/funcs.c
   function_name: check_regex
-  startLine: 680
-  startColumn: 1
-  endLine: 688
-  endColumn: 80
+  startLine: 681
+  endLine: 681

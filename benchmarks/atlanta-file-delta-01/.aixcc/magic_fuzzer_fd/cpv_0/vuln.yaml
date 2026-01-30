@@ -2,9 +2,9 @@ id: cpv_0
 
 name: Stack Buffer Overflow in dophn_exec PT_INTERP Handler
 
-origin: synthetic
+origin: 1-day
 
-release_date: 02/01/2026
+release_date: 11/10/2024
 
 cwes:
 - CWE-121
@@ -24,13 +24,9 @@ locations:
   path_from_root: src/readelf.c
   function_name: dophn_exec
   startLine: 1664
-  startColumn: 1
   endLine: 1664
-  endColumn: 20
 - type: crash_site
   path_from_root: src/readelf.c
   function_name: dophn_exec
   startLine: 1765
-  startColumn: 1
   endLine: 1765
-  endColumn: 45

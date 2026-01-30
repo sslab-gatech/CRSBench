@@ -2,9 +2,9 @@ id: cpv_3
 
 name: NULL pointer dereference in file_magwarn function
 
-origin: synthetic
+origin: 1-day
 
-release_date: 02/01/2026
+release_date: 12/30/2023
 
 cwes:
 - CWE-476
@@ -24,13 +24,4 @@ locations:
   path_from_root: src/print.c
   function_name: file_magwarn
   startLine: 250
-  startColumn: 6
   endLine: 250
-  endColumn: 6
-- type: root_cause
-  path_from_root: src/print.c
-  function_name: file_magwarn
-  startLine: 250
-  startColumn: 1
-  endLine: 260
-  endColumn: 20
