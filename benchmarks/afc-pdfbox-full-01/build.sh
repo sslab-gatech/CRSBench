@@ -51,11 +51,11 @@ else
   set_project_version_in_fuzz_targets_dependency
 
   #install
-  (cd $PROJECT && $MVN install $MAVEN_ARGS)
-  $MVN -pl fuzz-targets install
+  (cd $PROJECT && $MVN install $MAVEN_ARGS -Dmaven.repo.local=$OUT/m2)
+  $MVN -pl fuzz-targets install -Dmaven.repo.local=$OUT/m2
 
   # build classpath
-  $MVN -pl fuzz-targets dependency:build-classpath -Dmdep.outputFile=cp.txt
+  $MVN -pl fuzz-targets dependency:build-classpath -Dmdep.outputFile=cp.txt -Dmaven.repo.local=$OUT/m2
   cp  $SRC/project-parent/fuzz-targets/target/fuzz-targets-0.0.1-SNAPSHOT.jar $OUT/fuzz-targets.jar
   RUNTIME_CLASSPATH_ABSOLUTE="$(cat fuzz-targets/cp.txt):$OUT/fuzz-targets.jar"
   # filter out jazzer jars to avoid conflicts with oss-fuzz jazzer
