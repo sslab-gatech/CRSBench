@@ -2,32 +2,15 @@ id: cpv_0
 
 name: Recursively traversing paths
 
-author: Tim Allison
-
-validator: Ze Sheng
-
-difficulty_level:
-
-origin: synthetic
-
-release_date: 02/01/2026
-
-reference:
-
 cwes:
 - CWE-23
 
-description: >
-  New feature using the RUnpackExtractor fails to prevent path traversal. The
-  addSubDirs method in AbstractEmbeddedDocumentBytesHandler attempts to sanitize
-  embedded file paths but uses a flawed replaceAll for ../ sequences, allowing
-  zip-slip style path traversal to write files outside the intended directory.
+description: New feature using the RUnpackExtractor fails to prevent path traversal.
 
 locations:
 - path_from_root: tika-core/src/main/java/org/apache/tika/extractor/AbstractEmbeddedDocumentBytesHandler.java
-  type: root_cause
-  function_name: addSubDirs
-  startLine: 93
+  function_name: check
+  startLine: 74
   startColumn: 5
-  endLine: 116
+  endLine: 125
   endColumn: 6

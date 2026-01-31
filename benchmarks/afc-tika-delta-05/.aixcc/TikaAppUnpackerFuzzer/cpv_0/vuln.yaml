@@ -2,31 +2,14 @@ id: cpv_0
 
 name: Zip slip via URL decoding
 
-author: Tim Allison
-
-validator: Ze Sheng
-
-difficulty_level:
-
-origin: synthetic
-
-release_date: 02/01/2026
-
-reference:
-
 cwes:
 - CWE-23
 
-description: >
-  Tika-app fails to check for zip slip after URL decoding a target path name.
-  The getOutputFile method in TikaCLI URL-decodes the normalized file name after
-  the path traversal check, allowing encoded traversal sequences (e.g., %2e%2e/)
-  to bypass the sanitization and write files outside the extract directory.
+description: Tika-app fails to check for zip slip after url decoding a target path name.
 
 locations:
 - path_from_root: tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
-  type: root_cause
-  function_name: getOutputFile
+  function_name: check
   startLine: 1155
   startColumn: 13
   endLine: 1159

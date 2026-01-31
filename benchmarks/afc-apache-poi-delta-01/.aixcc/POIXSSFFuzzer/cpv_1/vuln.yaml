@@ -2,34 +2,15 @@ id: cpv_1
 
 name: Regex StackOverflow
 
-author:
-
-validator: Ze Sheng
-
-difficulty_level:
-
-origin: synthetic
-
-release_date: 02/01/2026
-
-reference:
-
 cwes:
-- CWE-1333
 - CWE-121
 - CWE-20
 
-description: >
-  The MAJOR_VERSION_PATTERN regex defined in XSSFEventBasedExcelExtractor uses a
-  pattern with catastrophic backtracking: (-?(?:\d{1,30})*)(?:\.(\dc?)*). When
-  handleAppVersion calls Matcher.find() on a crafted AppVersion string from an xlsx
-  file, the regex engine enters deep recursion in Pattern$Loop.match, causing a
-  StackOverflowError (ReDoS).
+description: A crafted xlsx file can trigger an a StackOverflowError
 
 locations:
 - path_from_root: poi-ooxml/src/main/java/org/apache/poi/xssf/extractor/XSSFEventBasedExcelExtractor.java
-  type: root_cause
-  function_name: handleAppVersion
+  function_name: match
   startLine: 76
   startColumn: 5
   endLine: 76

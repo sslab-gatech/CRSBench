@@ -2,33 +2,16 @@ id: cpv_1
 
 name: Read then allocate OutOfMemoryError
 
-author:
-
-validator: Ze Sheng
-
-difficulty_level:
-
-origin: 1-day
-
-release_date: 09/21/2017
-
-reference: https://bz.apache.org/bugzilla/show_bug.cgi?id=61349
-
 cwes:
 - CWE-789
 - CWE-770
 - CWE-20
 
-description: >
-  MAPIAttribute parser reads a record length from user-controlled input without
-  applying reasonable limits, then allocates a byte array of that size. A crafted
-  TNEF (winmail.dat) file can specify an excessively large length, triggering an
-  OutOfMemoryError via uncontrolled memory allocation.
+description: MAPIAttribute parser fails to apply reasonable limits on record size.
 
 locations:
 - path_from_root: poi-scratchpad/src/main/java/org/apache/poi/hmef/attribute/MAPIAttribute.java
-  type: root_cause
-  function_name: create
+  function_name: getFromUnicodeLE
   startLine: 168
   startColumn: 19
   endLine: 171

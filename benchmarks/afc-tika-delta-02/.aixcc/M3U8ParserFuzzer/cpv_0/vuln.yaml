@@ -2,32 +2,15 @@ id: cpv_0
 
 name: M3U8 SSRF
 
-author: Tim Allison
-
-validator: Ze Sheng
-
-difficulty_level:
-
-origin: synthetic
-
-release_date: 02/01/2026
-
-reference:
-
 cwes:
 - CWE-918
 
-description: >
-  The M3U8Parser can be triggered to fetch the contents of a URL that an
-  attacker may not have authorization to fetch. The handleLink method opens a
-  TikaInputStream from a URL read directly from the M3U8 playlist content
-  without validating or restricting the target, enabling Server-Side Request
-  Forgery via a crafted M3U8 file.
+description: The M3U8Parser can be triggered to fetch the contents of a URL that an attacker may not have authorization to
+  fetch.
 
 locations:
 - path_from_root: tika-parsers/tika-parsers-standard/tika-parsers-standard-modules/tika-parser-audiovideo-module/src/main/java/org/apache/tika/parser/m3/M3U8Parser.java
-  type: root_cause
-  function_name: handleLink
+  function_name: checkSsrf
   startLine: 170
   startColumn: 13
   endLine: 173

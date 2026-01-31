@@ -2,32 +2,14 @@ id: cpv_0
 
 name: SSRF in extended properties
 
-author:
-
-validator: Ze Sheng
-
-difficulty_level:
-
-origin: synthetic
-
-release_date: 02/01/2026
-
-reference:
-
 cwes:
 - CWE-918
 
-description: >
-  The getExtendedProps method in XSSFEventBasedExcelExtractor uses a default
-  SAXParserFactory.newInstance() to parse extended properties XML from xlsx files.
-  The default SAXParser does not disable external entity resolution, allowing a
-  crafted xlsx file to include a malicious XML external entity that triggers a
-  Server-Side Request Forgery (SSRF) via an outbound HTTP request.
+description: A crafted xlsx file can trigger an ssrf
 
 locations:
 - path_from_root: poi-ooxml/src/main/java/org/apache/poi/xssf/extractor/XSSFEventBasedExcelExtractor.java
-  type: root_cause
-  function_name: getExtendedProps
+  function_name: checkSsrf
   startLine: 316
   startColumn: 13
   endLine: 316
