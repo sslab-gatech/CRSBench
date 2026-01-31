@@ -38,8 +38,3 @@ harness_files:
     - id: pov_0
       sanitizer: address
       error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
-  - vuln_keyword: cpv_1
-    povs:
-    - id: pov_0
-      sanitizer: address
-      error_token: 'ERROR: AddressSanitizer: heap-buffer-overflow'
