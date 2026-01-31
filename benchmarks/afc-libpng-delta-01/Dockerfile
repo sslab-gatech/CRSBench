@@ -24,8 +24,8 @@ RUN apt-get update && \
 WORKDIR $SRC
 COPY pkgs/zlib.tar.gz $SRC/zlib.tar.gz
 COPY pkgs/libpng.tar.gz $SRC/libpng.tar.gz
-RUN tar -zxf $SRC/zlib.tar.gz && rm $SRC/zlib.tar.gz
-RUN tar -zxf $SRC/libpng.tar.gz && rm $SRC/libpng.tar.gz
+RUN tar -xzf $SRC/zlib.tar.gz && rm $SRC/zlib.tar.gz
+RUN tar -xzf $SRC/libpng.tar.gz && rm $SRC/libpng.tar.gz
 
 RUN cp libpng/contrib/oss-fuzz/build.sh $SRC
 # Override with our incremental-build-compatible version

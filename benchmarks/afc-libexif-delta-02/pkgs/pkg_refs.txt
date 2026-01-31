@@ -1,1 +1,2 @@
 aixcc-challenges/libexif@82cbbd98f2ec30e12a76ac4a5cd0289f3cdac196
+git@github.com:Team-Atlanta/official-afc-libexif.git@d7f7897f40671ad716f975b3d3c077e45cc7cd10

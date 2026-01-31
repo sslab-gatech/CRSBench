@@ -18,7 +18,9 @@ FROM ghcr.io/aixcc-finals/base-builder:v1.3.0
 RUN apt-get update && apt-get install -y autoconf automake bison pkg-config \
     ncurses-dev libtool
 
-RUN git clone https://github.com/libevent/libevent.git && \
+# RUN git clone https://github.com/libevent/libevent.git && \
+COPY pkgs/libevent.tar.gz $SRC/
+RUN tar -xzf libevent.tar.gz && rm libevent.tar.gz
     cd libevent && \
     mkdir build && \
     cd build && \
@@ -26,6 +28,8 @@ RUN git clone https://github.com/libevent/libevent.git && \
     make && make install
 
 # RUN git clone --depth 1 git@github.com:Team-Atlanta/cp-c-tmux.git
-RUN git clone --depth 1 https://github.com/tmux/tmux-fuzzing-corpus.git
+# RUN git clone --depth 1 https://github.com/tmux/tmux-fuzzing-corpus.git
+COPY pkgs/tmux-fuzzing-corpus.tar.gz $SRC/
+RUN tar -xzf tmux-fuzzing-corpus.tar.gz && rm tmux-fuzzing-corpus.tar.gz
 WORKDIR tmux
 COPY build.sh $SRC/

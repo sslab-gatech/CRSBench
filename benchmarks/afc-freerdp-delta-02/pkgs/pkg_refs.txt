@@ -1,1 +1,2 @@
 aixcc-challenges/FreeRDP@f1285ade4607527576e8438e724e13b8a3ff6807
+git@github.com:Team-Atlanta/official-afc-freerdp.git@a4723775f30b3b7c9125ec0640fdd887ce5b6e53

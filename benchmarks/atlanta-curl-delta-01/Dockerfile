@@ -17,8 +17,11 @@
 FROM ghcr.io/aixcc-finals/base-builder:v1.3.0
 
 # RUN git clone --depth 1 git@github.com:Team-Atlanta/cp-c-curl.git /src/curl
-RUN git clone https://github.com/curl/curl-fuzzer.git /src/curl_fuzzer
-RUN cd /src/curl_fuzzer && git checkout 98e7a28976d0a8704ee3a949d68bced1f522ee61
+# RUN git clone https://github.com/curl/curl-fuzzer.git /src/curl_fuzzer
+COPY pkgs/curl_fuzzer.tar.gz $SRC/
+RUN tar -xzf curl_fuzzer.tar.gz && rm curl_fuzzer.tar.gz
+# RUN cd /src/curl_fuzzer && git checkout 98e7a28976d0a8704ee3a949d68bced1f522ee61
+# Note: tarball already at commit 9c373825002c (bundled from latest)
 
 # Use curl-fuzzer's scripts to get latest dependencies.
 RUN $SRC/curl_fuzzer/scripts/ossfuzzdeps.sh

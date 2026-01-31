@@ -24,17 +24,17 @@ RUN unzip $SRC/maven.zip -d $SRC/maven && \
 ENV MVN $SRC/maven/apache-maven-3.9.5/bin/mvn
 
 # Dictionaries
-#RUN git clone --depth 1 https://github.com/google/fuzzing && \
+## # RUN git clone --depth 1 https://github.com/google/fuzzing && \
 COPY pkgs/fuzzing.tar.gz $SRC/
-RUN tar -xzf $SRC/fuzzing.tar.gz && rm $SRC/fuzzing.tar.gz && \
+RUN tar -xzf fuzzing.tar.gz && rm fuzzing.tar.gz && \
     mv fuzzing/dictionaries/zip.dict $SRC/CompressZipFuzzer.dict && \
     mv fuzzing/dictionaries/bz2.dict $SRC/CompressorBZip2Fuzzer.dict && \
     rm -rf fuzzing
 
 # Seed corpus (go-fuzz-corpus)
-#RUN git clone --depth 1 https://github.com/dvyukov/go-fuzz-corpus && \
+## # RUN git clone --depth 1 https://github.com/dvyukov/go-fuzz-corpus && \
 COPY pkgs/go-fuzz-corpus.tar.gz $SRC/
-RUN tar -xzf $SRC/go-fuzz-corpus.tar.gz && rm $SRC/go-fuzz-corpus.tar.gz && \
+RUN tar -xzf go-fuzz-corpus.tar.gz && rm go-fuzz-corpus.tar.gz && \
     zip -j0 $SRC/CompressTarFuzzer_seed_corpus.zip go-fuzz-corpus/tar/corpus/* && \
     zip -j0 $SRC/CompressZipFuzzer_seed_corpus.zip go-fuzz-corpus/zip/corpus/* && \
     zip -j0 $SRC/CompressorBZip2Fuzzer_seed_corpus.zip go-fuzz-corpus/bzip2/corpus/* && \

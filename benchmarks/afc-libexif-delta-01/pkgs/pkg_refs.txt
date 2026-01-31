@@ -1,0 +1,2 @@
+git@github.com:Team-Atlanta/official-afc-libexif.git@da3c02556ada4a2b2b43cae1c23393dd118dcac5
+https://github.com/ianare/exif-samples@5332a9cf0220e9c6c93f88a187daa90808051e10

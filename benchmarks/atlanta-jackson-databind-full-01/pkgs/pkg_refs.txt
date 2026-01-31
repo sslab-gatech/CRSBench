@@ -1,0 +1,5 @@
+git@github.com:Team-Atlanta/cp-java-jackon-databind-src.git@04c91d8683cbc1024753807c81b15bc22cd63c81
+https://github.com/javaparser/javaparser@3dc8e77116dc740489fa6d7b74c3bfa4a9750d7e
+https://github.com/AdamKorcz/github-samples@5ecb3dfa6d0700621d00debef0a830fd6443c580
+https://github.com/google/fuzzing@734e55f3cfed1adbb51bf6cb5c65b4c1197b7089
+https://github.com/dvyukov/go-fuzz-corpus@c42c1b2914c7503500996ee15927d3ab3d2ba968

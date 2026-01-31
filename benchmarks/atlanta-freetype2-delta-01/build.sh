@@ -33,9 +33,8 @@ git commit -m "Add subprojects/dlg"
 
 
 cd $SRC/freetype2-testing
-git submodule deinit -f external/freetype2
+# Remove external/freetype2 directory (no git commands needed since tarball has no .git)
 rm -rf external/freetype2
-rm -rf .git/modules/external/freetype2
 cp -r $SRC/freetype2 $SRC/freetype2-testing/external/freetype2
 sed -i '21d' $SRC/freetype2-testing/fuzzing/scripts/build/freetype.sh
 

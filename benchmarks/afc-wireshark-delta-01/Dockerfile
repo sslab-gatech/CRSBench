@@ -23,11 +23,11 @@ RUN apt-get update && apt-get install -y ninja-build cmake \
 #RUN git clone --depth=1 https://gitlab.com/wireshark/wireshark.git
 #RUN git clone --depth=1 https://bitbucket.org/jwzawadzki/wireshark-fuzzdb.git
 
-COPY pkgs/wireshark.tar.gz $SRC/
-COPY pkgs/wireshark-fuzzdb.tar.gz $SRC/
-
-RUN tar -zxf $SRC/wireshark.tar.gz && rm $SRC/wireshark.tar.gz
-RUN tar -zxf $SRC/wireshark-fuzzdb.tar.gz && rm $SRC/wireshark-fuzzdb.tar.gz
+WORKDIR $SRC
+COPY pkgs/wireshark-fuzzdb.tar.gz $SRC/wireshark-fuzzdb.tar.gz
+COPY pkgs/wireshark.tar.gz $SRC/wireshark.tar.gz
+RUN tar -xzf $SRC/wireshark-fuzzdb.tar.gz && rm $SRC/wireshark-fuzzdb.tar.gz
+RUN tar -xzf $SRC/wireshark.tar.gz && rm $SRC/wireshark.tar.gz
 
 WORKDIR $SRC/wireshark
 COPY build.sh test.sh $SRC/

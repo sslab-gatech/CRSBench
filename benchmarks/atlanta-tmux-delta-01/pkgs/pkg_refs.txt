@@ -1,0 +1,5 @@
+git@github.com:Team-Atlanta/cp-c-tmux.git@0e2a8078f4c690bcdc7e05238289fc04f5c3bb40
+https://github.com/libevent/libevent.git@a994a52d5373d6284b27576efa617aff2baa7bd3
+https://github.com/tmux/tmux-fuzzing-corpus.git@73b1e642654f90279f62bfbf91aa6eb0b3b98646
+https://github.com/libevent/libevent@a994a52d5373d6284b27576efa617aff2baa7bd3
+https://github.com/tmux/tmux-fuzzing-corpus@73b1e642654f90279f62bfbf91aa6eb0b3b98646

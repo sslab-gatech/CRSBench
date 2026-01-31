@@ -1,6 +1,8 @@
 FROM ghcr.io/aixcc-finals/base-builder:v1.3.0
 RUN apt-get update && apt-get install -y make autoconf automake libtool nasm curl cmake
-#RUN git clone https://github.com/Team-Atlanta/cp-c-libjpeg.git libjpeg-turbo
+## RUN git clone https://github.com/Team-Atlanta/cp-c-libjpeg.git libjpeg-turbo
+COPY pkgs/libjpeg-turbo.tar.gz $SRC/
+RUN tar -xzf libjpeg-turbo.tar.gz && rm libjpeg-turbo.tar.gz
 
 RUN mkdir afl-testcases
 RUN cd afl-testcases/ && curl -L http://lcamtuf.coredump.cx/afl/demo/afl_testcases.tgz | tar -xz

@@ -43,10 +43,9 @@ ENV JAVA_HOME_11=$SRC/jdk-11.0.25+9
 #
 # clone repository
 #
-COPY pkgs/apache-poi.tar.gz.part* $SRC/
-RUN cat $SRC/apache-poi.tar.gz.part* > $SRC/apache-poi.tar.gz
-RUN tar -xzvf apache-poi.tar.gz && \
-    mv apache-poi poi && rm apache-poi.tar.gz
+COPY pkgs/poi.tar.gz.part* $SRC/
+RUN cat $SRC/poi.tar.gz.part* > $SRC/poi.tar.gz
+RUN tar -xzvf poi.tar.gz && rm poi.tar.gz
 
 # install packages required for font-handling and other code in java.awt.*
 RUN apt-get update \
