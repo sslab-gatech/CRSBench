@@ -32,9 +32,7 @@ ADD https://github.com/adobe-fonts/adobe-variable-font-prototype/releases/downlo
 COPY pkgs/text-rendering-tests.tar.gz $SRC/
 RUN tar -xzf text-rendering-tests.tar.gz && rm text-rendering-tests.tar.gz
 
-# RUN git clone --depth 1 https://github.com/freetype/freetype2-testing.git
-COPY pkgs/freetype2-testing.tar.gz $SRC/
-RUN tar -xzf freetype2-testing.tar.gz && rm freetype2-testing.tar.gz
+RUN git clone --depth 1 https://github.com/freetype/freetype2-testing.git
 # RUN git clone git@github.com:Team-Atlanta/cp-c-freetype.git $SRC/freetype2
 WORKDIR $SRC/freetype2
 

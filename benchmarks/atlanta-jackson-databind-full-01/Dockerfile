@@ -22,14 +22,14 @@ RUN curl -L https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-
 
 # RUN git clone --depth 1 https://github.com/google/fuzzing && \
 COPY pkgs/fuzzing.tar.gz $SRC/
-RUN tar -xzf fuzzing.tar.gz && rm fuzzing.tar.gz
+RUN tar -xzf fuzzing.tar.gz && rm fuzzing.tar.gz && \
     cp fuzzing/dictionaries/json.dict $SRC/ObjectReaderFuzzer.dict && \
     cp fuzzing/dictionaries/json.dict $SRC/ObjectWriterFuzzer.dict && \
     rm -rf fuzzing
 
 # RUN git clone --depth 1 https://github.com/dvyukov/go-fuzz-corpus && \
 COPY pkgs/go-fuzz-corpus.tar.gz $SRC/
-RUN tar -xzf go-fuzz-corpus.tar.gz && rm go-fuzz-corpus.tar.gz
+RUN tar -xzf go-fuzz-corpus.tar.gz && rm go-fuzz-corpus.tar.gz && \
     zip -q $SRC/ObjectReaderFuzzer_seed_corpus.zip go-fuzz-corpus/json/corpus/* && \
     zip -q $SRC/ObjectWriterFuzzer_seed_corpus.zip go-fuzz-corpus/json/corpus/* && \
     rm -rf go-fuzz-corpus

@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y autoconf automake bison pkg-config \
 
 # RUN git clone https://github.com/libevent/libevent.git && \
 COPY pkgs/libevent.tar.gz $SRC/
-RUN tar -xzf libevent.tar.gz && rm libevent.tar.gz
+RUN tar -xzf libevent.tar.gz && rm libevent.tar.gz && \
     cd libevent && \
     mkdir build && \
     cd build && \

@@ -28,13 +28,13 @@ ENV MVN $SRC/maven/apache-maven-3.8.7/bin/mvn
 
 # RUN git clone --depth 1 https://github.com/google/fuzzing && \
 COPY pkgs/fuzzing.tar.gz $SRC/
-RUN tar -xzf fuzzing.tar.gz && rm fuzzing.tar.gz
+RUN tar -xzf fuzzing.tar.gz && rm fuzzing.tar.gz && \
     mv fuzzing/dictionaries/xml.dict $SRC/XmlFuzzer.dict && \
     rm -rf fuzzing
 
 # RUN git clone --depth 1 https://github.com/dvyukov/go-fuzz-corpus && \
 COPY pkgs/go-fuzz-corpus.tar.gz $SRC/
-RUN tar -xzf go-fuzz-corpus.tar.gz && rm go-fuzz-corpus.tar.gz
+RUN tar -xzf go-fuzz-corpus.tar.gz && rm go-fuzz-corpus.tar.gz && \
     zip -j $SRC/XmlFuzzer_seed_corpus.zip go-fuzz-corpus/xml/corpus/* && \
     rm -rf go-fuzz-corpus
 

@@ -33,9 +33,10 @@ git commit -m "Add subprojects/dlg"
 
 
 cd $SRC/freetype2-testing
-# Remove external/freetype2 directory (no git commands needed since tarball has no .git)
+# Replace the freetype2 submodule with our challenge project source
 rm -rf external/freetype2
 cp -r $SRC/freetype2 $SRC/freetype2-testing/external/freetype2
+# Skip git submodule update for freetype2 (line 21) since we provide it directly
 sed -i '21d' $SRC/freetype2-testing/fuzzing/scripts/build/freetype.sh
 
 # Tell CMake what fuzzing engine to link:
