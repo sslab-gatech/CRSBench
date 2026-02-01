@@ -2,3 +2,4 @@
 !/spring-*
 !*.diff
 !*.sh
+!/pkgs
