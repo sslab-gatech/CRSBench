@@ -2,4 +2,3 @@ git@github.com:Team-Atlanta/cp-c-freetype.git@23d9865675af2fbf86648843b744339882
 https://github.com/unicode-org/text-rendering-tests.git@5823ddb172570f376e4b181688f85a7977866d9f
 https://github.com/freetype/freetype2-testing.git@35619fdf3afdceebe227009116b35e6751744c81
 https://github.com/unicode-org/text-rendering-tests@5823ddb172570f376e4b181688f85a7977866d9f
-https://github.com/freetype/freetype2-testing@35619fdf3afdceebe227009116b35e6751744c81
