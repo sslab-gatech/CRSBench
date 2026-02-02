@@ -4,7 +4,11 @@ name: Heap buffer overflow in ngx_sendfile_r due to fixed-size allocation
 
 origin: synthetic
 
-release_date: 01/01/2024
+validator: Younggi Park
+
+release_date: 02/01/2026
+
+references: ["https://github.com/aixcc-public/challenge-004-nginx-cp/tree/main/.internal_only/cpv12"]
 
 cwes:
 - CWE-122
@@ -13,21 +17,17 @@ cwes:
 
 description: |
   A heap buffer overflow vulnerability exists in the ngx_sendfile_r function
-  in src/os/unix/ngx_linux_sendfile_chain.c. The function allocates a fixed
-  100-byte buffer but writes data based on a variable 'size' parameter that
-  can exceed this allocation. When processing HTTP Range requests with sizes
-  greater than 100 bytes, the loop at line 80 writes beyond the allocated
-  buffer, causing heap corruption. This can lead to memory corruption and
-  potential arbitrary code execution.
+  in src/os/unix/ngx_linux_sendfile_chain.c.
+  NGINX has expanded on the capability of sending a range of data rather than an entire resource requested. NGINX responds with the desired range of bytes from the resource, but in reverse order. However the new function in ngx_linux_sendfile_chain.c incorrectly iterates through the range of that data. The size of the data is assumed and hard-coded as 100-bytes instead of calculated from the resource on disk requested. This vulnerability causes NGINX to crash thus denying service to its clients. The intentional crash of a service is called "Denial of Service" or DoS.
 
 locations:
 - type: root_cause
   path_from_root: src/os/unix/ngx_linux_sendfile_chain.c
   function_name: ngx_sendfile_r
   startLine: 73
-  startColumn: 11
+  startColumn: 5
   endLine: 73
-  endColumn: 11
+  endColumn: 53
 - type: crash_site
   path_from_root: src/os/unix/ngx_linux_sendfile_chain.c
   function_name: ngx_sendfile_r

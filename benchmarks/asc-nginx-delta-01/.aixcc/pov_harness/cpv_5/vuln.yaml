@@ -4,20 +4,18 @@ name: NULL pointer dereference in connection history traversal
 
 origin: synthetic
 
-release_date: 01/01/2024
+validator: Younggi Park
+
+release_date: 02/01/2026
+
+references: ["https://github.com/aixcc-public/challenge-004-nginx-cp/tree/main/.internal_only/cpv5"]
 
 cwes:
 - CWE-476
 - CWE-823
 
 description: |
-  A NULL pointer dereference vulnerability exists in the ngx_http_get_last_ip_variable
-  function in src/http/ngx_http_variables.c. The vulnerability is caused by improper
-  linked list traversal in ngx_get_con_his function, which can walk past the end of
-  the connection history list and return NULL. The returned NULL pointer is then
-  dereferenced without validation, causing a segmentation fault. An attacker can
-  trigger this by crafting an HTTP request with a request_counter value that exceeds
-  the length of the connection_history linked list, leading to a denial of service.
+  This vulnerability triggers a null-pointer-dereference within NGINX due to improper linked list traversal in ngx_get_con_his function. By sending the URL /lastConnection, the server will respond with a string of the last IP to have connected, however, if an attacker queries this URL for the second time, it will cause a wrongly written for-loop to read a linked-list out of bounds, dereferencing a null pointer. This bug requires that the system is able to generate two requests in a single blob as well as understand how to maintain state across two requests. Additionally, it needs to understand the logic of traversing a linked list using a for loop.
 
 locations:
 - type: crash_site

@@ -4,7 +4,11 @@ name: NULL Pointer Dereference in POP3 Password Handler
 
 origin: synthetic
 
-release_date: 01/01/2024
+validator: Younggi Park
+
+release_date: 02/01/2026
+
+references: ["https://github.com/aixcc-public/challenge-004-nginx-cp/tree/main/.internal_only/cpv13"]
 
 cwes:
 - CWE-476
@@ -12,15 +16,8 @@ cwes:
 
 description: |
   A NULL pointer dereference vulnerability exists in the ngx_mail_pop3_pass
-  function in src/mail/ngx_mail_pop3_handler.c. The function attempts to
-  traverse a linked list of authentication logs using incorrect pointer
-  arithmetic. Instead of traversing the linked list properly, the code
-  increments a pointer-to-pointer variable, causing it to point to arbitrary
-  memory locations. When the code attempts to dereference the invalid pointer
-  at line 377, it reads from address 0x11 (in the zero page), causing a
-  segmentation fault. This vulnerability can be triggered by sending a
-  sequence of POP3 commands (USER followed by PASS), leading to a denial
-  of service condition where the nginx worker process crashes.
+  function in src/mail/ngx_mail_pop3_handler.c. 
+  A new data structure to ngx_mail_pop3_handler.c was introduced for keeping track of users and their passwords that authenticate with the POP3 mail protocol. However, NGINX needlessly adds a layer of redirection in a pointer, which can lead to mishandling of pointers to objects. This allows for incorrectly checking if a pointer is safe to dereference or not when adding to the list of usernames and passwords. This vulnerability can be triggered by sending a sequence of POP3 commands (USER followed by PASS), leading to a denial of service condition where the nginx worker process crashes.
 
 locations:
 - type: crash_site
@@ -33,7 +30,7 @@ locations:
 - type: root_cause
   path_from_root: src/mail/ngx_mail_pop3_handler.c
   function_name: ngx_mail_pop3_pass
-  startLine: 373
-  startColumn: 1
-  endLine: 377
-  endColumn: 24
+  startLine: 352
+  startColumn: 5
+  endLine: 352
+  endColumn: 47

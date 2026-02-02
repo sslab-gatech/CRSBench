@@ -2,9 +2,14 @@ id: cpv_0
 
 name: Heap Use-After-Free in Black List Removal
 
+validator: Younggi Park
+
 origin: synthetic
 
-release_date: 01/01/2024
+release_date: 02/01/2026
+
+references: ["https://github.com/aixcc-public/challenge-004-nginx-cp/tree/main/.internal_only/cpv9"]
+
 
 cwes:
 - CWE-416
@@ -12,13 +17,8 @@ cwes:
 
 description: |
   A heap use-after-free vulnerability exists in the ngx_black_list_remove function
-  in src/core/ngx_cycle.c. When removing the head node of the blacklist, the function
-  frees the memory but fails to update the blacklist pointer and doesn't properly
-  unlink the node. Subsequently, the function attempts to access the freed memory
-  through reader->next in the loop condition, causing a heap-use-after-free.
-  An attacker can trigger this by sending HTTP requests with X-Remove-White-List
-  headers containing specific IP addresses, potentially leading to arbitrary code
-  execution or denial of service.
+  in src/core/ngx_cycle.c. A feature of black-listing IPs was introduced to NGINX in `ngx_cycle.c`. This allows banning or unbanning specific IPs. When "white-listing" or unbanning an IP, the program fails to remove the free'd object from the list (blacklist), which sets up an Use-After-Free condition. An attacker can trigger this by sending HTTP requests with X-Remove-White-List headers containing specific IP addresses, potentially leading to arbitrary code execution or denial of service.These errors cause a crash of the running process.
+
 
 locations:
 - type: crash_site

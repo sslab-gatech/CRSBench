@@ -4,7 +4,11 @@ name: Missing Return After Error in ngx_http_script_regex_end_code
 
 origin: synthetic
 
-release_date: 01/01/2024
+validator: Younggi Park
+
+release_date: 02/01/2026
+
+references: ["https://github.com/aixcc-public/challenge-004-nginx-cp/tree/main/.internal_only/cpv14"]
 
 cwes:
 - CWE-125
@@ -13,14 +17,8 @@ cwes:
 
 description: |
   A missing return statement vulnerability in nginx's HTTP rewrite module leads to a
-  global buffer overflow (out-of-bounds read). When processing regex-based URL rewrites,
-  the ngx_http_script_regex_end_code() function checks if the rewritten URI exceeds
-  2000 bytes. If it does, the code sets an error condition but fails to return
-  immediately. Execution continues and increments the instruction pointer (e->ip) beyond
-  valid script memory. When control returns to ngx_http_rewrite_handler(), the while
-  loop attempts to dereference the invalid e->ip value, causing an 8-byte out-of-bounds
-  read. This can lead to memory disclosure, denial of service, or potential information
-  leaks from adjacent global variables.
+  global buffer overflow (out-of-bounds read).
+  In the ngx_http_script.c, NGINX checks for the length of the rewritten URI in the ngx_http_script_regex_end_code function. If the length of the buffer containing the rewritten URI exceeds 2000 characters, it logs an error message indicating that the URI is too long, sets the instruction pointer to ngx_http_script_exit, and changes the response status to NGX_HTTP_INTERNAL_SERVER_ERROR. This prevents the processing of excessively long rewritten URIs and helps maintain server stability and security. In this case, prematurely setting the script engine to exit with a NGX_HTTP_INTERNAL_SERVER_ERROR results in e->ip (instruction pointer) attempting to call a wrong function causing a segfault. This vulnerability causes NGINX to crash thus denying service to its clients. The intentional crash of a service is called "Denial of Service" or DoS.
 
 locations:
 - type: root_cause
@@ -29,7 +27,7 @@ locations:
   startLine: 1270
   startColumn: 9
   endLine: 1275
-  endColumn: 9
+  endColumn: 10
 - type: crash_site
   path_from_root: src/http/modules/ngx_http_rewrite_module.c
   function_name: ngx_http_rewrite_handler

@@ -4,7 +4,11 @@ name: Heap Buffer Overflow in nginx HTTP TRACE Handler
 
 origin: synthetic
 
-release_date: 01/01/2024
+validator: Younggi Park
+
+release_date: 02/01/2026
+
+references: ["https://github.com/aixcc-public/challenge-004-nginx-cp/tree/main/.internal_only/cpv3"]
 
 cwes:
 - CWE-122
@@ -12,13 +16,10 @@ cwes:
 - CWE-131
 
 description: |
+  Previously, if a TRACE request was received, NGINX would log the event and immediately finalize the request with a 405 Method Not Allowed response, stopping further processing. The patch changes this behavior to call a new function ngx_http_trace_handler when a TRACE method is detected.
+  The handler begins by allocating a buffer of 200 bytes using ngx_create_temp_buf. This buffer is intended to accumulate the entire request line and headers to echo them back to the client. It then iterates over all received HTTP headers, appending each header and its value to the buffer, formatted correctly with newlines. After processing all headers, it sets up the response headers, including setting the Content-Type to message/http and calculating the Content-Length based on the accumulated length of the request line and headers. The response is sent using ngx_http_output_filter, and the request is closed.
   A heap buffer overflow vulnerability exists in the ngx_http_trace_handler
-  function in src/http/ngx_http_request.c. The function allocates a fixed
-  200-byte buffer to store HTTP TRACE response data but does not validate
-  that the cumulative size of all request headers will fit within this buffer
-  before copying them. When processing HTTP TRACE requests with headers
-  exceeding 200 bytes total, the ngx_copy operations overflow the heap buffer,
-  leading to heap corruption and potential arbitrary code execution.
+  function in src/http/ngx_http_request.c. The initial allocation of a 200-byte buffer does not account for the potential size of the request line and headers. Given that the buffer is populated in a loop over the headers, and no bounds checking is implemented during this loop, this leads to a significant risk of buffer overflow. The overflow of this buffer by approximately 409 bytes leads to heap memory corruption. This occurs because the memory adjacent to the allocated buffer, which could be used by other parts of NGINX or by the underlying system libraries (like libc), is overwritten.
 
 locations:
 - type: crash_site
@@ -31,7 +32,7 @@ locations:
 - type: root_cause
   path_from_root: src/http/ngx_http_request.c
   function_name: ngx_http_trace_handler
-  startLine: 4211
-  startColumn: 1
-  endLine: 4218
-  endColumn: 25
+  startLine: 4212
+  startColumn: 9
+  endLine: 4212
+  endColumn: 35

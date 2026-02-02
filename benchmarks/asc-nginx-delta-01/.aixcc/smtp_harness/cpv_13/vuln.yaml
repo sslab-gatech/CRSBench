@@ -4,21 +4,19 @@ name: nginx SMTP NOOP Handler Use-After-Free
 
 origin: synthetic
 
-release_date: 01/01/2024
+validator: Younggi Park
+
+release_date: 02/01/2026
+
+references: ["https://github.com/aixcc-public/challenge-004-nginx-cp/tree/main/.internal_only/cpv17"]
 
 cwes:
 - CWE-416
 - CWE-825
 
 description: |
-  A use-after-free vulnerability exists in nginx's SMTP mail handler when
-  processing NOOP commands with more than 10 arguments. The ngx_mail_smtp_noop
-  function calls ngx_mail_close_connection which destroys the connection's
-  memory pool including the session object, but then returns NGX_ERROR to its
-  caller. The caller ngx_mail_smtp_auth_state continues execution and attempts
-  to access the freed session object's buffer members, resulting in a
-  use-after-free condition. This can lead to information disclosure, denial
-  of service, or potential remote code execution.
+  A new SMTP response message for the NOOP command is added. The NOOP command handling is integrated into the ngx_mail_smtp_auth_state function. The ngx_mail_smtp_noop function is defined, which checks if the number of arguments exceeds 10. If so, it sets an invalid argument error and closes the connection. Otherwise, it responds with the smtp_noop message. The function appears to handle this correctly by first closing the connection and then destroying the pool. However, since NGX_ERROR gets returned, it is caught by another check that then calls ngx_mail_session_internal_server_error. This function attempts to access the freed connection structure, which leads to a crash via a UAF.
+
 
 locations:
 - type: crash_site
@@ -34,4 +32,4 @@ locations:
   startLine: 836
   startColumn: 9
   endLine: 836
-  endColumn: 36
+  endColumn: 38

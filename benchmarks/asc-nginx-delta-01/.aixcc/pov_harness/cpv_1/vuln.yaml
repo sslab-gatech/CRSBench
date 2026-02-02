@@ -4,7 +4,11 @@ name: Heap Buffer Underflow in Email Address Validation
 
 origin: synthetic
 
-release_date: 01/01/2024
+validator: Younggi Park
+
+release_date: 02/01/2026
+
+references: ["https://github.com/aixcc-public/challenge-004-nginx-cp/tree/main/.internal_only/cpv1"]
 
 cwes:
 - CWE-122
@@ -12,16 +16,11 @@ cwes:
 - CWE-787
 
 description: |
-  A heap buffer underflow vulnerability exists in the synthetically added
-  ngx_http_validate_from function, which validates email addresses in HTTP
-  "From" headers. When processing consecutive dots in the username portion
-  of an email address, the parser performs an unbounded backward pointer
-  traversal without bounds checking. The code decrements the pointer by 2
-  and enters a loop searching for a previous dot character, but if the input
-  contains dots at the beginning or early in the string, the pointer underflows
-  past the allocated buffer's start address. This causes an out-of-bounds read
-  when checking the character at the underflowed address, potentially leading
-  to information disclosure, denial of service, or further exploitation.
+  The new functionality was to introduced to the NGINX web server for handling the From HTTP header in incoming requests. This header is typically used to specify the email address of the user making the request. 
+  By introducing this capability, the patch allows NGINX to recognize, process, and validate the From header, ensuring that it adheres to a proper email address format. When register a header, the ngx_http_headers_in array is updated to register the From header, mapping it to a new processing function, ngx_http_process_from. This ensures that NGINX can correctly identify and route the From header to the appropriate handler. 
+  Regarding this functionality, a new function, ngx_http_process_from, is implemented to handle the From header. This function checks for duplicate headers, validates the header value using the ngx_http_validate_from function, and assigns it to the request structure. If the From header is found to be invalid or duplicated, the function finalizes the request with a bad request error. To validate the header, the ngx_http_validate_from function is introduced to ensure that the From header value conforms to a valid email address format. This function validates the presence of alphanumeric characters, the @ symbol, and a valid domain structure. It prevents malformed email addresses from being processed, thus enhancing the robustness of the request handling.
+  However, The vulnerability exists in the validation function. If a user has two '.' in a row (i.e., ".."), the program attempts to remove one. However, if this is at the beginning of the email then there will be a buffer underrun and an attacker can write data to a buffer prior to the start of the string.
+
 
 locations:
 - type: crash_site

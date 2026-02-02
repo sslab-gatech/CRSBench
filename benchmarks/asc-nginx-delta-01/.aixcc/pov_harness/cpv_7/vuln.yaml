@@ -4,21 +4,24 @@ name: nginx host_specs heap-use-after-free when remote_admin disabled
 
 origin: synthetic
 
-release_date: 01/01/2024
+validator: Younggi Park
+
+release_date: 02/01/2026
+
+references: ["https://github.com/aixcc-public/challenge-004-nginx-cp/tree/main/.internal_only/cpv11"]
+
 
 cwes:
 - CWE-416
 - CWE-825
 
 description: |
-  A heap-use-after-free vulnerability exists in nginx's custom host specifications
-  feature. When the remote_admin configuration is disabled, the host_specs structure
-  is freed during cycle initialization but the pointer is not set to NULL, creating
-  a dangling pointer. Later, when an HTTP request accesses the $host_specs variable
-  (e.g., via /host_specs endpoint), the ngx_http_get_host_specs() function
+  NGINX introduces a new feature for administrators and users. They can request hardware specifications of the host, such as CPU, RAM, and OS. The vulnerability occurs in ngx_cycle.c because it fails to check if the runtime configuration of NGINX has enabled this feature before memory allocation. It allocates memory regardless and then checks if the setting is turned on and frees the memory. However, the variables that point to the now freed memory are not cleared, which allows the ngx_http_get_host_specs() function
   unconditionally dereferences the freed memory without validation. This results in
   a heap-use-after-free condition that can cause denial of service through crashes,
   and potentially information disclosure by reading freed heap memory.
+
+
 
 locations:
 - type: crash_site
@@ -31,7 +34,7 @@ locations:
 - type: root_cause
   path_from_root: src/core/ngx_cycle.c
   function_name: ngx_init_cycle
-  startLine: 458
+  startLine: 357
   startColumn: 9
-  endLine: 460
+  endLine: 461
   endColumn: 9

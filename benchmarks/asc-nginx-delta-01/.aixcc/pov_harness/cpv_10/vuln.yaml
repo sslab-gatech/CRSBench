@@ -4,7 +4,11 @@ name: NGINX userid filter module cookie length constraint bypass leading to out-
 
 origin: synthetic
 
-release_date: 01/01/2024
+validator: Younggi Park
+
+release_date: 02/01/2026
+
+references: ["https://github.com/aixcc-public/challenge-004-nginx-cp/tree/main/.internal_only/cpv15"]
 
 cwes:
 - CWE-125
@@ -12,14 +16,8 @@ cwes:
 - CWE-823
 
 description: |
-  A vulnerability exists in the NGINX userid filter module where the cookie
-  length validation is insufficient. The ngx_http_userid_get_uid function
-  checks if the cookie length is at least 22 bytes but does not constrain
-  it to exactly 22 bytes. When a cookie longer than 22 bytes is provided,
-  the ngx_http_userid_set_uid function attempts to copy exactly 22 bytes
-  from ctx->cookie.data, resulting in a wild pointer dereference and
-  out-of-bounds read. This leads to a segmentation fault and denial of
-  service.
+  The vulnerability exists in this module when an overly long value is provided via the uid= option in the Cookie request. The ngx_http_userid_get_uid function checks if the cookie length is at least 22 bytes but does not constrain it to exactly 22 bytes. When a cookie longer than 22 bytes is provided, the ngx_http_userid_set_uid function attempts to copy exactly 22 bytes from ctx->cookie.data, resulting in a wild pointer dereference and out-of-bounds read. This causes an overflow in global memory in a context structure. While the main result of the vulnerability is an overflow, the sanitizer that triggers is a Read Access due to the overwriting of a pointer that is later dereferenced.
+
 
 locations:
 - type: crash_site
@@ -33,6 +31,6 @@ locations:
   path_from_root: src/http/modules/ngx_http_userid_filter_module.c
   function_name: ngx_http_userid_get_uid
   startLine: 357
-  startColumn: 1
+  startColumn: 5
   endLine: 357
-  endColumn: 1
+  endColumn: 23

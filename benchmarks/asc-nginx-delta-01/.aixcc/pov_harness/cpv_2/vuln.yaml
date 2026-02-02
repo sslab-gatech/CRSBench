@@ -4,7 +4,12 @@ name: Heap buffer overflow in nginx HTTP Basic Authentication base64 decoding
 
 origin: synthetic
 
-release_date: 01/01/2024
+validator: Younggi Park
+
+release_date: 02/01/2026
+
+references: ["https://github.com/aixcc-public/challenge-004-nginx-cp/tree/main/.internal_only/cpv2"]
+
 
 cwes:
 - CWE-122
@@ -12,14 +17,12 @@ cwes:
 - CWE-131
 
 description: |
-  A heap buffer overflow vulnerability exists in the ngx_http_auth_basic_user
-  function in src/http/ngx_http_core_module.c. The function allocates a fixed-size
-  buffer of 16 bytes (NGX_HTTP_AUTH_MAX) to store decoded base64 credentials,
-  but the actual size needed depends on the encoded input length. When a base64-
+  The Basic Auth header is a component of the HTTP protocol used for simple access control. When a user requests access to a protected resource, if unallowed, the server responds with a 401 Unauthorized status and a WWW-Authenticate header. The client could then send a request with an Authorization header containing the word Basic followed by a space and a base64-encoded string username:password. This allows the server to decode the credentials and verify the user's identity.
+  The vulnerability is located in how nginx handles this basic authentication header. The attacker can send a base64 encoded string, but the nginx server has a statically-sized buffer into which it decodes the given base64 string. For example, when a base64-
   encoded authentication header exceeds 24 characters (decoding to more than 18
   bytes), the ngx_decode_base64_internal function writes beyond the allocated
-  buffer boundary. This can lead to memory corruption, denial of service, or
-  potentially arbitrary code execution.
+  buffer boundary. This results in a heap base buffer overflow because the size of buffer can exceed NGX_HTTP_AUTH_MAX.
+
 
 locations:
 - type: root_cause
@@ -27,8 +30,8 @@ locations:
   function_name: ngx_http_auth_basic_user
   startLine: 1988
   startColumn: 5
-  endLine: 1989
-  endColumn: 52
+  endLine: 1988
+  endColumn: 34
 - type: crash_site
   path_from_root: src/core/ngx_string.c
   function_name: ngx_decode_base64_internal

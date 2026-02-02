@@ -4,20 +4,20 @@ name: Double-free in nginx Prefer header processing due to dangling pointer
 
 origin: synthetic
 
-release_date: 01/01/2024
+validator: Younggi Park
+
+release_date: 02/01/2026
+
+references: ["https://github.com/aixcc-public/challenge-004-nginx-cp/tree/main/.internal_only/cpv10"]
+
 
 cwes:
 - CWE-415
 - CWE-672
 
 description: |
-  A double-free vulnerability exists in the ngx_http_process_prefer function
-  in src/http/ngx_http_request.c. When processing multiple "Prefer" HTTP headers,
-  the function frees memory for duplicate headers but fails to set the pointer to
-  NULL, leaving a dangling pointer. When a third "Prefer" header is processed,
-  the code attempts to free the already-freed memory, resulting in a double-free
-  condition. This can lead to denial of service (crash), memory corruption, and
-  potentially arbitrary code execution.
+  This vulnerability is related to the support for the Prefer header in NGINX. When Prefer header arrives, the program modifies the header filter module to account for the Prefer header's length and include it in the response if present in the request. The program also updates the request processing code to handle the Prefer header by declaring and implementing a new function, ngx_http_process_prefer, which processes this header, checks for duplicates, logs appropriately, and allocates memory for storing the header. Additionally, the ngx_http_headers_in_t structure is updated to include a field for the Prefer header, ensuring proper storage and handling within the request lifecycle. However, if there are more than one of these Prefer headers in a request, nginx should fail with a proper error but current implmentation accepts the duplicated Prefer header. If an attacker sends multiple Prefer header then they can trigger a double free of the prefer buffer in the http request structure.
+
 
 locations:
 - type: crash_site
