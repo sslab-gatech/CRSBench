@@ -41,8 +41,7 @@ COPY project-parent $SRC/project-parent/
 
 #RUN git clone --depth 1 https://github.com/apache/tika/ $SRC/project-parent/tika
 
-COPY pkgs/tika.tar.gz.part* $SRC/
-RUN cat $SRC/tika.tar.gz.part* > $SRC/tika.tar.gz
+COPY pkgs/tika.tar.gz $SRC/
 RUN tar -zxf $SRC/tika.tar.gz -C $SRC/project-parent && rm $SRC/tika.tar.gz
 
 COPY build.sh $SRC/
