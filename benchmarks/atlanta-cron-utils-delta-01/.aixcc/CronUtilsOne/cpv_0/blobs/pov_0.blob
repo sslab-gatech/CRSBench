@@ -1,1 +1,0 @@
-Java.type('java.lang.Runtime').getRuntime().exec('jazze 15'); // 4 5 [${''.getClass().forName('javax.script.ScriptEngineManager').newInstance().getEngineByName('js').eval(validatedValue)}]

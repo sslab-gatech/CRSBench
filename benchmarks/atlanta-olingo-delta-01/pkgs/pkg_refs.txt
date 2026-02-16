@@ -1,1 +1,0 @@
-git@github.com:Team-Atlanta/cp-java-olingo-src.git@15c1d6dbf9d81dd2546d678103ab2253e38573af

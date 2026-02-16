@@ -1,1 +1,0 @@
-git@github.com:Team-Atlanta/cp-java-activemq-source.git@a1766fca92680d65a44abe233bdf240ef43f9a60

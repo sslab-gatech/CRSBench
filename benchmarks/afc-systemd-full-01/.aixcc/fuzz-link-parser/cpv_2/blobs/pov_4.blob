@@ -1,7 +1,0 @@
-[Match]
-Host=true
-Host=true
-Host=eth0
-
-[Network]
-MTU=18446744073709551615

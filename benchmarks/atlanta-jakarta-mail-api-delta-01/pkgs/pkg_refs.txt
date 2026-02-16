@@ -1,1 +1,0 @@
-git@github.com:Team-Atlanta/cp-java-jakarta-mail-api-source.git@6cf2e0b38d36b103076eb2682fe3134abee4ccc4

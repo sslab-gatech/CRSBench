@@ -1,8 +1,0 @@
-language: jvm
-main_repo: 'git@github.com:Team-Atlanta/cp-java-struts-source.git'
-fuzzing_engines:
-  - libfuzzer
-sanitizers:
-  - address
-rts_mode: none
-inc_build: true

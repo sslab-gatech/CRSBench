@@ -1,2 +1,0 @@
-aixcc-challenges/Little-CMS@bfd4b61e669ae93a47d3c86cbb10893dc765fda3
-git@github.com:Team-Atlanta/official-afc-little-cms.git@2bcba622f9ac782d649437c381d2bd520800e106

@@ -1,2 +1,0 @@
-aixcc-challenges/xz@dd4a1b259936880e04669b43e778828b60619860
-git@github.com:Team-Atlanta/official-afc-xz.git@e4c73eeb0013d120d63083dd50a3720f04091a04

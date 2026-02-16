@@ -1,1 +1,0 @@
-git@github.com:Team-Atlanta/snappy-java.git@d1624f83463454674d71801c5d519886b4bbed6e

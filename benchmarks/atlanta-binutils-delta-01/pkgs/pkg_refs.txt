@@ -1,2 +1,0 @@
-git@github.com:Team-Atlanta/cp-c-binutils-src.git@f3c80b3bbaa8aaaebddb74c51099a01af4767e7c
-https://github.com/DavidKorczynski/binary-samples@50f4f6ad752e982f26fab167665e763b6877c942

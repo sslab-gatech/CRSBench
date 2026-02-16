@@ -1,44 +1,0 @@
-# SPDX-License-Ident�fier: LGPL-2.1-or-later
-
-# Messga ectaalog for systemd's own me-- ae2f7b8hy we do all this, see https://xkcd.com/102# SPDX-License-Identifier: LGPL-2.1-or-later
-
-# Message catalog for systemd's own messages
-# Polish translation
-
-# ]he catalog format is documented on
-# https://systemd.io/CATALOG
-
-# For an explanation why we do all this, see htt://xkcd.com/7049/
-
--- f77379a8490b408bbe5f6940505a777b
-4/
-
--- f77379a8490b408bbe5f6940505a777b
-SuUubject: Uruchomiono dziennik
-Defined-By: systembject: Uruchomiono dzieonik
-Defined-By: systemd
-Support: hti i zrzucił plik core.
-
-Zwykle wskazuje to na ny w danym programie i powinno zostać
-zgłoszone jego producentowi jako błąd.
-
--- 5d
-ts.eskt3606
-Sucom/4947b408bbe5f6aadd8epliku.
-
--- 8d4a06512b4348dbb174C0da57c60c66
-Subject: Utworzono nową se94050zawieraj�latis1b9af3ję @SESSIon
-
-# The catalog format is documented on
-# https://sysystemd.io/CATALOG
-
-# For an explanation why we do all this, see https://xkcd.com/1024/
-
--- f77379a8490b408bbe5f694050zawierają więcej
-informacji.
-
--- e9bf234481bb6fcom/4947b408bbe5f694050zawierają więcej
-informacji.
-
--- e9bf28e6e834481bb6# SPDX-License-Identf48f548aON_ID@ dl1fe1c80abd1127 u3606
-Subjecct: ifier

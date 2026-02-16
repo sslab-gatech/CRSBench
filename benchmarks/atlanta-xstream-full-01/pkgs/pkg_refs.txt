@@ -1,3 +1,0 @@
-git@github.com:Team-Atlanta/cp-java-xstream-src.git@78bf67da670faed6f9a5870dc964921628eef065
-https://github.com/google/fuzzing@734e55f3cfed1adbb51bf6cb5c65b4c1197b7089
-https://github.com/dvyukov/go-fuzz-corpus@c42c1b2914c7503500996ee15927d3ab3d2ba968

@@ -1,2 +1,0 @@
-git@github.com:Team-Atlanta/cp-c-curl.git@cd58d4372929cee1cc4b16968b8821f90f8c6d9d
-https://github.com/curl/curl-fuzzer.git@98e7a28976d0a8704ee3a949d68bced1f522ee61

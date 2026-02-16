@@ -1,2 +1,0 @@
-aixcc-challenges/systemd@d218ecc7337a4689e7d589df7fd146f4aaab3809
-git@github.com:Team-Atlanta/official-afc-systemd.git@f4ac1ed1e2e5ddcf827b58bbd4147ac4e7d3694a

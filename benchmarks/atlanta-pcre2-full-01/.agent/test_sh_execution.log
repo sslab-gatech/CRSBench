@@ -1,9 +1,0 @@
-# test.sh Execution Log
-
-Executed: 2025-11-22T03:39:29.384458
-Benchmark: atlanta-pcre2-full-01
-Status: ✅ Success
-
-## Output
-
-{'success': True, 'returncode': 0, 'output': 'Rebuilding project...\nRunning POSIX interface tests...\nRunning JIT tests...\nRunning JIT regression tests\n  target CPU of SLJIT compiler: x86 64bit (little endian + unaligned)\n  in  8 bit mode with UTF-8  enabled:\n............................................................\n............................................................\n............................................................\n............................................................\n............................................................\n............................................................\n............................................................\n............................................................\n............................................................\n............................................................\n............................................................\n..........\nAll JIT regression tests are successfully passed.\n\nRunning invalid-utf8 JIT regression tests\n............................................................\n............................................................\n..........\n\nAll invalid UTF8 JIT regression tests are successfully passed.\nAll tests passed!\n\n\ntest.sh execution succeeded.\n', 'timed_out': False}

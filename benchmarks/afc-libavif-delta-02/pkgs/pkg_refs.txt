@@ -1,2 +1,0 @@
-aixcc-challenges/libavif@fa089a0c3f8ed6e202034589cf98394e0226d66c
-git@github.com:Team-Atlanta/official-afc-libavif.git@4ad4b22801987aca6946eb538960a3de96ab941f

@@ -1,2 +1,0 @@
-aixcc-challenges/pdfbox@afd3ea77c9cecc5a85b815e202bc84d6dd7a2b6e
-git@github.com:Team-Atlanta/official-afc-pdfbox.git@65c74cab4bd1c6874328891fe3b5ea3f8314153f

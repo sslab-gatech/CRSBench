@@ -1,3 +1,0 @@
-aixcc-challenges/libxml2@71c37a565d3726440aa96d648db0426deb90157b
-curl -LO http://mirrors.kernel.org/ubuntu/pool/main/a/automake-1.16/automake_1.16.5-1.3_all.deb
-git@github.com:Team-Atlanta/official-afc-libxml2.git@03b1eb1e593f2a974c65c46b484a39fdcf4e7ff8

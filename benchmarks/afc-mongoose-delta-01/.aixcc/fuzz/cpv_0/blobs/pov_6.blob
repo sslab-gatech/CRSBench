@@ -1,3 +1,0 @@
-GET /?key=value HTTP/1.1
-Content-Length: 2097153
-

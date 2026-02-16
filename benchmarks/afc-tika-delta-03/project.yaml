@@ -1,9 +1,0 @@
-homepage: "https://tika.apache.org/"
-language: jvm
-fuzzing_engines:
-  - libfuzzer
-main_repo: "git@github.com:Team-Atlanta/official-afc-tika.git"
-sanitizers:
-  - address
-rts_mode: none
-inc_build: true

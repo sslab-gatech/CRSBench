@@ -1,1 +1,0 @@
-git@github.com:Team-Atlanta/cp-java-feign-src.git@c6989d7ddaa22b367d16a5e8346d853fee9aa5a5

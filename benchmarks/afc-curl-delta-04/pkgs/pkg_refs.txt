@@ -1,3 +1,0 @@
-aixcc-challenges/curl@2d4852af83c9e8c4db979a9f0d328f253ad64c0b
-aixcc-challenges/curl-fuzzer@e2a900d659dce199691be52071426a146f96400f
-git@github.com:Team-Atlanta/official-afc-curl.git@f3ebada54f1fb873056e315c2cf4ba8e4b7ca04b

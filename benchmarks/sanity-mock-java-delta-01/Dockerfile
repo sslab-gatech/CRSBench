@@ -20,6 +20,9 @@ RUN apt-get update && apt-get install -y maven
 
 #RUN git clone git@github.com:Team-Atlanta/mock-java.git $SRC/src/mock_java
 
+COPY pkgs/mock_java.tar.gz $SRC/src/mock_java.tar.gz
+RUN tar -xzf $SRC/src/mock_java.tar.gz -C $SRC/src/ && rm $SRC/src/mock_java.tar.gz
+
 WORKDIR $SRC/src/mock_java
 
 COPY fuzz $SRC/src/fuzz

@@ -1,4 +1,0 @@
-GET /videos/sample.flv?start=10000000 HTTP/1.1
-Host: localhost
-Cookie: uid=atlanta;;
-

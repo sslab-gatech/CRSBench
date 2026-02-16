@@ -1,6 +1,0 @@
-COPY /dav/copy_this_dir/ HTTP/1.1
-Host: localhost
-Destination: http://localhost/dav/target_dir/
-Overwrite: T
-Cookie: uid=atlanta;;
-

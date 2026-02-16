@@ -1,5 +1,0 @@
-Mime-Version: 1.0
-Subject: Example
-Content-Type: text/xml
-
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE foo [<!ENTITY example SYSTEM "http://jazzer.example.com"> ]> <productId>&example;</productId>

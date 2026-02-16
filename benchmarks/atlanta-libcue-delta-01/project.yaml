@@ -1,9 +1,0 @@
-language: c
-sanitizers:
-  - address
-main_repo: 'git@github.com:Team-Atlanta/cp-user-libcue-src.git'
-
-fuzzing_engines:
-  - libfuzzer
-rts_mode: none
-inc_build: true

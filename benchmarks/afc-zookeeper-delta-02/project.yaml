@@ -1,9 +1,0 @@
-homepage: "https://github.com/apache/zookeeper"
-language: jvm
-main_repo: "git@github.com:Team-Atlanta/r3-afc-zookeeper.git"
-fuzzing_engines:
-  - libfuzzer
-sanitizers:
-  - address
-rts_mode: openclover
-inc_build: true

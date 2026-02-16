@@ -1,1 +1,0 @@
-git@github.com:Team-Atlanta/cp-c-libjpeg.git@f6ea8dea71a23336cebcfab44f8cc180b4fbec6f

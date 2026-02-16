@@ -1,4 +1,0 @@
-git@github.com:Team-Atlanta/cp-user-file.git@c7c244f360287c7079cae6f9af7b3d663580fcc6
-https://github.com/DavidKorczynski/binary-samples.git@50f4f6ad752e982f26fab167665e763b6877c942
-https://github.com/corkami/pocs@6d277c83efdceb6916ee8c6efe6ff0639cc6193f
-https://github.com/DavidKorczynski/binary-samples@50f4f6ad752e982f26fab167665e763b6877c942

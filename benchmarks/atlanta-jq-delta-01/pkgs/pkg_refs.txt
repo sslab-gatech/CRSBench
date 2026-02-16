@@ -1,3 +1,0 @@
-git@github.com:Team-Atlanta/cp-c-jq.git@b8d58e2b26dc4c61c803f2bd4c13dac22d6213c0
-https://github.com/kkos/oniguruma.git@f95747b462de672b6f8dbdeb478245ddf061ca53
-https://github.com/kkos/oniguruma@f95747b462de672b6f8dbdeb478245ddf061ca53

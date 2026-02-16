@@ -1,2 +1,0 @@
-aixcc-challenges/libxml2@71c37a565d3726440aa96d648db0426deb90157b
-git@github.com:Team-Atlanta/official-afc-libxml2.git@574c2873262ed08f0af2675327ef66de1f6a21c5

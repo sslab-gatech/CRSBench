@@ -1,7 +1,0 @@
-[libfuzzer]
-timeout_exitcode=0
-max_len=20000
-
-[asan]
-timeout_exitcode=0
-detect_leaks=0

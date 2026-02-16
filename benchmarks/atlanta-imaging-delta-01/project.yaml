@@ -1,8 +1,0 @@
-language: jvm
-main_repo: 'git@github.com:Team-Atlanta/cp-java-imaging-source.git'
-fuzzing_engines:
-  - libfuzzer
-sanitizers:
-  - address
-rts_mode: jcgeks
-inc_build: true
