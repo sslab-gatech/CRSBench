@@ -12,7 +12,8 @@ points to canonical docs to avoid drift.
 ## Install
 
 ```bash
-git clone https://github.com/artifact-org/CRSBench.git
+# Replace `your-org` with the repository URL you were given.
+git clone https://github.com/your-org/CRSBench.git
 cd CRSBench
 uv sync --extra dev
 scripts/setup-third-party.sh

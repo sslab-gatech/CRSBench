@@ -525,20 +525,18 @@ uv run crsbench run --experiment-config config.yaml
 uv run crsbench worker --experiment-config config.yaml --cpuset 0-111
 ```
 
-**Machine B..N** (Remote Workers):
+**Machine A** (operator shell for remote-worker bootstrap):
 ```bash
-# Copy .env from Machine A (contains CRSBENCH_REDIS_PASSWORD)
-scp user@machine-a:/path/to/CRSBench/.env /path/to/CRSBench/.env
-
-# Create a host map once on Machine A
+# Create a host map once on the operator machine
 cat > .crsbench-remote-hosts <<'EOF'
 worker-a=worker-a.example.com
 worker-b=worker-b.example.com
 EOF
 
-# Configure the shared Redis host and config path used by remote workers
+# Configure the shared Redis host, config path, and clone URL used by remote workers
 export CRSBENCH_REDIS_HOST=machine-a.example.com:6379
 export CRSBENCH_REMOTE_CONFIG_PATH=/path/to/config.yaml
+export CRSBENCH_REPO_URL=git@github.com:your-org/CRSBench.git
 
 # Setup: clone/pull the repo, copy .env, bundle packages, and prepare coverage deps
 scripts/orchestrate-workers.sh setup
@@ -547,7 +545,12 @@ scripts/orchestrate-workers.sh setup
 scripts/orchestrate-workers.sh start
 ```
 
-After all trials complete, collect experiment data back to the orchestrator:
+**Machine B..N** (Remote Workers):
+```bash
+# Ensure the operator machine can SSH to each worker and that Docker is ready.
+```
+
+After all trials complete, collect experiment data back to the orchestrator from the operator machine:
 ```bash
 # From Machine A: collect results from remote workers
 scripts/orchestrate-workers.sh collect

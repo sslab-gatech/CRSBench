@@ -536,7 +536,7 @@ def test_build_instance_metadata_includes_install_spec_from_fleet_config():
     from crsbench.cloud.gce.metadata import build_instance_metadata
 
     fleet = _make_fleet(
-        crsbench_install_spec="git+ssh://git@github.com/artifact-org/CRSBench.git",
+        crsbench_install_spec="git+ssh://git@github.com/your-org/CRSBench.git",
         metadata={"custom-key": "custom-value"},
     )
     metadata = build_instance_metadata(
@@ -550,7 +550,7 @@ def test_build_instance_metadata_includes_install_spec_from_fleet_config():
 
     assert (
         metadata["crsbench-install-spec"]
-        == "git+ssh://git@github.com/artifact-org/CRSBench.git"
+        == "git+ssh://git@github.com/your-org/CRSBench.git"
     )
 
 
@@ -579,7 +579,7 @@ def test_build_instance_metadata_fleet_config_install_spec_overrides_manual_meta
     from crsbench.cloud.gce.metadata import build_instance_metadata
 
     fleet = _make_fleet(
-        crsbench_install_spec="git+ssh://git@github.com/artifact-org/CRSBench.git",
+        crsbench_install_spec="git+ssh://git@github.com/your-org/CRSBench.git",
         metadata={"crsbench-install-spec": "old-value"},
     )
     metadata = build_instance_metadata(
@@ -593,7 +593,7 @@ def test_build_instance_metadata_fleet_config_install_spec_overrides_manual_meta
 
     assert (
         metadata["crsbench-install-spec"]
-        == "git+ssh://git@github.com/artifact-org/CRSBench.git"
+        == "git+ssh://git@github.com/your-org/CRSBench.git"
     )
 
 
@@ -1212,7 +1212,7 @@ def test_build_orchestrator_metadata_strips_secret_path_fields_from_config_paylo
                 "cloud": {
                     "defaults": {
                         "crsbench_install_spec": (
-                            "git+ssh://git@github.com/artifact-org/CRSBench.git"
+                            "git+ssh://git@github.com/your-org/CRSBench.git"
                         ),
                         "github_deploy_key_path": "/home/operator/.ssh/crsbench",
                     }
@@ -1236,7 +1236,7 @@ def test_build_orchestrator_metadata_strips_secret_path_fields_from_config_paylo
     )
 
     assert decoded_config["cloud"]["defaults"]["crsbench_install_spec"] == (
-        "git+ssh://git@github.com/artifact-org/CRSBench.git"
+        "git+ssh://git@github.com/your-org/CRSBench.git"
     )
     assert "github_deploy_key_path" not in decoded_config["cloud"]["defaults"]
 

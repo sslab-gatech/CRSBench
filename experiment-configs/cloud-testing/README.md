@@ -180,7 +180,9 @@ Before running one of these cloud configs:
 
 These checked-in configs use anonymized placeholder GCE values. Replace
 `artifact-gcp-project`, `artifact-compute@developer.gserviceaccount.com`, and
-`artifact-owner` with values from your own GCP project before launch.
+`artifact-owner` with values from your own GCP project before launch. Replace
+`your-org` in `cloud.defaults.crsbench_install_spec` with a Git URL the VMs can
+clone.
 
 1. Authenticate both GCP credential paths on the operator machine:
 
@@ -223,9 +225,9 @@ Expected result:
 
 3. Make sure the private repo install path in the config is usable from the VM bootstrap.
 
-The checked-in config currently uses:
+The checked-in config currently uses placeholder Git coordinates:
 
-- `cloud.defaults.crsbench_install_spec: git+ssh://git@github.com/artifact-org/CRSBench.git`
+- `cloud.defaults.crsbench_install_spec: git+ssh://git@github.com/your-org/CRSBench.git`
 - `cloud.defaults.crsbench_git_ref: ccs-artifacts`
 - `cloud.defaults.github_deploy_key_path: .crsbench-keys/crsbench-deploy`
 
@@ -263,7 +265,7 @@ The checked-in config already points at that private key:
 ```yaml
 cloud:
   defaults:
-    crsbench_install_spec: "git+ssh://git@github.com/artifact-org/CRSBench.git"
+    crsbench_install_spec: "git+ssh://git@github.com/your-org/CRSBench.git"
     github_deploy_key_path: .crsbench-keys/crsbench-deploy
 ```
 

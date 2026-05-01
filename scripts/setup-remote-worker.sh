@@ -23,7 +23,7 @@
 set -euo pipefail
 
 MACHINE_NAME="${1:?Usage: $0 <machine-name>}"
-REPO_URL="${CRSBENCH_REPO_URL:-git@github.com:artifact-org/CRSBench.git}"
+REPO_URL="${CRSBENCH_REPO_URL:-}"
 BRANCH="${CRSBENCH_BRANCH:-}"
 INSTALL_DIR="${CRSBENCH_INSTALL_DIR:-$HOME/CRSBench}"
 CRSBENCH_REDIS_HOST="${CRSBENCH_REDIS_HOST:-}"
@@ -58,24 +58,22 @@ echo "  git:    $(git --version)"
 echo "  docker: $(docker --version)"
 
 echo ""
-echo "[2/9] Configuring git SSH access for submodules..."
+echo "[2/9] Checking repo access prerequisites..."
 
-if ! git config --global --get url."git@github.com:artifact-org/".insteadOf &>/dev/null; then
-    git config --global --unset url."git@github.com:".insteadOf 2>/dev/null || true
-    git config --global url."git@github.com:artifact-org/".insteadOf "https://github.com/artifact-org/"
-    echo "  Configured HTTPS→SSH URL rewrite for artifact-org repos"
+if [[ "$REPO_URL" == git@github.com:* || "$REPO_URL" == git+ssh://git@github.com/* ]]; then
+    if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+        echo "  GitHub SSH access: OK"
+    else
+        echo "WARNING: GitHub SSH access may not be configured."
+        echo "  The configured repo URL uses SSH:"
+        echo "    ${REPO_URL}"
+        echo "  To fix:"
+        echo "    1. Generate key: ssh-keygen -t ed25519 -C \"$MACHINE_NAME@example.com\""
+        echo "    2. Add to GitHub: https://github.com/settings/keys"
+        echo "    3. Test: ssh -T git@github.com"
+    fi
 else
-    echo "  HTTPS→SSH URL rewrite already configured"
-fi
-
-if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
-    echo "  GitHub SSH access: OK"
-else
-    echo "WARNING: GitHub SSH access may not be configured."
-    echo "  Submodule init may fail. To fix:"
-    echo "    1. Generate key: ssh-keygen -t ed25519 -C \"$MACHINE_NAME@example.com\""
-    echo "    2. Add to GitHub: https://github.com/settings/keys"
-    echo "    3. Test: ssh -T git@github.com"
+    echo "  Repo URL does not require GitHub SSH rewrite setup"
 fi
 
 echo ""
@@ -99,6 +97,10 @@ if [ -d "$INSTALL_DIR/.git" ]; then
     fi
 else
     echo "  Cloning to $INSTALL_DIR..."
+    if [ -z "$REPO_URL" ]; then
+        echo "ERROR: CRSBENCH_REPO_URL must be set when cloning onto a fresh worker."
+        exit 1
+    fi
     if [ -n "$BRANCH" ]; then
         git clone --branch "$BRANCH" "$REPO_URL" "$INSTALL_DIR"
     else

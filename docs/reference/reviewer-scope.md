@@ -1,7 +1,7 @@
 # Reviewer Scope
 
-This anonymous-artifact branch keeps the CRSBench paths needed to exercise the
-paper's claimed functionality.
+This repository keeps the CRSBench paths needed to exercise the paper's
+claimed functionality.
 
 ## Reviewer Paths
 
@@ -33,7 +33,6 @@ paper's claimed functionality.
 ## Third-Party Provenance Kept
 
 - `oss-crs/` remains third-party and is not anonymized here.
-- Atlantis / Team-Atlanta provenance is kept where it reflects a genuine
-  upstream dependency or published artifact source.
-- Benchmark payloads continue to come from the configured Hugging Face dataset
-  rather than being vendored into this branch.
+- Most benchmark payloads come from the configured Hugging Face dataset; a
+  small in-tree sanity fixture set remains packaged locally for smoke and
+  validation flows.

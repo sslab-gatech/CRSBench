@@ -26,9 +26,8 @@ Benchmark challenge projects for evaluating Cyber Reasoning Systems (CRS).
 
 ## Description
 
-This dataset contains 134 benchmark challenge projects used by
-[CRSBench](https://github.com/artifact-org/CRSBench) to evaluate
-vulnerability discovery and patch generation capabilities of CRS.
+This dataset contains 134 benchmark challenge projects used by CRSBench to
+evaluate vulnerability discovery and patch generation capabilities of CRS.
 
 Each challenge project includes:
 - **Dockerfile** and build scripts for reproducible builds
@@ -109,7 +108,7 @@ snapshot_download(
 
 ## Further Reading
 
-- CRSBench repository: <https://github.com/artifact-org/CRSBench>
+- CRSBench repository: [README.md](README.md)
 - Dataset module guide: [docs/modules/dataset.md](docs/modules/dataset.md)
 - Benchmark developer guide: [docs/contributors/benchmark-developer-guide.md](docs/contributors/benchmark-developer-guide.md)
 - Data protection and contamination design: [docs/design/benchmark-protection-and-contamination.md](docs/design/benchmark-protection-and-contamination.md)

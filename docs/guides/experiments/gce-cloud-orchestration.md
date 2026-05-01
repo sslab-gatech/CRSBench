@@ -192,7 +192,7 @@ those instance profiles from the provider-neutral `cloud.orchestrator`,
 cloud:
   defaults:
     readiness_timeout_sec: 900
-    crsbench_install_spec: "git+https://github.com/artifact-org/CRSBench.git"
+    crsbench_install_spec: "git+https://github.com/your-org/CRSBench.git"
     crsbench_git_ref: ccs-artifacts
   bootstrap:
     prepare_mode: full
@@ -217,6 +217,17 @@ cloud:
         gce-worker-n2d: {}
         gce-evaluator-c3d:
           machine_type: c3d-standard-30
+```
+
+Replace `your-org` in `cloud.defaults.crsbench_install_spec` with a Git URL
+that the launched VMs can actually clone.
+
+```yaml
+cloud:
+  defaults:
+    readiness_timeout_sec: 900
+    crsbench_install_spec: "git+https://github.com/your-org/CRSBench.git"
+    crsbench_git_ref: ccs-artifacts
   orchestrator:
     region: us-east5
     instance_profile: gce-orchestrator-n2d
@@ -668,7 +679,7 @@ cloud:
         env:
           HTTPS_PROXY: os.environ/HTTPS_PROXY
       defaults:
-        crsbench_install_spec: "git+https://github.com/artifact-org/CRSBench.git"
+        crsbench_install_spec: "git+https://github.com/your-org/CRSBench.git"
       instance_profiles:
         gce-orchestrator-n2d:
           env:
@@ -745,7 +756,7 @@ public key. Add it to your GitHub repository:
 ```yaml
 cloud:
   defaults:
-    crsbench_install_spec: "git+https://github.com/artifact-org/CRSBench.git"
+    crsbench_install_spec: "git+https://github.com/your-org/CRSBench.git"
   env:
     HF_TOKEN: os.environ/HF_TOKEN
   providers:

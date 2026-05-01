@@ -440,7 +440,7 @@ SECTION_SPECS: dict[str, SectionSpec] = {
                 "defaults_crsbench_install_spec",
                 "crsbench install spec",
                 "text",
-                "git+ssh://git@github.com/artifact-org/CRSBench.git",
+                "git+ssh://git@github.com/your-org/CRSBench.git",
                 visible_when=_when_true("enabled"),
             ),
             FieldSpec(

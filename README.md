@@ -13,7 +13,8 @@ and [docs/reference/reviewer-scope.md](docs/reference/reviewer-scope.md).
 
 ```bash
 # Install
-git clone https://github.com/artifact-org/CRSBench.git && cd CRSBench
+# Use your existing checkout, or replace `your-org` with the repo URL you were given.
+git clone https://github.com/your-org/CRSBench.git && cd CRSBench
 uv sync
 ./scripts/setup-third-party.sh             # clone managed oss-fuzz + Atlantis checkouts
 uv run crsbench prepare                    # pull OSS-Fuzz + AIxCC base images

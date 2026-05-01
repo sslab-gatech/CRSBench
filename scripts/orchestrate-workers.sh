@@ -45,7 +45,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
 BRANCH="${CRSBENCH_BRANCH:-$(git -C "$REPO_DIR" branch --show-current 2>/dev/null || true)}"
 BRANCH="${BRANCH:-ccs-artifacts}"
-REPO_URL="${CRSBENCH_REPO_URL:-git@github.com:artifact-org/CRSBench.git}"
+DEFAULT_REPO_URL="$(git -C "$REPO_DIR" remote get-url origin 2>/dev/null || true)"
+REPO_URL="${CRSBENCH_REPO_URL:-$DEFAULT_REPO_URL}"
 SETUP_SCRIPT="$SCRIPT_DIR/setup-remote-worker.sh"
 INSTALL_DIR="${CRSBENCH_INSTALL_DIR:-$HOME/CRSBench}"
 TMUX_SESSION="${CRSBENCH_TMUX_SESSION:-crsbench-worker}"
@@ -254,6 +255,11 @@ cmd_setup() {
 
     if [[ ! -f "$SETUP_SCRIPT" ]]; then
         err "Setup script not found: $SETUP_SCRIPT"
+        exit 1
+    fi
+    if [[ -z "$REPO_URL" ]]; then
+        err "No repo URL available for remote setup."
+        err "Set CRSBENCH_REPO_URL or configure an origin remote in this checkout."
         exit 1
     fi
 

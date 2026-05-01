@@ -1213,7 +1213,7 @@ class TestIntegrationWithSampleConfigs:
         assert config.experiment == experiment_name
         assert (
             config.cloud.defaults.crsbench_install_spec
-            == "git+ssh://git@github.com/artifact-org/CRSBench.git"
+            == "git+ssh://git@github.com/your-org/CRSBench.git"
         )
         assert (
             config.cloud.defaults.github_deploy_key_path
