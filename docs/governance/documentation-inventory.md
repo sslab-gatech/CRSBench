@@ -1,6 +1,6 @@
 # Documentation Inventory and Audit
 
-Last updated: 2026-03-09
+Last updated: 2026-05-01
 
 This file records documentation scope and cleanup findings. It is an audit
 artifact, not a policy source of truth.
@@ -25,7 +25,7 @@ artifact, not a policy source of truth.
 
 ## Inventory Summary
 
-- `docs/` markdown and yaml documents: 88
+- `docs/` markdown and yaml documents: 86
 - Root canonical docs: 2
 - Adjacent local component README files: 8
 - In-repo integrated upstream entry docs: 2
