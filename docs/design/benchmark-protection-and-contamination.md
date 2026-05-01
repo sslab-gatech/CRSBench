@@ -47,7 +47,7 @@ CRSBench ground truth data (patches, POVs, vulnerability info) must be protected
 └─────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  Team-Atlanta/* (GitHub PRIVATE)                                        │
+│  Private source snapshots (GitHub PRIVATE)                              │
 │                                                                         │
 │  • Source repos (vulnerable snapshots with full git history)            │
 │  • Contains .aixcc (must be removed when bundling)                      │
@@ -239,7 +239,7 @@ contracts above:
 
 | Location | Purpose | Action |
 |----------|---------|--------|
-| Team-Atlanta source repos | Development convenience | **Remove** when bundling |
+| Private source snapshots | Development convenience | **Remove** when bundling |
 | artifact-org/crsbench-benchmarks | Authoritative ground truth | **Keep** |
 
 ### 5.2 Runtime Removal
@@ -258,7 +258,8 @@ All benchmarks with the same prefix share one UUID:
 
 | Prefix | Example Benchmarks | UUID |
 |--------|-------------------|------|
-| `atlanta-*` | atlanta-01, atlanta-02 | Single UUID for group |
+| `artifact-*` | artifact-libcue-delta-01 | Single UUID for group |
+| `asc-*` | asc-nginx-delta-01 | Single UUID for group |
 | `afc-*` | afc-curl-01, afc-nginx-01 | Different UUID |
 | `sanity-*` | sanity-mock-c-01 | Different UUID |
 
@@ -292,8 +293,10 @@ Stored at repository root, tracks prefix-to-UUID mappings:
   "version": "1.0",
   "created_at": "2026-01-16T12:00:00Z",
   "groups": {
-    "atlanta-*": "12345678-1234-5678-1234-567812345678",
-    "afc-*": "abcdefab-1234-5678-9abc-def012345678"
+    "artifact-*": "12345678-1234-5678-1234-567812345678",
+    "asc-*": "23456789-2345-6789-2345-678923456789",
+    "afc-*": "abcdefab-1234-5678-9abc-def012345678",
+    "sanity-*": "fedcbafe-4321-8765-cba9-876543210fed"
   }
 }
 ```
@@ -374,7 +377,7 @@ curl-vuln-001/       → Same pattern
 |----------|--------|-----------|
 | Framework repo | Public GitHub | Open source contributions |
 | Benchmark + ground truth | Private GitHub | Development workflow |
-| Source repos | Private GitHub (Team-Atlanta) | Contains vulnerable versions |
+| Source repos | Private GitHub | Contains vulnerable versions |
 | Distribution | HuggingFace (gated) | Programmatic access, terms agreement |
 | Dataset structure | Flat (no subdirs per source) | Matches current CRSBench structure |
 | Source bundling | `pkgs/` directory with tarballs | Existing pattern, Dockerfile compatible |

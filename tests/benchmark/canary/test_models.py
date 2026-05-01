@@ -39,24 +39,24 @@ class TestCanaryRegistry:
         registry = CanaryRegistry()
 
         # First call creates UUID
-        uuid1 = registry.get_or_create_uuid("atlanta-*")
+        uuid1 = registry.get_or_create_uuid("artifact-*")
         assert uuid1 is not None
-        assert "atlanta-*" in registry.groups
+        assert "artifact-*" in registry.groups
 
         # Second call returns same UUID
-        uuid2 = registry.get_or_create_uuid("atlanta-*")
+        uuid2 = registry.get_or_create_uuid("artifact-*")
         assert uuid1 == uuid2
 
     def test_different_prefixes_get_different_uuids(self):
         """Test that different prefixes get different UUIDs."""
         registry = CanaryRegistry()
 
-        uuid_atlanta = registry.get_or_create_uuid("atlanta-*")
+        uuid_artifact = registry.get_or_create_uuid("artifact-*")
         uuid_afc = registry.get_or_create_uuid("afc-*")
         uuid_sanity = registry.get_or_create_uuid("sanity-*")
 
-        assert uuid_atlanta != uuid_afc
-        assert uuid_atlanta != uuid_sanity
+        assert uuid_artifact != uuid_afc
+        assert uuid_artifact != uuid_sanity
         assert uuid_afc != uuid_sanity
 
 
@@ -67,11 +67,11 @@ class TestInjectionResult:
         """Test creating injection result."""
         test_uuid = uuid.uuid4()
         result = InjectionResult(
-            prefix="atlanta-*",
+            prefix="artifact-*",
             canary_uuid=test_uuid,
         )
 
-        assert result.prefix == "atlanta-*"
+        assert result.prefix == "artifact-*"
         assert result.canary_uuid == test_uuid
         assert result.injected_count == 0
         assert result.skipped_count == 0
@@ -98,11 +98,11 @@ class TestContaminationResult:
         """Test creating contamination result."""
         test_uuid = uuid.uuid4()
         result = ContaminationResult(
-            prefix="atlanta-*",
+            prefix="legacy-*",
             canary_uuid=test_uuid,
         )
 
-        assert result.prefix == "atlanta-*"
+        assert result.prefix == "legacy-*"
         assert result.canary_uuid == test_uuid
         assert result.p_value is None
 

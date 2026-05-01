@@ -20,8 +20,8 @@ experiment:
   task: bugfinding
   mode: auto
   benchmarks:
-    - atlanta-apache-poi-full-01: [POIHDGFFuzzer]
-    - atlanta-jenkins-delta-01: [JenkinsFour, JenkinsThreeFDP]
+    - artifact-apache-poi-full-01: [POIHDGFFuzzer]
+    - artifact-jenkins-delta-01: [JenkinsFour, JenkinsThreeFDP]
   sanitizers:
     - address
 runtime:
@@ -96,7 +96,7 @@ cloud:
         boot_disk_type: pd-ssd
         image: projects/ubuntu-os-cloud/global/images/family/ubuntu-2404-lts-amd64
         service_account_email: artifact-compute@developer.gserviceaccount.com
-        owner_label: crsbench
+        owner_label: artifact-owner
       instance_profiles:
         gce-orchestrator-n2d: {}
         gce-worker-n2d:

@@ -27,7 +27,7 @@ DATASET_REGISTRY: dict[str, DatasetConfig] = {
     "crsbench": DatasetConfig(
         backend="huggingface",
         location="artifact-org/crsbench-dataset",
-        prefixes=["atlanta-", "sanity-", "afc-", "asc-"],
+        prefixes=["artifact-", "sanity-", "afc-", "asc-"],
         repo_type="dataset",
     ),
 }

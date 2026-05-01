@@ -8,7 +8,7 @@ The dataset module manages distribution of benchmark data through a
 registry-based backend system. Currently supports HuggingFace with
 extensible support for S3 and Azure.
 
-- **Single HF repo**: `artifact-org/crsbench-dataset` (134 benchmarks, ~12GB)
+- **Single HF repo**: `artifact-org/crsbench-dataset` (~12GB benchmark packages + ground truth)
 - **Gated access**: Data Use Agreement with canary strings for LLM contamination detection
 - **Reliable uploads**: Uses `upload_large_folder` for the HuggingFace backend
 - **Card auto-upload**: HF card files are uploaded from canonical repo-root files

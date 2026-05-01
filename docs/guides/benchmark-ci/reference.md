@@ -72,7 +72,7 @@ crsbench benchmark ci all -b afc-curl-delta-01 afc-curl-delta-02 afc-tika-delta-
 
 # Filter by glob pattern
 crsbench benchmark ci all --filter "afc-curl-*"
-crsbench benchmark ci all --filter "atlanta-*"
+crsbench benchmark ci all --filter "artifact-*"
 
 # All benchmarks
 crsbench benchmark ci all --all

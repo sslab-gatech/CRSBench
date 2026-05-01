@@ -26,8 +26,8 @@ Important limitation
 
 ## Required Fields (Follow the RFC)
 
-Add fields according to the RFC defined here:  
-https://docs.google.com/document/d/1zweFtQT-EhAnimtMfr7XqTQN4LTvtKnUE7QlyImVF1c/edit?tab=t.0#heading=h.b9y1q86ktx4g
+Add fields according to the RFC defined in the repository:  
+[`docs/RFC.md`](../RFC.md)
 
 ### Field Guidelines
 

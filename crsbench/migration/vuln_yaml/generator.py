@@ -21,17 +21,6 @@ from crsbench.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def _get_crsbench_repo_root() -> str:
-    """Get the crsbench repository root directory.
-
-    Returns:
-        Absolute path to crsbench repository root
-    """
-    from crsbench.utils.paths import get_crsbench_root
-
-    return str(get_crsbench_root())
-
-
 class VulnYamlGenerator:
     """
     Agent-based vuln.yaml generator using Claude Agent SDK.
@@ -155,11 +144,9 @@ class VulnYamlGenerator:
         """
         prompt = self._build_analysis_prompt(project_dir, cpv_dir, cpv_id, harness_name)
 
-        # Use repo root as cwd so skills can be loaded from .claude/skills/
         options = ClaudeAgentOptions(
             model=self.model,
             allowed_tools=[
-                "Skill",
                 "Read",
                 "Grep",
                 "Glob",
@@ -167,16 +154,17 @@ class VulnYamlGenerator:
                 "WebSearch",
                 "WebFetch",
             ],
-            setting_sources=["project"],
-            cwd=_get_crsbench_repo_root(),
+            setting_sources=[],
+            cwd=project_dir,
+            add_dirs=[cpv_dir],
             system_prompt=(
                 "You are a thorough security researcher. "
-                "Use the vuln-yaml-analyzer skill for analysis guidance. "
-                "Use Grep to search patterns in source code, Glob to find files, and Read to examine files. "
-                "Use WebSearch and WebFetch to find CVE/reference information online. "
-                "CRITICAL: ONLY analyze crash logs from the specified CPV's logs directory. "
-                "DO NOT search for or read crash logs from other CPVs. "
-                "Be precise and cite specific locations."
+                "Start with the crash logs in the provided CPV logs directory and do not inspect crash logs from other CPVs. "
+                "Use patches to identify likely root_cause locations, exclude harness, sanitizer, runtime, and standard-library frames from vulnerability locations, "
+                "and classify origin as 1-day only when you confirm an exact official reference match for the patched issue. "
+                "If you cannot confirm an exact match, use origin=synthetic with release_date 02/01/2026. "
+                "Use Grep to search patterns in source code, Glob to find files, Read to examine files, and WebSearch/WebFetch only when needed for confirmed references. "
+                "Be precise and cite project-relative file paths, function names, and line numbers."
             ),
             env=self._get_env_dict(),
         )
@@ -205,9 +193,7 @@ class VulnYamlGenerator:
                 logger.error(f"Vulnerability analyzer agent error: {e}")
             result_text = f"# Error\n\nFailed to analyze vulnerability: {str(e)}"
 
-        # Filter out skill prompt content - only keep actual analysis
-        # The actual analysis starts with "# Vulnerability Analysis for cpv_X"
-        # Use "cpv" to avoid matching template "{cpv_id}" in skill file
+        # Keep only the structured analysis section if the model emits any preamble.
         analysis_marker = "# Vulnerability Analysis for cpv"
         if analysis_marker in result_text:
             marker_pos = result_text.find(analysis_marker)
@@ -227,8 +213,6 @@ class VulnYamlGenerator:
 # Task
 Analyze the vulnerability for: **{cpv_id}** in harness **{harness_name}**
 
-**Use the `vuln-yaml-analyzer` skill for detailed analysis guidance.**
-
 # Context
 - **CPV directory**: `{cpv_dir}`
   - `logs/`: Crash logs (pov_0.log, etc.)
@@ -237,12 +221,23 @@ Analyze the vulnerability for: **{cpv_id}** in harness **{harness_name}**
 - **Project source**: `{project_dir}`
 - **OSS-Fuzz files**: `{project_dir}/.oss-fuzz/` (build.sh, Dockerfile)
 
+# Required workflow
+1. Start with crash logs under `{cpv_dir}/logs/` and extract the error type, crash location, function, line number, DEDUP token, and relevant stack trace.
+2. Use `{cpv_dir}/patches/` to identify the fixed logic and likely `root_cause` location(s).
+3. Use `{cpv_dir}/blobs/` only for POV-specific hints.
+4. Confirm crash_site/root_cause locations against project source under `{project_dir}`.
+5. Exclude harness code, sanitizer/runtime frames, and standard-library frames from vulnerability locations.
+6. Classify `origin` as `1-day` only if you confirm an exact official reference for the same patched issue; otherwise use `synthetic` and release date `02/01/2026`.
+
 # Critical Rules
 - **ONLY** read crash logs from `{cpv_dir}/logs/` - DO NOT search other CPVs
 - **ONLY** read patches from `{cpv_dir}/patches/`
 - **ONLY** read POVs from `{cpv_dir}/blobs/`
 
-Now analyze the vulnerability using the vuln-yaml-analyzer skill.
+# Output
+Produce a markdown document with sections for Summary, Crash Log Analysis,
+Vulnerable Code Location(s), CWE Classification, Vulnerability Description,
+POV Analysis, Patch Analysis, and Recommendations.
 """
 
     async def generate_vuln_yaml(
@@ -262,17 +257,15 @@ Now analyze the vulnerability using the vuln-yaml-analyzer skill.
         """
         prompt = self._build_generation_prompt(analysis_md, cpv_id, harness_name)
 
-        # Use repo root as cwd so skills can be loaded from .claude/skills/
         options = ClaudeAgentOptions(
             model=self.model,
-            allowed_tools=["Skill", "Read"],
-            setting_sources=["project"],
-            cwd=_get_crsbench_repo_root(),
+            allowed_tools=["Read"],
+            setting_sources=[],
             system_prompt=(
                 "You are a YAML generation expert. "
-                "Use the vuln-yaml-generator skill for YAML format guidance. "
-                "Generate clean, valid YAML following the exact format specified. "
-                "Output only the YAML content, no extra text."
+                "Generate clean, valid CRSBench vuln.yaml content that strictly follows the requested schema. "
+                "Preserve exact CPV IDs, use project-relative paths, emit only raw YAML, and avoid unquoted YAML-special characters in scalar values. "
+                "Use origin=synthetic unless the analysis provides a confirmed exact 1-day reference."
             ),
             env=self._get_env_dict(),
         )
@@ -350,18 +343,23 @@ locations:
 # Task
 Generate vuln.yaml for: **{cpv_id}** in harness **{harness_name}**
 
-**Use the `vuln-yaml-generator` skill for detailed YAML format guidance.**
-
 # Vulnerability Analysis
 
 ```markdown
 {analysis_md}
 ```
 
+# Requirements
+- `id` must be exactly `{cpv_id}`
+- `origin` must be either `1-day` or `synthetic`
+- `release_date` must use `MM/DD/YYYY`
+- `references` is required for `1-day` and optional for `synthetic`
+- `locations` entries must use `type: crash_site` or `type: root_cause`
+- `path_from_root` values must stay relative to the project root
+- avoid unquoted YAML-special characters in field values
+
 # Output
 Provide ONLY the vuln.yaml content. No explanation, no markdown fences, just the raw YAML.
-
-Now generate the vuln.yaml file using the vuln-yaml-generator skill.
 """
 
     async def fix_vuln_yaml(

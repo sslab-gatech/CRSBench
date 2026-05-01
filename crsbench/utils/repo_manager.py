@@ -304,7 +304,7 @@ def derive_repo_name_from_url(repo_url: str) -> str:
         Suggested directory name
 
     Examples:
-        >>> derive_repo_name_from_url("git@github.com:Team-Atlanta/cp-c-curl.git")
+        >>> derive_repo_name_from_url("git@github.com:example-org/cp-c-curl.git")
         'cp-c-curl'
         >>> derive_repo_name_from_url("https://github.com/curl/curl.git")
         'curl'

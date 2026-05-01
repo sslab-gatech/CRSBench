@@ -292,12 +292,12 @@ class TestLoadBenchmarkSuite:
             "Description: Custom suite\n"
             "Release date: 01.01.2026\n"
             "benchmark_list:\n"
-            "  - afc-one\n"
-            "  - atlanta-two\n"
+            "  - artifact-one\n"
+            "  - artifact-two\n"
         )
 
         result = load_benchmark_suite("custom", suites_root=suites_root)
-        assert result == ["afc-one", "atlanta-two"]
+        assert result == ["artifact-one", "artifact-two"]
 
 
 # ===== Tests for output.py =====

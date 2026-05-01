@@ -13,8 +13,8 @@ def get_source_from_benchmark(benchmark_name: str) -> str:
     """Extract source from benchmark name prefix."""
     if benchmark_name.startswith("afc-"):
         return "afc"
-    elif benchmark_name.startswith("atlanta-"):
-        return "atlanta"
+    elif benchmark_name.startswith("artifact-"):
+        return "artifact"
     elif benchmark_name.startswith("asc-"):
         return "asc"
     elif benchmark_name.startswith("sanity-"):
@@ -30,7 +30,7 @@ def get_project_group(benchmark_name: str) -> str:
         afc-curl-delta-01 -> afc-curl-delta
         afc-curl-delta-02 -> afc-curl-delta
         afc-curl-full-01 -> afc-curl-full
-        atlanta-activemq-delta-01 -> atlanta-activemq-delta
+        artifact-activemq-delta-01 -> artifact-activemq-delta
     """
     import re
 
@@ -59,7 +59,7 @@ def extract_cpvs(
     Args:
         benchmarks_dir: Path to benchmarks directory
         languages: Filter by languages (e.g., ['c', 'java'])
-        sources: Filter by sources (e.g., ['afc', 'atlanta', 'asc'])
+        sources: Filter by sources (e.g., ['artifact', 'afc', 'asc'])
 
     Returns:
         List of dicts with benchmark_name, harness_name, vuln_id, pov_id
@@ -76,8 +76,10 @@ def extract_cpvs(
         benchmark_dir = project_yaml.parent
         benchmark_name = benchmark_dir.name
 
-        # Skip sanity benchmarks by default
-        if benchmark_name.startswith("sanity-"):
+        # Skip sanity benchmarks by default unless explicitly requested.
+        if benchmark_name.startswith("sanity-") and (
+            not sources or "sanity" not in sources
+        ):
             continue
 
         # Check source filter
@@ -272,7 +274,7 @@ def main() -> None:
         "-s",
         action="append",
         dest="sources",
-        help="Filter by source (afc, atlanta, asc). Can be specified multiple times.",
+        help="Filter by source (artifact, afc, asc, sanity). Can be specified multiple times.",
     )
     parser.add_argument(
         "--assignees",

@@ -78,7 +78,6 @@ def run_atlanta_to_rfc(args: argparse.Namespace) -> int:
     """Execute the atlanta-to-rfc command."""
     setup_logging(verbose=args.verbose)
 
-    # Validate directories
     if not args.source_dir.exists():
         logger.error(f"Source directory does not exist: {args.source_dir}")
         return 1
@@ -86,12 +85,10 @@ def run_atlanta_to_rfc(args: argparse.Namespace) -> int:
     if not args.dry_run and not args.report_only:
         args.target_dir.mkdir(parents=True, exist_ok=True)
 
-    # Parse projects list
     specific_projects = None
     if args.projects:
         specific_projects = [p.strip() for p in args.projects.split(",")]
 
-    # Create migrator
     migrator = AtlantaToRFCMigrator(
         source_dir=args.source_dir,
         target_dir=args.target_dir,
@@ -99,10 +96,8 @@ def run_atlanta_to_rfc(args: argparse.Namespace) -> int:
         force=args.force,
     )
 
-    # Import CSV writer
     from crsbench.migration.converter.atlanta_to_rfc import write_csv_report
 
-    # Run in appropriate mode
     if args.report_only:
         logger.info("Running in REPORT-ONLY mode (no migration or validation)")
         results = migrator.collect_all_info(specific_projects)
@@ -140,7 +135,6 @@ def run_atlanta_to_rfc(args: argparse.Namespace) -> int:
             show_percentage=False,
         )
 
-    # Write CSV report
     if results:
         write_csv_report(results, args.output_csv)
         logger.info(f"CSV report written to: {args.output_csv}")
@@ -195,7 +189,6 @@ def run_rfc_to_atlanta(args: argparse.Namespace) -> int:
     """Execute the rfc-to-atlanta command."""
     setup_logging(verbose=args.verbose)
 
-    # Validate directories
     if not args.source_dir.exists():
         logger.error(f"Source directory does not exist: {args.source_dir}")
         return 1
@@ -203,12 +196,10 @@ def run_rfc_to_atlanta(args: argparse.Namespace) -> int:
     if not args.dry_run:
         args.target_dir.mkdir(parents=True, exist_ok=True)
 
-    # Parse projects list
     specific_projects = None
     if args.projects:
         specific_projects = [p.strip() for p in args.projects.split(",")]
 
-    # Create migrator
     migrator = RFCToAtlantaMigrator(
         source_dir=args.source_dir,
         target_dir=args.target_dir,
@@ -216,10 +207,8 @@ def run_rfc_to_atlanta(args: argparse.Namespace) -> int:
         force=args.force,
     )
 
-    # Run migration
     results = migrator.migrate_all(specific_projects)
 
-    # Print summary
     successful = sum(1 for r in results if r.successful and not r.skipped)
     skipped = sum(1 for r in results if r.skipped)
     failed = sum(1 for r in results if not r.successful and not r.skipped)
@@ -240,7 +229,6 @@ def run_rfc_to_atlanta(args: argparse.Namespace) -> int:
         show_percentage=False,
     )
 
-    # Log errors and warnings
     for ctx in results:
         if ctx.errors:
             logger.error(f"  {ctx.project_name} errors: {ctx.errors}")
@@ -248,11 +236,6 @@ def run_rfc_to_atlanta(args: argparse.Namespace) -> int:
             logger.warning(f"  {ctx.project_name} warnings: {ctx.warnings}")
 
     return 0 if failed == 0 else 1
-
-
-# =============================================================================
-# Main migrate subparser
-# =============================================================================
 
 
 def register_migrate_subcommands(parent_subparsers) -> None:
@@ -285,7 +268,6 @@ Examples:
         help="Migration/generation subcommand",
     )
 
-    # atlanta-to-rfc subcommand
     atlanta_to_rfc_parser = migrate_subparsers.add_parser(
         "atlanta-to-rfc",
         help="Convert Atlanta OSS-Fuzz benchmarks to CRSBench RFC format",
@@ -298,7 +280,6 @@ Examples:
     )
     _add_atlanta_to_rfc_args(atlanta_to_rfc_parser)
 
-    # rfc-to-atlanta subcommand
     rfc_to_atlanta_parser = migrate_subparsers.add_parser(
         "rfc-to-atlanta",
         help="Convert CRSBench RFC format benchmarks to Atlanta OSS-Fuzz format",
@@ -311,7 +292,6 @@ Examples:
     )
     _add_rfc_to_atlanta_args(rfc_to_atlanta_parser)
 
-    # generate-test-sh subcommand
     from crsbench.migration.cli.test_sh_command import (
         _add_arguments as _add_test_sh_args,
     )
@@ -329,7 +309,6 @@ Examples:
     )
     _add_test_sh_args(generate_test_sh_parser)
 
-    # generate-vuln-yaml subcommand
     from crsbench.migration.cli.vuln_yaml_command import (
         _add_arguments as _add_vuln_yaml_args,
     )
@@ -341,7 +320,7 @@ Examples:
         epilog="""
 Examples:
   crsbench benchmark migrate generate-vuln-yaml
-  crsbench benchmark migrate generate-vuln-yaml --benchmark atlanta-curl-delta-01
+  crsbench benchmark migrate generate-vuln-yaml --benchmark artifact-curl-delta-01
         """,
     )
     _add_vuln_yaml_args(generate_vuln_yaml_parser)
@@ -373,17 +352,15 @@ Examples:
   crsbench benchmark migrate generate-test-sh --benchmark curl-delta-01
 
   # Generate vuln.yaml
-  crsbench benchmark migrate generate-vuln-yaml --benchmark curl-delta-01
+  crsbench benchmark migrate generate-vuln-yaml --benchmark artifact-curl-delta-01
         """,
     )
 
-    # Add nested subparsers for migrate command
     migrate_subparsers = migrate_parser.add_subparsers(
         dest="migrate_subcommand",
         help="Migration/generation subcommand",
     )
 
-    # atlanta-to-rfc subcommand
     atlanta_to_rfc_parser = migrate_subparsers.add_parser(
         "atlanta-to-rfc",
         help="Convert Atlanta OSS-Fuzz benchmarks to CRSBench RFC format",
@@ -397,7 +374,6 @@ Examples:
     )
     _add_atlanta_to_rfc_args(atlanta_to_rfc_parser)
 
-    # rfc-to-atlanta subcommand
     rfc_to_atlanta_parser = migrate_subparsers.add_parser(
         "rfc-to-atlanta",
         help="Convert CRSBench RFC format benchmarks to Atlanta OSS-Fuzz format",
@@ -411,7 +387,6 @@ Examples:
     )
     _add_rfc_to_atlanta_args(rfc_to_atlanta_parser)
 
-    # generate-test-sh subcommand
     from crsbench.migration.cli.test_sh_command import (
         _add_arguments as _add_test_sh_args,
     )
@@ -429,7 +404,6 @@ Examples:
     )
     _add_test_sh_args(generate_test_sh_parser)
 
-    # generate-vuln-yaml subcommand
     from crsbench.migration.cli.vuln_yaml_command import (
         _add_arguments as _add_vuln_yaml_args,
     )
@@ -441,8 +415,8 @@ Examples:
         epilog="""
 Examples:
   crsbench benchmark migrate generate-vuln-yaml
-  crsbench benchmark migrate generate-vuln-yaml --benchmark atlanta-curl-delta-01
-  crsbench benchmark migrate generate-vuln-yaml --benchmark atlanta-curl-delta-01 --harness curl_fuzzer_http --cpv cpv_0
+  crsbench benchmark migrate generate-vuln-yaml --benchmark artifact-curl-delta-01
+  crsbench benchmark migrate generate-vuln-yaml --benchmark artifact-curl-delta-01 --harness curl_fuzzer_http --cpv cpv_0
         """,
     )
     _add_vuln_yaml_args(generate_vuln_yaml_parser)
@@ -476,11 +450,6 @@ def run_migrate(args: argparse.Namespace) -> int:
     return 1
 
 
-# =============================================================================
-# Standalone CLI
-# =============================================================================
-
-
 def main() -> None:
     """Standalone CLI entry point for converter commands."""
     parser = argparse.ArgumentParser(
@@ -489,7 +458,6 @@ def main() -> None:
     )
     subparsers = parser.add_subparsers(dest="command", help="Conversion direction")
 
-    # Add nested migrate subparsers directly for standalone use
     atlanta_to_rfc_parser = subparsers.add_parser(
         "atlanta-to-rfc",
         help="Convert Atlanta OSS-Fuzz benchmarks to CRSBench RFC format",

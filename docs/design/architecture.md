@@ -43,7 +43,7 @@ CRSBench/
 │   ├── evaluation/           # Trial execution, POV/patch verification
 │   ├── hint_generation/      # Hint/corpus difficulty controls
 │   ├── migration/            # Format migration tooling
-│   ├── reporting/            # Reports and dashboard outputs
+│   ├── reporting/            # Reports and exported experiment outputs
 │   ├── statistics/           # Benchmark and experiment stats
 │   ├── validation/           # Schema + semantic validation
 │   └── run_experiment.py     # CLI entrypoint

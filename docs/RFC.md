@@ -45,10 +45,9 @@ cybersecurity capabilities:
 The benchmark set evolves over time. The following snapshot reflects the
 current local repository state as of **February 21, 2026**:
 
-- Repository total: **134** benchmarks
 - Prefix-based source split:
-  - In-house: `sanity-*` + `atlanta-*`
-  - DARPA-derived: `afc-*` + `asc-*`
+  - Locally maintained/public benchmark families: `artifact-*` + `sanity-*`
+  - DARPA-derived benchmark families: `afc-*` + `asc-*`
 - For up-to-date breakdowns (source/mode/language/CWE), use:
   - `uv run crsbench benchmark stats`
 
@@ -65,13 +64,12 @@ Detailed formulas and metric definitions are specified in
 
 ### Dataset Construction
 
-CRSBench combines competition-derived and in-house benchmark creation workflows.
-In this repository, in-house benchmarks are tracked with `sanity-*` and
-`atlanta-*` prefixes, while DARPA-derived benchmarks are tracked with `afc-*`
-and `asc-*` prefixes.
+CRSBench combines competition-derived material with locally maintained
+benchmarks. In this public artifact, locally maintained benchmarks are tracked
+with the `artifact-*` and `sanity-*` prefixes, while DARPA-derived benchmarks
+are tracked with `afc-*` and `asc-*` prefixes.
 
-The in-house portion includes **60+ created benchmarks** across the following
-categories:
+The locally maintained portion includes benchmark material focused on:
 
 - Backported 1-day crashes from real projects
 - Small projects with specific fuzzing blockers
@@ -79,8 +77,6 @@ categories:
 - Stress-test benchmarks for runtime and orchestration behavior
 - Easy sanity benchmarks for CI/CD and smoke testing
 
-During DARPA AIxCC, Team Atlanta used this benchmark set for
-benchmark-driven development of Atlantis (the 1st-place winning system).
 CRSBench also includes benchmark material derived from the DARPA AIxCC
 competition dataset. These benchmarks were ported, manually checked, and
 packaged for reproducible local execution to support future CRS developers.

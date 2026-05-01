@@ -20,17 +20,6 @@ from crsbench.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def _get_crsbench_repo_root() -> str:
-    """Get the crsbench repository root directory.
-
-    Returns:
-        Absolute path to crsbench repository root
-    """
-    from crsbench.utils.paths import get_crsbench_root
-
-    return str(get_crsbench_root())
-
-
 class ShTestGenerator:
     """
     Agent-based test.sh generator using Claude Agent SDK.
@@ -222,7 +211,7 @@ Search for test infrastructure in this priority order:
 **DO NOT assume a project has no tests just because they are not immediately obvious.**
 Many projects have tests in non-standard locations or use custom test frameworks.
 
-Please use the appropriate skill to:
+Please:
 1. Identify the build system and test framework
 2. Find all unit test files (search EXHAUSTIVELY)
 3. Document test commands and exclusions
@@ -237,8 +226,6 @@ If NO tests are found after exhaustive search, document:
 Provide your analysis as a markdown document with all required sections.
 """
 
-        # Use repo root as cwd so skills can be loaded from .claude/skills/
-        # The agent can still access project files using absolute paths
         options = ClaudeAgentOptions(
             model=self.model,
             allowed_tools=[
@@ -251,10 +238,10 @@ Provide your analysis as a markdown document with all required sections.
                 "WebSearch",
                 "WebFetch",
                 "TodoWrite",
-                "Skill",
             ],
-            setting_sources=["project"],
-            cwd=_get_crsbench_repo_root(),
+            setting_sources=[],
+            cwd=project_dir,
+            add_dirs=[benchmark_dir],
             system_prompt=(
                 "You are a thorough software testing analyst specializing in finding existing unit tests. "
                 "Your goal is to find EXISTING unit/functional tests in projects - NOT to create smoke tests. "
@@ -264,7 +251,6 @@ Provide your analysis as a markdown document with all required sections.
                 "2. SECOND: Find integration/functional tests if no unit tests exist "
                 "3. LAST RESORT ONLY: Smoke tests (only after exhaustive search proves no tests exist) "
                 "\n\n"
-                "Use available skills to help with your analysis. "
                 "Use Grep to search patterns, Glob to find files, Read to examine files, Write to create files, and Edit to modify files. "
                 "You can use WebSearch to research build systems/frameworks, WebFetch for documentation, "
                 "and TodoWrite to track your analysis progress. "
@@ -390,7 +376,6 @@ Provide your analysis as a markdown document with all required sections.
                 "WebSearch",
                 "WebFetch",
                 "TodoWrite",
-                "Skill",
                 # MCP tools for Docker operations
                 "mcp__crsbench__build_benchmark",
                 "mcp__crsbench__check_test_sh",
@@ -418,18 +403,15 @@ Provide your analysis as a markdown document with all required sections.
                 "WebSearch",
                 "WebFetch",
                 "TodoWrite",
-                "Skill",
             ]
             mcp_servers = None
             system_prompt = self._build_simple_system_prompt()
 
-        # Use repo root as cwd so skills can be loaded from .claude/skills/
-        # The agent can still access benchmark files using absolute paths
         options_kwargs: dict[str, Any] = {
             "model": self.model,
             "allowed_tools": allowed_tools,
-            "setting_sources": ["project"],
-            "cwd": _get_crsbench_repo_root(),
+            "setting_sources": [],
+            "cwd": benchmark_dir,
             "system_prompt": system_prompt,
             "env": self._get_env_dict(),
         }
@@ -572,9 +554,9 @@ exit 1
 ```
 
 # Your Task - THREE PHASES
-Use the appropriate skills to complete all tasks:
+Complete all tasks:
 
-## Task 1: Generate test.sh (use test-sh-generator-docker skill)
+## Task 1: Generate test.sh
 1. Generate an initial test.sh script based on the analysis
 2. Build the Docker image and test the script iteratively
 3. Refine the script until it runs successfully in Docker
@@ -583,7 +565,7 @@ Use the appropriate skills to complete all tasks:
 
 **CRITICAL**: You MUST keep iterating until mcp__crsbench__check_test_sh returns success.
 
-## Task 2: Generate bad_patch.diff (use bad-patch-generator skill)
+## Task 2: Generate bad_patch.diff
 1. Analyze the test suite to identify tested functionality
 2. Generate 2-3 HIGH PRIORITY mutations (dummy returns, removed calls)
 3. Create bad_patch.diff that compiles but breaks tests
@@ -695,15 +677,15 @@ Complete ALL THREE tasks before finishing.
 ```
 
 # Your Task - TWO PHASES
-Use the appropriate skills to complete both tasks:
+Complete both tasks:
 
-## Task 1: Generate test.sh (use test-sh-generator-simple skill)
+## Task 1: Generate test.sh
 1. Generate a working test.sh script based on the test analysis
 2. Save test.sh to {benchmark_dir}/test.sh
 3. **Save rationale to {benchmark_dir}/.agent/test_sh_rationale.md**
 4. Output the bash script content for verification
 
-## Task 2: Generate bad_patch.diff (use bad-patch-generator skill)
+## Task 2: Generate bad_patch.diff
 1. Analyze the test suite to identify tested functionality
 2. Generate 2-3 HIGH PRIORITY mutations (dummy returns, removed calls)
 3. Create bad_patch.diff that compiles but breaks tests
@@ -763,7 +745,6 @@ Complete BOTH tasks before finishing.
         """Build system prompt for Docker testing mode."""
         return (
             "You are an expert test.sh script generator with access to Docker build and test tools. "
-            "Use available skills to help with test.sh generation. "
             "\n\n"
             "**CRITICAL: test.sh PURPOSE**\n"
             "test.sh is for FUNCTIONALITY TESTING (regression testing), NOT for build verification.\n"
@@ -814,7 +795,6 @@ Complete BOTH tasks before finishing.
         """Build system prompt for simple (non-Docker) mode."""
         return (
             "You are a bash scripting expert specializing in running existing project test suites. "
-            "Use available skills to help with test.sh generation. "
             "Generate clean, working bash scripts following the patterns provided. "
             "\n\n"
             "**CRITICAL: test.sh PURPOSE**\n"
@@ -913,7 +893,7 @@ Complete BOTH tasks before finishing.
 ```
 
 # Your Task
-Use the appropriate skill to:
+Do the following:
 1. Analyze the test suite and identify what functionality is being tested
 2. Find source files that implement this tested functionality
 3. Generate 3-5 semantic mutations that will cause test failures
@@ -928,7 +908,6 @@ Use the appropriate skill to:
 Output the final bad_patch.diff content.
 """
 
-        # Use repo root as cwd so skills can be loaded from .claude/skills/
         options = ClaudeAgentOptions(
             model=self.model,
             allowed_tools=[
@@ -941,13 +920,12 @@ Output the final bad_patch.diff content.
                 "WebSearch",
                 "WebFetch",
                 "TodoWrite",
-                "Skill",
             ],
-            setting_sources=["project"],
-            cwd=_get_crsbench_repo_root(),
+            setting_sources=[],
+            cwd=project_dir,
+            add_dirs=[benchmark_dir],
             system_prompt=(
                 "You are an expert code mutation specialist. "
-                "Use available skills to help with bad patch generation. "
                 "You can use Read to examine source files, Grep to search patterns, "
                 "Glob to find files, Write to create the patch file, "
                 "and Edit to modify files if needed. "

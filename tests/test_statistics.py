@@ -17,11 +17,14 @@ from crsbench.statistics import (
 class TestDetectSource:
     """Tests for detect_source function."""
 
-    def test_team_atlanta(self):
-        assert detect_source("atlanta-curl-delta-01") == "Team-Atlanta"
-
     def test_afc(self):
         assert detect_source("afc-libxml2-delta-01") == "AFC"
+
+    def test_artifact(self):
+        assert detect_source("artifact-libcue-delta-01") == "Artifact"
+
+    def test_legacy_atlanta_alias(self):
+        assert detect_source("atlanta-libcue-delta-01") == "Artifact"
 
     def test_asc(self):
         assert detect_source("asc-example-full-01") == "ASC"
@@ -33,7 +36,6 @@ class TestDetectSource:
         assert detect_source("other-project") == "Unknown"
 
     def test_case_insensitive(self):
-        assert detect_source("ATLANTA-test") == "Team-Atlanta"
         assert detect_source("AFC-test") == "AFC"
 
 
@@ -65,7 +67,7 @@ class TestBenchmarkStats:
 
     def test_excludes_sanity(self):
         benchmarks = [
-            BenchmarkInfo(name="atlanta-test", path=Path(), source="Team-Atlanta"),
+            BenchmarkInfo(name="afc-test", path=Path(), source="AFC"),
             BenchmarkInfo(name="sanity-test", path=Path(), source="Sanity"),
         ]
         stats = BenchmarkStats.from_benchmarks(benchmarks)

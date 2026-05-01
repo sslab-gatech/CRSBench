@@ -4,19 +4,16 @@ Use this page as the primary navigation hub.
 
 ## Primary Paths
 
-1. Review the anonymous-artifact scope and shortest validation path
-   [Reviewer Quickstart](./getting-started/reviewer-quickstart.md) and
-   [Reviewer Scope](./reference/reviewer-scope.md)
-2. Install and configure CRSBench
+1. Install and configure CRSBench
    [Getting Started](./getting-started/README.md),
    [Install](./getting-started/install.md), and
    [Configuration](./getting-started/configuration.md)
-3. Run your first experiment
+2. Run your first experiment
    [First Experiment](./getting-started/first-experiment.md)
-4. Run distributed experiments
+3. Run distributed experiments
    [Experiment Guides](./guides/experiments/README.md) and
    [Distributed Experiments](./guides/experiments/distributed.md)
-5. Run managed cloud experiments on GCE
+4. Run managed cloud experiments on GCE
    [GCE Cloud Orchestration](./guides/experiments/gce-cloud-orchestration.md) for
    `cloud preflight`, `cloud launch`, `cloud collect`, and `cloud teardown`, and
    [Local Cloud Rehearsal](./guides/experiments/local-cloud-rehearsal.md)
@@ -36,7 +33,6 @@ Use this page as the primary navigation hub.
 ## Reference
 
 - [Reference Hub](./reference/README.md)
-- [Reviewer Scope](./reference/reviewer-scope.md)
 - [Benchmark RFC](./RFC.md)
 - [Environment Variables](./reference/environment-variables.md)
 - [Logging Reference](./reference/logging.md)

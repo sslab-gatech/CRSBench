@@ -115,7 +115,7 @@ def extract_project_name(benchmark_name: str) -> str:
 
     Examples:
         afc-curl-delta-01 -> afc-curl-delta-01
-        atlanta-apache-commons-compress-delta-01 -> atlanta-apache-commons-compress-delta-01
+        artifact-apache-commons-validator-full-01 -> artifact-apache-commons-validator-full-01
     """
     return benchmark_name
 

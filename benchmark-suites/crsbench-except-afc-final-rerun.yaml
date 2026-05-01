@@ -9,22 +9,22 @@ benchmark_list:
   - afc-tika-delta-01
   - afc-tika-delta-02
   - afc-tika-delta-03
-  # === Atlanta benchmarks with failures (12) ===
-  - atlanta-activemq-delta-01
-  - atlanta-activemq-var-delta-01
-  - atlanta-apache-commons-validator-full-01
-  - atlanta-apache-poi-full-01
-  - atlanta-feign-full-01
-  - atlanta-freetype2-delta-01
-  - atlanta-libtiff-full-01
-  - atlanta-mongoose-delta-01
-  - atlanta-mosquitto-delta-01
-  - atlanta-php-delta-01
-  - atlanta-sleuthkit-delta-01
-  - atlanta-tkctf-rpn-calculator-delta-01
-  - atlanta-user-nginx-full-01
-  - atlanta-widoco-delta-01
-  - atlanta-wireshark-delta-01
-  - atlanta-xstream-full-01
+  # === Artifact benchmarks with failures (12) ===
+  - artifact-activemq-delta-01
+  - artifact-activemq-var-delta-01
+  - artifact-apache-commons-validator-full-01
+  - artifact-apache-poi-full-01
+  - artifact-feign-full-01
+  - artifact-freetype2-delta-01
+  - artifact-libtiff-full-01
+  - artifact-mongoose-delta-01
+  - artifact-mosquitto-delta-01
+  - artifact-php-delta-01
+  - artifact-sleuthkit-delta-01
+  - artifact-tkctf-rpn-calculator-delta-01
+  - artifact-user-nginx-full-01
+  - artifact-widoco-delta-01
+  - artifact-wireshark-delta-01
+  - artifact-xstream-full-01
   # === Benchmarks with no results (stuck/queued) (1) ===
-  - atlanta-libjpeg-full-02
+  - artifact-libjpeg-full-02

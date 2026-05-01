@@ -42,9 +42,9 @@ def test_run_stats_uses_benchmark_suite(tmp_path) -> None:
     suites_root = tmp_path / "benchmark-suites"
     output_path = tmp_path / "suite_stats.csv"
 
-    _write_benchmark(benchmarks_dir, "afc-alpha-delta-01")
-    _write_benchmark(benchmarks_dir, "afc-beta-delta-01")
-    _write_benchmark(benchmarks_dir, "atlanta-gamma-full-01", mode="full")
+    _write_benchmark(benchmarks_dir, "artifact-alpha-delta-01")
+    _write_benchmark(benchmarks_dir, "artifact-beta-delta-01")
+    _write_benchmark(benchmarks_dir, "asc-gamma-full-01", mode="full")
 
     suites_root.mkdir()
     (suites_root / "selected.yaml").write_text(
@@ -52,8 +52,8 @@ def test_run_stats_uses_benchmark_suite(tmp_path) -> None:
         "Description: Selected benchmarks\n"
         "Release date: 01.01.2026\n"
         "benchmark_list:\n"
-        "  - afc-alpha-delta-01\n"
-        "  - atlanta-gamma-full-01\n"
+        "  - artifact-alpha-delta-01\n"
+        "  - asc-gamma-full-01\n"
     )
 
     args = argparse.Namespace(
@@ -82,8 +82,8 @@ def test_run_stats_uses_benchmark_suite(tmp_path) -> None:
         rows = list(csv.DictReader(f))
 
     assert [row["Benchmark Name"] for row in rows] == [
-        "afc-alpha-delta-01",
-        "atlanta-gamma-full-01",
+        "artifact-alpha-delta-01",
+        "asc-gamma-full-01",
     ]
 
 
@@ -91,7 +91,7 @@ def test_run_stats_rejects_benchmarks_and_suite_together(tmp_path) -> None:
     args = argparse.Namespace(
         benchmarks_dir=tmp_path / "benchmarks",
         filter=None,
-        benchmarks=["afc-alpha-delta-01"],
+        benchmarks=["artifact-alpha-delta-01"],
         benchmark_suite="selected",
         benchmark_suites_root=tmp_path / "benchmark-suites",
         output=tmp_path / "stats.csv",
@@ -109,12 +109,12 @@ def test_run_stats_exports_vuln_index_yaml(tmp_path) -> None:
     benchmarks_dir = tmp_path / "benchmarks"
     vuln_index_output = tmp_path / "vuln-index.yaml"
 
-    _write_benchmark(benchmarks_dir, "afc-alpha-delta-01")
+    _write_benchmark(benchmarks_dir, "artifact-alpha-delta-01")
 
     args = argparse.Namespace(
         benchmarks_dir=benchmarks_dir,
         filter=None,
-        benchmarks=["afc-alpha-delta-01"],
+        benchmarks=["artifact-alpha-delta-01"],
         benchmark_suite=None,
         benchmark_suites_root=None,
         output=tmp_path / "stats.csv",
@@ -131,9 +131,9 @@ def test_run_stats_exports_vuln_index_yaml(tmp_path) -> None:
         data = yaml.safe_load(f)
 
     assert "benchmarks" in data
-    assert data["benchmarks"]["afc-alpha-delta-01"]["harness-one"]["cpv_0"]["id"] == (
-        "cpv_0"
-    )
-    assert data["benchmarks"]["afc-alpha-delta-01"]["harness-one"]["cpv_0"]["cwes"] == [
-        "CWE-416"
-    ]
+    assert data["benchmarks"]["artifact-alpha-delta-01"]["harness-one"]["cpv_0"][
+        "id"
+    ] == ("cpv_0")
+    assert data["benchmarks"]["artifact-alpha-delta-01"]["harness-one"]["cpv_0"][
+        "cwes"
+    ] == ["CWE-416"]

@@ -1,0 +1,72 @@
+Name: artifact-all
+Description: All non-sanity benchmarks for comprehensive CRS evaluation.
+Release date: 02.01.2026
+benchmark_list:
+  # === ASC benchmarks (1) ===
+  - asc-nginx-delta-01
+
+  # === Artifact benchmarks (64) ===
+  # C/C++ benchmarks
+  - artifact-binutils-delta-01
+  - artifact-curl-delta-01
+  - artifact-faad2-delta-01
+  - artifact-file-delta-01
+  - artifact-freetype2-delta-01
+  - artifact-gpac-delta-01
+  - artifact-jq-delta-01
+  - artifact-libavc-full-01
+  - artifact-libcue-delta-01
+  - artifact-libjpeg-full-01
+  - artifact-libjpeg-full-02
+  - artifact-libssh2-delta-01
+  - artifact-libtiff-full-01
+  - artifact-mongoose-delta-01
+  - artifact-mosquitto-delta-01
+  - artifact-nasm-delta-01
+  - artifact-pcre2-full-01
+  - artifact-php-delta-01
+  - artifact-sleuthkit-delta-01
+  - artifact-tmux-delta-01
+  - artifact-user-nginx-full-01
+  - artifact-wireshark-delta-01
+  # JVM benchmarks
+  - artifact-activemq-delta-01
+  - artifact-activemq-var-delta-01
+  - artifact-apache-commons-validator-delta-01
+  - artifact-apache-commons-validator-full-01
+  - artifact-apache-poi-full-01
+  - artifact-batik-delta-01
+  - artifact-bcel-delta-01
+  - artifact-beanutils-full-01
+  - artifact-cron-utils-delta-01
+  - artifact-cxf-full-01
+  - artifact-feign-full-01
+  - artifact-fuzzy-delta-01
+  - artifact-geonetwork-delta-01
+  - artifact-htmlunit-delta-01
+  - artifact-imaging-delta-01
+  - artifact-jackson-databind-delta-01
+  - artifact-jackson-databind-full-01
+  - artifact-jakarta-mail-api-delta-01
+  - artifact-jenkins-delta-01
+  - artifact-json-java-full-01
+  - artifact-jsoup-full-01
+  - artifact-keycloak-delta-01
+  - artifact-kylin-delta-01
+  - artifact-netty-delta-01
+  - artifact-olingo-delta-01
+  - artifact-oripa-delta-01
+  - artifact-pac4j-full-01
+  - artifact-pdfbox-full-01
+  - artifact-rdf4j-full-01
+  - artifact-shiro-full-01
+  - artifact-snappy-java-delta-01
+  - artifact-spring-framework-full-01
+  - artifact-sqlite-jdbc-delta-01
+  - artifact-struts-delta-01
+  - artifact-tika-delta-01
+  - artifact-widoco-delta-01
+  - artifact-xstream-full-01
+  - artifact-ztzip-full-01
+  # Other
+  - artifact-tkctf-rpn-calculator-delta-01

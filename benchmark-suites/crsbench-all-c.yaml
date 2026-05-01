@@ -1,5 +1,5 @@
 Name: crsbench-all-c
-Description: All C/C++ benchmarks across AFC, ASC, and Atlanta suites.
+Description: All C/C++ benchmarks across AFC, ASC, and Artifact suites.
 Release date: 04.07.2026
 benchmark_list:
   # === AFC C/C++ benchmarks ===
@@ -59,27 +59,27 @@ benchmark_list:
   # === ASC C/C++ benchmarks ===
   - asc-nginx-delta-01
 
-  # === Atlanta C/C++ benchmarks ===
-  - atlanta-binutils-delta-01
-  - atlanta-curl-delta-01
-  - atlanta-faad2-delta-01
-  - atlanta-file-delta-01
-  - atlanta-freetype2-delta-01
-  - atlanta-gpac-delta-01
-  - atlanta-jq-delta-01
-  - atlanta-libavc-full-01
-  - atlanta-libcue-delta-01
-  - atlanta-libjpeg-full-01
-  - atlanta-libjpeg-full-02
-  - atlanta-libssh2-delta-01
-  - atlanta-libtiff-full-01
-  - atlanta-mongoose-delta-01
-  - atlanta-mosquitto-delta-01
-  - atlanta-nasm-delta-01
-  - atlanta-pcre2-full-01
-  - atlanta-php-delta-01
-  - atlanta-sleuthkit-delta-01
-  - atlanta-tkctf-rpn-calculator-delta-01
-  - atlanta-tmux-delta-01
-  - atlanta-user-nginx-full-01
-  - atlanta-wireshark-delta-01
+  # === Artifact C/C++ benchmarks ===
+  - artifact-binutils-delta-01
+  - artifact-curl-delta-01
+  - artifact-faad2-delta-01
+  - artifact-file-delta-01
+  - artifact-freetype2-delta-01
+  - artifact-gpac-delta-01
+  - artifact-jq-delta-01
+  - artifact-libavc-full-01
+  - artifact-libcue-delta-01
+  - artifact-libjpeg-full-01
+  - artifact-libjpeg-full-02
+  - artifact-libssh2-delta-01
+  - artifact-libtiff-full-01
+  - artifact-mongoose-delta-01
+  - artifact-mosquitto-delta-01
+  - artifact-nasm-delta-01
+  - artifact-pcre2-full-01
+  - artifact-php-delta-01
+  - artifact-sleuthkit-delta-01
+  - artifact-tkctf-rpn-calculator-delta-01
+  - artifact-tmux-delta-01
+  - artifact-user-nginx-full-01
+  - artifact-wireshark-delta-01

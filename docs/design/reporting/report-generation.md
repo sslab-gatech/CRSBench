@@ -13,7 +13,7 @@
 ### Non-goals
 - implementation snapshots of report generators
 - operator CLI walkthroughs
-- dashboard styling details
+- presentation-layer styling details
 
 ## Inputs
 

@@ -38,7 +38,7 @@ def register_stats_subcommand(parent_subparsers: argparse._SubParsersAction) -> 
 Examples:
   crsbench benchmark stats --summary-only
   crsbench benchmark stats --output benchmarks.csv
-  crsbench benchmark stats --benchmarks atlanta-curl-delta-01 afc-libxml2-delta-01
+  crsbench benchmark stats --benchmarks artifact-curl-delta-01 afc-libxml2-delta-01
   crsbench benchmark stats --benchmark-suite crsbench-all
   crsbench benchmark stats --filter "afc-*"
         """,
@@ -117,7 +117,7 @@ def add_stats_subparser(subparsers: argparse._SubParsersAction) -> None:
 Examples:
   crsbench benchmark stats --summary-only
   crsbench benchmark stats --output benchmarks.csv
-  crsbench benchmark stats --benchmarks atlanta-curl-delta-01 afc-libxml2-delta-01
+  crsbench benchmark stats --benchmarks artifact-curl-delta-01 afc-libxml2-delta-01
   crsbench benchmark stats --benchmark-suite crsbench-all
   crsbench benchmark stats --filter "afc-*"
         """,
@@ -272,7 +272,7 @@ Examples:
 
   # Export specific benchmarks
   python -m crsbench.statistics.cli \\
-    --benchmarks atlanta-curl-delta-01 afc-libxml2-delta-01 \\
+    --benchmarks artifact-curl-delta-01 afc-libxml2-delta-01 \\
     --output selected.csv
 
   # Export a benchmark suite

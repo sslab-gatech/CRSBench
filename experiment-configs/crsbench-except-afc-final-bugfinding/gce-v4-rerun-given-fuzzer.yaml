@@ -7,13 +7,13 @@
 # Scope:
 #   afc-curl-delta-01        — Native (C), FD collateral in v2
 #   afc-tika-full-01         — JVM, FD collateral in v2
-#   atlanta-freetype2-delta-01 — Native (C), oss-crs TARGET_SOURCE mount bug (fixed in 930a309 PR#133)
-#   atlanta-sqlite-jdbc-delta-01 — JVM, oss-crs docker-down 120s timeout (fixed in 930a309 PR#173)
-#   atlanta-struts-delta-01  — JVM, exceeded 14400s build_timeout (bumped to 21600 here)
+#   artifact-freetype2-delta-01 — Native (C), oss-crs TARGET_SOURCE mount bug (fixed in 930a309 PR#133)
+#   artifact-sqlite-jdbc-delta-01 — JVM, oss-crs docker-down 120s timeout (fixed in 930a309 PR#173)
+#   artifact-struts-delta-01  — JVM, exceeded 14400s build_timeout (bumped to 21600 here)
 #
 # Excluded (benchmark bugs, not runnable without patch):
-#   - atlanta-feign-full-01  — license-maven-plugin JVM NPE
-#   - atlanta-kylin-delta-01 — TLS cert expired on repository.kyligence.io
+#   - artifact-feign-full-01  — license-maven-plugin JVM NPE
+#   - artifact-kylin-delta-01 — TLS cert expired on repository.kyligence.io
 
 experiment:
   name: non-afc-final-bf-given-fuzzer-v4

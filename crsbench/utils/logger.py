@@ -74,7 +74,7 @@ def _format_module_path(record):
     Converts '__main__' to '[cli]'
 
     For distributed mode, prepends role:
-    - Worker subprocess: "ramhorn-1 | [distributed]"
+    - Worker subprocess: "worker-1 | [distributed]"
     - Orchestrator: "orchestrator | [distributed]"
     """
     name = record.get("name", "")

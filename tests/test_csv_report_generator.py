@@ -768,7 +768,7 @@ def test_ci_test_report_prefers_structured_verify_patch_status(temp_output_dir):
         trial_dir = (
             experiment_dir
             / "builder-sidecar-lite"
-            / "atlanta-binutils-delta-01"
+            / "artifact-binutils-delta-01"
             / "fuzz_as"
             / "cpv_0"
             / "delta"
@@ -780,7 +780,7 @@ def test_ci_test_report_prefers_structured_verify_patch_status(temp_output_dir):
             json.dumps(
                 {
                     "crs": "builder-sidecar-lite",
-                    "benchmark": "atlanta-binutils-delta-01",
+                    "benchmark": "artifact-binutils-delta-01",
                     "harness": "fuzz_as",
                     "target_cpv_id": "cpv_0",
                     "build_mode": "delta",
@@ -790,7 +790,7 @@ def test_ci_test_report_prefers_structured_verify_patch_status(temp_output_dir):
         )
         (trial_dir / "worker.log").write_text(
             "[Trial 1] Completed builder-sidecar-lite on "
-            "atlanta-binutils-delta-01/fuzz_as: 0 patches produced\n"
+            "artifact-binutils-delta-01/fuzz_as: 0 patches produced\n"
         )
         crs_log_dir = trial_dir / "output" / "logs" / "crs" / "builder-sidecar-lite"
         crs_log_dir.mkdir(parents=True, exist_ok=True)
@@ -847,7 +847,7 @@ def test_ci_test_report_structured_build_failure_classified(temp_output_dir):
         trial_dir = (
             experiment_dir
             / "builder-sidecar-lite"
-            / "atlanta-htmlunit-delta-01"
+            / "artifact-htmlunit-delta-01"
             / "HtmlunitOne"
             / "cpv_0"
             / "delta"
@@ -859,7 +859,7 @@ def test_ci_test_report_structured_build_failure_classified(temp_output_dir):
             json.dumps(
                 {
                     "crs": "builder-sidecar-lite",
-                    "benchmark": "atlanta-htmlunit-delta-01",
+                    "benchmark": "artifact-htmlunit-delta-01",
                     "harness": "HtmlunitOne",
                     "target_cpv_id": "cpv_0",
                     "build_mode": "delta",
@@ -1463,13 +1463,13 @@ def test_cpv_analysis_derives_first_pov_from_povs_when_map_empty(temp_output_dir
         _write_cpv_trial_from_povs(
             experiment_dir
             / "crs-bug-finding-claude-code"
-            / "atlanta-q"
+            / "afc-q"
             / "harness_a"
             / "delta"
             / "address"
             / "trial-1",
             trial_num=1,
-            benchmark="atlanta-q",
+            benchmark="afc-q",
             harness="harness_a",
             expected_cpv_ids=["cpv_0", "cpv_1"],
             crs_run_start_time=1000.0,
@@ -1523,13 +1523,13 @@ def test_cpv_analysis_falls_back_to_first_seen_ts_when_mtime_missing(
         _write_cpv_trial_from_povs(
             experiment_dir
             / "crs-bug-finding-claude-code"
-            / "atlanta-r"
+            / "afc-r"
             / "harness_b"
             / "delta"
             / "address"
             / "trial-1",
             trial_num=1,
-            benchmark="atlanta-r",
+            benchmark="afc-r",
             harness="harness_b",
             expected_cpv_ids=["cpv_0"],
             crs_run_start_time=1000.0,
@@ -1615,7 +1615,7 @@ def test_match_after_last_snapshot_preserved_when_trial_within_budget(
 ):
     """A POV verified after the final snapshot still counts when the trial
     finished within budget (async-drain edge case observed in
-    finding_all_cc-finding-original/atlanta-faad2 trial-2)."""
+    finding_all_cc-finding-original/afc-faad2 trial-2)."""
     generator = CSVReportGenerator(temp_output_dir)
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -2088,7 +2088,7 @@ def test_cpv_analysis_filters_cross_harness_cpv_matched(temp_output_dir):
         trial_dir = (
             experiment_dir
             / "crs-bug-finding-claude-code"
-            / "atlanta-oripa-delta-01"
+            / "afc-oripa-delta-01"
             / "OripaOneFDP"
             / "delta"
             / "address"
@@ -2100,7 +2100,7 @@ def test_cpv_analysis_filters_cross_harness_cpv_matched(temp_output_dir):
                 {
                     "trial_num": 1,
                     "crs": "crs-bug-finding-claude-code",
-                    "benchmark": "atlanta-oripa-delta-01",
+                    "benchmark": "afc-oripa-delta-01",
                     "harness": "OripaOneFDP",
                     "mode": "bug_finding",
                     "build_mode": "delta",
@@ -2152,7 +2152,7 @@ def test_cpv_analysis_filters_cross_harness_in_denormalized_map(temp_output_dir)
         trial_dir = (
             experiment_dir
             / "crs-bug-finding-claude-code"
-            / "atlanta-oripa-delta-01"
+            / "afc-oripa-delta-01"
             / "OripaOneFDP"
             / "delta"
             / "address"
@@ -2161,7 +2161,7 @@ def test_cpv_analysis_filters_cross_harness_in_denormalized_map(temp_output_dir)
         _write_cpv_trial(
             trial_dir,
             trial_num=1,
-            benchmark="atlanta-oripa-delta-01",
+            benchmark="afc-oripa-delta-01",
             harness="OripaOneFDP",
             expected_cpv_ids=["cpv_1"],
             timestamp="2026-04-19T17:14:22Z",

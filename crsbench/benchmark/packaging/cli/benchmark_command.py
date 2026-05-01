@@ -168,10 +168,10 @@ Files injected:
   - .aixcc/**/*.patch, .aixcc/**/*.diff
 
 Examples:
-  # Inject canary into all atlanta-* benchmarks (same UUID for all)
-  %(prog)s benchmarks/ --filter "atlanta-*"
+  # Inject canary into all artifact-* benchmarks (same UUID for all)
+  %(prog)s benchmarks/ --filter "artifact-*"
 
-  # Inject into afc-* benchmarks (different UUID from atlanta-*)
+  # Inject into afc-* benchmarks (different UUID from artifact-*)
   %(prog)s benchmarks/ --filter "afc-*"
 
   # Use a specific UUID
@@ -192,7 +192,7 @@ Registry stored at: ./canary-registry.json (repo root)
         "--filter",
         type=str,
         required=True,
-        help="Filter benchmarks by glob pattern (e.g., 'atlanta-*')",
+        help="Filter benchmarks by glob pattern (e.g., 'artifact-*')",
     )
     canary_parser.add_argument(
         "--uuid",
@@ -576,11 +576,11 @@ index). Existing POVs (including pov_0) are never modified.
 
 Examples:
   # Dry-run: see what would be imported into one benchmark
-  %(prog)s benchmarks/atlanta-libcue-delta-01 \\
+  %(prog)s benchmarks/artifact-libcue-delta-01 \\
       --source-dir /data/.../atlantis-multilang-given_fuzzer
 
   # Apply changes; cap to 5 new variants per CPV
-  %(prog)s benchmarks/atlanta-libcue-delta-01 \\
+  %(prog)s benchmarks/artifact-libcue-delta-01 \\
       --source-dir /data/.../atlantis-multilang-given_fuzzer \\
       --max-povs-per-cpv 5 --apply
 

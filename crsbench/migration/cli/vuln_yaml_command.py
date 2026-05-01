@@ -98,7 +98,7 @@ def _add_arguments(parser: argparse.ArgumentParser) -> None:
     """
     parser.add_argument(
         "--benchmark",
-        help="Benchmark name (e.g., atlanta-curl-delta-01). If not specified, processes all.",
+        help="Benchmark name (e.g., artifact-curl-delta-01). If not specified, processes all.",
     )
 
     parser.add_argument(
@@ -152,10 +152,10 @@ Examples:
   %(prog)s
 
   # Generate for specific benchmark
-  %(prog)s --benchmark atlanta-curl-delta-01
+  %(prog)s --benchmark artifact-curl-delta-01
 
   # Generate for specific CPV
-  %(prog)s --benchmark atlanta-curl-delta-01 --harness curl_fuzzer_http --cpv cpv_0
+  %(prog)s --benchmark artifact-curl-delta-01 --harness curl_fuzzer_http --cpv cpv_0
 
   # Force overwrite existing files
   %(prog)s --force

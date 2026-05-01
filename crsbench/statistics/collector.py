@@ -42,12 +42,12 @@ def detect_source(benchmark_name: str) -> str:
         benchmark_name: Name of the benchmark
 
     Returns:
-        Source identifier (Team-Atlanta, AFC, ASC, Sanity, etc.)
+        Source identifier (Artifact, AFC, ASC, Sanity, etc.)
     """
     name_lower = benchmark_name.lower()
 
-    if name_lower.startswith("atlanta-"):
-        return "Team-Atlanta"
+    if name_lower.startswith(("artifact-", "atlanta-")):
+        return "Artifact"
     if name_lower.startswith("afc-"):
         return "AFC"
     if name_lower.startswith("asc-"):

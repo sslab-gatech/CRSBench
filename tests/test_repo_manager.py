@@ -37,7 +37,7 @@ def temp_benchmark_dir(tmp_path):
     project_yaml = benchmark_dir / "project.yaml"
     project_yaml.write_text("""homepage: "https://example.com"
 language: c
-main_repo: 'git@github.com:Team-Atlanta/cp-c-curl.git'
+main_repo: 'git@github.com:example-org/cp-c-curl.git'
 """)
 
     # Create .aixcc/meta.yaml
@@ -69,7 +69,7 @@ class TestGetRepoInfo:
         """Test successful extraction of repo info."""
         info = get_repo_info_from_benchmark(str(temp_benchmark_dir))
 
-        assert info.repo_url == "git@github.com:Team-Atlanta/cp-c-curl.git"
+        assert info.repo_url == "git@github.com:example-org/cp-c-curl.git"
         assert info.base_commit == "abc123def456"
         assert info.ref_commit == "def789ghi012"
 
@@ -208,7 +208,7 @@ class TestDeriveRepoName:
 
     def test_ssh_url_with_git_extension(self):
         """Test SSH URL with .git extension."""
-        url = "git@github.com:Team-Atlanta/cp-c-curl.git"
+        url = "git@github.com:example-org/cp-c-curl.git"
         name = derive_repo_name_from_url(url)
         assert name == "cp-c-curl"
 

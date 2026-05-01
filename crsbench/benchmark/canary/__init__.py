@@ -8,7 +8,7 @@ https://github.com/google/BIG-bench
 
 Usage:
     # Inject canaries for a prefix group (all get same UUID)
-    crsbench benchmark inject-canary benchmarks/ --filter "atlanta-*"
+    crsbench benchmark inject-canary benchmarks/ --filter "artifact-*"
 
     # Each prefix group gets its own UUID, stored in registry
     # ~/.config/crsbench/canary-registry.json

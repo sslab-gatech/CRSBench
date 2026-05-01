@@ -1,6 +1,6 @@
 """Create source tarballs with fresh git init.
 
-Ported from Team-Atlanta/generate-challenge-task repotar() function.
+Ported from a historical challenge-task repotar() helper.
 Creates reproducible tarballs with:
 - Fresh git init (single commit, no history)
 - Cleaned source (no .git, .github, .aixcc)

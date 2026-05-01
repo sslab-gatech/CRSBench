@@ -363,7 +363,7 @@ def get_uniafl_prepare_readiness(
     *,
     image_tag: str = DEFAULT_UNIAFL_LOCAL_IMAGE_TAG,
 ) -> tuple[Path, list[str]]:
-    """Return the selected Team Atlanta Atlantis checkout and readiness issues."""
+    """Return the selected Team-Atlanta Atlantis checkout and readiness issues."""
     repo_root = Path(uniafl_root or default_uniafl_root()).resolve()
     issues: list[str] = []
 

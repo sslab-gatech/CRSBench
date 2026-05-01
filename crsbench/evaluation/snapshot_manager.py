@@ -497,7 +497,7 @@ class SnapshotManager:
         This writes all LLM request/response logs to a single file in the
         trial directory. Called on each snapshot to keep logs up-to-date.
         Unlike llm-usage.json which is included in snapshots, this file
-        is maintained separately for dashboard viewing.
+        is maintained separately for reporting consumers.
         """
         if not (self.llm_tracker and self.llm_api_key and self.llm_trial_id):
             return

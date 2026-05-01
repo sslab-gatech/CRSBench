@@ -59,12 +59,12 @@ class TestRegistryLoadSave:
 
             # Create and save registry
             registry = CanaryRegistry()
-            uuid1 = registry.get_or_create_uuid("atlanta-*")
+            uuid1 = registry.get_or_create_uuid("legacy-*")
             save_registry(registry, registry_path)
 
             # Load and verify
             loaded = load_registry(registry_path)
-            assert loaded.groups["atlanta-*"] == uuid1
+            assert loaded.groups["legacy-*"] == uuid1
 
     def test_load_corrupted_json_raises_error(self):
         """Test that corrupted JSON raises ValueError."""
@@ -304,8 +304,8 @@ class TestInjectCanariesByPrefix:
         with tempfile.TemporaryDirectory() as tmpdir:
             benchmarks_path = Path(tmpdir)
 
-            # Create atlanta-* benchmarks
-            for name in ["atlanta-01", "atlanta-02"]:
+            # Create artifact-* benchmarks
+            for name in ["artifact-01", "artifact-02"]:
                 bench_dir = benchmarks_path / name / ".aixcc"
                 bench_dir.mkdir(parents=True)
                 (bench_dir / "meta.yaml").write_text(f"id: {name}\n")
@@ -325,19 +325,19 @@ class TestInjectCanariesByPrefix:
 
             result = inject_canaries_by_prefix(
                 benchmarks_dir,
-                "atlanta-*",
+                "artifact-*",
                 registry_path=registry_path,
             )
 
-            assert result.prefix == "atlanta-*"
+            assert result.prefix == "artifact-*"
             assert result.matched_count == 2
             assert len(result.benchmarks) == 2
-            assert "atlanta-01" in result.benchmarks
-            assert "atlanta-02" in result.benchmarks
+            assert "artifact-01" in result.benchmarks
+            assert "artifact-02" in result.benchmarks
             assert result.injected_count == 2
 
-            # Verify same UUID for all atlanta benchmarks
-            for name in ["atlanta-01", "atlanta-02"]:
+            # Verify same UUID for all artifact benchmarks
+            for name in ["artifact-01", "artifact-02"]:
                 content = (benchmarks_dir / name / ".aixcc" / "meta.yaml").read_text()
                 assert str(result.canary_uuid) in content
 
@@ -346,9 +346,9 @@ class TestInjectCanariesByPrefix:
         with tempfile.TemporaryDirectory() as tmpdir:
             registry_path = Path(tmpdir) / "registry.json"
 
-            result_atlanta = inject_canaries_by_prefix(
+            result_artifact = inject_canaries_by_prefix(
                 benchmarks_dir,
-                "atlanta-*",
+                "artifact-*",
                 registry_path=registry_path,
             )
 
@@ -358,7 +358,7 @@ class TestInjectCanariesByPrefix:
                 registry_path=registry_path,
             )
 
-            assert result_atlanta.canary_uuid != result_afc.canary_uuid
+            assert result_artifact.canary_uuid != result_afc.canary_uuid
 
     def test_skip_existing_canaries(self, benchmarks_dir):
         """Test skipping benchmarks that already have canaries."""
@@ -368,7 +368,7 @@ class TestInjectCanariesByPrefix:
             # First injection
             result1 = inject_canaries_by_prefix(
                 benchmarks_dir,
-                "atlanta-*",
+                "artifact-*",
                 registry_path=registry_path,
             )
             assert len(result1.benchmarks) == 2
@@ -376,7 +376,7 @@ class TestInjectCanariesByPrefix:
             # Second injection should skip
             result2 = inject_canaries_by_prefix(
                 benchmarks_dir,
-                "atlanta-*",
+                "artifact-*",
                 registry_path=registry_path,
             )
             assert result2.matched_count == 2
@@ -391,14 +391,14 @@ class TestInjectCanariesByPrefix:
             # First injection
             inject_canaries_by_prefix(
                 benchmarks_dir,
-                "atlanta-*",
+                "artifact-*",
                 registry_path=registry_path,
             )
 
             # Force re-injection
             result = inject_canaries_by_prefix(
                 benchmarks_dir,
-                "atlanta-*",
+                "artifact-*",
                 registry_path=registry_path,
                 force=True,
             )

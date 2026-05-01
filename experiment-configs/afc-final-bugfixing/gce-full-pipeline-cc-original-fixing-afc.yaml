@@ -110,7 +110,7 @@ cloud:
         boot_disk_type: pd-ssd
         image: projects/ubuntu-os-cloud/global/images/family/ubuntu-2404-lts-amd64
         service_account_email: artifact-compute@developer.gserviceaccount.com
-        owner_label: crsbench
+        owner_label: artifact-owner
       instance_profiles:
         gce-orchestrator-n2d: {} # n2d-standard-16, 1 TB pd-ssd
         gce-worker-n2d:

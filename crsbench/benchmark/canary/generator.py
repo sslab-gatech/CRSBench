@@ -221,7 +221,7 @@ def inject_canaries_by_prefix(
 
     Args:
         benchmarks_dir: Directory containing benchmarks
-        prefix_filter: Glob pattern to filter benchmarks (e.g., "atlanta-*")
+        prefix_filter: Glob pattern to filter benchmarks (e.g., "artifact-*")
         canary_uuid: Optional UUID to use (generates new if not provided)
         registry_path: Path to canary registry file
         force: If True, re-inject even if canary exists

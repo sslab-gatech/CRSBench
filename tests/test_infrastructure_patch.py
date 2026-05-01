@@ -243,7 +243,7 @@ class TestActivemqRealPatches:
     @pytest.fixture
     def activemq_patches(self) -> list[Path]:
         """Get activemq patch files if available."""
-        base = Path("benchmarks/atlanta-activemq-delta-01/.aixcc/ActivemqOne")
+        base = Path("benchmarks/artifact-activemq-delta-01/.aixcc/ActivemqOne")
         if not base.exists():
             pytest.skip("Activemq benchmark not available")
 

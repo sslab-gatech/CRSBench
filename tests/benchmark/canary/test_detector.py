@@ -95,7 +95,7 @@ class TestListRegisteredCanaries:
 
             # Create registry with some canaries
             registry = CanaryRegistry()
-            uuid_atlanta = registry.get_or_create_uuid("atlanta-*")
+            uuid_artifact = registry.get_or_create_uuid("artifact-*")
             uuid_afc = registry.get_or_create_uuid("afc-*")
             save_registry(registry, registry_path)
 
@@ -103,5 +103,5 @@ class TestListRegisteredCanaries:
             canaries = list_registered_canaries(registry_path)
 
             assert len(canaries) == 2
-            assert canaries["atlanta-*"] == uuid_atlanta
+            assert canaries["artifact-*"] == uuid_artifact
             assert canaries["afc-*"] == uuid_afc

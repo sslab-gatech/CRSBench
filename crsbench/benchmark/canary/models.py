@@ -22,7 +22,7 @@ def _utc_now() -> datetime:
 class CanaryRegistry(BaseModel):
     """Registry of canary UUIDs per dataset group.
 
-    Each prefix group (afc-*, atlanta-*, sanity-*) gets its own UUID.
+    Each prefix group (for example `artifact-*`, `afc-*`, `asc-*`, `sanity-*`) gets its own UUID.
     """
 
     version: str = Field(default="1.0", description="Registry format version")
@@ -42,7 +42,7 @@ class CanaryRegistry(BaseModel):
 class InjectionResult(BaseModel):
     """Result of canary injection for a group of benchmarks."""
 
-    prefix: str = Field(description="Prefix pattern used (e.g., 'atlanta-*')")
+    prefix: str = Field(description="Prefix pattern used (for example, 'artifact-*')")
     canary_uuid: UUID = Field(description="UUID assigned to this group")
     injected_count: int = Field(default=0, description="Number of files injected")
     skipped_count: int = Field(

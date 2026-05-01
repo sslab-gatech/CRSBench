@@ -7,9 +7,6 @@ Unlike traditional fuzzing benchmarks (e.g., FuzzBench) that only report coverag
 ## Quick Start
 
 First-time users should start with [docs/getting-started/first-experiment.md](docs/getting-started/first-experiment.md).
-Anonymous-artifact reviewers should also read
-[docs/getting-started/reviewer-quickstart.md](docs/getting-started/reviewer-quickstart.md)
-and [docs/reference/reviewer-scope.md](docs/reference/reviewer-scope.md).
 
 ```bash
 # Install
@@ -25,7 +22,7 @@ uv run crsbench prepare --coverage         # pull Atlantis GHCR coverage images 
 #   2. Accept the Data Use Agreement at https://huggingface.co/datasets/artifact-org/crsbench-dataset
 #   3. Log in:
 uv run hf auth login
-crsbench download --all                     # all 134 benchmarks (~12GB)
+crsbench download --all                     # all benchmark packages (~12GB)
 crsbench download --all --no-ground-truth   # skip .aixcc/ ground truth
 crsbench download --benchmark-suite sanity  # small test suite
 ```

@@ -126,11 +126,10 @@ Then re-run the quality gate command above.
 ## Docs Index (Agent Jump List)
 
 - Start here: `docs/README.md`
-- Reviewer quickstart: `docs/getting-started/reviewer-quickstart.md`
 - Documentation taxonomy: `docs/governance/documentation-taxonomy.md`
 - Install: `docs/getting-started/install.md`
 - Configuration: `docs/getting-started/configuration.md`
-- Reviewer scope: `docs/reference/reviewer-scope.md`
+- First experiment: `docs/getting-started/first-experiment.md`
 - Discovery-only OSS-Fuzz experiments: `docs/guides/experiments/discovery-only.md`
 - Merge experiment results: `docs/guides/experiments/merge-results.md`
 - Normative benchmark spec: `docs/RFC.md`

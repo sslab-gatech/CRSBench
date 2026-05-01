@@ -1,5 +1,5 @@
 Name: crsbench-all-jvm
-Description: All JVM benchmarks across AFC and Atlanta suites.
+Description: All JVM benchmarks across AFC and Artifact suites.
 Release date: 04.07.2026
 benchmark_list:
   # === AFC JVM benchmarks ===
@@ -33,42 +33,42 @@ benchmark_list:
   - afc-zookeeper-delta-02
   - afc-zookeeper-full-01
 
-  # === Atlanta JVM benchmarks ===
-  - atlanta-activemq-delta-01
-  - atlanta-activemq-var-delta-01
-  - atlanta-apache-commons-validator-delta-01
-  - atlanta-apache-commons-validator-full-01
-  - atlanta-apache-poi-full-01
-  - atlanta-batik-delta-01
-  - atlanta-bcel-delta-01
-  - atlanta-beanutils-full-01
-  - atlanta-cron-utils-delta-01
-  - atlanta-cxf-full-01
-  - atlanta-feign-full-01
-  - atlanta-fuzzy-delta-01
-  - atlanta-geonetwork-delta-01
-  - atlanta-htmlunit-delta-01
-  - atlanta-imaging-delta-01
-  - atlanta-jackson-databind-delta-01
-  - atlanta-jackson-databind-full-01
-  - atlanta-jakarta-mail-api-delta-01
-  - atlanta-jenkins-delta-01
-  - atlanta-json-java-full-01
-  - atlanta-jsoup-full-01
-  - atlanta-keycloak-delta-01
-  - atlanta-kylin-delta-01
-  - atlanta-netty-delta-01
-  - atlanta-olingo-delta-01
-  - atlanta-oripa-delta-01
-  - atlanta-pac4j-full-01
-  - atlanta-pdfbox-full-01
-  - atlanta-rdf4j-full-01
-  - atlanta-shiro-full-01
-  - atlanta-snappy-java-delta-01
-  - atlanta-spring-framework-full-01
-  - atlanta-sqlite-jdbc-delta-01
-  - atlanta-struts-delta-01
-  - atlanta-tika-delta-01
-  - atlanta-widoco-delta-01
-  - atlanta-xstream-full-01
-  - atlanta-ztzip-full-01
+  # === Artifact JVM benchmarks ===
+  - artifact-activemq-delta-01
+  - artifact-activemq-var-delta-01
+  - artifact-apache-commons-validator-delta-01
+  - artifact-apache-commons-validator-full-01
+  - artifact-apache-poi-full-01
+  - artifact-batik-delta-01
+  - artifact-bcel-delta-01
+  - artifact-beanutils-full-01
+  - artifact-cron-utils-delta-01
+  - artifact-cxf-full-01
+  - artifact-feign-full-01
+  - artifact-fuzzy-delta-01
+  - artifact-geonetwork-delta-01
+  - artifact-htmlunit-delta-01
+  - artifact-imaging-delta-01
+  - artifact-jackson-databind-delta-01
+  - artifact-jackson-databind-full-01
+  - artifact-jakarta-mail-api-delta-01
+  - artifact-jenkins-delta-01
+  - artifact-json-java-full-01
+  - artifact-jsoup-full-01
+  - artifact-keycloak-delta-01
+  - artifact-kylin-delta-01
+  - artifact-netty-delta-01
+  - artifact-olingo-delta-01
+  - artifact-oripa-delta-01
+  - artifact-pac4j-full-01
+  - artifact-pdfbox-full-01
+  - artifact-rdf4j-full-01
+  - artifact-shiro-full-01
+  - artifact-snappy-java-delta-01
+  - artifact-spring-framework-full-01
+  - artifact-sqlite-jdbc-delta-01
+  - artifact-struts-delta-01
+  - artifact-tika-delta-01
+  - artifact-widoco-delta-01
+  - artifact-xstream-full-01
+  - artifact-ztzip-full-01

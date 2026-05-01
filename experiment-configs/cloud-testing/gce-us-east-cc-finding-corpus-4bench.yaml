@@ -22,7 +22,7 @@ experiment:
     - afc-apache-commons-compress-delta-02
     - afc-dav1d-full-01
     - afc-libxml2-full-01
-    - atlanta-wireshark-delta-01
+    - artifact-wireshark-delta-01
   sanitizers:
     - address
   mode: auto
@@ -95,7 +95,7 @@ cloud:
         boot_disk_type: pd-ssd
         image: projects/ubuntu-os-cloud/global/images/family/ubuntu-2404-lts-amd64
         service_account_email: artifact-compute@developer.gserviceaccount.com
-        owner_label: crsbench
+        owner_label: artifact-owner
       instance_profiles:
         gce-orchestrator-n2d: {} # n2d-standard-16, 1 TB pd-ssd
         gce-worker-n2d:

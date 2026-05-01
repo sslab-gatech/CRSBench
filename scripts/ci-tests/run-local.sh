@@ -437,7 +437,7 @@ run_format() {
         sanity-mock-java-delta-01; do
         # TODO: add HuggingFace download for non-sanity benchmarks
         # afc-xz-full-01 \
-        # atlanta-json-java-full-01 \
+        # artifact-json-java-full-01 \
         # afc-libxml2-full-01 \
         # afc-apache-commons-compress-delta-01; do
         uv run crsbench benchmark ci format "$benchmark" || fail "Format validation failed for $benchmark"
@@ -465,7 +465,7 @@ run_sanity() {
 # run_sanity_real() {
 #     run_stage "Stage 2c: Sanity Checks (real projects)"
 #
-#     for benchmark in afc-xz-full-01 atlanta-json-java-full-01; do
+#     for benchmark in afc-xz-full-01 artifact-json-java-full-01; do
 #         echo -e "\n${YELLOW}--- $benchmark ---${NC}"
 #         uv run crsbench benchmark ci all "$benchmark" \
 #             --force-rebuild || fail "All checks failed for $benchmark"
