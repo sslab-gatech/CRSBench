@@ -4,22 +4,22 @@ Use this page as the primary navigation hub.
 
 ## Primary Paths
 
-1. Install and configure CRSBench
+1. Review the anonymous-artifact scope and shortest validation path
+   [Reviewer Quickstart](./getting-started/reviewer-quickstart.md) and
+   [Reviewer Scope](./reference/reviewer-scope.md)
+2. Install and configure CRSBench
    [Getting Started](./getting-started/README.md),
    [Install](./getting-started/install.md), and
    [Configuration](./getting-started/configuration.md)
-2. Run your first experiment
+3. Run your first experiment
    [First Experiment](./getting-started/first-experiment.md)
-3. Run distributed experiments
+4. Run distributed experiments
    [Experiment Guides](./guides/experiments/README.md) and
    [Distributed Experiments](./guides/experiments/distributed.md)
-4. Run managed cloud experiments on GCE
+5. Run managed cloud experiments on GCE
    [GCE Cloud Orchestration](./guides/experiments/gce-cloud-orchestration.md) for
    `cloud preflight`, `cloud launch`, `cloud collect`, and `cloud teardown`, and
    [Local Cloud Rehearsal](./guides/experiments/local-cloud-rehearsal.md)
-5. Run benchmark CI
-   [Benchmark CI Guides](./guides/benchmark-ci/README.md) and
-   [Benchmark CI Quickstart](./guides/benchmark-ci/quickstart.md)
 
 ## Guides
 
@@ -27,20 +27,16 @@ Use this page as the primary navigation hub.
 - [Experiments Hub](./guides/experiments/README.md)
   - [Single Machine](./guides/experiments/single-machine.md)
   - [Discovery-Only OSS-Fuzz](./guides/experiments/discovery-only.md)
-  - [Replay Historical POVs](./guides/experiments/replay-povs.md)
   - [Distributed](./guides/experiments/distributed.md)
   - [Cloud Orchestration on GCE](./guides/experiments/gce-cloud-orchestration.md)
   - [Local Cloud Rehearsal](./guides/experiments/local-cloud-rehearsal.md)
   - [Queue and Recovery](./guides/experiments/queue-and-recovery.md)
   - [Config Reference](./guides/experiments/config-reference.md)
-- [Benchmark CI Hub](./guides/benchmark-ci/README.md)
-  - [Quickstart](./guides/benchmark-ci/quickstart.md)
-  - [Distributed](./guides/benchmark-ci/distributed.md)
-  - [Reference](./guides/benchmark-ci/reference.md)
 
 ## Reference
 
 - [Reference Hub](./reference/README.md)
+- [Reviewer Scope](./reference/reviewer-scope.md)
 - [Benchmark RFC](./RFC.md)
 - [Environment Variables](./reference/environment-variables.md)
 - [Logging Reference](./reference/logging.md)
@@ -62,7 +58,6 @@ Use this page as the primary navigation hub.
 
 - [Design Index](./design/README.md)
 - [Architecture Overview](./design/architecture.md)
-- [Historical POV Replay Contract](./design/evaluation/pov-replay.md)
 
 ## Module Reference
 
@@ -80,4 +75,3 @@ Use this page as the primary navigation hub.
 - [scripts/README.md](../scripts/README.md)
 - [benchmark-suites/README.md](../benchmark-suites/README.md)
 - [oss-crs/README.md](../oss-crs/README.md)
-- [OSS-Fuzz README](https://github.com/google/oss-fuzz/blob/master/README.md)

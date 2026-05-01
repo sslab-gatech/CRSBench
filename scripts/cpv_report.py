@@ -5,7 +5,7 @@ Usage:
 
 Example:
     python cpv_report.py experiment-data-afc/e2e-bugfind-afc
-    python cpv_report.py experiment-data-afc/e2e-bugfind-afc --benchmarks-dir /home/dongkwan/CRSBench/benchmarks
+    python cpv_report.py experiment-data-afc/e2e-bugfind-afc --benchmarks-dir ./benchmarks
 """
 
 import argparse
@@ -17,6 +17,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
+
+
+DEFAULT_BENCHMARKS_DIR = Path(__file__).resolve().parent.parent / "benchmarks"
 
 
 @dataclass
@@ -305,8 +308,9 @@ def main():
     parser = argparse.ArgumentParser(description="CPV detection report")
     parser.add_argument("experiment_dir", type=Path, help="Experiment directory")
     parser.add_argument(
-        "--benchmarks-dir", type=Path,
-        default=Path("/home/dongkwan/CRSBench/benchmarks"),
+        "--benchmarks-dir",
+        type=Path,
+        default=DEFAULT_BENCHMARKS_DIR,
         help="Path to benchmarks directory with ground truth",
     )
     parser.add_argument("--json", action="store_true", help="Output JSON")

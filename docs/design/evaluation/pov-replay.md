@@ -1,7 +1,7 @@
 # Design: Historical POV Replay on Latest OSS-Fuzz
 - Audience: maintainers working on evaluation, OSS-Fuzz integration, and replay workflows
 - Scope: contract for `crsbench replay-povs`, including input semantics, artifact layout, and failure behavior
-- Related: [Evaluation Contract](./evaluation.md), [Distributed Evaluation](../distributed/distributed-evaluation.md), [Replay guide](../../guides/experiments/replay-povs.md)
+- Related: [Evaluation Contract](./evaluation.md), [Distributed Evaluation](../distributed/distributed-evaluation.md)
 
 ## Goals and Non-goals
 

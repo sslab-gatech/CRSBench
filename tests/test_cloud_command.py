@@ -582,7 +582,7 @@ def _make_provider_neutral_experiment_config() -> ExperimentConfig:
                 },
                 "defaults": {
                     "readiness_timeout_sec": 1200,
-                    "crsbench_install_spec": "git+ssh://git@github.com/sslab-gatech/CRSBench.git",
+                    "crsbench_install_spec": "git+ssh://git@github.com/artifact-org/CRSBench.git",
                     "crsbench_git_ref": "main",
                 },
                 "providers": {
@@ -773,7 +773,7 @@ def test_build_cloud_launch_plan_resolves_profiles_for_orchestrator_and_workers(
     assert plan.orchestrator.launch_defaults.readiness_timeout_sec == 1200
     assert (
         plan.orchestrator.launch_defaults.crsbench_install_spec
-        == "git+ssh://git@github.com/sslab-gatech/CRSBench.git"
+        == "git+ssh://git@github.com/artifact-org/CRSBench.git"
     )
     assert plan.orchestrator.launch_defaults.crsbench_git_ref == "main"
     assert (
@@ -951,7 +951,7 @@ def test_build_cloud_launch_plan_merges_provider_launch_defaults_override():
     assert plan.orchestrator.launch_defaults.crsbench_git_ref == "provider-ref"
     assert (
         plan.orchestrator.launch_defaults.crsbench_install_spec
-        == "git+ssh://git@github.com/sslab-gatech/CRSBench.git"
+        == "git+ssh://git@github.com/artifact-org/CRSBench.git"
     )
 
 

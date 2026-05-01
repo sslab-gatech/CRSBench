@@ -437,7 +437,7 @@ def test_build_grouped_config_keeps_generated_cloud_instance_profiles():
             },
             "cloud": {
                 "enabled": True,
-                "provider_project": "aixcc-426805",
+                "provider_project": "artifact-gcp-project",
                 "provider_region": "us-east5",
                 "provider_ssh_via_iap": True,
                 "profile_machine_type": "n2d-standard-16",
@@ -493,7 +493,7 @@ def test_build_grouped_config_supports_new_cloud_format_fields():
             "cloud": {
                 "enabled": True,
                 "bootstrap_gitcache": True,
-                "provider_project": "aixcc-426805",
+                "provider_project": "artifact-gcp-project",
                 "provider_network": "crsbench-vpc",
                 "provider_subnetwork": "crsbench-subnet",
                 "provider_assign_external_ip": False,

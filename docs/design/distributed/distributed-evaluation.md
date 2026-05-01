@@ -179,7 +179,7 @@ not part of the worker-visible correctness contract.
   trial, but it must also persist `.verification-undrained.json` at the trial
   root with the verification kind (`pov` or `patch`) and missing-result counts;
   CI/smoke validation must treat that marker as a hard failure and operators may
-  recover later via `crsbench re-eval`
+  recover later by replaying verification against the preserved trial artifacts
 - dispatcher-routed stale local verify wrappers must be fenced from publishing
   terminal logical results after claim expiry or reclaim by another evaluator
 - the async final drain budget is `runtime.verify_timeout`; it covers both

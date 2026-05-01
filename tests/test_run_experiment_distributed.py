@@ -2623,7 +2623,7 @@ def _make_provider_neutral_run_config(tmp_path: Path) -> ExperimentConfig:
             "cloud": {
                 "defaults": {
                     "readiness_timeout_sec": 1200,
-                    "crsbench_install_spec": "git+ssh://git@github.com/sslab-gatech/CRSBench.git",
+                    "crsbench_install_spec": "git+ssh://git@github.com/artifact-org/CRSBench.git",
                     "crsbench_git_ref": "main",
                 },
                 "providers": {

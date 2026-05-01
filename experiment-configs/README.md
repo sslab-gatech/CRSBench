@@ -33,10 +33,9 @@ Examples:
 - `sanity-bugfinding/atlantis-multilang-given_fuzzer-default-delta.yaml`
 - `sanity-bugfixing/crs-copilot-cli-gpt-5-3-codex-delta-sanity-mock-c.yaml`
 
-## Legacy Files
+## Preferred Groups
 
-- Legacy top-level AFC presets (`experiment-config-afc*.yaml`) and `paper-eval/*.yaml` were removed.
-- New AFC/sanity experiments should use only:
+- New AFC/sanity experiments should use:
   - `afc-final-bugfinding/`
   - `afc-final-bugfixing/`
   - `sanity-bugfinding/`

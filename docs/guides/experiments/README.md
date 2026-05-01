@@ -6,7 +6,6 @@ Start here based on what you need:
 
 - [Single-machine experiments](./single-machine.md)
 - [Discovery-only OSS-Fuzz experiments](./discovery-only.md)
-- [Replay historical POVs on latest OSS-Fuzz](./replay-povs.md)
 - [Distributed experiments](./distributed.md)
 - [Merge experiment results](./merge-results.md)
 - [Queue cleanup and recovery](./queue-and-recovery.md)

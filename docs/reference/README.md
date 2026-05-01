@@ -4,6 +4,7 @@ Use this section for stable contracts, interfaces, and reference material.
 
 Start here:
 
+- [Reviewer Scope](./reviewer-scope.md)
 - [Benchmark RFC](../RFC.md)
 - [Environment Variables](./environment-variables.md)
 - [Logging Reference](./logging.md)

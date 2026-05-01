@@ -26,7 +26,7 @@ class DatasetConfig:
 DATASET_REGISTRY: dict[str, DatasetConfig] = {
     "crsbench": DatasetConfig(
         backend="huggingface",
-        location="sslab-gatech/crsbench-dataset",
+        location="artifact-org/crsbench-dataset",
         prefixes=["atlanta-", "sanity-", "afc-", "asc-"],
         repo_type="dataset",
     ),

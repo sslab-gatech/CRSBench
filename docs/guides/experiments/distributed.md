@@ -97,8 +97,8 @@ uv run python scripts/cpv_report.py /path/to/experiment-data --csv
 
 The worker should be running before or at the same time as the orchestrator so
 trial jobs can start immediately. The evaluator is optional — without it,
-build/verify work queues harmlessly and can be processed later via
-`crsbench re-eval` or a later evaluator run.
+build/verify work queues harmlessly and can be processed later by starting an
+evaluator run against the same experiment.
 
 ## Cloud Worker Fleets
 
@@ -456,8 +456,7 @@ Optional split overrides are only for asymmetric tuning:
 
 The evaluator is optional. Without it:
 - Workers still run CRS trials and discover POVs
-- Verification jobs queue in Redis and can be processed later
-- Use `crsbench re-eval` to verify POVs after the fact
+- Verification jobs queue in Redis until an evaluator drains them
 
 Mode note:
 - focused worker/evaluator CLI modes default to dispatcher routing when
@@ -531,11 +530,21 @@ uv run crsbench worker --experiment-config config.yaml --cpuset 0-111
 # Copy .env from Machine A (contains CRSBENCH_REDIS_PASSWORD)
 scp user@machine-a:/path/to/CRSBench/.env /path/to/CRSBench/.env
 
-# Setup: bundle packages and prepare environment
+# Create a host map once on Machine A
+cat > .crsbench-remote-hosts <<'EOF'
+worker-a=worker-a.example.com
+worker-b=worker-b.example.com
+EOF
+
+# Configure the shared Redis host and config path used by remote workers
+export CRSBENCH_REDIS_HOST=machine-a.example.com:6379
+export CRSBENCH_REMOTE_CONFIG_PATH=/path/to/config.yaml
+
+# Setup: clone/pull the repo, copy .env, bundle packages, and prepare coverage deps
 scripts/orchestrate-workers.sh setup
 
-# Start worker (set CRSBENCH_REDIS_HOST in .env for Machine A)
-uv run crsbench worker --experiment-config config.yaml
+# Start remote workers in tmux
+scripts/orchestrate-workers.sh start
 ```
 
 After all trials complete, collect experiment data back to the orchestrator:
@@ -544,9 +553,9 @@ After all trials complete, collect experiment data back to the orchestrator:
 scripts/orchestrate-workers.sh collect
 ```
 
-> **TODO**: Generalize `scripts/orchestrate-workers.sh setup` and `collect` into
-> a standalone `crsbench` subcommand or reusable script that works across
-> different machine configurations without hard-coded hostnames.
+`collect` writes one shard per remote host under `./.run/remote-collect/` by
+default. Override that location with `CRSBENCH_LOCAL_COLLECT_DIR` when you want
+a different landing directory.
 
 ### Option B: SSH Tunnels
 
@@ -570,66 +579,6 @@ For persistent tunnels during long experiments:
 autossh -M 0 -f -N -L 6379:localhost:6379 user@machine-a \
   -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3"
 ```
-
-## Re-evaluation
-
-Re-runs POV/patch verification on completed experiment trials without re-running CRS. Useful when:
-- Evaluator wasn't running during the experiment
-- Verification logic was updated
-- Need to re-collect crash logs
-
-Patch verification test execution context:
-- CRSBench evaluator runs unit tests inside the project builder image (`test.sh`/`run_tests.sh`) after patch build.
-- Test script path is resolved from `oss-fuzz/projects/<variant>/test.sh` (fallback: `run_tests.sh`) in evaluator workspace.
-- Unit test containers use Docker's default network mode by default so benchmark scripts that install runtime test deps (for example `apt`/`pip`) can execute.
-- You can override network mode for helper/direct Docker runs with `OSS_FUZZ_DOCKER_NETWORK` (for example `none`).
-- Before running tests, evaluator resolves the effective image `WORKDIR` (image inspect, Dockerfile fallback) and syncs patched source into that directory.
-- Internal test-container mounts are namespaced as `CRSBENCH_*` paths (for example `/CRSBENCH_PROJ_PATH`, `/CRSBENCH_PATCHED_SRC`).
-- This is separate from OSS-CRS builder sidecar `run-test`, which resolves `/OSS_CRS_PROJ_PATH/test.sh` inside the runtime snapshot image.
-
-```bash
-# Basic re-evaluation with verbose output
-uv run crsbench re-eval -c config.yaml -v
-
-# Override a tracked config's redis_host for local distributed re-eval
-uv run crsbench re-eval -c config.yaml --redis-host localhost:6379
-
-# Force local re-eval and ignore any configured Redis runtime
-uv run crsbench re-eval -c config.yaml --local
-
-# With custom timeout and forced rebuild
-uv run crsbench re-eval -c config.yaml --force-rebuild --per-pov-verify-timeout 300
-
-# Write to separate output directory
-uv run crsbench re-eval -c config.yaml --output /tmp/reeval-results
-
-# Resume-style re-evaluation: skip bug-finding trials whose existing output
-# already matched every expected CPV for that harness/sanitizer
-uv run crsbench re-eval -c config.yaml --output /tmp/reeval-results --skip-complete-cpvs
-```
-
-Re-eval preserves `metadata.json` and relative POV discovery times, but re-runs verification and collects crash logs.
-For patch-generation trials, `patch_verify_variants` in the experiment config
-controls whether patch verification checks all `pov_*` variants (`true`) or
-single-POV mode (`false`, default).
-
-Bug-finding re-eval duplicate handling:
-- Re-eval verifies at most one file per unique POV content hash when reading from trial `output/povs`.
-- Selection is deterministic (filename order), so repeated runs choose the same representative file.
-- This behavior aligns local re-eval with distributed async single-POV verification semantics.
-
-| Flag | Description |
-|------|-------------|
-| `-c`, `--experiment-config` | Path to experiment config YAML (required) |
-| `--force-rebuild` | Force rebuild of variant images |
-| `--local` | Force local re-eval and ignore configured `redis_host` |
-| `--redis-host` | Override `redis_host` from config for distributed re-eval |
-| `--per-pov-verify-timeout` | Timeout per POV verification (seconds) |
-| `--output`, `-o` | Output directory (default: write to trial dirs) |
-| `--skip-complete-cpvs` | For bug-finding trials, skip re-eval when the existing output already has matches for every expected CPV for the harness/sanitizer |
-| `--jobs` | Number of parallel verification jobs |
-| `--cores-per-job` | CPUs per verification job |
-| `-v`, `--verbose` | Enable verbose logging |
 
 ## Reporting
 
@@ -689,7 +638,7 @@ Smoke bug-fixing suites currently run with LiteLLM tracking enabled in the sanit
 | Workers exit immediately | Worker was started with `--no-continuous` and the queue drained | Omit `--no-continuous` for the default continuous mode |
 | Stale jobs from previous run | Queue not cleaned | `uv run python scripts/valkey-helper.py clean <experiment>` |
 | `CRSBENCH_LLM_UPSTREAM_BASE_URL not set` | LiteLLM env contract is incomplete for this trial | Set `skip_litellm: true` when LLM is not needed, or provide required `CRSBENCH_LLM_*` vars |
-| `verification drain incomplete (...)` during smoke post-verify | Async POV/patch verification hit `runtime.verify_timeout`; the worker preserved artifacts but wrote `.verification-undrained.json` | Treat smoke as failed, inspect the worker/evaluator logs for the stalled verify queue, then re-run `crsbench re-eval` on the completed trial outputs once the evaluator path is fixed |
+| `verification drain incomplete (...)` during smoke post-verify | Async POV/patch verification hit `runtime.verify_timeout`; the worker preserved artifacts but wrote `.verification-undrained.json` | Treat smoke as failed, inspect the worker/evaluator logs for the stalled verify queue, then rerun with a healthy evaluator path so queued verification can drain |
 
 ## CLI Reference
 
@@ -698,12 +647,10 @@ Smoke bug-fixing suites currently run with LiteLLM tracking enabled in the sanit
 | `crsbench run` | Enqueue trial jobs and monitor progress |
 | `crsbench worker` | Pull and execute trial jobs from queue |
 | `crsbench evaluator` | Build variants and verify POVs from queue |
-| `crsbench re-eval` | Re-run verification on completed trials |
 | `crsbench report` | Generate experiment reports |
 | `crsbench verify` | Standalone POV verification |
 | `crsbench patch-verify` | Standalone patch verification |
 | `crsbench coverage` | Collect code coverage (experimental) |
-| `crsbench dashboard` | Launch web dashboard |
 
 ## See Also
 

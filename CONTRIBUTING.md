@@ -22,19 +22,10 @@ TSC voting members are the project's Maintainers. Decisions are made by consensu
 
 **Maintainers** are Contributors who can approve and merge changes to project repositories. A Contributor may become a Maintainer by majority approval of the TSC. Maintainers serve as TSC voting members.
 
-### Initial Maintainers (alphabetic order)
+### Maintainers
 
-| Name             | Organization                                | GitHub     |
-|------------------|---------------------------------------------|------------|
-| Andrew Chin      | Georgia Institute of Technology             | `@azchin`  |
-| Cen Zhang        | Georgia Institute of Technology             | `@occia`   |
-| Dongkwan Kim     | Georgia Institute of Technology             | `@0xdkay`  |
-| Fabian Fleischer | Georgia Institute of Technology             | `@fab1ano` |
-| Jiho Kim         | Georgia Institute of Technology             | `@jhkimx2` |
-| Taesoo Kim       | Georgia Institute of Technology & Microsoft | `@tsgates` |
-| Younggi Park     | Independent Researcher                      | `@grill66` |
-| Youngjoon Kim    | Georgia Institute of Technology             | `@acorn421` |
-| Yu-Fu Fu         | Georgia Institute of Technology             | `@fuyu0425` |
+Maintainer membership and contact details are managed in the canonical upstream
+repository.
 
 ## Reporting Issues
 

@@ -19,7 +19,7 @@ from crsbench.dataset.registry import DatasetConfig
 def _hf_config() -> DatasetConfig:
     return DatasetConfig(
         backend="huggingface",
-        location="sslab-gatech/crsbench-dataset",
+        location="artifact-org/crsbench-dataset",
         prefixes=["afc-"],
         repo_type="dataset",
     )

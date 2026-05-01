@@ -67,7 +67,7 @@ crsbench/reporting/
 report_filestore/
 └── {experiment_name}/
     ├── experiment-{name}.json      # Aggregate metrics
-    ├── experiment-{name}.html      # Interactive dashboard
+    ├── experiment-{name}.html      # Interactive HTML report
     └── trial-reports/
         ├── trial-{id}.json
         ├── trial-{id}.html

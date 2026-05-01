@@ -28,7 +28,7 @@ CRSBench ground truth data (patches, POVs, vulnerability info) must be protected
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  sslab-gatech/crsbench (GitHub → PUBLIC)                                │
+│  artifact-org/crsbench (GitHub → PUBLIC)                                │
 │                                                                         │
 │  • Framework code only (crsbench/)                                      │
 │  • No benchmarks, no source code, no ground truth                       │
@@ -38,7 +38,7 @@ CRSBench ground truth data (patches, POVs, vulnerability info) must be protected
 └─────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  sslab-gatech/crsbench-benchmarks (GitHub PRIVATE)                      │
+│  artifact-org/crsbench-benchmarks (GitHub PRIVATE)                      │
 │                                                                         │
 │  • Benchmark definitions: Dockerfile, project.yaml, build.sh            │
 │  • Ground truth: .aixcc/ (patches, POVs, vuln.yaml, hints)              │
@@ -64,7 +64,7 @@ CRSBench ground truth data (patches, POVs, vulnerability info) must be protected
 ┌─────────────────────────────────────────────────────────────────────────┐
 │  HuggingFace (GATED)                                                    │
 │                                                                         │
-│  • sslab-gatech/crsbench-dataset                                        │
+│  • artifact-org/crsbench-dataset                                        │
 │  • Flat structure: libpng/, nginx/, etc. (no subdirectories)            │
 │  • Contains: benchmark defs + source (in pkgs/) + .aixcc                │
 │  • Users request access, agree to DUA terms                             │
@@ -240,7 +240,7 @@ contracts above:
 | Location | Purpose | Action |
 |----------|---------|--------|
 | Team-Atlanta source repos | Development convenience | **Remove** when bundling |
-| sslab-gatech/crsbench-benchmarks | Authoritative ground truth | **Keep** |
+| artifact-org/crsbench-benchmarks | Authoritative ground truth | **Keep** |
 
 ### 5.2 Runtime Removal
 

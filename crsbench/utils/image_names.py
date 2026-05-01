@@ -9,7 +9,7 @@ Centralizes naming across:
 from __future__ import annotations
 
 DEFAULT_LOCAL_IMAGE_PREFIX = "crsbench"
-DEFAULT_REGISTRY = "ghcr.io/team-atlanta/crsbench"
+DEFAULT_REGISTRY = "ghcr.io/artifact-org/crsbench"
 OSS_FUZZ_HELPER_PREFIX = "gcr.io/oss-fuzz"
 _SANITIZER_SUFFIX = {
     "address": "asan",

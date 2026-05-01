@@ -126,17 +126,17 @@ Then re-run the quality gate command above.
 ## Docs Index (Agent Jump List)
 
 - Start here: `docs/README.md`
+- Reviewer quickstart: `docs/getting-started/reviewer-quickstart.md`
 - Documentation taxonomy: `docs/governance/documentation-taxonomy.md`
 - Install: `docs/getting-started/install.md`
 - Configuration: `docs/getting-started/configuration.md`
+- Reviewer scope: `docs/reference/reviewer-scope.md`
 - Discovery-only OSS-Fuzz experiments: `docs/guides/experiments/discovery-only.md`
-- Replay historical POVs: `docs/guides/experiments/replay-povs.md`
 - Merge experiment results: `docs/guides/experiments/merge-results.md`
 - Normative benchmark spec: `docs/RFC.md`
 - Architecture: `docs/design/architecture.md`
 - Design doc policy: `docs/design/doc-authoring-guidelines.md`
 - Cloud orchestration: `docs/design/distributed/cloud-orchestration.md`
-- Cloud distributed re-eval: `docs/design/distributed/cloud-reeval.md`
 - Cloud live logs: `docs/design/distributed/cloud-live-log-streaming.md`
 - GCE cloud realization: `docs/design/distributed/gce-cloud-orchestration.md`
 - Distributed systems: `docs/design/distributed/distributed-evaluation.md`
@@ -145,7 +145,6 @@ Then re-run the quality gate command above.
 - Deployment/cloud: `docs/design/distributed/deployment-guide.md`
 - Configless runtime: `docs/design/distributed/configless-runtime.md`
 - Evaluation flow: `docs/design/evaluation/evaluation.md`
-- Historical POV replay contract: `docs/design/evaluation/pov-replay.md`
 - Gen-config TUI YAML round-trip editing: `docs/design/validation/gen-config-tui-yaml-roundtrip.md`
 - Testing setup: `docs/contributors/testing.md`
 - Coding standards: `docs/contributors/coding-standards.md`

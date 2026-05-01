@@ -223,7 +223,7 @@ def _resolve_inc_image_runtime_settings(
     resolved_registry = (
         registry
         if isinstance(registry, str) and registry
-        else "ghcr.io/team-atlanta/crsbench"
+        else "ghcr.io/artifact-org/crsbench"
     )
 
     resolved_max_pull_bytes: Optional[int] = None

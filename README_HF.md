@@ -27,7 +27,7 @@ Benchmark challenge projects for evaluating Cyber Reasoning Systems (CRS).
 ## Description
 
 This dataset contains 134 benchmark challenge projects used by
-[CRSBench](https://github.com/sslab-gatech/CRSBench) to evaluate
+[CRSBench](https://github.com/artifact-org/CRSBench) to evaluate
 vulnerability discovery and patch generation capabilities of CRS.
 
 Each challenge project includes:
@@ -93,14 +93,14 @@ from huggingface_hub import snapshot_download
 
 # All benchmarks with ground truth
 snapshot_download(
-    repo_id="sslab-gatech/crsbench-dataset",
+    repo_id="artifact-org/crsbench-dataset",
     repo_type="dataset",
     local_dir="benchmarks/",
 )
 
 # Without ground truth
 snapshot_download(
-    repo_id="sslab-gatech/crsbench-dataset",
+    repo_id="artifact-org/crsbench-dataset",
     repo_type="dataset",
     local_dir="benchmarks/",
     allow_patterns=["*/benchmark.tar.gz"],
@@ -109,14 +109,13 @@ snapshot_download(
 
 ## Further Reading
 
-- CRSBench repository: <https://github.com/sslab-gatech/CRSBench>
-- Dataset module guide: <https://github.com/sslab-gatech/CRSBench/blob/main/docs/modules/dataset.md>
-- Benchmark developer guide: <https://github.com/sslab-gatech/CRSBench/blob/main/docs/benchmark-developer-guide.md>
-- Data protection and contamination design: <https://github.com/sslab-gatech/CRSBench/blob/main/docs/design/benchmark-protection-and-contamination.md>
+- CRSBench repository: <https://github.com/artifact-org/CRSBench>
+- Dataset module guide: [docs/modules/dataset.md](docs/modules/dataset.md)
+- Benchmark developer guide: [docs/contributors/benchmark-developer-guide.md](docs/contributors/benchmark-developer-guide.md)
+- Data protection and contamination design: [docs/design/benchmark-protection-and-contamination.md](docs/design/benchmark-protection-and-contamination.md)
 
 ## License
 
 CRSBench is licensed under MIT. Bundled upstream source code retains its
 original license — see [LICENSE-THIRD-PARTY.md](LICENSE-THIRD-PARTY.md)
-in this repository or the
-[source version](https://github.com/sslab-gatech/CRSBench/blob/main/LICENSE-THIRD-PARTY.md).
+in this repository.

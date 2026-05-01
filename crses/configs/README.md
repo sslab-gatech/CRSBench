@@ -1,6 +1,8 @@
 # Local CRS Configs
 
 `crses/configs` stores **local deployment configuration** for CRS runs in CRSBench.
+Use it only for local deployment settings; the registry-backed runtime contract
+lives under `oss-crs/registry`.
 
 ## Relationship to oss-crs
 

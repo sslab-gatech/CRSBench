@@ -192,8 +192,8 @@ those instance profiles from the provider-neutral `cloud.orchestrator`,
 cloud:
   defaults:
     readiness_timeout_sec: 900
-    crsbench_install_spec: "git+https://github.com/sslab-gatech/CRSBench.git"
-    crsbench_git_ref: main
+    crsbench_install_spec: "git+https://github.com/artifact-org/CRSBench.git"
+    crsbench_git_ref: ccs-artifacts
   bootstrap:
     prepare_mode: full
     download_benchmarks: auto
@@ -254,7 +254,7 @@ cloud:
 | `cloud.defaults.crsbench_install_spec` | no | CRSBench install source for remote VMs; cloud launch expects a `git+...` spec |
 | `cloud.defaults.crsbench_git_ref` | no | Git ref checked out when `crsbench_install_spec` points at a Git source |
 | `cloud.defaults.github_deploy_key_path` | no | Optional secret reference for a private Git deploy key used during CRSBench install |
-| `cloud.remote.experiment_root` | no | Remote workspace root used by cloud re-eval helpers and explicit `--remote-dir` overrides; run-mode `cloud collect` / `cloud teardown` default to `storage.experiment_filestore/<experiment>` |
+| `cloud.remote.experiment_root` | no | Remote workspace root used by internal remote-submission helpers and explicit `--remote-dir` overrides; run-mode `cloud collect` / `cloud teardown` default to `storage.experiment_filestore/<experiment>` |
 | `cloud.env` | no | Global environment variables merged into every launched cloud role |
 
 #### GCE Provider Fields
@@ -668,7 +668,7 @@ cloud:
         env:
           HTTPS_PROXY: os.environ/HTTPS_PROXY
       defaults:
-        crsbench_install_spec: "git+https://github.com/sslab-gatech/CRSBench.git"
+        crsbench_install_spec: "git+https://github.com/artifact-org/CRSBench.git"
       instance_profiles:
         gce-orchestrator-n2d:
           env:
@@ -745,7 +745,7 @@ public key. Add it to your GitHub repository:
 ```yaml
 cloud:
   defaults:
-    crsbench_install_spec: "git+https://github.com/sslab-gatech/CRSBench.git"
+    crsbench_install_spec: "git+https://github.com/artifact-org/CRSBench.git"
   env:
     HF_TOKEN: os.environ/HF_TOKEN
   providers:
@@ -1070,7 +1070,7 @@ By default, `cloud collect` infers:
 - the experiment name from `experiment.name`
 - for normal remote-orchestrator runs, the remote worker artifact directory as
   `<storage.experiment_filestore>/<experiment.name>`
-- for cloud re-eval runs, the remote workspace directory as
+- for internal remote-submission runs, the remote workspace directory as
   `<cloud.remote.experiment_root>/<experiment.name>`
 - `--remote-dir` still overrides the inferred remote source path for either mode
 
@@ -1105,8 +1105,8 @@ Key paths:
 - `storage.experiment_filestore`: local destination on your machine
 - `storage.experiment_filestore/<experiment>`: default remote source tree for
   run-mode `cloud collect` and `cloud teardown`
-- `cloud.remote.experiment_root`: remote workspace root used by cloud re-eval
-  helpers and explicit `--remote-dir` overrides
+- `cloud.remote.experiment_root`: remote workspace root used by internal
+  remote-submission helpers and explicit `--remote-dir` overrides
 
 You can still override either value explicitly:
 

@@ -107,7 +107,7 @@ class RuntimeRegistration(BaseModel):
     benchmarks_root: str = "benchmarks"
     source_mode: str = "pkgs"
     inc_image_policy: str = "auto"
-    inc_image_registry: str = "ghcr.io/team-atlanta/crsbench"
+    inc_image_registry: str = "ghcr.io/artifact-org/crsbench"
     inc_image_max_pull_bytes: Optional[int] = 10 * 1024 * 1024 * 1024
     inc_image_pull_timeout_sec: int = 300
     local_image_prefix: str = "crsbench"
@@ -174,10 +174,10 @@ class RuntimeRegistration(BaseModel):
             inc_image_policy = "auto"
 
         inc_image_registry = getattr(
-            config, "inc_image_registry", "ghcr.io/team-atlanta/crsbench"
+            config, "inc_image_registry", "ghcr.io/artifact-org/crsbench"
         )
         if not isinstance(inc_image_registry, str) or not inc_image_registry:
-            inc_image_registry = "ghcr.io/team-atlanta/crsbench"
+            inc_image_registry = "ghcr.io/artifact-org/crsbench"
 
         inc_image_max_pull_bytes = getattr(
             config, "inc_image_max_pull_bytes", 10 * 1024 * 1024 * 1024

@@ -344,7 +344,7 @@ Examples:
     image_parent.add_argument(
         "--registry",
         type=str,
-        default="ghcr.io/team-atlanta/crsbench",
+        default="ghcr.io/artifact-org/crsbench",
         help="Registry namespace for remote inc images",
     )
     image_parent.add_argument(

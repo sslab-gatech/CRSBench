@@ -23,8 +23,8 @@ runtime:
     mode: external
     tracking_enabled: true
 storage:
-  experiment_filestore: /home/dongkwan/crsbench_eval_patch/experiment-data/afc-all-crs-gemini-cli-gemini-2.5-pro-full
-  report_filestore: /home/dongkwan/crsbench_eval_patch/report-data/afc-all-crs-gemini-cli-gemini-2.5-pro-full
+  experiment_filestore: /data/crsbench/experiment-data/afc-all-crs-gemini-cli-gemini-2.5-pro-full
+  report_filestore: /data/crsbench/report-data/afc-all-crs-gemini-cli-gemini-2.5-pro-full
 resources:
   cores_per_trial: 8
   memory_per_trial: "64G"

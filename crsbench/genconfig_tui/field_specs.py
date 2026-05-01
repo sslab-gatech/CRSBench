@@ -267,7 +267,7 @@ SECTION_SPECS: dict[str, SectionSpec] = {
                 "provider_project",
                 "GCE project",
                 "text",
-                "aixcc-426805",
+                "artifact-gcp-project",
                 visible_when=_when_true("enabled"),
             ),
             FieldSpec(
@@ -355,14 +355,14 @@ SECTION_SPECS: dict[str, SectionSpec] = {
                 "profile_service_account_email",
                 "Service account email",
                 "text",
-                "153298433405-compute@developer.gserviceaccount.com",
+                "artifact-compute@developer.gserviceaccount.com",
                 visible_when=_when_true("enabled"),
             ),
             FieldSpec(
                 "profile_owner_label",
                 "Owner label",
                 "text",
-                "yufu",
+                "artifact-owner",
                 visible_when=_when_true("enabled"),
             ),
             FieldSpec(
@@ -440,7 +440,7 @@ SECTION_SPECS: dict[str, SectionSpec] = {
                 "defaults_crsbench_install_spec",
                 "crsbench install spec",
                 "text",
-                "git+ssh://git@github.com/sslab-gatech/CRSBench.git",
+                "git+ssh://git@github.com/artifact-org/CRSBench.git",
                 visible_when=_when_true("enabled"),
             ),
             FieldSpec(

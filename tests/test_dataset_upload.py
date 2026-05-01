@@ -18,7 +18,7 @@ def _write(path: Path, content: str) -> None:
 def _hf_config() -> DatasetConfig:
     return DatasetConfig(
         backend="huggingface",
-        location="sslab-gatech/crsbench-dataset",
+        location="artifact-org/crsbench-dataset",
         prefixes=["afc-"],
         repo_type="dataset",
     )
@@ -278,7 +278,7 @@ class TestDeleteHuggingFace:
             assert first.kwargs["path_in_repo"] == "afc-a"
             assert second.kwargs["path_in_repo"] == "afc-b"
             assert first.kwargs["commit_message"] == "prune"
-            assert first.kwargs["repo_id"] == "sslab-gatech/crsbench-dataset"
+            assert first.kwargs["repo_id"] == "artifact-org/crsbench-dataset"
             assert first.kwargs["repo_type"] == "dataset"
 
     def test_default_commit_message_names_the_path(self) -> None:

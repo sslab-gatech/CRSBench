@@ -20,18 +20,14 @@ belongs in `docs/modules/`.
 - [Trial-Fair Evaluator Scheduling](./distributed/evaluator-trial-fair-scheduling.md)
 - [Trial-Fair Scheduling TLA+ Model](../../tla/EvaluatorTrialFairScheduling.tla)
 - [Cloud Live Log Streaming](./distributed/cloud-live-log-streaming.md)
-- [Cloud Distributed Re-Evaluation](./distributed/cloud-reeval.md)
 - [Evaluation Contract](./evaluation/evaluation.md)
-- [Historical POV Replay Contract](./evaluation/pov-replay.md)
 - [Validation Contract](./validation/validation.md)
 - [Gen-Config TUI YAML Round-Trip Editing](./validation/gen-config-tui-yaml-roundtrip.md)
 - [Dataset Contract](./dataset/dataset.md)
 - [Reporting Contract](./reporting/report-generation.md)
-- [Benchmark CI Contract](./benchmark-ci/benchmark-ci.md)
 - [Benchmark Lifecycle Contract](./benchmark/benchmark-lifecycle.md)
 - [Cloud Orchestration](./distributed/cloud-orchestration.md)
 - [GCE Cloud Orchestration](./distributed/gce-cloud-orchestration.md)
-- [Migration Design](./migration/migration-validation.md)
 - [Logging Contract](./logging/logging-architecture.md)
 - [Services Contract](./services/litellm.md)
 - [GCE Cloud Orchestrator Launch](./distributed/gce-cloud-orchestrator.md)
@@ -59,14 +55,11 @@ should be applied to the dedicated canonical docs below.
 | Evaluator trial-fair scheduling | `distributed/evaluator-trial-fair-scheduling.md` |
 | Configless runtime discovery/registration | `distributed/configless-runtime.md` |
 | Cloud live log streaming target contract | `distributed/cloud-live-log-streaming.md` |
-| Cloud distributed re-evaluation lifecycle | `distributed/cloud-reeval.md` |
 | Evaluation contract and verdict semantics | `evaluation/evaluation.md` |
-| Historical POV replay contract | `evaluation/pov-replay.md` |
 | Validation schema/normalization contracts | `validation/validation.md` |
 | Gen-config TUI YAML round-trip write preservation | `validation/gen-config-tui-yaml-roundtrip.md` |
 | Dataset import/export and packaging contracts | `dataset/dataset.md` |
 | Reporting and result schema contracts | `reporting/report-generation.md` |
-| Benchmark CI DAG/result aggregation contracts | `benchmark-ci/benchmark-ci.md` |
 | Logging format/semantics contracts | `logging/logging-architecture.md` |
 | Service/backend integration contracts | `services/litellm.md` |
 | Cloud orchestration lifecycle | `distributed/cloud-orchestration.md` |

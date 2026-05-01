@@ -273,7 +273,7 @@ def _make_provider_neutral_experiment_config() -> ExperimentConfig:
             "cloud": {
                 "defaults": {
                     "readiness_timeout_sec": 1200,
-                    "crsbench_install_spec": "git+ssh://git@github.com/sslab-gatech/CRSBench.git",
+                    "crsbench_install_spec": "git+ssh://git@github.com/artifact-org/CRSBench.git",
                     "crsbench_git_ref": "main",
                 },
                 "providers": {
@@ -662,7 +662,7 @@ def test_gce_provider_adapter_builds_worker_fleets_per_placement():
     assert all(fleet.readiness_timeout_sec == 1200 for fleet in fleets)
     assert all(
         fleet.crsbench_install_spec
-        == "git+ssh://git@github.com/sslab-gatech/CRSBench.git"
+        == "git+ssh://git@github.com/artifact-org/CRSBench.git"
         for fleet in fleets
     )
     assert all(fleet.crsbench_git_ref == "main" for fleet in fleets)

@@ -67,8 +67,8 @@ cloud:
     experiment_root: /data/crsbench/experiment-data/cc-finding-original-except-afc-final-corpus-rerun
   defaults:
     readiness_timeout_sec: 1200
-    crsbench_install_spec: "git+ssh://git@github.com/sslab-gatech/CRSBench.git"
-    crsbench_git_ref: main
+    crsbench_install_spec: "git+ssh://git@github.com/artifact-org/CRSBench.git"
+    crsbench_git_ref: ccs-artifacts
     github_deploy_key_path: .crsbench-keys/crsbench-deploy
   env:
     HF_TOKEN: os.environ/HF_TOKEN
@@ -80,7 +80,7 @@ cloud:
     download_benchmarks: auto
   providers:
     gce:
-      project: aixcc-426805
+      project: artifact-gcp-project
       ssh_via_iap: true
       regions:
         - asia-south1
@@ -94,7 +94,7 @@ cloud:
         boot_disk_size_gb: 1024
         boot_disk_type: pd-ssd
         image: projects/ubuntu-os-cloud/global/images/family/ubuntu-2404-lts-amd64
-        service_account_email: 153298433405-compute@developer.gserviceaccount.com
+        service_account_email: artifact-compute@developer.gserviceaccount.com
         owner_label: crsbench
       instance_profiles:
         gce-orchestrator-n2d: {} # n2d-standard-16, 1 TB pd-ssd

@@ -12,7 +12,7 @@ points to canonical docs to avoid drift.
 ## Install
 
 ```bash
-git clone https://github.com/sslab-gatech/CRSBench.git
+git clone https://github.com/artifact-org/CRSBench.git
 cd CRSBench
 uv sync --extra dev
 scripts/setup-third-party.sh

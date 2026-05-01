@@ -89,7 +89,7 @@ class TestRuntimeRegistration:
         config.benchmarks_root = "/data/benchmarks"
         config.source_mode = "pkgs"
         config.inc_image_policy = "auto"
-        config.inc_image_registry = "ghcr.io/team-atlanta/crsbench"
+        config.inc_image_registry = "ghcr.io/artifact-org/crsbench"
         config.inc_image_max_pull_bytes = 10 * 1024 * 1024 * 1024
         config.inc_image_pull_timeout_sec = 300
         config.project_image_prefix = "crsbench"
@@ -127,7 +127,7 @@ class TestRuntimeRegistration:
         config.benchmarks_root = "/benchmarks"
         config.source_mode = "pkgs"
         config.inc_image_policy = "auto"
-        config.inc_image_registry = "ghcr.io/team-atlanta/crsbench"
+        config.inc_image_registry = "ghcr.io/artifact-org/crsbench"
         config.inc_image_max_pull_bytes = 10 * 1024 * 1024 * 1024
         config.inc_image_pull_timeout_sec = 300
         config.project_image_prefix = "crsbench"
@@ -155,7 +155,7 @@ class TestRuntimeRegistration:
         config.benchmarks_root = "benchmarks"
         config.source_mode = "pkgs"
         config.inc_image_policy = "auto"
-        config.inc_image_registry = "ghcr.io/team-atlanta/crsbench"
+        config.inc_image_registry = "ghcr.io/artifact-org/crsbench"
         config.inc_image_max_pull_bytes = 10 * 1024 * 1024 * 1024
         config.inc_image_pull_timeout_sec = 300
         config.project_image_prefix = "crsbench"
@@ -186,7 +186,7 @@ class TestRuntimeRegistration:
         config.benchmarks_root = "/benchmarks"
         config.source_mode = "pkgs"
         config.inc_image_policy = "auto"
-        config.inc_image_registry = "ghcr.io/team-atlanta/crsbench"
+        config.inc_image_registry = "ghcr.io/artifact-org/crsbench"
         config.inc_image_max_pull_bytes = 10 * 1024 * 1024 * 1024
         config.inc_image_pull_timeout_sec = 300
         config.project_image_prefix = "crsbench"
@@ -219,7 +219,7 @@ class TestRuntimeRegistration:
         config.benchmarks_root = "/benchmarks"
         config.source_mode = "pkgs"
         config.inc_image_policy = "auto"
-        config.inc_image_registry = "ghcr.io/team-atlanta/crsbench"
+        config.inc_image_registry = "ghcr.io/artifact-org/crsbench"
         config.inc_image_max_pull_bytes = 10 * 1024 * 1024 * 1024
         config.inc_image_pull_timeout_sec = 300
         config.project_image_prefix = "crsbench"
@@ -256,7 +256,7 @@ class TestRuntimeRegistration:
         config.benchmarks_root = "/benchmarks"
         config.source_mode = "pkgs"
         config.inc_image_policy = "auto"
-        config.inc_image_registry = "ghcr.io/team-atlanta/crsbench"
+        config.inc_image_registry = "ghcr.io/artifact-org/crsbench"
         config.inc_image_max_pull_bytes = 10 * 1024 * 1024 * 1024
         config.inc_image_pull_timeout_sec = 300
         config.project_image_prefix = "crsbench"
@@ -295,7 +295,7 @@ class TestRuntimeRegistration:
         config.benchmarks_root = "/benchmarks"
         config.source_mode = "pkgs"
         config.inc_image_policy = "auto"
-        config.inc_image_registry = "ghcr.io/team-atlanta/crsbench"
+        config.inc_image_registry = "ghcr.io/artifact-org/crsbench"
         config.inc_image_max_pull_bytes = 10 * 1024 * 1024 * 1024
         config.inc_image_pull_timeout_sec = 300
         config.project_image_prefix = "crsbench"
@@ -334,7 +334,7 @@ class TestRuntimeRegistration:
         config.benchmarks_root = "/benchmarks"
         config.source_mode = "pkgs"
         config.inc_image_policy = "auto"
-        config.inc_image_registry = "ghcr.io/team-atlanta/crsbench"
+        config.inc_image_registry = "ghcr.io/artifact-org/crsbench"
         config.inc_image_max_pull_bytes = 10 * 1024 * 1024 * 1024
         config.inc_image_pull_timeout_sec = 300
         config.project_image_prefix = "crsbench"

@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 
-DEFAULT_INC_REGISTRY = "ghcr.io/team-atlanta/crsbench"
+DEFAULT_INC_REGISTRY = "ghcr.io/artifact-org/crsbench"
 
 
 @dataclass

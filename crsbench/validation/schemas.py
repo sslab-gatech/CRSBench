@@ -3503,7 +3503,7 @@ class ExperimentConfig(BaseModel):
         description="On-demand inc-build image prepare policy (default: auto).",
     )
     inc_image_registry: str = Field(
-        default="ghcr.io/team-atlanta/crsbench",
+        default="ghcr.io/artifact-org/crsbench",
         description="Registry namespace for inc-build images.",
     )
     inc_image_max_pull_bytes: Optional[int] = Field(

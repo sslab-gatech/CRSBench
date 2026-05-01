@@ -88,7 +88,7 @@ def is_inc_build_image_available(project_name: str, sanitizer: str = "address") 
 
     Checks multiple image formats:
     1. OSS-Fuzz format: gcr.io/oss-fuzz/{project}-{san}:inc
-    2. Registry format: ghcr.io/team-atlanta/crsbench/{project}-{san}:inc
+    2. Registry format: ghcr.io/artifact-org/crsbench/{project}-{san}:inc
 
     Also attempts to pull from registry if not found locally.
     """
@@ -102,7 +102,7 @@ def is_inc_build_image_available(project_name: str, sanitizer: str = "address") 
     scoped_project = f"{project_name}-{sanitizer_suffix}"
     image_formats = [
         f"gcr.io/oss-fuzz/{scoped_project}:inc",
-        f"ghcr.io/team-atlanta/crsbench/{scoped_project}:inc",
+        f"ghcr.io/artifact-org/crsbench/{scoped_project}:inc",
     ]
 
     # Check if any format exists locally
@@ -119,7 +119,7 @@ def is_inc_build_image_available(project_name: str, sanitizer: str = "address") 
             continue
 
     # Try to pull from registry
-    registry_image = f"ghcr.io/team-atlanta/crsbench/{scoped_project}:inc"
+    registry_image = f"ghcr.io/artifact-org/crsbench/{scoped_project}:inc"
     try:
         result = subprocess.run(
             ["docker", "pull", registry_image],
@@ -158,7 +158,7 @@ def check_e2e_prerequisites(
         }.get(sanitizer, sanitizer)
         return (
             f"Inc-build image not available for {project_name}. "
-            f"Pull with: docker pull ghcr.io/team-atlanta/crsbench/"
+            f"Pull with: docker pull ghcr.io/artifact-org/crsbench/"
             f"{project_name}-{sanitizer_suffix}:inc"
         )
 

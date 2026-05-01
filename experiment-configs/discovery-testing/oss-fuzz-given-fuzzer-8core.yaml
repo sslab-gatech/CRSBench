@@ -14,8 +14,8 @@ experiment:
   sanitizers:
     - address
 
-benchmarks_root: /home/dongkwan/multilang-test/oss-fuzz/projects
-oss_fuzz_path: /home/dongkwan/multilang-test/oss-fuzz
+benchmarks_root: /data/oss-fuzz/projects
+oss_fuzz_path: /data/oss-fuzz
 
 runtime:
   trials: 1

@@ -855,7 +855,7 @@ class OSSFuzzBuilder:
         self,
         benchmark_name: str,
         sanitizer: str = "address",
-        registry: str = "ghcr.io/team-atlanta/crsbench",
+        registry: str = "ghcr.io/artifact-org/crsbench",
     ) -> bool:
         """Check if incremental build image exists for a benchmark.
 

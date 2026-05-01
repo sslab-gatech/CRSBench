@@ -8,7 +8,7 @@ Usage:
 Where ``CRS_DIR`` is the directory immediately above the per-benchmark trees.
 For example::
 
-    /data/crsbench/ccs-final/fixing_all_all-agents/crs-claude-code/
+    /data/crsbench/evaluation/fixing-example/crs-example/
 
 Layouts handled (auto-detected by locating ``trial-*`` directories):
 

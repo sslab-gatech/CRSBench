@@ -2350,7 +2350,7 @@ class OSSFuzzInfrastructure:
             registry: Docker registry
 
         Returns:
-            Full Docker image name (e.g., ghcr.io/team-atlanta/crsbench/proj-asan:inc)
+            Full Docker image name (e.g., ghcr.io/artifact-org/crsbench/proj-asan:inc)
         """
         return registry_inc_image_name(project_name, sanitizer, registry=registry)
 
@@ -3020,7 +3020,7 @@ class OSSFuzzInfrastructure:
         Args:
             project_name: OSS-Fuzz project name
             sanitizer: Sanitizer type (default: "address")
-            registry: Docker registry (default: ghcr.io/team-atlanta/crsbench)
+            registry: Docker registry (default: ghcr.io/artifact-org/crsbench)
 
         Returns:
             True if inc-build image is available and ready for use

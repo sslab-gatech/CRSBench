@@ -11,8 +11,8 @@ relevant to CRSBench workflows.
 - `cpv_report.py` - CPV report generation from experiment data
 - `merge_experiment_results.py` - merge distributed result shards; see
   [Merge Experiment Results](../docs/guides/experiments/merge-results.md)
-- `orchestrate-workers.sh` - remote worker orchestration
-- `setup-remote-worker.sh` - remote worker bootstrap helper
+- `orchestrate-workers.sh` - optional SSH worker bootstrap/start/collect helper using operator-supplied hosts
+- `setup-remote-worker.sh` - optional per-host bootstrap helper for SSH-managed workers
 - `setup-third-party.sh` - fetch managed `third_party/oss-fuzz` and the pinned Atlantis `third_party/atlantis-multilang-given_fuzzer` checkout; reruns normalize the managed `oss-fuzz` checkout back to the configured repo and pinned commit, clean helper-source drift under `infra/`, preserve `build/*` artifacts, and then reapply CRSBench helper patches
 - `sync-upstream-models.py` - sync upstream LiteLLM model catalog
 - `check_patch_overlap.py` - patch overlap/debug utility

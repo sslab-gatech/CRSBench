@@ -1765,7 +1765,7 @@ def run_reeval(args: argparse.Namespace) -> int:
             benchmarks_root=str(benchmarks_root or Path("benchmarks")),
             source_mode=source_mode,
             inc_image_policy=inc_image_policy or "auto",
-            inc_image_registry=inc_image_registry or "ghcr.io/team-atlanta/crsbench",
+            inc_image_registry=inc_image_registry or "ghcr.io/artifact-org/crsbench",
             inc_image_max_pull_bytes=inc_image_max_pull_bytes
             if inc_image_max_pull_bytes is not None
             else 10 * 1024 * 1024 * 1024,

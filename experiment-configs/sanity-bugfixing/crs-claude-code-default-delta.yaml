@@ -23,8 +23,8 @@ runtime:
     mode: external
     tracking_enabled: true
 storage:
-  experiment_filestore: /home/dongkwan/crsbench_eval_patch/experiment-data/sanity-test-crs-claude-code-8c-2h
-  report_filestore: /home/dongkwan/crsbench_eval_patch/report-data/sanity-test-crs-claude-code-8c-2h
+  experiment_filestore: /data/crsbench/experiment-data/sanity-test-crs-claude-code-8c-2h
+  report_filestore: /data/crsbench/report-data/sanity-test-crs-claude-code-8c-2h
 resources:
   memory_per_trial: "64G"
 crs_compose:

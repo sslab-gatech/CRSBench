@@ -7,10 +7,13 @@ Unlike traditional fuzzing benchmarks (e.g., FuzzBench) that only report coverag
 ## Quick Start
 
 First-time users should start with [docs/getting-started/first-experiment.md](docs/getting-started/first-experiment.md).
+Anonymous-artifact reviewers should also read
+[docs/getting-started/reviewer-quickstart.md](docs/getting-started/reviewer-quickstart.md)
+and [docs/reference/reviewer-scope.md](docs/reference/reviewer-scope.md).
 
 ```bash
 # Install
-git clone https://github.com/sslab-gatech/CRSBench.git && cd CRSBench
+git clone https://github.com/artifact-org/CRSBench.git && cd CRSBench
 uv sync
 ./scripts/setup-third-party.sh             # clone managed oss-fuzz + Atlantis checkouts
 uv run crsbench prepare                    # pull OSS-Fuzz + AIxCC base images
@@ -18,7 +21,7 @@ uv run crsbench prepare --coverage         # pull Atlantis GHCR coverage images 
 
 # Download benchmarks from HuggingFace (gated — requires access)
 #   1. Create a token at https://huggingface.co/settings/tokens
-#   2. Accept the Data Use Agreement at https://huggingface.co/datasets/sslab-gatech/crsbench-dataset
+#   2. Accept the Data Use Agreement at https://huggingface.co/datasets/artifact-org/crsbench-dataset
 #   3. Log in:
 uv run hf auth login
 crsbench download --all                     # all 134 benchmarks (~12GB)
@@ -209,7 +212,6 @@ not accept an `--oss-fuzz-path` override.
 
 ```bash
 crsbench report    --experiment my-exp
-crsbench dashboard --base-dir ./experiments
 crsbench benchmark stats --output stats.csv
 crsbench benchmark stats --benchmark-suite crsbench-all --output stats.csv
 crsbench benchmark stats --benchmark-suite crsbench-all --vuln-index-output vuln-index.yaml
@@ -244,9 +246,8 @@ CRSBench/
 │   ├── benchmark/           #   Packaging, canary, seed tools
 │   ├── dataset/             #   HuggingFace upload/download
 │   ├── validation/          #   Format validation & schemas
-│   ├── migration/           #   Format migration tools
 │   ├── hint_generation/     #   Progressive hint generation
-│   ├── reporting/           #   Reports & dashboard
+│   ├── reporting/           #   Report generation
 │   ├── statistics/          #   Benchmark statistics
 │   └── utils/               #   Shared utilities (logger, YAML, etc.)
 ├── oss-crs/registry/        # OSS-CRS registry entries referenced by `crs_compose` keys

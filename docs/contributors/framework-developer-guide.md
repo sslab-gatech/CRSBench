@@ -14,7 +14,7 @@ Framework work includes changes under:
 ## Setup
 
 ```bash
-git clone https://github.com/sslab-gatech/CRSBench.git && cd CRSBench
+git clone https://github.com/artifact-org/CRSBench.git && cd CRSBench
 uv sync --extra dev
 pre-commit install
 ```

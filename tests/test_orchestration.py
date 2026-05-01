@@ -1213,7 +1213,7 @@ class TestIntegrationWithSampleConfigs:
         assert config.experiment == experiment_name
         assert (
             config.cloud.defaults.crsbench_install_spec
-            == "git+ssh://git@github.com/sslab-gatech/CRSBench.git"
+            == "git+ssh://git@github.com/artifact-org/CRSBench.git"
         )
         assert (
             config.cloud.defaults.github_deploy_key_path
@@ -1253,13 +1253,13 @@ class TestIntegrationWithSampleConfigs:
             config.cloud.providers.gce.instance_profiles[
                 "gce-worker-n2d"
             ].service_account_email
-            == "153298433405-compute@developer.gserviceaccount.com"
+            == "artifact-compute@developer.gserviceaccount.com"
         )
         assert (
             config.cloud.providers.gce.instance_profiles[
                 "gce-orchestrator-n2d"
             ].service_account_email
-            == "153298433405-compute@developer.gserviceaccount.com"
+            == "artifact-compute@developer.gserviceaccount.com"
         )
         assert config.cloud.orchestrator.region is None
         assert config.cloud.orchestrator.zones == []

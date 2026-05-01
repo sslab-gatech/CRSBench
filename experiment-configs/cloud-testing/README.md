@@ -178,12 +178,18 @@ want the older explicit zonal topology on purpose.
 
 Before running one of these cloud configs:
 
+These checked-in configs use anonymized placeholder GCE values. Replace
+`artifact-gcp-project`, `artifact-compute@developer.gserviceaccount.com`, and
+`artifact-owner` with values from your own GCP project before launch.
+
 1. Authenticate both GCP credential paths on the operator machine:
 
 ```bash
+GCP_PROJECT=<your-gcp-project>
+
 gcloud auth login
 gcloud auth application-default login
-gcloud config set project aixcc-426805
+gcloud config set project "$GCP_PROJECT"
 ```
 
 Expected result:
@@ -191,33 +197,36 @@ Expected result:
 - `gcloud auth login` finishes in the browser and `gcloud auth list` shows your
   email as the active account
 - `gcloud auth application-default login` completes without error
-- `gcloud config set project aixcc-426805` prints `Updated property [core/project].`
+- `gcloud config set project "$GCP_PROJECT"` prints `Updated property [core/project].`
 
 2. Confirm required GCP pieces exist:
 
 ```bash
+GCP_PROJECT=<your-gcp-project>
+GCE_SERVICE_ACCOUNT=<your-service-account-email>
+
 gcloud services list --enabled \
   --filter='config.name=compute.googleapis.com' \
   --format='value(config.name)'
 
 gcloud iam service-accounts describe \
-  153298433405-compute@developer.gserviceaccount.com \
-  --project aixcc-426805 \
+  "$GCE_SERVICE_ACCOUNT" \
+  --project "$GCP_PROJECT" \
   --format='value(email)'
 ```
 
 Expected result:
 
 - the first command prints exactly `compute.googleapis.com`
-- the second command prints exactly
-  `153298433405-compute@developer.gserviceaccount.com`
+- the second command prints exactly the value you assigned to
+  `GCE_SERVICE_ACCOUNT`
 
 3. Make sure the private repo install path in the config is usable from the VM bootstrap.
 
 The checked-in config currently uses:
 
-- `cloud.defaults.crsbench_install_spec: git+ssh://git@github.com/sslab-gatech/CRSBench.git`
-- `cloud.defaults.crsbench_git_ref: main`
+- `cloud.defaults.crsbench_install_spec: git+ssh://git@github.com/artifact-org/CRSBench.git`
+- `cloud.defaults.crsbench_git_ref: ccs-artifacts`
 - `cloud.defaults.github_deploy_key_path: .crsbench-keys/crsbench-deploy`
 
 That only works if:
@@ -254,7 +263,7 @@ The checked-in config already points at that private key:
 ```yaml
 cloud:
   defaults:
-    crsbench_install_spec: "git+ssh://git@github.com/sslab-gatech/CRSBench.git"
+    crsbench_install_spec: "git+ssh://git@github.com/artifact-org/CRSBench.git"
     github_deploy_key_path: .crsbench-keys/crsbench-deploy
 ```
 

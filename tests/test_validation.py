@@ -665,7 +665,7 @@ class TestExperimentConfigSchema:
         return {
             "defaults": {
                 "readiness_timeout_sec": 1200,
-                "crsbench_install_spec": "git+ssh://git@github.com/sslab-gatech/CRSBench.git",
+                "crsbench_install_spec": "git+ssh://git@github.com/artifact-org/CRSBench.git",
                 "crsbench_git_ref": "main",
             },
             "providers": {
@@ -1024,7 +1024,7 @@ class TestExperimentConfigSchema:
         data = self._base_kwargs()
         data["cloud"] = {
             "defaults": {
-                "crsbench_install_spec": "git+ssh://git@github.com/sslab-gatech/CRSBench.git",
+                "crsbench_install_spec": "git+ssh://git@github.com/artifact-org/CRSBench.git",
             },
             "providers": {
                 "gce": {
@@ -1120,7 +1120,7 @@ class TestExperimentConfigSchema:
         assert config.cloud.defaults.readiness_timeout_sec == 1200
         assert (
             config.cloud.defaults.crsbench_install_spec
-            == "git+ssh://git@github.com/sslab-gatech/CRSBench.git"
+            == "git+ssh://git@github.com/artifact-org/CRSBench.git"
         )
         assert config.cloud.defaults.crsbench_git_ref == "main"
         assert config.cloud.providers.gce is not None
@@ -1549,7 +1549,7 @@ class TestExperimentConfigSchema:
             ),
             (
                 "providers.gce.profile_defaults.crsbench_install_spec",
-                "git+ssh://git@github.com/sslab-gatech/CRSBench.git",
+                "git+ssh://git@github.com/artifact-org/CRSBench.git",
                 "crsbench_install_spec",
             ),
             (
@@ -1569,7 +1569,7 @@ class TestExperimentConfigSchema:
             ),
             (
                 "providers.gce.instance_profiles.gce-worker-n2d.crsbench_install_spec",
-                "git+ssh://git@github.com/sslab-gatech/CRSBench.git",
+                "git+ssh://git@github.com/artifact-org/CRSBench.git",
                 "crsbench_install_spec",
             ),
             (

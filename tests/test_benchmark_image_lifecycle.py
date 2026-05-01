@@ -23,7 +23,7 @@ def _build_args(benchmarks_dir: Path) -> argparse.Namespace:
         filter=None,
         workers=1,
         local_prefix="crsbench",
-        registry="ghcr.io/team-atlanta/crsbench",
+        registry="ghcr.io/artifact-org/crsbench",
         policy="auto",
         max_pull_bytes=None,
         pull_timeout=300,
