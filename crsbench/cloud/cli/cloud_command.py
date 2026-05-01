@@ -261,25 +261,6 @@ Examples:
         ),
     )
 
-    # re-eval
-    reeval_p = cloud_subparsers.add_parser(
-        "re-eval",
-        help="Launch orchestrator/evaluators for remote distributed re-evaluation",
-    )
-    _add_config_argument(reeval_p, suppress_default=True)
-    reeval_p.add_argument(
-        "--from",
-        dest="from_path",
-        default=None,
-        help="Source experiment root (defaults to the experiment directory from config)",
-    )
-    reeval_p.add_argument(
-        "--remote-experiment",
-        dest="remote_experiment",
-        default=None,
-        help="Explicit remote experiment name (defaults to a derived re-eval namespace)",
-    )
-
     # add-workers
     add_workers_p = cloud_subparsers.add_parser(
         "add-workers",
@@ -489,11 +470,6 @@ def run_cloud(args: argparse.Namespace) -> int:
         from crsbench.cloud.cli._launch import run_launch
 
         return run_launch(args)
-
-    if cmd == "re-eval":
-        from crsbench.cloud.cli._reeval import run_cloud_reeval
-
-        return run_cloud_reeval(args)
 
     if cmd == "preflight":
         from crsbench.cloud.cli._preflight import run_preflight

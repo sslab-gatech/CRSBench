@@ -2376,25 +2376,10 @@ class TestArgParsing:
         assert args.cloud_command == "launch"
         assert args.config == "c.yaml"
 
-    def test_parse_re_eval(self):
+    def test_parse_re_eval_is_not_public(self):
         parser = self._build_parser()
-        args = parser.parse_args(
-            [
-                "cloud",
-                "re-eval",
-                "--config",
-                "c.yaml",
-                "--from",
-                "/tmp/source-exp",
-                "--remote-experiment",
-                "source-exp-reeval-20260424",
-            ]
-        )
-        assert args.command == "cloud"
-        assert args.cloud_command == "re-eval"
-        assert args.config == "c.yaml"
-        assert args.from_path == "/tmp/source-exp"
-        assert args.remote_experiment == "source-exp-reeval-20260424"
+        with pytest.raises(SystemExit):
+            parser.parse_args(["cloud", "re-eval", "--config", "c.yaml"])
 
     def test_parse_launch_with_only_trial_keys_file(self):
         parser = self._build_parser()
@@ -2943,23 +2928,6 @@ def test_run_cloud_dispatches_list(mock_run_list):
 
     assert rc == 0
     mock_run_list.assert_called_once()
-
-
-@patch("crsbench.cloud.cli._reeval.run_cloud_reeval", return_value=0)
-def test_run_cloud_dispatches_re_eval(mock_run_reeval):
-    from crsbench.cloud.cli.cloud_command import run_cloud
-
-    rc = run_cloud(
-        argparse.Namespace(
-            cloud_command="re-eval",
-            config="config.yaml",
-            from_path=None,
-            remote_experiment=None,
-        )
-    )
-
-    assert rc == 0
-    mock_run_reeval.assert_called_once()
 
 
 def test_run_cloud_requires_config_for_non_keygen_commands():

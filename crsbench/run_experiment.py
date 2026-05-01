@@ -377,11 +377,10 @@ Examples:
   # Collect code coverage timelines
   %(prog)s coverage --experiment-config ./experiment.yaml
 
-  # Generate reports and start dashboard
+  # Generate reports
   %(prog)s report --experiment my-experiment
-  %(prog)s dashboard --base-dir ./experiments
 
-  # Benchmark management (validate, bundle, CI, stats, migrate)
+  # Benchmark management (validate, bundle, CI, stats)
   %(prog)s benchmark validate ./benchmarks/afc-curl-delta-01
   %(prog)s benchmark ci all --all
   %(prog)s benchmark stats --summary-only
@@ -482,27 +481,12 @@ Examples:
 
     add_coverage_subparser(subparsers)
 
-    # 'replay-povs' subcommand - replay discovered POVs against OSS-Fuzz
-    from crsbench.evaluation.replay.cli import add_replay_povs_subparser
-
-    add_replay_povs_subparser(subparsers)
-
     # 'report' subcommand - report generation
     from crsbench.reporting.cli import add_report_subparser
 
     add_report_subparser(subparsers)
 
-    # 'dashboard' subcommand - web dashboard
-    from crsbench.reporting.cli import add_dashboard_subparser
-
-    add_dashboard_subparser(subparsers)
-
-    # 're-eval' subcommand - re-run verification on existing trials
-    from crsbench.evaluation.reeval.cli import add_reeval_subparser
-
-    add_reeval_subparser(subparsers)
-
-    # 'benchmark' subcommand - benchmark management including migrate, stats, ci
+    # 'benchmark' subcommand - benchmark management including stats and ci
     from crsbench.benchmark.packaging.cli import add_benchmark_subparser
 
     add_benchmark_subparser(subparsers)
@@ -3395,11 +3379,6 @@ def main() -> None:
 
         sys.exit(run_coverage(args))
 
-    if args.command == "replay-povs":
-        from crsbench.evaluation.replay.cli import run_replay_povs
-
-        sys.exit(run_replay_povs(args))
-
     if args.command == "patch-verify":
         # Handle patch-verify command
         from crsbench.evaluation.verification.cli.patch_verify_command import (
@@ -3436,12 +3415,6 @@ def main() -> None:
 
         sys.exit(run_report(args))
 
-    if args.command == "dashboard":
-        # Handle dashboard command
-        from crsbench.reporting.cli import run_dashboard
-
-        sys.exit(run_dashboard(args))
-
     if args.command == "benchmark":
         # Handle benchmark command (bundle, validate, prepare-delta)
         from crsbench.benchmark.packaging.cli.benchmark_command import (
@@ -3449,11 +3422,6 @@ def main() -> None:
         )
 
         sys.exit(run_benchmark_command(args))
-
-    if args.command == "re-eval":
-        from crsbench.evaluation.reeval.cli import run_reeval
-
-        sys.exit(run_reeval(args))
 
     if args.command == "download":
         from crsbench.dataset.cli import run_download

@@ -16,10 +16,25 @@ from typing import Any
 import yaml
 
 from crsbench.cloud.reeval_compat import discover_git_revision as _discover_git_revision
+from crsbench.evaluation.reeval.cli import add_reeval_subparser
 
 _STATE_FILENAME = "submission.json"
 _SUMMARY_FILENAME = "summary.json"
 _LOG_FILENAME = "runner.log"
+
+
+def _build_reeval_args(config_path: Path) -> argparse.Namespace:
+    """Build an internal re-eval namespace without using the public top-level CLI."""
+    parser = argparse.ArgumentParser(prog="crsbench-internal-reeval")
+    subparsers = parser.add_subparsers(dest="command")
+    add_reeval_subparser(subparsers)
+    return parser.parse_args(["re-eval", "--experiment-config", str(config_path)])
+
+
+def _run_internal_reeval(config_path: Path) -> int:
+    """Execute re-eval through the dedicated CLI module."""
+    reeval_args = _build_reeval_args(config_path)
+    return int(reeval_args.func(reeval_args))
 
 
 def read_submission_state(state_path: Path) -> dict[str, Any]:
@@ -170,25 +185,26 @@ def execute_remote_submission(
             [
                 sys.executable,
                 "-m",
-                "crsbench.run_experiment",
-                "re-eval",
+                "crsbench.cloud.reeval_remote",
+                "run-reeval",
                 "--experiment-config",
                 str(derived_config_path),
             ],
             check=False,
         )
-        terminal_state = "succeeded" if result.returncode == 0 else "failed"
+        exit_code = int(result.returncode)
+        terminal_state = "succeeded" if exit_code == 0 else "failed"
         state["state"] = terminal_state
         state["completed_at"] = _now_iso()
-        state["reeval_exit_code"] = result.returncode
+        state["reeval_exit_code"] = exit_code
         write_submission_state(state_path, state)
         _write_summary(
             submission_dir=submission_dir,
             manifest=manifest,
             state=state,
-            exit_code=result.returncode,
+            exit_code=exit_code,
         )
-        return result.returncode
+        return exit_code
     except Exception as exc:
         traceback.print_exc()
         state["state"] = "failed"
@@ -356,6 +372,9 @@ def _build_parser() -> argparse.ArgumentParser:
     execute_p.add_argument("--submission-dir", type=Path, required=True)
     execute_p.add_argument("--redis-host", default=None)
     execute_p.add_argument("--benchmarks-root", type=Path, default=None)
+
+    run_reeval_p = subparsers.add_parser("run-reeval")
+    run_reeval_p.add_argument("--experiment-config", type=Path, required=True)
     return parser
 
 
@@ -369,6 +388,8 @@ def main(argv: list[str] | None = None) -> int:
             benchmarks_root=args.benchmarks_root,
         )
         return 0
+    if args.command == "run-reeval":
+        return _run_internal_reeval(args.experiment_config)
     return execute_remote_submission(
         args.submission_dir,
         redis_host=args.redis_host,

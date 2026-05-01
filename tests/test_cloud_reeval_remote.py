@@ -272,8 +272,9 @@ def test_execute_remote_submission_materializes_workspace_and_updates_state(
     assert mock_run.call_args.args[0][:3] == [
         sys.executable,
         "-m",
-        "crsbench.run_experiment",
+        "crsbench.cloud.reeval_remote",
     ]
+    assert mock_run.call_args.args[0][3] == "run-reeval"
 
 
 def test_execute_remote_submission_fails_on_runtime_revision_mismatch(

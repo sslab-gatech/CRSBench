@@ -189,77 +189,27 @@ class TestBenchmarkSeedImportNesting:
         assert "--all" in help_text
 
 
-class TestBenchmarkMigrateNesting:
-    """Tests for 'crsbench benchmark migrate' nested subcommand."""
+class TestBenchmarkMigrateRemoval:
+    """Tests for removing benchmark migration tooling from the artifact CLI."""
 
-    def test_benchmark_migrate_atlanta_to_rfc_parses(self):
+    def test_benchmark_migrate_is_not_registered(self):
         parser = _make_parser()
-        args = parser.parse_args(
-            [
-                "benchmark",
-                "migrate",
-                "atlanta-to-rfc",
-                "--source-dir",
-                "/tmp/src",
-                "--target-dir",
-                "/tmp/dst",
-            ]
-        )
-        assert args.migrate_subcommand == "atlanta-to-rfc"
 
-    def test_benchmark_migrate_rfc_to_atlanta_parses(self):
-        parser = _make_parser()
-        args = parser.parse_args(
-            [
-                "benchmark",
-                "migrate",
-                "rfc-to-atlanta",
-                "--source-dir",
-                "/tmp/src",
-                "--target-dir",
-                "/tmp/dst",
-            ]
-        )
-        assert args.migrate_subcommand == "rfc-to-atlanta"
+        benchmark_parser = None
+        for action in parser._actions:
+            if isinstance(action, argparse._SubParsersAction):
+                benchmark_parser = action.choices["benchmark"]
+                break
 
-    def test_benchmark_migrate_dispatch_routes_to_handler(self):
-        parser = _make_parser()
-        args = parser.parse_args(
-            [
-                "benchmark",
-                "migrate",
-                "atlanta-to-rfc",
-                "--source-dir",
-                "/tmp/src",
-                "--target-dir",
-                "/tmp/dst",
-            ]
-        )
-        assert hasattr(args, "func")
-        assert callable(args.func)
-        assert args.func.__name__ == "run_migrate"
+        assert benchmark_parser is not None
 
-    def test_benchmark_migrate_all_subcommands_registered(self):
-        parser = _make_parser()
-        subcommand_args = {
-            "atlanta-to-rfc": [
-                "--source-dir",
-                "/tmp/src",
-                "--target-dir",
-                "/tmp/dst",
-            ],
-            "rfc-to-atlanta": [
-                "--source-dir",
-                "/tmp/src",
-                "--target-dir",
-                "/tmp/dst",
-            ],
-            "generate-test-sh": ["--benchmark", "test-bench"],
-            "generate-vuln-yaml": [],
-        }
-        for sub, extra in subcommand_args.items():
-            args = parser.parse_args(["benchmark", "migrate", sub, *extra])
-            assert args.migrate_subcommand == sub
+        nested_choices: set[str] = set()
+        for action in benchmark_parser._actions:
+            if isinstance(action, argparse._SubParsersAction):
+                nested_choices = set(action.choices.keys())
+                break
+
+        assert "migrate" not in nested_choices
 
 
 class TestBenchmarkCommandDispatch:
@@ -304,7 +254,6 @@ class TestOldTopLevelCommandsRemoved:
         from crsbench.evaluation.coverage.cli.coverage_command import (
             add_coverage_subparser,
         )
-        from crsbench.evaluation.reeval.cli import add_reeval_subparser
         from crsbench.evaluation.verification.cli.patch_verify_command import (
             add_patch_verify_subparser,
         )
@@ -312,10 +261,7 @@ class TestOldTopLevelCommandsRemoved:
             add_verify_subparser,
         )
         from crsbench.prepare.cli import add_prepare_subparser
-        from crsbench.reporting.cli import (
-            add_dashboard_subparser,
-            add_report_subparser,
-        )
+        from crsbench.reporting.cli import add_report_subparser
 
         parser = argparse.ArgumentParser(prog="crsbench")
         subs = parser.add_subparsers(dest="command")
@@ -328,8 +274,6 @@ class TestOldTopLevelCommandsRemoved:
         add_patch_verify_subparser(subs)
         add_coverage_subparser(subs)
         add_report_subparser(subs)
-        add_dashboard_subparser(subs)
-        add_reeval_subparser(subs)
         add_benchmark_subparser(subs)
 
         return parser
