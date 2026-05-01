@@ -2,8 +2,8 @@
 
 This directory holds operator-facing cloud configs for real remote bring-up.
 
-This directory currently ships six GCE configs for the remote-orchestrator
-flow:
+This directory currently documents five primary GCE sample configs for the
+remote-orchestrator flow:
 
 - `gce-sanity-1orch-2worker-1eval.yaml`
   - uses `crs-libfuzzer`
@@ -11,12 +11,6 @@ flow:
 - `gce-sanity-1orch-2worker-1eval-multilang-given-fuzzer.yaml`
   - uses `atlantis-multilang-given_fuzzer`
   - checked-in experiment identifier: `gce-sanity-mgf-1o2w1e`
-- `gce-usenix-r1-1orch-2worker-1eval-multilang-given-fuzzer.yaml`
-  - uses `atlantis-multilang-given_fuzzer`
-  - benchmark suite: `usenix-r1`
-  - `mode: all` so one run covers both delta and full members of the suite
-  - `runtime.run_timeout: 1800` and `worker.jobs: 4`
-  - checked-in experiment identifier: `gce-usenix-r1-mgf-1o2w1e`
 - `gce-hf-download-1orch-2worker-1eval.yaml`
   - uses `crs-libfuzzer`
   - benchmark suite: `smoke-test-bug-finding-hf-download`
@@ -49,8 +43,7 @@ The HF-download sample keeps the same regional shape:
 - 1 worker that overrides to `region: us-east1` without a zone allowlist
 - 1 evaluator that inherits the provider region
 
-The Atlantis sanity and Atlantis usenix-r1 samples use ordered regional
-fallback instead:
+The Atlantis sanity sample uses ordered regional fallback:
 
 - provider-level `regions: [us-east5, us-east1, us-south1]`
 - provider-level `fallback: true`
@@ -95,14 +88,6 @@ For the HF-download preset, replace:
 - the remote dir `/tmp/crsbench/experiment-data/gce-sanity-1o2w1e` with
   `/tmp/crsbench/experiment-data/gce-hf-download-1o2w1e`
 
-For the usenix-r1 preset, replace:
-
-- the config path with
-  `experiment-configs/cloud-testing/gce-usenix-r1-1orch-2worker-1eval-multilang-given-fuzzer.yaml`
-- the experiment name `gce-sanity-1o2w1e` with `gce-usenix-r1-mgf-1o2w1e`
-- the remote dir `/tmp/crsbench/experiment-data/gce-sanity-1o2w1e` with
-  `/tmp/crsbench/experiment-data/gce-usenix-r1-mgf-1o2w1e`
-
 For the fallback preset, replace:
 
 - the config path with
@@ -140,13 +125,11 @@ These cloud configs use the checkout-first cloud bootstrap path:
 
 - cloud VMs clone CRSBench from `crsbench_install_spec`
 - every VM runs `crsbench prepare`
-- `download_benchmarks: auto` is set for all six samples
-- the four `benchmark_suite: sanity` samples skip the VM-side benchmark download
+- `download_benchmarks: auto` is set for all five documented samples
+- the four non-HF documented samples skip the VM-side benchmark download
 - the `gce-hf-download-1orch-2worker-1eval.yaml` sample runs the VM-side
   Hugging Face dataset download for
   `benchmark_suite: smoke-test-bug-finding-hf-download`
-- the `gce-usenix-r1-1orch-2worker-1eval-multilang-given-fuzzer.yaml` sample
-  also runs the VM-side benchmark download for `benchmark_suite: usenix-r1`
 - `cloud.defaults.readiness_timeout_sec: 1200` gives the whole fleet a
   20-minute bring-up window for cold-image bootstrap and Redis startup
 
@@ -163,8 +146,8 @@ fails fast if any listed zone belongs to a different region. The checked-in
 regional samples intentionally omit `zones` so GCE can choose the actual zone
 within each requested region.
 
-The Atlantis sanity and Atlantis usenix-r1 samples are the references when you
-want ordered regional fallback via `regions` instead of a single `region`.
+The Atlantis sanity sample is the reference when you want ordered regional
+fallback via `regions` instead of a single `region`.
 
 If you want ordered regional fallback, use `regions` instead of a single
 `region`, for example `regions: [us-east5, us-east1]` with optional `fallback:
@@ -285,10 +268,7 @@ Hugging Face download for the
 `gce-sanity-1orch-2worker-1eval-multilang-given-fuzzer.yaml` sample leaves
 `cloud.env` with only `OSS_CRS_DEBUG` because that CRS does not need LLM
 credentials and the checked-in `sanity` bring-up skips VM-side benchmark
-download. The Atlantis
-`gce-usenix-r1-1orch-2worker-1eval-multilang-given-fuzzer.yaml` sample also
-requires `HF_TOKEN` because `download_benchmarks: auto` downloads the
-`usenix-r1` suite during VM bootstrap.
+download.
 
 The checked-in `gce-sanity-1orch-2worker-1eval.yaml` sample still declares
 `HF_TOKEN`, so launch preflight resolves it before provisioning even though
@@ -350,22 +330,13 @@ The `gce-hf-download-1orch-2worker-1eval.yaml` sample declares only:
 That keeps the operator-side contract focused on the VM-side dataset-download
 path this sample is intended to validate.
 
-The `gce-usenix-r1-1orch-2worker-1eval-multilang-given-fuzzer.yaml` sample
-declares:
-
-- `HF_TOKEN`
-
-and sets `worker.jobs: 4` with `runtime.run_timeout: 1800` for longer
-per-harness fuzzing on each worker VM.
-
 4. Confirm quota is sufficient for the config you plan to launch:
 
 - `us-east5`: 48 `n2d` vCPUs
   because the orchestrator, one worker, and one evaluator are all `n2d-standard-16`
 - `us-east1`: 16 `n2d` vCPUs
   because one worker is `n2d-standard-16`
-- for `gce-sanity-1orch-2worker-1eval-multilang-given-fuzzer.yaml` and
-  `gce-usenix-r1-1orch-2worker-1eval-multilang-given-fuzzer.yaml`, budget
+- for `gce-sanity-1orch-2worker-1eval-multilang-given-fuzzer.yaml`, budget
   64 total `n2d` vCPUs across the fleet and enough headroom in the candidate
   regions `us-east5`, `us-east1`, and `us-south1`, because orchestrator,
   worker, and evaluator placements inherit the same ordered region list but may

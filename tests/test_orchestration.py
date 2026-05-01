@@ -1324,8 +1324,11 @@ class TestIntegrationWithSampleConfigs:
 
     def test_remote_gce_multilang_given_fuzzer_sample_config_loads_for_cloud_launch(
         self,
+        tmp_path: Path,
     ):
         """The Atlantis GCE sanity config should parse with launch defaults."""
+        from crsbench.cloud.gce.launch_preflight import prepare_gce_launch_inputs
+
         config_path = Path(
             "experiment-configs/cloud-testing/"
             "gce-sanity-1orch-2worker-1eval-multilang-given-fuzzer.yaml"
@@ -1336,6 +1339,7 @@ class TestIntegrationWithSampleConfigs:
         )
 
         config = load_experiment_config(config_path)
+        plan = build_cloud_launch_plan(config)
 
         self._assert_remote_gce_smoke_common(
             config,
@@ -1351,53 +1355,6 @@ class TestIntegrationWithSampleConfigs:
             [],
         ]
 
-        assert config.pov_early_stop is True
-        assert config.inputs.sarif.enabled is True
-        assert config.inputs.sarif.level == 5
-        assert config.inputs.diff.enabled is True
-
-    def test_remote_gce_usenix_r1_multilang_given_fuzzer_config_loads_for_cloud_launch(
-        self,
-        tmp_path: Path,
-    ):
-        """The Atlantis GCE usenix-r1 config should parse with launch defaults."""
-        from crsbench.cloud.gce.launch_preflight import prepare_gce_launch_inputs
-
-        config_path = Path(
-            "experiment-configs/cloud-testing/"
-            "gce-usenix-r1-1orch-2worker-1eval-multilang-given-fuzzer.yaml"
-        )
-
-        assert config_path.exists(), (
-            f"Expected checked-in sample config at {config_path}"
-        )
-
-        config = load_experiment_config(config_path)
-        plan = build_cloud_launch_plan(config)
-
-        self._assert_remote_gce_smoke_common(
-            config,
-            experiment_name="gce-usenix-r1-mgf-1o2w1e",
-            expected_cloud_env={
-                "OSS_CRS_DEBUG": "1",
-                "HF_TOKEN": "os.environ/HF_TOKEN",
-            },
-            expected_services={"atlantis-multilang-given_fuzzer"},
-            expected_provider_region="us-east5",
-            expected_provider_regions=["us-east5", "us-east1", "us-south1"],
-            expected_worker_regions=[None, None],
-        )
-        assert [placement.zones for placement in config.cloud.workers.placements] == [
-            [],
-            [],
-        ]
-
-        assert config.benchmark_suite == "usenix-r1"
-        assert config.mode == "all"
-        assert config.run_timeout == 1800
-        assert config.worker.jobs == 4
-        assert config.cloud.bootstrap.download_benchmarks == "auto"
-        assert config.cloud.providers.gce.fallback is True
         assert config.pov_early_stop is True
         assert config.inputs.sarif.enabled is True
         assert config.inputs.sarif.level == 5
@@ -1422,21 +1379,14 @@ class TestIntegrationWithSampleConfigs:
         key_path = key_dir / "crsbench-deploy"
         key_path.write_text("PRIVATE KEY", encoding="utf-8")
 
-        preflight = prepare_gce_launch_inputs(
-            plan=plan,
-            cwd=tmp_path,
-            env={"HF_TOKEN": "hf_test_token"},
-        )
+        preflight = prepare_gce_launch_inputs(plan=plan, cwd=tmp_path, env={})
 
-        assert plan.orchestrator.env["HF_TOKEN"] == "os.environ/HF_TOKEN"
-        assert preflight.orchestrator_env["HF_TOKEN"] == "hf_test_token"
+        assert preflight.orchestrator_env["OSS_CRS_DEBUG"] == "1"
         assert preflight.worker_placement_envs == [
-            {"OSS_CRS_DEBUG": "1", "HF_TOKEN": "hf_test_token"},
-            {"OSS_CRS_DEBUG": "1", "HF_TOKEN": "hf_test_token"},
+            {"OSS_CRS_DEBUG": "1"},
+            {"OSS_CRS_DEBUG": "1"},
         ]
-        assert preflight.evaluator_placement_envs == [
-            {"OSS_CRS_DEBUG": "1", "HF_TOKEN": "hf_test_token"}
-        ]
+        assert preflight.evaluator_placement_envs == [{"OSS_CRS_DEBUG": "1"}]
         assert (
             preflight.resolved_plan.orchestrator.launch_defaults.github_deploy_key_path
             == str(key_path)

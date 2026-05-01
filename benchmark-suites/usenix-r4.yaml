@@ -1,5 +1,0 @@
-Name: usenix-r4
-Description: Public CRSBench benchmarks that can be found by naive fuzzers
-Release date: 02.01.2026
-benchmark_list:
-  - TBD

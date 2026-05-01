@@ -1,5 +1,0 @@
-Name: usenix-r2
-Description: Public CRSBench benchmarks that cannot be found by naive fuzzers
-Release date: 02.01.2026
-benchmark_list:
-  - TBD

@@ -93,12 +93,10 @@ For GCE in v1:
   user-configured layers and wins last
 - generated GCE instance names are deterministic and zone-independent:
   `crsbench-<experiment>-orch`, `-work-001`, `-eval-001`
-- the checked-in examples are
+- the primary checked-in cloud-testing samples are
   `experiment-configs/cloud-testing/gce-sanity-1orch-2worker-1eval.yaml`
   and
   `experiment-configs/cloud-testing/gce-sanity-1orch-2worker-1eval-multilang-given-fuzzer.yaml`
-  and
-  `experiment-configs/cloud-testing/gce-usenix-r1-1orch-2worker-1eval-multilang-given-fuzzer.yaml`
   and
   `experiment-configs/cloud-testing/gce-hf-download-1orch-2worker-1eval.yaml`
   and
