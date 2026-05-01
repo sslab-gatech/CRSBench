@@ -1,4 +1,4 @@
-INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /home/jhkim/1.AIxCC/oss-fuzz/build/out/aixcc/c/mock-c:/out -v /home/jhkim/1.AIxCC/oss-fuzz/projects/aixcc/c/mock-c/.aixcc/povs/fuzz_parse_buffer_section/cpv_1:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.2.0 reproduce fuzz_parse_buffer_section -runs=100.
+INFO:__main__:Running: docker run --privileged --shm-size=2g --platform linux/amd64 --rm -i -e HELPER=True -e ARCHITECTURE=x86_64 -v /work/oss-fuzz/build/out/mock-c:/out -v /work/oss-fuzz/projects/mock-c/.aixcc/povs/fuzz_parse_buffer_section/cpv_1:/testcase -t ghcr.io/aixcc-finals/base-runner:v1.2.0 reproduce fuzz_parse_buffer_section -runs=100.
 + FUZZER=fuzz_parse_buffer_section
 + shift
 + '[' '!' -v TESTCASE ']'

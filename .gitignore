@@ -291,6 +291,14 @@ crsbench/_submodule_commits.py
 
 # Benchmarks are distributed via HuggingFace (sanity-mock-* tracked in git)
 benchmarks/
+!benchmarks/
+benchmarks/*
+!benchmarks/sanity-mock-c-delta-01/
+!benchmarks/sanity-mock-c-delta-01/.aixcc/
+!benchmarks/sanity-mock-c-delta-01/.aixcc/CHANGELOG.md
+!benchmarks/sanity-mock-java-delta-01/
+!benchmarks/sanity-mock-java-delta-01/.aixcc/
+!benchmarks/sanity-mock-java-delta-01/.aixcc/CHANGELOG.md
 
 .planning/
 ci-results*

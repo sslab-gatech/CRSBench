@@ -18,7 +18,7 @@ FROM ghcr.io/aixcc-finals/base-builder-jvm:v1.3.0
 
 RUN apt-get update && apt-get install -y maven
 
-#RUN git clone git@github.com:Team-Atlanta/mock-java.git $SRC/src/mock_java
+# Bundled source fixture lives in pkgs/mock_java.tar.gz
 
 COPY pkgs/mock_java.tar.gz $SRC/mock_java.tar.gz
 RUN tar -xzf $SRC/mock_java.tar.gz -C $SRC/ && rm $SRC/mock_java.tar.gz

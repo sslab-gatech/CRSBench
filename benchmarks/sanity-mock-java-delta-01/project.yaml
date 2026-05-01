@@ -1,5 +1,5 @@
 language: jvm
-main_repo: 'git@github.com:Team-Atlanta/mock-java.git'
+main_repo: 'https://example.invalid/crsbench-fixtures/mock-java.git'
 fuzzing_engines:
   - libfuzzer
 sanitizers:
