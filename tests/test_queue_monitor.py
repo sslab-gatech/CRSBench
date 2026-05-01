@@ -1574,6 +1574,7 @@ def test_monitor_queue_rich_space_toggles_auto_rotate_pause_state() -> None:
         stats={"queued": 0, "started": 0, "finished": 6, "failed": 0, "workers": 1},
         running_jobs=[],
     )
+    initial_caption_seen = threading.Event()
     paused_caption_seen = threading.Event()
     resumed_caption_seen = threading.Event()
     command_queue: queue_module.Queue[str] = queue_module.Queue()
@@ -1592,6 +1593,11 @@ def test_monitor_queue_rich_space_toggles_auto_rotate_pause_state() -> None:
         def update(self, renderable, *args, **kwargs):
             del args, kwargs
             footer_text = _render_rich_output(renderable, width=120, height=20)
+            if (
+                "Space pauses auto-rotate; q exits" in footer_text
+                and "[PAUSED]" not in footer_text
+            ):
+                initial_caption_seen.set()
             if (
                 "Space resumes auto-rotate; q exits" in footer_text
                 and "[PAUSED]" in footer_text
@@ -1675,6 +1681,7 @@ def test_monitor_queue_rich_space_toggles_auto_rotate_pause_state() -> None:
         )
         monitor_thread.start()
         try:
+            assert initial_caption_seen.wait(1.0)
             command_queue.put("space")
             assert paused_caption_seen.wait(0.2)
             command_queue.put("space")
@@ -2040,6 +2047,7 @@ def test_monitor_queue_rich_keeps_manual_navigation_responsive_during_refresh() 
     )
     refresh_started = threading.Event()
     allow_refresh_finish = threading.Event()
+    page_one_seen = threading.Event()
     page_two_seen = threading.Event()
     command_queue: queue_module.Queue[str] = queue_module.Queue()
 
@@ -2056,7 +2064,10 @@ def test_monitor_queue_rich_keeps_manual_navigation_responsive_during_refresh() 
 
         def update(self, renderable, *args, **kwargs):
             del args, kwargs
-            if "Page 2/2:" in _render_rich_output(renderable, width=120, height=20):
+            output = _render_rich_output(renderable, width=120, height=20)
+            if "Page 1/2:" in output:
+                page_one_seen.set()
+            if "Page 2/2:" in output:
                 page_two_seen.set()
 
     class DummyInput:
@@ -2125,6 +2136,7 @@ def test_monitor_queue_rich_keeps_manual_navigation_responsive_during_refresh() 
         )
         monitor_thread.start()
         try:
+            assert page_one_seen.wait(1.0)
             assert refresh_started.wait(1.0)
             command_queue.put("n")
             assert page_two_seen.wait(0.2)
