@@ -222,6 +222,12 @@ cloud:
 Replace `your-org` in `cloud.defaults.crsbench_install_spec` with a Git URL
 that the launched VMs can actually clone.
 
+This guide's inline YAML examples use a public `git+https` install path. The
+checked-in `experiment-configs/cloud-testing/*` presets instead exercise the
+private `git+ssh` plus `github_deploy_key_path` bootstrap path. Use one mode
+consistently: public `git+https` without a deploy key, or private `git+ssh`
+with a deploy key the VMs can read.
+
 ```yaml
 cloud:
   defaults:

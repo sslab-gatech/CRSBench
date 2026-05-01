@@ -225,7 +225,8 @@ Expected result:
 
 3. Make sure the private repo install path in the config is usable from the VM bootstrap.
 
-The checked-in config currently uses placeholder Git coordinates:
+The checked-in config currently uses placeholder Git coordinates for the
+private `git+ssh` plus deploy-key bootstrap path:
 
 - `cloud.defaults.crsbench_install_spec: git+ssh://git@github.com/your-org/CRSBench.git`
 - `cloud.defaults.crsbench_git_ref: ccs-artifacts`
@@ -272,6 +273,10 @@ cloud:
 Relative deploy-key paths resolve from the directory where you run the launch
 command, so run the launch from the repo root if you keep the checked-in
 relative path.
+
+If the artifact repo is public, switch `crsbench_install_spec` to a
+`git+https` URL and remove `github_deploy_key_path`; the generic GCE guide
+shows that public-bootstrap variant.
 
 For the checked-in `gce-hf-download-1orch-2worker-1eval.yaml` `crs-libfuzzer`
 sample, `HF_TOKEN` is required because cloud bootstrap performs a real VM-side

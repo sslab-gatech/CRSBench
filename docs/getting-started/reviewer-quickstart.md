@@ -31,4 +31,9 @@ cloud resources.
 
 Use the sanitized presets indexed in
 [Example Configs](../reference/example-configs.md). Reviewer workflows should
-prefer those checked-in examples over ad hoc local notes.
+prefer those checked-in examples over ad hoc local notes. For managed cloud
+runs, the generic GCE guide shows a public `git+https` bootstrap path, while
+the checked-in `experiment-configs/cloud-testing/*` presets exercise a
+`git+ssh` plus deploy-key bootstrap path. Keep
+`cloud.defaults.crsbench_install_spec` and any deploy-key settings aligned with
+whichever mode you choose.
