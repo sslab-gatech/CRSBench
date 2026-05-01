@@ -108,7 +108,8 @@ snapshot_download(
 
 ## Further Reading
 
-- CRSBench repository: [README.md](README.md)
+- CRSBench repository: use the CRSBench source checkout or publication URL
+  distributed alongside this dataset artifact
 - Dataset module guide: [docs/modules/dataset.md](docs/modules/dataset.md)
 - Benchmark developer guide: [docs/contributors/benchmark-developer-guide.md](docs/contributors/benchmark-developer-guide.md)
 - Data protection and contamination design: [docs/design/benchmark-protection-and-contamination.md](docs/design/benchmark-protection-and-contamination.md)

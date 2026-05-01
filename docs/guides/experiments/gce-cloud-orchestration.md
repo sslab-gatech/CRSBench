@@ -219,8 +219,8 @@ cloud:
           machine_type: c3d-standard-30
 ```
 
-Replace `your-org` in `cloud.defaults.crsbench_install_spec` with a Git URL
-that the launched VMs can actually clone.
+Replace the example `cloud.defaults.crsbench_install_spec` value with a Git
+URL that the launched VMs can actually clone.
 
 This guide's inline YAML examples use a public `git+https` install path. The
 checked-in `experiment-configs/cloud-testing/*` presets instead exercise the

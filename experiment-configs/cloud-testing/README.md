@@ -181,8 +181,8 @@ Before running one of these cloud configs:
 These checked-in configs use anonymized placeholder GCE values. Replace
 `artifact-gcp-project`, `artifact-compute@developer.gserviceaccount.com`, and
 `artifact-owner` with values from your own GCP project before launch. Replace
-`your-org` in `cloud.defaults.crsbench_install_spec` with a Git URL the VMs can
-clone.
+the example `cloud.defaults.crsbench_install_spec` value with a Git URL the VMs
+can clone.
 
 1. Authenticate both GCP credential paths on the operator machine:
 

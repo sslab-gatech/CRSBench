@@ -12,7 +12,7 @@ points to canonical docs to avoid drift.
 ## Install
 
 ```bash
-# Replace `your-org` with the repository URL you were given.
+# Replace the example clone URL below with the one you were given.
 git clone https://github.com/your-org/CRSBench.git
 cd CRSBench
 uv sync --extra dev

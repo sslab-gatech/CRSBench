@@ -13,7 +13,7 @@ and [docs/reference/reviewer-scope.md](docs/reference/reviewer-scope.md).
 
 ```bash
 # Install
-# Use your existing checkout, or replace `your-org` with the repo URL you were given.
+# Use your existing checkout, or replace the example clone URL below with the one you were given.
 git clone https://github.com/your-org/CRSBench.git && cd CRSBench
 uv sync
 ./scripts/setup-third-party.sh             # clone managed oss-fuzz + Atlantis checkouts

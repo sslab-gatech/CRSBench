@@ -14,7 +14,7 @@ Framework work includes changes under:
 ## Setup
 
 ```bash
-# Replace `your-org` with the repository URL you were given.
+# Replace the example clone URL below with the one you were given.
 git clone https://github.com/your-org/CRSBench.git && cd CRSBench
 uv sync --extra dev
 pre-commit install
