@@ -38,7 +38,7 @@ RUN python3 -m pip install poetry
 
 # Clone BinaryRTS and install CLI dependencies
 RUN set -e \
-    && git clone --depth=1 https://github.com/Team-Atlanta/binary-rts.git /opt/binary-rts \
+    && git clone --depth=1 https://github.com/crsbench/binary-rts.git /opt/binary-rts \
     && cd /opt/binary-rts/binaryrts/cli \
     && poetry install --no-interaction
 
