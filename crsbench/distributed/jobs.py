@@ -1456,8 +1456,17 @@ def run_crs_trial(
         registry_name = crs
         logger.info(f"Using CRS registry entry '{registry_name}'")
 
-        # Detect CRS type from registry
-        crs_type = get_crs_type(registry_name, registry_dir)
+        # Detect CRS type from registry, unless example_compose is set
+        # (arbitrary key with no registry entry).
+        _has_example_compose = (
+            config.crs_compose is not None
+            and crs in config.crs_compose.services
+            and config.crs_compose.services[crs].example_compose is not None
+        )
+        if _has_example_compose:
+            crs_type = "bug-finding" if config.task == "bugfinding" else "bug-fixing"
+        else:
+            crs_type = get_crs_type(registry_name, registry_dir)
         logger.info(f"Detected CRS type '{crs_type}' for CRS '{crs}'")
 
         # Create adapter

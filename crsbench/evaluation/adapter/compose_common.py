@@ -617,3 +617,73 @@ def run_oss_crs_artifacts(
     except json.JSONDecodeError as exc:
         msg = f"Failed to parse oss-crs artifacts JSON: {exc}"
         raise RuntimeError(msg) from exc
+
+
+def run_oss_crs_gen_compose(
+    *,
+    oss_crs_cmd: str = "oss-crs",
+    example: str,
+    compose_output: Path,
+    cpus: Optional[str] = None,
+    memory: Optional[str] = None,
+    litellm_external: Optional[tuple[str, str]] = None,
+    timeout: int = 120,
+) -> None:
+    """Run ``oss-crs gen-compose --example`` to produce a compose YAML.
+
+    Args:
+        oss_crs_cmd: Path to the oss-crs executable.
+        example: Name of the example template (e.g. ``ensemble-c``).
+        compose_output: Path where the generated compose YAML is written.
+        cpus: Optional cpuset string (e.g. ``0-63``) for proportional scaling.
+        memory: Optional memory limit (e.g. ``128G``) for proportional scaling.
+        litellm_external: Optional ``(url_env, key_env)`` env var names for
+            external LiteLLM mode.
+        timeout: Command timeout in seconds.
+
+    Raises:
+        RuntimeError: If the command fails or the executable is not found.
+    """
+    cmd: list[str] = [
+        oss_crs_cmd,
+        "gen-compose",
+        "--example",
+        example,
+        "--compose-output",
+        str(compose_output),
+    ]
+    if cpus is not None:
+        cmd.extend(["--cpus", cpus])
+    if memory is not None:
+        cmd.extend(["--memory", memory])
+    if litellm_external is not None:
+        url_env, key_env = litellm_external
+        cmd.extend(["--litellm-external", url_env, key_env])
+
+    logger.debug(f"Running oss-crs gen-compose: {' '.join(cmd)}")
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout,
+        )
+    except FileNotFoundError as exc:
+        msg = (
+            f"oss-crs executable not found: '{oss_crs_cmd}'. "
+            "Set oss_crs_cmd in crs_compose config to the full path."
+        )
+        raise RuntimeError(msg) from exc
+    except subprocess.TimeoutExpired as exc:
+        msg = f"oss-crs gen-compose timed out after {timeout}s"
+        raise RuntimeError(msg) from exc
+
+    if result.returncode != 0:
+        detail = result.stderr or result.stdout
+        msg = f"oss-crs gen-compose failed (rc={result.returncode}): {detail}"
+        raise RuntimeError(msg)
+
+    logger.info(f"Generated compose via oss-crs gen-compose at {compose_output}")

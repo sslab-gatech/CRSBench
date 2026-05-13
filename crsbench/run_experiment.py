@@ -920,8 +920,17 @@ def generate_trial_matrix(
 
     for crs in oss_crs_registry:
         crs_trial_streams: list[list[Trial]] = []
-        # CRS entries are resolved directly from registry.
-        crs_type = get_crs_type(crs, registry_dir)
+        # CRS entries are resolved directly from registry, unless the
+        # service uses example_compose (arbitrary key, no registry entry).
+        _has_example_compose = (
+            config.crs_compose is not None
+            and crs in config.crs_compose.services
+            and config.crs_compose.services[crs].example_compose is not None
+        )
+        if _has_example_compose:
+            crs_type = "bug-finding" if config.task == "bugfinding" else "bug-fixing"
+        else:
+            crs_type = get_crs_type(crs, registry_dir)
         is_bug_fixing = crs_type == "bug-fixing"
 
         pov_from_experiment = config.inputs.pov.resolve_from_experiment_for(crs)

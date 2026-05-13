@@ -1108,6 +1108,15 @@ class CrsComposeServiceConfig(BaseModel):
             "(config validation rejects the combination with snapshots disabled)."
         ),
     )
+    example_compose: Optional[str] = Field(
+        default=None,
+        description=(
+            "Name of an oss-crs example compose template (e.g., 'ensemble-c'). "
+            "When set, CRSBench calls 'oss-crs gen-compose --example <name>' "
+            "instead of generating crs-compose.yaml from the CRS registry. "
+            "The service key becomes an arbitrary label, not a registry ID."
+        ),
+    )
 
 
 class CrsComposeInfraConfig(BaseModel):

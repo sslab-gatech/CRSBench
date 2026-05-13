@@ -276,6 +276,7 @@ class OssCrsAdapter:
                 "mem_limit": None,
                 "additional_env": {},
                 "budget_policy": "continue",
+                "example_compose": None,
             }
         }
         self._build_timeout: int = 3600
@@ -769,6 +770,9 @@ class OssCrsAdapter:
                     "mem_limit": _normalize_optional_text(raw_service.get("mem_limit")),
                     "additional_env": additional_env,
                     "budget_policy": budget_policy,
+                    "example_compose": _normalize_optional_text(
+                        raw_service.get("example_compose")
+                    ),
                 }
             if service_configs:
                 if self._crs_config_name in service_configs:
@@ -785,6 +789,7 @@ class OssCrsAdapter:
                             "mem_limit": None,
                             "additional_env": {},
                             "budget_policy": "continue",
+                            "example_compose": None,
                         }
                     }
         if "additional_env" in config and isinstance(config["additional_env"], dict):
@@ -1067,8 +1072,17 @@ class OssCrsAdapter:
         """Generate crs-compose.yaml for this adapter's CRS.
 
         Reads CRS source info from registry and creates the YAML config
-        file in the trial output directory.
+        file in the trial output directory.  When the current service has
+        ``example_compose`` set, delegates to ``oss-crs gen-compose``
+        instead of building the compose structure in-process.
         """
+        service_cfg = self._crs_service_configs.get(self._crs_config_name, {})
+        example_name = service_cfg.get("example_compose")
+        if example_name is not None:
+            return self._generate_compose_via_gen_compose(
+                trial_output_dir, example_name, service_cfg
+            )
+
         crs_names = list(self._crs_service_configs.keys())
         required_llms, required_sources = self._collect_required_llm_aliases(crs_names)
         llm_config: Optional[CrsComposeLLMConfig] = None
@@ -1169,6 +1183,56 @@ class OssCrsAdapter:
 
         self._compose_file = compose_path
         logger.info(f"Generated crs-compose.yaml at {compose_path}")
+        return compose_path
+
+    def _generate_compose_via_gen_compose(
+        self,
+        trial_output_dir: Path,
+        example_name: str,
+        service_cfg: dict[str, Any],
+    ) -> Path:
+        """Generate compose YAML via ``oss-crs gen-compose --example``.
+
+        Delegates cpuset/memory distribution to oss-crs's proportional
+        scaling instead of building the compose structure in-process.
+        """
+        from crsbench.evaluation.adapter.compose_common import run_oss_crs_gen_compose
+
+        compose_path = trial_output_dir / "crs-compose.yaml"
+        trial_output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Compute cpuset from the allocated pool for this service.
+        _infra_cpuset, service_cpusets = self._assign_cpusets()
+        cpus = service_cpusets.get(self._crs_config_name)
+
+        # Memory: per-service mem_limit, or fall back to default.
+        infra_memory = (
+            _normalize_optional_text(self._infra_mem_limit) or _default_memory_limit()
+        )
+        memory = _normalize_optional_text(service_cfg.get("mem_limit")) or infra_memory
+
+        # LiteLLM external mode: pass env var names for oss-crs to resolve.
+        litellm_external: Optional[tuple[str, str]] = None
+        if not self._skip_litellm and self._litellm_mode == "external":
+            litellm_external = (
+                "CRSBENCH_LLM_UPSTREAM_BASE_URL",
+                "CRSBENCH_LLM_UPSTREAM_MASTER_KEY",
+            )
+
+        run_oss_crs_gen_compose(
+            oss_crs_cmd=self._oss_crs_cmd,
+            example=example_name,
+            compose_output=compose_path,
+            cpus=cpus,
+            memory=memory,
+            litellm_external=litellm_external,
+        )
+
+        self._compose_file = compose_path
+        logger.info(
+            f"Generated crs-compose.yaml via gen-compose "
+            f"(example={example_name}) at {compose_path}"
+        )
         return compose_path
 
     def _ensure_compose_state(self) -> tuple[Path, Path]:
