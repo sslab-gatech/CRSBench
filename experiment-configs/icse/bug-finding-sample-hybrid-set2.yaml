@@ -1,0 +1,116 @@
+# CRSBench experiment configuration
+# Based on: experiment-configs/icse/bug-finding-sample-hybrid.yaml
+#
+# Reference: docs/experiment-config-distributed-example.yaml
+# Validate with: crsbench gen-config --validate --output <file>
+
+description: 'ICSE bug-finding run (set2): crs-sample-hybrid over selected Atlanta
+  and AFC CPV targets, 1h run timeout, 16 cores/trial.'
+
+experiment:
+  name: icse-sample-hybrid-finding-set2
+  task: bugfinding
+  mode: auto
+  # Per-benchmark harness + CPV selectors (benchmark -> harness -> [cpv ids]).
+  # Targets the exact (benchmark, harness, cpv) tuples for this ICSE run.
+  benchmarks:
+    - atlanta-activemq-var-delta-01:
+        ActivemqVariantOne:
+          - cpv_0
+          - cpv_1
+          - cpv_10
+          - cpv_11
+          - cpv_2
+          - cpv_3
+          - cpv_4
+          - cpv_5
+          - cpv_6
+          - cpv_7
+          - cpv_8
+          - cpv_9
+    - atlanta-netty-delta-01:
+        ByteBufUtilFuzzer:
+          - cpv_0
+        HttpRequestDecoderFuzzer:
+          - cpv_1
+        ServerCookieDecoderFuzzer:
+          - cpv_2
+    - atlanta-pcre2-full-01:
+        pcre2_fuzzer:
+          - cpv_0
+          - cpv_1
+          - cpv_2
+    - atlanta-xstream-full-01:
+        XmlFuzzer:
+          - cpv_2
+          - cpv_3
+          - cpv_4
+    - afc-sqlite3-full-01:
+        customfuzz3:
+          - cpv_0
+          - cpv_1
+    - afc-tika-full-01:
+        RTFParserFuzzer:
+          - cpv_1
+        TikaAppUnpackerFuzzer:
+          - cpv_4
+    - atlanta-libavc-full-01:
+        mvc_dec_fuzzer:
+          - cpv_1
+        svc_dec_fuzzer:
+          - cpv_0
+    - atlanta-libssh2-delta-01:
+        ssh2_client_fuzzer:
+          - cpv_0
+
+# Per-CRS resource allocation. Adjust num_cores/mem_limit per CRS.
+# Additional options: mem_limit, additional_env
+crs_compose:
+  crs-sample-hybrid:
+    num_cores: 16
+    mem_limit: 64G
+    additional_env:
+      ANTHROPIC_MODEL: claude-opus-4-6
+
+# Runtime settings. For distributed mode, add redis_host.
+# Additional options: per_pov_verify_timeout, snapshot_period,
+#   pov_early_stop, litellm, inputs (pov/sarif/seed/diff)
+runtime:
+  trials: 1
+  max_total_time: 9300
+  build_timeout: 3600
+  run_timeout: 3600
+  verify_timeout: 1800
+  redis_host: localhost
+  pov_early_stop: true
+  litellm:
+    mode: external
+    cost_budget: 10.0
+
+# Storage paths. For distributed mode, consider shared mount points.
+# Additional options: keep_only_results, cleanup_after_trial,
+#   copy_results_after_trial, results_filestore
+storage:
+  experiment_filestore: .run/icse/experiment-data/icse-sample-hybrid-finding-set2
+  report_filestore: .run/icse/report-data/icse-sample-hybrid-finding-set2
+
+# Worker settings — parallel trial execution capacity.
+# Additional options: continuous, worker_name, minimum_disk_size
+worker:
+  jobs: 4
+  cores_per_job: 16
+
+# Evaluator settings — parallel POV build/verify capacity.
+# Additional options: idle_timeout, build_jobs, verify_jobs
+evaluator:
+  jobs: 8
+  cores_per_job: 8
+
+# Per-trial resource envelope: 16 cores / 64G each.
+# Run unit is (benchmark, harness, mode, sanitizer, trial) — CPVs do NOT split runs.
+# This set has 12 harness runs across 28 CPVs.
+# worker.jobs=4 x cores_per_job=16 = 64 cores; evaluator.jobs=8 x cores_per_job=8
+# = 64 cores. Total 128 = host capacity.
+resources:
+  cores_per_trial: 16
+  memory_per_trial: "64G"

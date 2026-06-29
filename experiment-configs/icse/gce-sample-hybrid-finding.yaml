@@ -1,0 +1,301 @@
+# GCE cloud bug-finding: crs-sample-hybrid over the ICSE "hybrid CRS" target set.
+#
+# Targets come from crsbench-paper/reviews/analysis/hybrid_crs_target.csv:
+#   28 benchmarks / 35 (benchmark, harness) runs, CPV-targeted.
+#   3 trials each -> 108 jobs total. (35 harnesses x 3 = 105, plus one harness
+#   whose targeted CPVs span both address and undefined -> +3; see sanitizer note.)
+#
+# Cloud/GCE layout mirrors experiment-configs/ccs-bugfinding/*.yaml.
+# CRS service + CPV-selector format mirrors the local icse sample-hybrid configs.
+#
+# Sanitizers: address + undefined are both listed, but with CPV targeting and
+# only_cpv_harnesses=true (default) the run-matrix intersects each sanitizer
+# against the targeted CPVs' own sanitizers -- a sanitizer no targeted CPV uses
+# produces zero trials. So each harness runs only the sanitizer(s) it needs.
+#
+# Prerequisites:
+#   1. gcloud auth login && gcloud auth application-default login
+#   2. uv run crsbench cloud keygen (add public key to GitHub deploy keys)
+#   3. HF_TOKEN in .env or environment
+#
+# Usage:
+#   CONFIG=experiment-configs/icse/gce-sample-hybrid-finding.yaml
+#   uv run crsbench cloud launch --config "$CONFIG"
+#   uv run crsbench cloud --config "$CONFIG" monitor
+#   uv run crsbench cloud --config "$CONFIG" collect --force
+#   uv run crsbench cloud --config "$CONFIG" teardown --force
+
+experiment:
+  name: icse-sample-hybrid-finding
+  task: bugfinding
+  mode: auto
+  sanitizers:
+    - address
+    - undefined
+  # Per-benchmark harness + CPV selectors (benchmark -> harness -> [cpv ids]).
+  benchmarks:
+    - afc-apache-commons-compress-delta-02:
+        ExpanderFuzzer:
+          - cpv_0
+    - afc-apache-poi-delta-01:
+        POIXSSFFuzzer:
+          - cpv_1
+    - afc-curl-delta-04:
+        curl_fuzzer_ws:
+          - cpv_1
+    - afc-freerdp-full-01:
+        TestFuzzCoreServer:
+          - cpv_0
+    - afc-lcms-full-01:
+        cms_postscript_fuzzer:
+          - cpv_0
+    - afc-libexif-delta-02:
+        exif_from_data_fuzzer:
+          - cpv_0
+    - afc-sqlite3-full-01:
+        customfuzz3:
+          - cpv_0
+          - cpv_1
+    - afc-tika-full-01:
+        RTFParserFuzzer:
+          - cpv_1
+        TikaAppUnpackerFuzzer:
+          - cpv_4
+    - asc-nginx-delta-01:
+        pov_harness:
+          - cpv_8
+    - atlanta-activemq-var-delta-01:
+        ActivemqVariantOne:
+          - cpv_0
+          - cpv_1
+          - cpv_2
+          - cpv_3
+          - cpv_4
+          - cpv_5
+          - cpv_6
+          - cpv_7
+          - cpv_8
+          - cpv_9
+          - cpv_10
+          - cpv_11
+    - atlanta-binutils-delta-01:
+        fuzz_nm:
+          - cpv_3
+    - atlanta-faad2-delta-01:
+        fuzz_decode_drm_fixed:
+          - cpv_1
+    - atlanta-file-delta-01:
+        magic_fuzzer_loaddb:
+          - cpv_1
+    - atlanta-jackson-databind-full-01:
+        ObjectReader2Fuzzer:
+          - cpv_1
+    - atlanta-jenkins-delta-01:
+        JenkinsThree:
+          - cpv_2
+          - cpv_5
+          - cpv_6
+          - cpv_7
+          - cpv_9
+          - cpv_10
+        JenkinsThreeFDP:
+          - cpv_18
+          - cpv_22
+          - cpv_23
+          - cpv_26
+    - atlanta-jq-delta-01:
+        jq_fuzz_fixed:
+          - cpv_0
+    - atlanta-jsoup-full-01:
+        HtmlFuzzer:
+          - cpv_4
+    - atlanta-libavc-full-01:
+        mvc_dec_fuzzer:
+          - cpv_1
+        svc_dec_fuzzer:
+          - cpv_0
+    - atlanta-libssh2-delta-01:
+        ssh2_client_fuzzer:
+          - cpv_0
+    - atlanta-libtiff-full-01:
+        tiffinfo:
+          - cpv_0
+    - atlanta-mosquitto-delta-01:
+        broker_fuzz_test_config:
+          - cpv_0
+          - cpv_1
+        dynsec_fuzz_load:
+          - cpv_2
+        libcommon_fuzz_utf8:
+          - cpv_3
+    - atlanta-netty-delta-01:
+        ByteBufUtilFuzzer:
+          - cpv_0
+        HttpRequestDecoderFuzzer:
+          - cpv_1
+        ServerCookieDecoderFuzzer:
+          - cpv_2
+    - atlanta-pac4j-full-01:
+        Pac4jOne:
+          - cpv_0
+    - atlanta-pcre2-full-01:
+        pcre2_fuzzer:
+          - cpv_0
+          - cpv_1
+          - cpv_2
+    - atlanta-rdf4j-full-01:
+        Rdf4jOne:
+          - cpv_2
+    - atlanta-tmux-delta-01:
+        input-fuzzer:
+          - cpv_0
+    - atlanta-xstream-full-01:
+        XmlFuzzer:
+          - cpv_2
+          - cpv_3
+          - cpv_4
+    - atlanta-ztzip-full-01:
+        ZTZIPOne:
+          - cpv_0
+
+runtime:
+  trials: 3
+  # PER-TRIAL budget: max_total_time must be > build_timeout + run_timeout + verify_timeout.
+  # 8 workers run all 108 jobs in ONE wave (no extra waves), so wall-clock ~=
+  #   provisioning (~0.5-1h) + ~1h build + 8h fuzz + verify-drain ~= ~9-10h.
+  # max_total_time is a generous 14h per-trial ceiling (well above the ~9h actual);
+  # build_timeout raised to 3h to cover heavy new targets (freerdp-full, lcms-full,
+  # jenkins, jackson-databind, rdf4j, pac4j) not present in prior sample-hybrid runs.
+  max_total_time: 50400  # 14h per-trial cap (> 45000 = 10800 + 28800 + 5400)
+  build_timeout: 10800   # 3h per-build cap
+  run_timeout: 28800     # 8h fuzz window (full experiment fuzzing time, unchanged)
+  verify_timeout: 5400   # 1.5h per-trial verify budget
+  per_pov_verify_timeout: 300
+  redis_host: redis-server:6379
+  source_mode: pkgs
+  rts_enabled: false
+  inc_build_enabled: false
+  pov_early_stop: true
+  # Seed corpus enabled (matches the ccs Claude Code finding runs): gives the
+  # fuzzer/CRS starting inputs to reach deeper code paths within the 8h window.
+  inputs:
+    seed: {}
+  litellm:
+    mode: external
+    cost_budget: 30.0
+
+crs_compose:
+  oss_crs_infra:
+    shared: true
+  crs-sample-hybrid:
+    num_cores: 16
+    mem_limit: 64G
+    additional_env:
+      ANTHROPIC_MODEL: claude-opus-4-6
+
+storage:
+  experiment_filestore: /data/crsbench/experiment-data/icse-sample-hybrid-finding
+  report_filestore: /data/crsbench/report-data/icse-sample-hybrid-finding
+
+resources:
+  cores_per_trial: 16
+  memory_per_trial: "64G"
+
+worker:
+  jobs: 14
+  cores_per_job: 16
+  storage:
+    cleanup_after_trial: true
+
+evaluator:
+  jobs: 14         # 14 verify slots per evaluator host; 2 hosts = 28 slots >> 108 jobs' POVs
+  cores_per_job: 16
+  build_jobs: 4    # per-host cap on concurrent ground-truth variant builds; throttles the
+                   # Maven-Central download burst that caused HTTP 429. Each evaluator host has
+                   # its own IP, so the 429 limit is per-host -> 2 hosts x 4 = 8 safe parallel builds.
+
+cloud:
+  remote:
+    experiment_root: /data/crsbench/experiment-data/icse-sample-hybrid-finding
+  defaults:
+    readiness_timeout_sec: 1200
+    crsbench_install_spec: "git+ssh://git@github.com/sslab-gatech/CRSBench.git"
+    crsbench_git_ref: main
+    github_deploy_key_path: .crsbench-keys/crsbench-deploy
+  env:
+    HF_TOKEN: os.environ/HF_TOKEN
+    CRSBENCH_LLM_UPSTREAM_BASE_URL: os.environ/CRSBENCH_LLM_UPSTREAM_BASE_URL
+    CRSBENCH_LLM_UPSTREAM_MASTER_KEY: os.environ/CRSBENCH_LLM_UPSTREAM_MASTER_KEY
+    CRSBENCH_NOTIFY_APPRISE_URLS: os.environ/CRSBENCH_NOTIFY_APPRISE_URLS
+  bootstrap:
+    prepare_mode: full
+    download_benchmarks: auto
+  providers:
+    gce:
+      project: aixcc-426805
+      ssh_via_iap: true
+      regions:
+        - asia-south1
+        - us-central1
+        - us-south1
+        - us-east5
+        - us-east1
+        - us-west1
+        - us-west2
+        - us-west3
+        - us-west4
+      fallback: true
+      profile_defaults:
+        machine_type: n2d-standard-16
+        boot_disk_size_gb: 1024
+        boot_disk_type: pd-ssd
+        image: projects/ubuntu-os-cloud/global/images/family/ubuntu-2404-lts-amd64
+        service_account_email: 153298433405-compute@developer.gserviceaccount.com
+        owner_label: crsbench
+      instance_profiles:
+        gce-orchestrator-n2d: {} # n2d-standard-16, 1 TB pd-ssd
+        gce-worker-n2d:
+          machine_type: n2d-standard-224 # 224 vCPUs - 14 jobs x 16 cores
+          boot_disk_size_gb: 2048        # 2 TB pd-ssd - 14 concurrent jobs need disk
+        gce-evaluator-n2d:
+          machine_type: n2d-standard-224 # 224 vCPUs - 14 jobs x 16 cores
+          boot_disk_size_gb: 2048        # 2 TB pd-ssd - holds Docker build cache
+  orchestrator:
+    instance_profile: gce-orchestrator-n2d
+  workers:
+    # 8 worker hosts x 14 jobs = 112 slots -> all 108 jobs in ONE wave (needed for ~8h).
+    # No per-placement regions: workers inherit the provider default order
+    # (asia-south1 -> us-central1 -> ...), which is exactly what we want.
+    # asia-south1 N2D quota 800 holds orchestrator(16) + 3 workers(672)=688; the
+    # remaining 5 workers spill to us-central1 (5 x 224 = 1120 vCPU -> needs
+    # us-central1 N2D quota >= 1120). Later regions are used only if both fill up.
+    defaults:
+      instance_profile: gce-worker-n2d
+    placements:
+      - {}
+      - {}
+      - {}
+      - {}
+      - {}
+      - {}
+      - {}
+      - {}
+  evaluators:
+    # 2 evaluator hosts x 14 verify slots = 28 slots (verify is light; this is ample).
+    # us-south1-first set once in defaults.regions -> merged into every placement.
+    # 2 x 224 = 448 vCPU -> needs us-south1 N2D quota >= 448. Later regions are fallback only.
+    defaults:
+      instance_profile: gce-evaluator-n2d
+      regions:
+        - us-south1
+        - us-central1
+        - us-east5
+        - us-east1
+        - us-west1
+        - us-west2
+        - us-west3
+        - us-west4
+        - asia-south1
+    placements:
+      - {}
+      - {}

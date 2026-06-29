@@ -1,0 +1,89 @@
+# CRSBench experiment configuration
+# Based on: experiment-configs/icse/bug-finding-sample-hybrid-set2.yaml
+#
+# Rerun of the 3 trials that FAILED in set2 due to Maven Central HTTP 429
+# (Too Many Requests) during the ground-truth image build phase:
+#   - afc-tika-full-01 / RTFParserFuzzer
+#   - afc-tika-full-01 / TikaAppUnpackerFuzzer
+#   - atlanta-xstream-full-01 / XmlFuzzer
+# Separate experiment name + storage paths so the 9 completed set2 trials are
+# untouched. evaluator.build_jobs is lowered to serialize variant builds and
+# avoid re-triggering the concurrent-download 429 burst.
+#
+# Reference: docs/experiment-config-distributed-example.yaml
+# Validate with: crsbench gen-config --validate --output <file>
+
+description: 'ICSE bug-finding rerun (set2-rerun): crs-sample-hybrid over the 3
+  Java/Maven targets that failed set2 with HTTP 429, 1h run timeout, 16 cores/trial.'
+
+experiment:
+  name: icse-sample-hybrid-finding-set2-rerun
+  task: bugfinding
+  mode: auto
+  # Per-benchmark harness + CPV selectors (benchmark -> harness -> [cpv ids]).
+  # Only the 3 harness runs that failed in set2.
+  benchmarks:
+    - atlanta-xstream-full-01:
+        XmlFuzzer:
+          - cpv_2
+          - cpv_3
+          - cpv_4
+    - afc-tika-full-01:
+        RTFParserFuzzer:
+          - cpv_1
+        TikaAppUnpackerFuzzer:
+          - cpv_4
+
+# Per-CRS resource allocation. Adjust num_cores/mem_limit per CRS.
+# Additional options: mem_limit, additional_env
+crs_compose:
+  crs-sample-hybrid:
+    num_cores: 16
+    mem_limit: 64G
+    additional_env:
+      ANTHROPIC_MODEL: claude-opus-4-6
+
+# Runtime settings. For distributed mode, add redis_host.
+# Additional options: per_pov_verify_timeout, snapshot_period,
+#   pov_early_stop, litellm, inputs (pov/sarif/seed/diff)
+runtime:
+  trials: 1
+  max_total_time: 9300
+  build_timeout: 3600
+  run_timeout: 3600
+  verify_timeout: 1800
+  redis_host: localhost
+  pov_early_stop: true
+  litellm:
+    mode: external
+    cost_budget: 10.0
+
+# Storage paths. New paths so set2 results are not overwritten.
+# Additional options: keep_only_results, cleanup_after_trial,
+#   copy_results_after_trial, results_filestore
+storage:
+  experiment_filestore: .run/icse/experiment-data/icse-sample-hybrid-finding-set2-rerun
+  report_filestore: .run/icse/report-data/icse-sample-hybrid-finding-set2-rerun
+
+# Worker settings — parallel trial execution capacity.
+# Only 3 harness runs, so 3 parallel workers is enough.
+# Additional options: continuous, worker_name, minimum_disk_size
+worker:
+  jobs: 3
+  cores_per_job: 16
+
+# Evaluator settings — parallel POV build/verify capacity.
+# build_jobs lowered to 2 to serialize ground-truth variant docker builds and
+# avoid the concurrent Maven Central download burst that caused HTTP 429 in set2.
+# Additional options: idle_timeout, verify_jobs
+evaluator:
+  jobs: 8
+  cores_per_job: 8
+  build_jobs: 2
+
+# Per-trial resource envelope: 16 cores / 64G each.
+# Run unit is (benchmark, harness, mode, sanitizer, trial) — CPVs do NOT split runs.
+# This set has 3 harness runs across 5 CPVs.
+resources:
+  cores_per_trial: 16
+  memory_per_trial: "64G"

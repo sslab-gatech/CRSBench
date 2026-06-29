@@ -1,0 +1,99 @@
+# CRSBench experiment configuration
+# Based on: experiment-configs/icse/bug-finding-sample-hybrid-set2.yaml
+#
+# Single target run with statistical repetition: atlanta-activemq-var-delta-01 /
+# ActivemqVariantOne, 3 trials (3 jobs). In set2 this harness produced only
+# unintended crashes (shallow OOM / stack overflow in OpenWire unmarshalling) and
+# matched 0 intended CPVs; this rerun checks whether repeated independent fuzzing
+# runs ever reach the injected CPVs.
+# Separate experiment name + storage paths so set2 results are untouched.
+#
+# Reference: docs/experiment-config-distributed-example.yaml
+# Validate with: crsbench run --experiment-config <file> --dry-run
+
+description: 'ICSE bug-finding activemq x3 (activemq-t3): crs-sample-hybrid over
+  atlanta-activemq-var-delta-01/ActivemqVariantOne, 3 trials, 1h run timeout,
+  16 cores/trial.'
+
+experiment:
+  name: icse-sample-hybrid-finding-activemq-t3
+  task: bugfinding
+  mode: auto
+  # Per-benchmark harness + CPV selectors (benchmark -> harness -> [cpv ids]).
+  benchmarks:
+    - atlanta-activemq-var-delta-01:
+        ActivemqVariantOne:
+          - cpv_0
+          - cpv_1
+          - cpv_2
+          - cpv_3
+          - cpv_4
+          - cpv_5
+          - cpv_6
+          - cpv_7
+          - cpv_8
+          - cpv_9
+          - cpv_10
+          - cpv_11
+
+# Per-CRS resource allocation. Adjust num_cores/mem_limit per CRS.
+# Additional options: mem_limit, additional_env
+crs_compose:
+  crs-sample-hybrid:
+    num_cores: 16
+    mem_limit: 64G
+    additional_env:
+      ANTHROPIC_MODEL: claude-opus-4-6
+
+# Runtime settings. For distributed mode, add redis_host.
+# trials: 3 -> ActivemqVariantOne runs 3 independent times.
+# Additional options: per_pov_verify_timeout, snapshot_period,
+#   pov_early_stop, litellm, inputs (pov/sarif/seed/diff)
+runtime:
+  trials: 3
+  max_total_time: 9300
+  build_timeout: 3600
+  run_timeout: 3600
+  verify_timeout: 1800
+  redis_host: localhost
+  pov_early_stop: true
+  # Stage the benchmark-provided seed corpus
+  # (.aixcc/ActivemqVariantOne/corpus/, 8999 files) into trial/seeds so the CRS
+  # delivers it to the fuzzer instead of cold-starting from an empty corpus.
+  inputs:
+    seed: {}
+  litellm:
+    mode: external
+    cost_budget: 10.0
+
+# Storage paths. New paths so set2 results are not overwritten.
+# Additional options: keep_only_results, cleanup_after_trial,
+#   copy_results_after_trial, results_filestore
+storage:
+  experiment_filestore: .run/icse/experiment-data/icse-sample-hybrid-finding-activemq-t3
+  report_filestore: .run/icse/report-data/icse-sample-hybrid-finding-activemq-t3
+
+# Worker settings — parallel trial execution capacity.
+# 3 jobs total; 3 concurrent workers x 16 cores = 48 cores (all run at once).
+# The 3 same-harness trials share a host-local build lock: the first bakes the
+# images, the other two get instant Docker cache hits, then all fuzz in parallel.
+# Additional options: continuous, worker_name, minimum_disk_size
+worker:
+  jobs: 3
+  cores_per_job: 16
+
+# Evaluator settings — parallel POV build/verify capacity.
+# build_jobs lowered to 2 to serialize ground-truth variant docker builds.
+# Additional options: idle_timeout, verify_jobs
+evaluator:
+  jobs: 8
+  cores_per_job: 8
+  build_jobs: 2
+
+# Per-trial resource envelope: 16 cores / 64G each.
+# Run unit is (benchmark, harness, mode, sanitizer, trial) — CPVs do NOT split runs.
+# This set has 3 jobs (1 harness run x 3 trials) across 12 CPVs.
+# worker.jobs=3 x 16 = 48 cores; evaluator.jobs=8 x 8 = 64 cores.
+resources:
+  cores_per_trial: 16
+  memory_per_trial: "64G"
