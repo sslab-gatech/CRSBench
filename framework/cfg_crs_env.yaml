@@ -1,0 +1,79 @@
+# This file contains only CRS-specific compose settings. Values support
+# {model}, {host}, {repo_root}, and {run_timeout} substitutions. The framework
+# resolves them before validating and archiving the generated experiment YAML.
+crses:
+  discver:
+    # DISCVER reads the model and OpenAI-compatible endpoint directly. The URL
+    # must include /v1; the framework normalizes cfg.json's llm_host and adds it.
+    # Must fit within worker.cores_per_job (7 in cfg.json).
+    num_cores: 7
+    model_env: DISCVER_LLM_MODEL
+    url_env: DISCVER_LLM_URL
+    additional_env:
+      # Keep DISCVER's internal fuzzing budget synchronized with CRSBench's
+      # runtime.run_timeout. Do not duplicate a literal timeout in this file.
+      FUZZ_TIMEOUT: "{run_timeout}"
+      # DISCVER's build context imports libCRS from the sibling checkout.
+      LIBCRS_PATH: "{repo_root}/oss-crs/libCRS"
+      # Avoid an interactive buildx entitlement prompt during prepare/build.
+      BUILDX_BAKE_ENTITLEMENTS_FS: "0"
+
+  crs-bug-finding-claude-code:
+    num_cores: 8
+    model_env: ANTHROPIC_MODEL
+    additional_env:
+      CRS_AGENT: claude_code
+
+  crs-bug-finding-codex:
+    num_cores: 8
+    model_env: CODEX_MODEL
+    additional_env:
+      CRS_AGENT: codex
+
+  crs-bug-finding-copilot-cli:
+    num_cores: 8
+    model_env: COPILOT_MODEL
+    additional_env:
+      CRS_AGENT: copilot_cli
+
+  crs-bug-finding-gemini-cli:
+    num_cores: 8
+    model_env: GEMINI_MODEL
+    additional_env:
+      CRS_AGENT: gemini_cli
+
+  crs-bug-finding-opencode:
+    num_cores: 8
+    model_env: OPENCODE_MODEL
+    additional_env:
+      CRS_AGENT: opencode
+
+  crs-claude-code:
+    num_cores: 8
+    model_env: ANTHROPIC_MODEL
+    additional_env:
+      CRS_AGENT: claude_code
+
+  crs-codex:
+    num_cores: 8
+    model_env: CODEX_MODEL
+    additional_env:
+      CRS_AGENT: codex
+
+  crs-copilot-cli:
+    num_cores: 8
+    model_env: COPILOT_MODEL
+    additional_env:
+      CRS_AGENT: copilot_cli
+
+  crs-gemini-cli:
+    num_cores: 8
+    model_env: GEMINI_MODEL
+    additional_env:
+      CRS_AGENT: gemini_cli
+
+  crs-opencode:
+    num_cores: 8
+    model_env: OPENCODE_MODEL
+    additional_env:
+      CRS_AGENT: opencode

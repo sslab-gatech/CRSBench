@@ -1094,7 +1094,7 @@ class OssCrsAdapter:
             llm_config = CrsComposeLLMConfig(
                 litellm=CrsComposeLiteLLMConfig(
                     mode="external",
-                    model_check=True,
+                    model_check=False,
                     external=CrsComposeLiteLLMExternalConfig(
                         url=self._litellm_runtime_url,
                         key=self._litellm_runtime_api_key,
