@@ -14,11 +14,11 @@ The wrapper assumes one local experiment at a time.
 
 ```json
 {
-  "llm_host": "http://172.17.128.1:8383",
+  "llm_host": "http://127.0.0.1:4000",
   "models": ["claude-opus-4-8"],
-  "crses": ["discver"],
-  "benchmarks": ["atlanta-imaging-delta-01"],
-  "storage": "/testvol/crsbench/results"
+  "crses": ["discver", "crs-bug-finding-claude-code"],
+  "benchmarks": ["sanity-mock-c-delta-01"],
+  "storage": "results"
 }
 ```
 
@@ -29,12 +29,6 @@ CRS-specific environment variables live in `framework/cfg_crs_env.yaml`. Every
 selected CRS is expanded across every selected model. Supported placeholders are
 `{model}`, `{llm_host}`, and `{repo_root}`. To add another CRS, add its canonical
 registry entry, add an `additional_env` mapping, and select its name in `cfg.json`.
-
-DiscVer uses an explicit `FUZZ_TIMEOUT` of 7000 seconds. With the template's
-12,800-second outer run timeout this leaves 5,800 seconds of gross startup,
-analysis, reporting, and shutdown headroom. The wrapper requires at least 3,600
-seconds of gross reserve. This check is DiscVer-specific; other CRSs do not need
-`FUZZ_TIMEOUT`.
 
 ## Run
 
@@ -87,11 +81,6 @@ CRSBench saves compose logs and registered CRS log directories in each trial:
 <storage>/experiment-data/<experiment-name>/.../trial-*/output/logs/crs/
 └── <generated-crs-name>/log_dir/
 ```
-
-DiscVer's orchestrator artifacts are normally below
-`<discver-variant>/log_dir/discver/`. Other CRSs use the same generic per-CRS
-layout when they register a log directory through libCRS. Trial and model
-directories remain separate to avoid filename collisions.
 
 The foreground wrapper prints exact `tmux attach` and `tail -f` commands while a
 run is active.
