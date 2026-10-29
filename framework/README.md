@@ -1,117 +1,131 @@
-# CRSBench experiment framework
+# CRSBench experiment wrapper
 
-This directory contains a small local orchestrator around CRSBench. It validates
-the configured LLM endpoint, creates a temporary benchmark suite and one registry
-variant per CRS/model combination, renders an experiment directly from
-`framework/cfg.json`, and runs evaluator, worker, and orchestrator in tmux.
+`framework/` is a local usability wrapper around CRSBench. It selects benchmarks,
+models, and CRSs; renders a standard experiment; prepares local Valkey; checks the
+LLM endpoint; and launches the native CRSBench evaluator, worker, and runner in
+tmux. CRSBench remains responsible for execution, queues, evaluation, reports, and
+trial artifacts.
 
-The configuration is self-contained: a base experiment YAML is not required.
-The intended operating model is one local experiment at a time.
+The wrapper assumes one local experiment at a time.
 
+## Configuration
+
+`framework/cfg.json` contains only run-specific selections:
+
+```json
+{
+  "llm_host": "http://172.17.128.1:8383",
+  "models": ["claude-opus-4-8"],
+  "crses": ["discver"],
+  "benchmarks": ["atlanta-imaging-delta-01"],
+  "storage": "/testvol/crsbench/results"
+}
+```
+
+Stable settings such as timeouts, worker sizing, evaluator sizing, task, and mode
+live in `framework/experiment-template.yaml`.
+
+CRS-specific environment variables live in `framework/cfg_crs_env.yaml`. Every
+selected CRS is expanded across every selected model. Supported placeholders are
+`{model}`, `{llm_host}`, and `{repo_root}`. To add another CRS, add its canonical
+registry entry, add an `additional_env` mapping, and select its name in `cfg.json`.
+
+DiscVer uses an explicit `FUZZ_TIMEOUT` of 7000 seconds. With the template's
+12,800-second outer run timeout this leaves 5,800 seconds of gross startup,
+analysis, reporting, and shutdown headroom. The wrapper requires at least 3,600
+seconds of gross reserve. This check is DiscVer-specific; other CRSs do not need
+`FUZZ_TIMEOUT`.
 
 ## Run
 
-Edit `cfg.json` and `cfg_crs_env.yaml`, then run from the repository root:
+From the repository root:
 
 ```bash
 uv run python framework/run.py --config framework/cfg.json --dry-run
 uv run python framework/run.py --config framework/cfg.json
 ```
 
-The dry run performs endpoint checks and validates generated files, but does not
-create a durable run directory or start tmux services.
+A dry run renders and validates all generated files and checks Caddy/models, but
+does not stop workers, modify Valkey, create a durable archive, or launch tmux.
 
-### tmux layout
+For a fresh run, the wrapper validates the configuration first, stops stale local
+CRSBench workers, restarts the repository-owned loopback Valkey, flushes its
+database, requires `PONG`, checks Caddy/models, archives the configuration, and
+launches CRSBench. Valkey remains running afterward.
 
-The session name defaults to the run ID and contains three windows:
+Destructive Valkey management is refused unless `runtime.redis_host` in the
+template resolves to `localhost:6379` or `127.0.0.1:6379`. Remote and shared
+services are never restarted or flushed.
 
-- `evaluator` → `<paths.results>/framework-runs/<timestamp>/logs/evaluator.log`
-- `worker` → `<paths.results>/framework-runs/<timestamp>/logs/worker.log`
-- `run` → `<paths.results>/framework-runs/<timestamp>/logs/run.log`
+## Logs and results
 
-The runner's exit code is saved as `runner.exit`. The session is stopped after
-the runner exits; trial data remains under
-`<paths.results>/experiment-data/<run-id>/`.
-Immediately after launch, the foreground process prints the exact `tmux attach`
-and `tail -f` commands for the current run, then waits for completion.
+Each run archive is stored at:
 
-Before creating tmux, the framework terminates existing local CRSBench worker
-process trees. It then starts evaluator, worker, and runner windows without an
-interactive worker-cleanup prompt. On shutdown it terminates each tmux pane's
-complete process tree to avoid leaving multiprocessing worker children behind.
+```text
+<storage>/framework-runs/<timestamp>/
+├── experiment.yaml
+├── runner.exit
+├── logs/
+│   ├── evaluator.log
+│   ├── worker.log
+│   └── run.log
+├── csv/
+│   ├── <experiment-name>_trial_metrics.csv
+│   └── <experiment-name>_benchmark_summary.csv
+└── support/
+    ├── benchmark-suite.yaml
+    ├── framework.json
+    └── registry/
+```
 
-This workflow assumes one experiment at a time:
-resume or explicitly clean an interrupted experiment before starting a different
-one, because native flat-queue workers can consume pending jobs from any run.
+The two CSVs are convenience views generated from CRSBench trial artifacts. CSV
+errors are logged but do not replace CRSBench's runner exit status.
 
-To stop a foreground run, press Ctrl-C in the terminal running
-`framework/run.py`. The framework then terminates the tmux pane process trees and
-removes the session. Do not manually delete active temporary or build directories
-while evaluator or worker processes are still running.
+CRSBench saves compose logs and registered CRS log directories in each trial:
 
-## Retry an interrupted experiment
+```text
+<storage>/experiment-data/<experiment-name>/.../trial-*/output/logs/crs/
+└── <generated-crs-name>/log_dir/
+```
 
-After fixing the cause of an interruption, resume the original experiment using
-its archived YAML:
+DiscVer's orchestrator artifacts are normally below
+`<discver-variant>/log_dir/discver/`. Other CRSs use the same generic per-CRS
+layout when they register a log directory through libCRS. Trial and model
+directories remain separate to avoid filename collisions.
+
+The foreground wrapper prints exact `tmux attach` and `tail -f` commands while a
+run is active.
+
+## Retry
+
+Retry an archived experiment with:
 
 ```bash
 uv run python framework/run.py \
-  --retry /testvol/crsbench/results/framework-runs/<timestamp>/experiment.yaml
+  --config framework/cfg.json \
+  --retry <storage>/framework-runs/<timestamp>/experiment.yaml
 ```
 
-Normal framework runs archive the generated benchmark suite and CRS registry
-entries under `support/` beside `experiment.yaml`. Retry mode temporarily restores
-those files if normal-run cleanup removed them, then removes only the copies it
-restored. Older archived runs created before this support archive was introduced
-can be retried only while their referenced suite and registry entries still exist,
-or after those files are restored manually.
-
-### Valkey behavior
-
-Do not clean the experiment queue before an ordinary resume. Retry mode uses
-`--queue-mode continue --retry-failed` specifically to preserve pending work,
-recover interrupted work, and requeue failed trials while retaining completed
-trials.
-
-Use experiment-scoped cleanup only when abandoning a run, or when its queue state
-is known to be unusable and you intentionally want to remove that state:
-
-```bash
-uv run crsbench queue clean \
-  --experiment run-YYYYMMDD-HHMMSS \
-  --dry-run
-```
-
-The framework does not restart, flush, or clean Valkey automatically.
+Retry mode restores archived suite and registry support files, stops stale local
+workers, performs a non-destructive Valkey connectivity check, checks Caddy, and
+runs CRSBench with `--queue-mode continue --retry-failed`. It never restarts or
+flushes Valkey. Retry CSVs are written beneath that retry's archive directory.
 
 ## Reparse existing results
 
 ```bash
 uv run python -m framework.results \
-  experiment-data/run-YYYYMMDD-HHMMSS \
-  --output-dir \
-  framework-runs/YYYYMMDD-HHMMSS/csv
+  <storage>/experiment-data/run-YYYYMMDD-HHMMSS \
+  --benchmarks-dir benchmarks \
+  --output-dir <storage>/framework-runs/YYYYMMDD-HHMMSS/csv
 ```
 
-## Benchmark inventory
+## Cleanup behavior
 
-```bash
-uv run python -m framework.benchmark_inventory --format tsv
-uv run python -m framework.benchmark_inventory --format csv --output benchmarks.csv
-```
-
-The inventory includes benchmark name, supported modes, harness counts, known
-CPVs, CPVs with patches, build variants, repository, language, and homepage.
-
-## Failure and cleanup behavior
-
-Only paths registered as newly generated by the current process are removed:
+The wrapper removes only transient files it generated for the current invocation:
 
 - `benchmark-suites/custom/<run-id>.yaml`
 - `oss-crs/registry/<crs>-<model>.yaml`
-- the root `experiment-<run-id>.yaml`
+- `experiment-<run-id>.yaml`
 
-The archived experiment, logs, exit marker, CSVs, and CRSBench trial artifacts
-are durable. A failed runner still attempts CSV generation when partial trial
-metadata exists. Existing files that were not created by the current invocation
-are not removed.
+Archived configuration, tmux logs, CSVs, and CRSBench artifacts remain durable.

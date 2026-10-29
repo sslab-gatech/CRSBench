@@ -1,4 +1,4 @@
-"""Load and validate the self-contained framework configuration."""
+"""Load and validate the minimal framework configuration."""
 
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ import yaml
 from framework.errors import FrameworkError
 
 SAFE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+CONFIG_KEYS = {"llm_host", "models", "crses", "benchmarks", "storage"}
 
 
 def normalize_host(value: str) -> str:
@@ -27,59 +28,21 @@ def normalize_host(value: str) -> str:
     return host
 
 
-@dataclass(frozen=True)
-class RunnerConfig:
-    run_id: str
-    llm_host: str
-    llm_models: tuple[str, ...]
-    crs_names: tuple[str, ...]
-    benchmark_names: tuple[str, ...]
-    benchmarks_dir: Path
-    suites_dir: Path
-    registry_dir: Path
-    results_dir: Path
-    crs_env_file: Path
-    tmux_session: str
-    poll_seconds: float
-    experiment: dict[str, Any]
-    runtime: dict[str, Any]
-    storage: dict[str, Any]
-    worker: dict[str, Any]
-    evaluator: dict[str, Any]
-
-    @property
-    def run_dir(self) -> Path:
-        return self.results_dir / "framework-runs" / self.run_id.removeprefix("run-")
-
-    @property
-    def logs_dir(self) -> Path:
-        return self.run_dir / "logs"
-
-
-def _path(value: str, repo_root: Path) -> Path:
+def _path(value: object, repo_root: Path, key: str) -> Path:
     if not isinstance(value, str) or not value.strip():
-        raise FrameworkError("configured paths must be non-empty strings")
+        raise FrameworkError(f"cfg '{key}' must be a non-empty path")
     path = Path(value).expanduser()
     return path.resolve() if path.is_absolute() else (repo_root / path).resolve()
 
 
-def _configured_path(
-    paths: dict[str, Any], key: str, default: str, repo_root: Path
-) -> Path:
-    value = paths.get(key, default)
-    if not isinstance(value, str):
-        raise FrameworkError(f"cfg path '{key}' must be a string")
-    return _path(value, repo_root)
-
-
-def _string_list(data: dict[str, Any], key: str) -> tuple[str, ...]:
+def _name_list(data: dict[str, Any], key: str) -> tuple[str, ...]:
     value = data.get(key)
     if (
         not isinstance(value, list)
         or not value
-        or not all(isinstance(item, str) for item in value)
+        or not all(isinstance(v, str) for v in value)
     ):
-        raise FrameworkError(f"cfg '{key}' must be a non-empty list")
+        raise FrameworkError(f"cfg '{key}' must be a non-empty list of strings")
     result = tuple(item.strip() for item in value)
     if any(not item or not SAFE_NAME.fullmatch(item) for item in result):
         raise FrameworkError(f"cfg '{key}' contains an unsafe or empty name")
@@ -89,26 +52,52 @@ def _string_list(data: dict[str, Any], key: str) -> tuple[str, ...]:
 
 
 def _model_list(data: dict[str, Any]) -> tuple[str, ...]:
-    value = data.get("llms")
+    value = data.get("models")
     if (
         not isinstance(value, list)
         or not value
-        or not all(isinstance(item, str) for item in value)
+        or not all(isinstance(v, str) for v in value)
     ):
-        raise FrameworkError("cfg 'llms' must be a non-empty list of strings")
+        raise FrameworkError("cfg 'models' must be a non-empty list of strings")
     result = tuple(item.strip() for item in value)
     if any(not item or any(char.isspace() for char in item) for item in result):
-        raise FrameworkError("cfg 'llms' contains an empty model or whitespace")
+        raise FrameworkError("cfg 'models' contains an empty model or whitespace")
     if len(result) != len(set(result)):
-        raise FrameworkError("cfg 'llms' contains duplicates")
+        raise FrameworkError("cfg 'models' contains duplicates")
     return result
 
 
-def _required_mapping(data: dict[str, Any], key: str) -> dict[str, Any]:
-    value = data.get(key)
-    if not isinstance(value, dict):
-        raise FrameworkError(f"cfg '{key}' must be an object")
-    return value
+@dataclass(frozen=True)
+class RunnerConfig:
+    run_id: str
+    llm_host: str
+    llm_models: tuple[str, ...]
+    crs_names: tuple[str, ...]
+    benchmark_names: tuple[str, ...]
+    results_dir: Path
+    benchmarks_dir: Path
+    suites_dir: Path
+    registry_dir: Path
+    crs_env_file: Path
+    experiment_template: Path
+    tmux_session: str
+    poll_seconds: float = 5.0
+
+    @property
+    def run_dir(self) -> Path:
+        return self.results_dir / "framework-runs" / self.run_id.removeprefix("run-")
+
+    @property
+    def logs_dir(self) -> Path:
+        return self.run_dir / "logs"
+
+    @property
+    def experiment_data_dir(self) -> Path:
+        return self.results_dir / "experiment-data"
+
+    @property
+    def report_data_dir(self) -> Path:
+        return self.results_dir / "report-data"
 
 
 def load_config(path: Path) -> RunnerConfig:
@@ -120,66 +109,34 @@ def load_config(path: Path) -> RunnerConfig:
         raise FrameworkError(f"cannot read config {path}: {exc}") from exc
     if not isinstance(data, dict):
         raise FrameworkError("cfg root must be a JSON object")
+    unknown = sorted(set(data) - CONFIG_KEYS)
+    if unknown:
+        raise FrameworkError(f"cfg contains unknown fields: {', '.join(unknown)}")
 
     repo_root = Path(__file__).resolve().parent.parent
-    configured_run_id = data.get("run_id")
-    if configured_run_id is not None and not isinstance(configured_run_id, str):
-        raise FrameworkError("cfg 'run_id' must be a string")
-    run_id = configured_run_id or datetime.now().strftime("run-%Y%m%d-%H%M%S")
-    if not SAFE_NAME.fullmatch(run_id):
-        raise FrameworkError("cfg 'run_id' contains unsafe characters")
-    if not run_id.startswith("run-"):
-        run_id = f"run-{run_id}"
-    try:
-        poll_seconds = float(data.get("poll_seconds", 5))
-    except (TypeError, ValueError) as exc:
-        raise FrameworkError("cfg 'poll_seconds' must be a number") from exc
-    if poll_seconds <= 0:
-        raise FrameworkError("cfg 'poll_seconds' must be positive")
-
-    paths = _required_mapping(data, "paths")
-    experiment = _required_mapping(data, "experiment")
-    runtime = _required_mapping(data, "runtime")
-    storage = _required_mapping(data, "storage")
-    worker = _required_mapping(data, "worker")
-    evaluator = _required_mapping(data, "evaluator")
-    tmux_session = data.get("tmux_session") or run_id
-    if not isinstance(tmux_session, str):
-        raise FrameworkError("cfg 'tmux_session' must be a string")
+    run_id = datetime.now().strftime("run-%Y%m%d-%H%M%S-%f")
     cfg = RunnerConfig(
         run_id=run_id,
         llm_host=normalize_host(data.get("llm_host", "")),
         llm_models=_model_list(data),
-        crs_names=_string_list(data, "crses"),
-        benchmark_names=_string_list(data, "benchmarks"),
-        benchmarks_dir=_configured_path(
-            paths, "benchmarks", "benchmarks", repo_root
-        ),
-        suites_dir=_configured_path(
-            paths, "benchmark_suites", "benchmark-suites", repo_root
-        ),
-        registry_dir=_configured_path(
-            paths, "crs_registry", "oss-crs/registry", repo_root
-        ),
-        results_dir=_configured_path(paths, "results", "results", repo_root),
-        crs_env_file=_configured_path(
-            paths, "crs_env", "framework/cfg_crs_env.yaml", repo_root
-        ),
-        tmux_session=tmux_session,
-        poll_seconds=poll_seconds,
-        experiment=experiment,
-        runtime=runtime,
-        storage=storage,
-        worker=worker,
-        evaluator=evaluator,
+        crs_names=_name_list(data, "crses"),
+        benchmark_names=_name_list(data, "benchmarks"),
+        results_dir=_path(data.get("storage"), repo_root, "storage"),
+        benchmarks_dir=(repo_root / "benchmarks").resolve(),
+        suites_dir=(repo_root / "benchmark-suites").resolve(),
+        registry_dir=(repo_root / "oss-crs" / "registry").resolve(),
+        crs_env_file=(repo_root / "framework" / "cfg_crs_env.yaml").resolve(),
+        experiment_template=(
+            repo_root / "framework" / "experiment-template.yaml"
+        ).resolve(),
+        tmux_session=run_id,
     )
-    if not SAFE_NAME.fullmatch(cfg.tmux_session):
-        raise FrameworkError("cfg 'tmux_session' contains unsafe characters")
     for label, required in (
         ("benchmarks", cfg.benchmarks_dir),
         ("benchmark suites", cfg.suites_dir),
         ("CRS registry", cfg.registry_dir),
         ("CRS environment config", cfg.crs_env_file),
+        ("experiment template", cfg.experiment_template),
     ):
         if not required.exists():
             raise FrameworkError(f"{label} path does not exist: {required}")
@@ -193,9 +150,11 @@ def load_crs_env(path: Path) -> dict[str, dict[str, Any]]:
         raise FrameworkError(
             f"cannot read CRS environment config {path}: {exc}"
         ) from exc
-    if not isinstance(data, dict):
-        raise FrameworkError("CRS environment config must contain a mapping")
-    entries = data.get("crses", data)
+    if not isinstance(data, dict) or set(data) != {"crses"}:
+        raise FrameworkError(
+            "CRS environment config must contain only a 'crses' mapping"
+        )
+    entries = data["crses"]
     if not isinstance(entries, dict):
-        raise FrameworkError("CRS environment config must contain a 'crses' mapping")
+        raise FrameworkError("CRS environment config 'crses' must be a mapping")
     return entries

@@ -6,6 +6,7 @@ from framework.config import RunnerConfig
 from framework.services import (
     _cli,
     _is_worker_launcher,
+    _tmux_shell,
     _worker_tree_roots,
 )
 
@@ -61,13 +62,9 @@ def test_framework_commands_use_native_crsbench_cli() -> None:
         registry_dir=Path("oss-crs/registry"),
         results_dir=Path("results"),
         crs_env_file=Path("framework/cfg_crs_env.yaml"),
+        experiment_template=Path("framework/experiment-template.yaml"),
         tmux_session="run-example",
         poll_seconds=1,
-        experiment={},
-        runtime={},
-        storage={},
-        worker={},
-        evaluator={},
     )
 
     command = _cli(cfg, "worker", Path("experiment.yaml"))
@@ -89,3 +86,18 @@ def test_framework_commands_use_native_crsbench_cli() -> None:
         queue_model="per-experiment",
     )
     assert "CRSBENCH_QUEUE_MODEL=per-experiment" in legacy_command
+
+    flat_command = _cli(
+        cfg,
+        "worker",
+        Path("experiment.yaml"),
+        queue_model="flat",
+    )
+    assert "CRSBENCH_QUEUE_MODEL=flat" in flat_command
+
+
+def test_tmux_shell_preserves_runner_exit_code_with_tee() -> None:
+    shell = _tmux_shell(["false"], Path("run.log"), Path("runner.exit"))
+    assert "set -o pipefail" in shell
+    assert "status=$?" in shell
+    assert "exit $status" in shell

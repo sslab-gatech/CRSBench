@@ -1,0 +1,59 @@
+# Stable CRSBench settings for local framework runs. The wrapper replaces run,
+# suite, storage, and generated CRS service values before validation.
+experiment:
+  name: generated
+  task: bugfinding
+  benchmark_suite: custom/generated
+  mode: delta
+  sanitizers: [address]
+
+runtime:
+  trials: 1
+  redis_host: localhost:6379
+  max_total_time: 30000
+  build_timeout: 9600
+  run_timeout: 12800
+  verify_timeout: 6800
+  per_pov_verify_timeout: 180
+  skip_verification: false
+  snapshot_period: 300
+  coverage_enabled: false
+  coverage_saturation_time: 3600
+  coverage_early_stop: false
+  inputs:
+    seed:
+      max_time: 3600
+  litellm:
+    mode: external
+    tracking_enabled: false
+    skip: false
+
+# This field is currently top-level in CRSBench's schema rather than part of the
+# grouped runtime block.
+llm_accounting_settle_seconds: 60
+
+storage:
+  experiment_filestore: generated
+  report_filestore: generated
+  keep_only_results: false
+  cleanup_after_trial: false
+  copy_results_after_trial: false
+
+worker:
+  jobs: 1
+  cores_per_job: 8
+
+evaluator:
+  jobs: 1
+  cores_per_job: 8
+  verify_jobs: 1
+
+resources:
+  memory_per_trial: 20G #16G
+
+crs_compose:
+  oss_crs_infra:
+    shared: true
+  _generated_service_defaults:
+    num_cores: 8
+    budget_policy: continue

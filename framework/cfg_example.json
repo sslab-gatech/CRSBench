@@ -1,60 +1,7 @@
 {
-  "llm_host": "",
-  "llms": [""],
-  "crses": [""],
-  "benchmarks": [""],
-  "experiment": {
-    "task": "bugfinding",
-    "mode": "delta",
-    "sanitizers": ["address"]
-  },
-  "runtime": {
-    "trials": 3,
-    "redis_host": "",
-    "max_total_time": 30000,
-    "build_timeout": 9600,
-    "run_timeout": 12800,
-    "verify_timeout": 6800,
-    "per_pov_verify_timeout": 180,
-    "skip_verification": false,
-    "snapshot_period": 300,
-    "coverage_enabled": false,
-    "coverage_saturation_time": 3600,
-    "coverage_early_stop": false,
-    "inputs": {
-      "seed": {
-        "max_time": 3600
-      }
-    },
-    "llm_accounting_settle_seconds": 60,
-    "litellm": {
-      "mode": "external",
-      "url_env": "",
-      "key_env": "",
-      "tracking_enabled": false,
-      "skip_litellm": false
-    }
-  },
-  "storage": {
-    "keep_only_results": false,
-    "cleanup_after_trial": false,
-    "copy_results_after_trial": false
-  },
-  "worker": {
-    "jobs": 7,
-    "cores_per_job": 7
-  },
-  "evaluator": {
-    "jobs": 1,
-    "cores_per_job": 8,
-    "verify_jobs": 1
-  },
-  "paths": {
-    "benchmarks": "",
-    "benchmark_suites": "",
-    "crs_registry": "",
-    "results": "",
-    "crs_env": ""
-  },
-  "poll_seconds": 5
+  "llm_host": "http://127.0.0.1:4000",
+  "models": ["claude-opus-4-8"],
+  "crses": ["discver", "crs-bug-finding-claude-code"],
+  "benchmarks": ["sanity-mock-c-delta-01"],
+  "storage": "results"
 }

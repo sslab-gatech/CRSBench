@@ -2,16 +2,21 @@
 
 from __future__ import annotations
 
-import logging
+import logging  # noqa: TID251 - standalone wrapper uses stdlib logging
 import os
 import shlex
 import shutil
 import subprocess
+import sys
 import time
 from pathlib import Path
+from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 
-from framework.config import RunnerConfig
 from framework.errors import FrameworkError
+
+if TYPE_CHECKING:
+    from framework.config import RunnerConfig
 
 log = logging.getLogger(__name__)
 
@@ -50,6 +55,77 @@ def require_tmux() -> None:
         raise FrameworkError("tmux is not installed or not on PATH")
     if shutil.which("uv") is None:
         raise FrameworkError("uv is not installed or not on PATH")
+
+
+def require_local_services() -> None:
+    """Require tools used to manage the repository-owned local Valkey."""
+    require_tmux()
+    if shutil.which("docker") is None:
+        raise FrameworkError("docker is not installed or not on PATH")
+
+
+def _redis_endpoint(redis_host: object) -> tuple[str, int]:
+    if not isinstance(redis_host, str) or not redis_host.strip():
+        raise FrameworkError("runtime.redis_host must identify local Valkey")
+    value = redis_host.strip()
+    parsed = urlparse(value if "://" in value else f"redis://{value}")
+    try:
+        port = parsed.port or 6379
+    except ValueError as exc:
+        raise FrameworkError(f"invalid runtime.redis_host: {value}") from exc
+    return (parsed.hostname or ""), port
+
+
+def require_owned_local_valkey(redis_host: object) -> str:
+    """Reject destructive management of anything except our local service."""
+    host, port = _redis_endpoint(redis_host)
+    if host not in {"localhost", "127.0.0.1"} or port != 6379:
+        raise FrameworkError(
+            "automatic Valkey restart/flush is restricted to the repository-owned "
+            f"local service at localhost:6379 (configured: {redis_host!r})"
+        )
+    return f"{host}:{port}"
+
+
+def _valkey_helper(repo_root: Path, *args: str) -> None:
+    helper = repo_root / "scripts" / "valkey-helper.py"
+    _run([sys.executable, str(helper), *args], cwd=repo_root)
+
+
+def _require_valkey_pong(repo_root: Path) -> None:
+    result = _run(
+        ["docker", "exec", "crsbench-valkey", "valkey-cli", "ping"],
+        cwd=repo_root,
+    )
+    if result.stdout.strip() != "PONG":
+        raise FrameworkError(
+            "repository-owned local Valkey did not return PONG after restart"
+        )
+
+
+def prepare_local_valkey(repo_root: Path, redis_host: object) -> None:
+    """Restart, flush, and probe the explicitly local wrapper-owned service."""
+    require_owned_local_valkey(redis_host)
+    log.info("restarting repository-owned local Valkey")
+    # Use explicit stop/start rather than helper ``restart``: restart preserves
+    # password mode from .env, which binds on all interfaces. Framework runs own
+    # a loopback-only service.
+    _valkey_helper(repo_root, "stop")
+    _valkey_helper(repo_root, "start")
+    log.info("flushing local Valkey before fresh experiment")
+    _valkey_helper(repo_root, "clean-all", "--force")
+    _valkey_helper(repo_root, "status")
+    _require_valkey_pong(repo_root)
+
+
+def check_valkey_connection(redis_host: object) -> None:
+    """Perform a non-destructive Redis/Valkey readiness check."""
+    if not isinstance(redis_host, str) or not redis_host.strip():
+        raise FrameworkError("runtime.redis_host is missing")
+    from crsbench.distributed.queue import check_redis_available
+
+    if not check_redis_available(redis_host.strip()):
+        raise FrameworkError(f"Valkey is not reachable at {redis_host}")
 
 
 def _cli(
@@ -142,7 +218,8 @@ def _is_worker_launcher(command: str) -> bool:
 def _worker_tree_roots(processes: dict[int, tuple[int, str]]) -> set[int]:
     """Find worker launchers plus orphaned visible CRSBench RQ processes."""
     launchers = {
-        pid for pid, (_parent, command) in processes.items()
+        pid
+        for pid, (_parent, command) in processes.items()
         if _is_worker_launcher(command)
     }
     roots: set[int] = set()
@@ -228,18 +305,31 @@ def launch_tmux(
     ]
     try:
         for index, (name, command, marker) in enumerate(specs):
-            shell_command = _tmux_shell(
-                command, logs_dir / f"{name}.log", marker
-            )
+            shell_command = _tmux_shell(command, logs_dir / f"{name}.log", marker)
             if index == 0:
                 tmux = [
-                    "tmux", "new-session", "-d", "-s", cfg.tmux_session,
-                    "-n", name, "bash", "-lc", shell_command,
+                    "tmux",
+                    "new-session",
+                    "-d",
+                    "-s",
+                    cfg.tmux_session,
+                    "-n",
+                    name,
+                    "bash",
+                    "-lc",
+                    shell_command,
                 ]
             else:
                 tmux = [
-                    "tmux", "new-window", "-t", cfg.tmux_session,
-                    "-n", name, "bash", "-lc", shell_command,
+                    "tmux",
+                    "new-window",
+                    "-t",
+                    cfg.tmux_session,
+                    "-n",
+                    name,
+                    "bash",
+                    "-lc",
+                    shell_command,
                 ]
             _run(tmux, cwd=repo_root)
     except FrameworkError:
@@ -247,9 +337,7 @@ def launch_tmux(
         raise
 
 
-def log_monitoring_commands(
-    cfg: RunnerConfig, *, logs_dir: Path | None = None
-) -> None:
+def log_monitoring_commands(cfg: RunnerConfig, *, logs_dir: Path | None = None) -> None:
     """Print copy-and-paste commands for observing a running experiment."""
     log.info("Run started in tmux.")
     log.info("Attach to the session:")
@@ -264,10 +352,13 @@ def log_monitoring_commands(
 def wait_for_runner(cfg: RunnerConfig, *, exit_path: Path | None = None) -> int:
     exit_path = cfg.run_dir / "runner.exit" if exit_path is None else exit_path
     while not exit_path.exists():
-        alive = subprocess.run(
-            ["tmux", "has-session", "-t", cfg.tmux_session],
-            capture_output=True,
-        ).returncode == 0
+        alive = (
+            subprocess.run(
+                ["tmux", "has-session", "-t", cfg.tmux_session],
+                capture_output=True,
+            ).returncode
+            == 0
+        )
         if not alive:
             raise FrameworkError(
                 "tmux session ended before the runner recorded an exit code"
