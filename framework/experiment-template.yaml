@@ -8,13 +8,13 @@ experiment:
   sanitizers: [address]
 
 runtime:
-  trials: 1
+  trials: 3
   redis_host: localhost:6379
   max_total_time: 30000
   build_timeout: 9600
   run_timeout: 12800
   verify_timeout: 6800
-  per_pov_verify_timeout: 180
+  per_pov_verify_timeout: 300
   skip_verification: false
   snapshot_period: 300
   coverage_enabled: false
@@ -28,8 +28,6 @@ runtime:
     tracking_enabled: false
     skip: false
 
-# This field is currently top-level in CRSBench's schema rather than part of the
-# grouped runtime block.
 llm_accounting_settle_seconds: 60
 
 storage:
@@ -40,16 +38,16 @@ storage:
   copy_results_after_trial: false
 
 worker:
-  jobs: 1
+  jobs: 4
   cores_per_job: 8
 
 evaluator:
-  jobs: 1
+  jobs: 2
   cores_per_job: 8
-  verify_jobs: 1
+  verify_jobs: 2
 
 resources:
-  memory_per_trial: 20G #16G
+  memory_per_trial: 16G
 
 crs_compose:
   oss_crs_infra:
