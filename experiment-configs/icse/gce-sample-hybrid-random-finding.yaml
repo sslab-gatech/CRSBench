@@ -1,0 +1,136 @@
+# ICSE major revision: 7 randomly sampled benchmarks per C/C++/JVM x delta/full stratum.
+# Reproduce the suite with `crsbench benchmark sample`; see docs/experiments/icse-hybrid-random.md.
+# Preserves the previous hybrid model, 3 trials, 8h run, $30 per-trial budget, and fleet.
+# Includes memory sanitizer so randomly selected MSan CPVs are not silently dropped.
+# The queue can require multiple waves; budgets are per trial, not for the fleet.
+# Requires the suite and bootstrap changes to be available on the remote `icse` ref.
+# Secrets are supplied through .env or the operator environment, never this file.
+
+experiment:
+  name: icse-hybrid-random-finding
+  task: bugfinding
+  mode: auto
+  sanitizers:
+  - address
+  - memory
+  - undefined
+  benchmark_suite: icse/hybrid-random
+runtime:
+  trials: 3
+  max_total_time: 50400
+  build_timeout: 10800
+  run_timeout: 28800
+  verify_timeout: 5400
+  per_pov_verify_timeout: 300
+  redis_host: redis-server:6379
+  source_mode: pkgs
+  rts_enabled: false
+  inc_build_enabled: false
+  pov_early_stop: true
+  inputs:
+    seed: {}
+  litellm:
+    mode: external
+    cost_budget: 30.0
+  only_cpv_harnesses: true
+crs_compose:
+  oss_crs_infra:
+    shared: true
+  crs-sample-hybrid:
+    num_cores: 16
+    mem_limit: 64G
+    additional_env:
+      ANTHROPIC_MODEL: claude-opus-4-6
+storage:
+  experiment_filestore: /data/crsbench/experiment-data/icse-hybrid-random-finding
+  report_filestore: /data/crsbench/report-data/icse-hybrid-random-finding
+resources:
+  cores_per_trial: 16
+  memory_per_trial: 64G
+worker:
+  jobs: 14
+  cores_per_job: 16
+  storage:
+    cleanup_after_trial: true
+evaluator:
+  jobs: 14
+  cores_per_job: 16
+  build_jobs: 4
+cloud:
+  remote:
+    experiment_root: /data/crsbench/experiment-data/icse-hybrid-random-finding
+  defaults:
+    readiness_timeout_sec: 1200
+    crsbench_install_spec: git+ssh://git@github.com/sslab-gatech/CRSBench.git
+    crsbench_git_ref: icse
+    github_deploy_key_path: .crsbench-keys/crsbench-deploy
+  env:
+    CRSBENCH_TAILSCALE_AUTH_KEY: os.environ/CRSBENCH_TAILSCALE_AUTH_KEY
+    HF_TOKEN: os.environ/HF_TOKEN
+    CRSBENCH_LLM_UPSTREAM_BASE_URL: os.environ/CRSBENCH_LLM_UPSTREAM_BASE_URL
+    CRSBENCH_LLM_UPSTREAM_MASTER_KEY: os.environ/CRSBENCH_LLM_UPSTREAM_MASTER_KEY
+  bootstrap:
+    prepare_mode: full
+    download_benchmarks: auto
+  providers:
+    gce:
+      project: aixcc-426805
+      ssh_via_iap: true
+      regions:
+      - asia-south1
+      - us-central1
+      - us-south1
+      - us-east5
+      - us-east1
+      - us-west1
+      - us-west2
+      - us-west3
+      - us-west4
+      fallback: true
+      profile_defaults:
+        machine_type: n2d-standard-16
+        boot_disk_size_gb: 1024
+        boot_disk_type: pd-ssd
+        image: projects/ubuntu-os-cloud/global/images/family/ubuntu-2404-lts-amd64
+        service_account_email: 153298433405-compute@developer.gserviceaccount.com
+        owner_label: crsbench
+      instance_profiles:
+        gce-orchestrator-n2d: {}
+        gce-worker-n2d:
+          machine_type: n2d-standard-224
+          boot_disk_size_gb: 2048
+        gce-evaluator-n2d:
+          machine_type: n2d-standard-224
+          boot_disk_size_gb: 2048
+  orchestrator:
+    instance_profile: gce-orchestrator-n2d
+  workers:
+    defaults:
+      instance_profile: gce-worker-n2d
+    placements:
+    - {}
+    - {}
+    - {}
+    - {}
+    - {}
+    - {}
+    - {}
+    - {}
+  evaluators:
+    defaults:
+      instance_profile: gce-evaluator-n2d
+      regions:
+      - us-south1
+      - us-central1
+      - us-east5
+      - us-east1
+      - us-west1
+      - us-west2
+      - us-west3
+      - us-west4
+      - asia-south1
+    placements:
+    - {}
+    - {}
+description: 'ICSE major revision: outcome-independent balanced random sample of 28
+  benchmarks (seed 20261104), all ground-truth harnesses and CPVs, hybrid CRS only.'

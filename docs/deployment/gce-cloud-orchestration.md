@@ -122,6 +122,45 @@ flows, continue with the rest of this guide.
 6. **Redis/Valkey** reachable from worker VMs
 7. **rsync** installed on the operator machine (for artifact collection)
 
+## Private LiteLLM over Tailscale
+
+To connect the GCE fleet to a LiteLLM endpoint on your tailnet, supply the
+auth key through the operator environment (or the local `.env`), and forward
+it to every role:
+
+```yaml
+cloud:
+  env:
+    CRSBENCH_TAILSCALE_AUTH_KEY: os.environ/CRSBENCH_TAILSCALE_AUTH_KEY
+    CRSBENCH_LLM_UPSTREAM_BASE_URL: os.environ/CRSBENCH_LLM_UPSTREAM_BASE_URL
+```
+
+Read the key without putting it in shell history (Bash):
+
+```bash
+read -rsp 'Tailscale auth key: ' CRSBENCH_TAILSCALE_AUTH_KEY
+export CRSBENCH_TAILSCALE_AUTH_KEY
+```
+
+When the key is present, each orchestrator, worker, and evaluator installs
+Tailscale if needed, starts `tailscaled`, and runs this before starting runtime
+services:
+
+```bash
+tailscale up --auth-key="${CRSBENCH_TAILSCALE_AUTH_KEY}" --timeout=120s
+```
+
+Connection failure stops that VM's bootstrap; startup without a key retains
+the existing network behavior. Use an auth key that permits multiple VM
+registrations, and allow the fleet to reach the LiteLLM host and port in your
+tailnet policy. Set `CRSBENCH_LLM_UPSTREAM_BASE_URL` to that reachable endpoint.
+The key is delivered through the existing cloud environment metadata path;
+do not put its literal value in a tracked config. Teardown deletes the GCE
+VMs; tailnet device cleanup is managed separately in Tailscale.
+
+See the official [Linux installation guide](https://tailscale.com/docs/install/linux)
+and [auth key documentation](https://tailscale.com/docs/features/access-control/auth-keys).
+
 ## Notification Preflight
 
 If this deployment will use Apprise notifications, choose the preflight path

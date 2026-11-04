@@ -62,6 +62,10 @@ Examples:
         help="Benchmark operations",
     )
 
+    from crsbench.benchmark.sampling import add_sample_subparser
+
+    add_sample_subparser(benchmark_subparsers)
+
     # crsbench benchmark validate
     validate_parser = benchmark_subparsers.add_parser(
         "validate",

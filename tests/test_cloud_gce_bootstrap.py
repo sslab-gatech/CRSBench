@@ -1702,3 +1702,58 @@ runtime:
     patched = yaml.safe_load(config_path.read_text())
     assert patched["redis_host"] == "localhost:6379"
     assert patched["runtime"]["redis"]["host"] == "localhost:6379"
+
+
+@pytest.mark.parametrize("role", ["worker", "orchestrator", "evaluator"])
+@pytest.mark.parametrize(
+    "key,exit_code", [("test-auth-key", 0), ("", 0), ("test-auth-key", 1)]
+)
+def test_tailscale_bootstrap_connects_before_runtime(role, key, exit_code, tmp_path):
+    from crsbench.cloud.gce.metadata import (
+        load_evaluator_startup_script,
+        load_orchestrator_startup_script,
+        load_startup_script,
+    )
+
+    script = {
+        "worker": load_startup_script,
+        "orchestrator": load_orchestrator_startup_script,
+        "evaluator": load_evaluator_startup_script,
+    }[role]()
+    start = script.index("# Join the tailnet")
+    end = script.index("\nensure_timezone", start)
+    block = script[start:end]
+    calls = tmp_path / "calls"
+    for command in ("tailscale", "systemctl"):
+        executable = tmp_path / command
+        executable.write_text(
+            '#!/bin/bash\nprintf "%s\\n" "$*" >> "$CALLS"\n'
+            + (f"exit {exit_code}\n" if command == "tailscale" else "")
+        )
+        executable.chmod(0o755)
+    result = subprocess.run(
+        ["bash", "-ec", block + '\nprintf "runtime\\n" >> "$CALLS"'],
+        env={
+            **os.environ,
+            "PATH": f"{tmp_path}:{os.environ['PATH']}",
+            "CALLS": str(calls),
+            "CRSBENCH_TAILSCALE_AUTH_KEY": key,
+        },
+        capture_output=True,
+        text=True,
+    )
+    recorded = calls.read_text() if calls.exists() else ""
+    if not key:
+        assert result.returncode == 0
+        assert recorded == "runtime\n"
+    elif exit_code:
+        assert result.returncode != 0
+        assert "runtime" not in recorded
+    else:
+        assert result.returncode == 0
+        assert recorded.splitlines() == [
+            "enable --now tailscaled",
+            "up --auth-key=test-auth-key --timeout=120s",
+            "runtime",
+        ]
+    assert key == "" or key not in result.stdout + result.stderr

@@ -1081,6 +1081,15 @@ mkdir -p "${STATE_DIR}"
 ensure_system_packages
 ENV_PASSTHROUGH_B64="$(metadata_get_optional "crsbench-env-passthrough-b64")"
 export_passthrough_env "${ENV_PASSTHROUGH_B64}"
+# Join the tailnet before any runtime services need the private LiteLLM endpoint.
+if [[ -n "${CRSBENCH_TAILSCALE_AUTH_KEY:-}" ]]; then
+  if ! command -v tailscale >/dev/null 2>&1; then
+    curl -fsSL https://tailscale.com/install.sh -o "${STATE_DIR}/install-tailscale.sh"
+    bash "${STATE_DIR}/install-tailscale.sh"
+  fi
+  systemctl enable --now tailscaled
+  tailscale up --auth-key="${CRSBENCH_TAILSCALE_AUTH_KEY}" --timeout=120s
+fi
 ensure_timezone
 ensure_docker_ready
 ensure_crsbench_user

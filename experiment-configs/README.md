@@ -83,6 +83,10 @@ Background on the chaining mechanism is in
 
 ## Validation
 
+The ICSE revision's sampled hybrid experiment and four-job Tailscale/LiteLLM
+GCE smoke configs are documented in
+[ICSE hybrid random-sample evaluation](../docs/experiments/icse-hybrid-random.md).
+
 ```bash
 scripts/ci-tests/run-local.sh checks
 ```

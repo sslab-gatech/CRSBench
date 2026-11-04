@@ -65,6 +65,12 @@ under `benchmark-suites/` without the `.yaml` extension (e.g.
 
 ## Adding a new suite
 
+For reproducible, outcome-independent subsets, use `uv run crsbench benchmark
+sample --help`. The command samples whole benchmarks by language and automatic
+mode and writes a suite plus an audit manifest. See the
+[ICSE hybrid sampling protocol](../docs/experiments/icse-hybrid-random.md) for
+the frozen 28-benchmark sample under `icse/hybrid-random`.
+
 1. Drop a YAML file in the appropriate subdirectory (or create one).
 2. Reference it from an experiment config: `benchmark_suite: <subdir>/<name>`.
 3. Suite content is validated by `BenchmarkSuiteConfig` in

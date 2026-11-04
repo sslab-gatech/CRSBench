@@ -7,6 +7,7 @@ What kind of experiment to run. For where to run it, see
 - [Replay historical POVs on latest OSS-Fuzz](./replay-povs.md)
 - [Full-pipeline (finding → fixing) chaining](./full-pipeline.md)
 - [Merge experiment results](./merge-results.md)
+- [ICSE hybrid random-sample evaluation](./icse-hybrid-random.md)
 
 For the canonical experiment config schema, see
 [reference/experiment-config.md](../reference/experiment-config.md).

@@ -1,0 +1,136 @@
+# GCE Tailscale/LiteLLM smoke: 4 benchmark/harness/sanitizer/trial jobs, hybrid CRS only.
+# One C/C++ delta, C/C++ full, JVM delta, JVM full; one CPV each; address only.
+# One orchestrator (16 vCPU), one worker (64), one evaluator (32).
+# Short 10-minute CRS run; retain 3h build timeout for JVM builds.
+# See docs/experiments/icse-hybrid-random.md for environment and launch commands.
+
+experiment:
+  name: icse-hybrid-tailscale-smoke
+  task: bugfinding
+  mode: auto
+  sanitizers:
+  - address
+  benchmarks:
+  - afc-curl-delta-05:
+      curl_fuzzer_dict:
+      - cpv_0
+  - atlanta-pcre2-full-01:
+      pcre2_fuzzer:
+      - cpv_0
+  - afc-apache-commons-compress-delta-02:
+      ExpanderFuzzer:
+      - cpv_0
+  - atlanta-jsoup-full-01:
+      HtmlFuzzer:
+      - cpv_4
+runtime:
+  trials: 1
+  max_total_time: 14400
+  build_timeout: 10800
+  run_timeout: 600
+  verify_timeout: 1800
+  per_pov_verify_timeout: 300
+  redis_host: redis-server:6379
+  source_mode: pkgs
+  rts_enabled: false
+  inc_build_enabled: false
+  pov_early_stop: true
+  inputs:
+    seed: {}
+  litellm:
+    mode: external
+    cost_budget: 2.0
+  only_cpv_harnesses: true
+crs_compose:
+  oss_crs_infra:
+    shared: true
+  crs-sample-hybrid:
+    num_cores: 16
+    mem_limit: 64G
+    additional_env:
+      ANTHROPIC_MODEL: claude-opus-4-6
+storage:
+  experiment_filestore: /data/crsbench/experiment-data/icse-hybrid-tailscale-smoke
+  report_filestore: /data/crsbench/report-data/icse-hybrid-tailscale-smoke
+resources:
+  cores_per_trial: 16
+  memory_per_trial: 64G
+worker:
+  jobs: 4
+  cores_per_job: 16
+  storage:
+    cleanup_after_trial: true
+evaluator:
+  jobs: 2
+  cores_per_job: 16
+  build_jobs: 1
+cloud:
+  remote:
+    experiment_root: /data/crsbench/experiment-data/icse-hybrid-tailscale-smoke
+  defaults:
+    readiness_timeout_sec: 1200
+    crsbench_install_spec: git+ssh://git@github.com/sslab-gatech/CRSBench.git
+    crsbench_git_ref: icse
+    github_deploy_key_path: .crsbench-keys/crsbench-deploy
+  env:
+    CRSBENCH_TAILSCALE_AUTH_KEY: os.environ/CRSBENCH_TAILSCALE_AUTH_KEY
+    HF_TOKEN: os.environ/HF_TOKEN
+    CRSBENCH_LLM_UPSTREAM_BASE_URL: os.environ/CRSBENCH_LLM_UPSTREAM_BASE_URL
+    CRSBENCH_LLM_UPSTREAM_MASTER_KEY: os.environ/CRSBENCH_LLM_UPSTREAM_MASTER_KEY
+  bootstrap:
+    prepare_mode: full
+    download_benchmarks: auto
+  providers:
+    gce:
+      project: aixcc-426805
+      ssh_via_iap: true
+      regions:
+      - asia-south1
+      - us-central1
+      - us-south1
+      - us-east5
+      - us-east1
+      - us-west1
+      - us-west2
+      - us-west3
+      - us-west4
+      fallback: true
+      profile_defaults:
+        machine_type: n2d-standard-16
+        boot_disk_size_gb: 256
+        boot_disk_type: pd-ssd
+        image: projects/ubuntu-os-cloud/global/images/family/ubuntu-2404-lts-amd64
+        service_account_email: 153298433405-compute@developer.gserviceaccount.com
+        owner_label: crsbench
+      instance_profiles:
+        gce-orchestrator-n2d: {}
+        gce-worker-n2d:
+          machine_type: n2d-standard-64
+          boot_disk_size_gb: 1024
+        gce-evaluator-n2d:
+          machine_type: n2d-standard-32
+          boot_disk_size_gb: 512
+  orchestrator:
+    instance_profile: gce-orchestrator-n2d
+  workers:
+    defaults:
+      instance_profile: gce-worker-n2d
+    placements:
+    - {}
+  evaluators:
+    defaults:
+      instance_profile: gce-evaluator-n2d
+      regions:
+      - us-south1
+      - us-central1
+      - us-east5
+      - us-east1
+      - us-west1
+      - us-west2
+      - us-west3
+      - us-west4
+      - asia-south1
+    placements:
+    - {}
+description: 'GCE hybrid-only smoke: exactly four jobs, one per language/mode stratum,
+  external LiteLLM over Tailscale. Infrastructure check only; not revision evidence.'

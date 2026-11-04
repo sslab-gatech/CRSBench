@@ -131,6 +131,7 @@ Then re-run the quality gate command above.
 - Replay historical POVs: `docs/experiments/replay-povs.md`
 - Full-pipeline (finding → fixing) chaining: `docs/experiments/full-pipeline.md`
 - Merge experiment results: `docs/experiments/merge-results.md`
+- ICSE hybrid random-sample evaluation: `docs/experiments/icse-hybrid-random.md`
 - Normative benchmark spec: `docs/RFC.md`
 - Benchmark statistics: `docs/reference/benchmark-statistics.md`
 - Vulnerability metadata spec: `docs/reference/vuln-yaml.md`
