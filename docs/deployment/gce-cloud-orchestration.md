@@ -859,21 +859,25 @@ Before you provision anything, use `cloud preflight` to answer two questions:
 
 1. What would CRSBench launch from this config?
 2. Will launch fail immediately because of config, duplicate-launch, provider,
-   or quota problems?
+   quota, or LiteLLM key-management problems?
 
 ```bash
 uv run crsbench cloud preflight --config config.yaml
 ```
 
-`cloud preflight` is read-only. It does not create VMs, does not refresh
-`.crsbench-cloud/<experiment>.json`, and does not mutate remote state. The
-default output is a human-readable report with:
+`cloud preflight` does not create VMs or refresh
+`.crsbench-cloud/<experiment>.json`. When LiteLLM is enabled and
+`runtime.litellm.tracking_enabled` is true (the default), it temporarily creates
+and deletes a LiteLLM key to verify key-management permissions and the configured
+`runtime.litellm.cost_budget`. It makes no model requests. The default output is
+a human-readable report with:
 
 - `Summary`: experiment, provider, and verdict
 - `Plan`: orchestrator, worker, and evaluator placements CRSBench would launch
 - `Defaults`: resolved launch/bootstrap defaults
 - `Environment`: redacted env-layer summary, including runtime-managed vars
-- `Checks`: duplicate-launch guard, provider preflight, quota results, and warnings
+- `Checks`: duplicate-launch guard, provider preflight, quota results,
+  LiteLLM tracking checks per worker placement, and warnings
 - `Reconnect Notes`: which later commands need Redis/control-plane reachability
 
 Useful flags:
@@ -886,6 +890,26 @@ Common outcomes:
 - `ready`: launch can proceed
 - `warning`: launch can proceed, but an operator-visible caveat exists
 - `blocked`: fix the reported issue before running `cloud launch`
+
+LiteLLM checks use each worker placement's resolved URL and master key, including
+profile and placement overrides. Identical URL/key pairs share one probe,
+regardless of fleet size. The operator must be able to reach these endpoints;
+for a private Tailscale endpoint, run preflight from a machine on that tailnet.
+A local pass does not prove that the future VMs have working network access.
+VM bootstrap and trial startup still need their configured network and credentials.
+
+The tracking check verifies temporary key creation, reads back its budget, and
+attempts deletion even if verification fails. An unspecified budget is probed
+with a zero-dollar key. Permission errors (including HTTP 403/404), an incorrect
+budget, malformed replies, connection failures, and unconfirmed deletion make
+the report `blocked`, including without `--strict`. Requests have bounded
+timeouts and are not retried automatically; fix the cause and rerun preflight.
+The probe requests a five-minute key expiry to bound the lifetime if a response
+is lost or cleanup fails. A cleanup failure reports the temporary alias for
+operator follow-up. Key values and server response bodies are not included in
+the tracking report. Setting `runtime.litellm.skip: true` or explicitly disabling
+tracking skips this probe. The CI LiteLLM preflight script uses the same lifecycle
+check when invoked with `--require-tracking`.
 
 One common warning is that `cloud.remote.experiment_root` is unset. In that
 case, standalone `cloud collect` and `cloud teardown` fall back to the legacy

@@ -43,3 +43,14 @@ def test_legacy_fallback_vars_do_not_resolve() -> None:
     )
     assert runtime_env.direct_base_url is None
     assert runtime_env.api_key is None
+
+
+def test_explicit_empty_environment_does_not_inherit_operator_credentials(monkeypatch):
+    monkeypatch.setenv("CRSBENCH_LLM_UPSTREAM_BASE_URL", "https://operator.example")
+    monkeypatch.setenv("CRSBENCH_LLM_UPSTREAM_MASTER_KEY", "operator-secret")
+
+    runtime_env = resolve_litellm_runtime_env("external", {})
+
+    assert runtime_env.direct_base_url is None
+    assert runtime_env.master_key is None
+    assert required_env_errors_for_mode(runtime_env, tracking_enabled=True)

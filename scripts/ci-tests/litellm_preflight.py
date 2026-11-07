@@ -10,22 +10,19 @@ Validates runtime env contract for external mode, then checks:
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
 
 import requests
 from crsbench.utils.litellm_env import (
     required_env_errors_for_mode,
     resolve_litellm_runtime_env,
 )
+from crsbench.utils.litellm_preflight import (
+    CheckResult,
+    check_tracking_auth as _tracking_auth_check,
+)
 from crsbench.utils.logger import get_logger
 
 logger = get_logger(__name__)
-
-
-@dataclass(frozen=True)
-class CheckResult:
-    ok: bool
-    message: str
 
 
 def _health_check(base_url: str) -> CheckResult:
@@ -58,40 +55,6 @@ def _runtime_auth_check(base_url: str, runtime_key: str) -> CheckResult:
         )
     except Exception as exc:
         return CheckResult(ok=False, message=f"runtime auth request failed: {exc}")
-
-
-def _tracking_auth_check(base_url: str, master_key: str) -> CheckResult:
-    headers = {
-        "Authorization": f"Bearer {master_key}",
-        "Content-Type": "application/json",
-    }
-    try:
-        # Non-mutating auth probe: verify access to key-control endpoint.
-        # Any non-auth client error (e.g. invalid key param) still proves auth.
-        info_resp = requests.get(
-            f"{base_url.rstrip('/')}/key/info",
-            headers=headers,
-            params={"key": master_key},
-            timeout=20,
-        )
-        if info_resp.status_code in {401, 403}:
-            return CheckResult(
-                ok=False,
-                message=f"tracking auth failed on /key/info ({info_resp.status_code}): "
-                f"{info_resp.text[:200]}",
-            )
-        if info_resp.status_code >= 500:
-            return CheckResult(
-                ok=False,
-                message=f"tracking auth failed on /key/info ({info_resp.status_code}): "
-                f"{info_resp.text[:200]}",
-            )
-        return CheckResult(
-            ok=True,
-            message=f"tracking auth accepted by /key/info ({info_resp.status_code})",
-        )
-    except Exception as exc:
-        return CheckResult(ok=False, message=f"tracking auth check failed: {exc}")
 
 
 def main() -> int:

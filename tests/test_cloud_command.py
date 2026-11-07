@@ -6222,6 +6222,7 @@ class TestPreflight:
         assert config.cloud is not None
         assert config.cloud.remote is not None
         config = config.model_copy(deep=True)
+        config.skip_litellm = True
         config.cloud.remote.experiment_root = None
         return config
 
@@ -6244,6 +6245,7 @@ class TestPreflight:
         from crsbench.cloud.models import build_cloud_launch_plan
 
         config = _make_provider_neutral_experiment_config()
+        config.skip_litellm = True
         mock_load_config.return_value = config
 
         launch_plan = build_cloud_launch_plan(config)
@@ -6308,6 +6310,72 @@ class TestPreflight:
         assert "defaults" in output
         assert "environment" in output
 
+    @pytest.mark.parametrize("tracking_ok", [True, False])
+    def test_preflight_tracking_result_controls_json_verdict(self, tracking_ok, capsys):
+        from crsbench.cloud.cli._preflight import run_preflight
+        from crsbench.cloud.models import build_cloud_launch_plan
+        from crsbench.cloud.preflight import CloudLaunchPreflight
+        from crsbench.utils.litellm_preflight import CheckResult
+
+        config = _make_provider_neutral_experiment_config()
+        config.litellm_cost_budget = 2.0
+        plan = build_cloud_launch_plan(config)
+        worker_env = {
+            "CRSBENCH_LLM_UPSTREAM_BASE_URL": "https://tailnet.example",
+            "CRSBENCH_LLM_UPSTREAM_MASTER_KEY": "sk-do-not-report",
+        }
+        resolved_plan = dataclasses.replace(
+            plan,
+            worker_placements=[
+                dataclasses.replace(placement, env=worker_env)
+                for placement in plan.worker_placements
+            ],
+        )
+        preflight = CloudLaunchPreflight(resolved_plan=resolved_plan)
+        result = CheckResult(
+            tracking_ok,
+            "Temporary key deleted"
+            if tracking_ok
+            else "POST /key/generate returned HTTP 403",
+        )
+        with (
+            patch(
+                "crsbench.cloud.cli._preflight.load_experiment_config",
+                return_value=config,
+            ),
+            patch(
+                "crsbench.cloud.cli._preflight.find_launch_target_conflicts",
+                return_value=[],
+            ),
+            patch(
+                "crsbench.cloud.cli._preflight.prepare_launch_inputs",
+                return_value=preflight,
+            ),
+            patch("crsbench.cloud.cli._preflight.QuotaValidator"),
+            patch(
+                "crsbench.cloud.cli._preflight.check_tracking_auth", return_value=result
+            ) as probe,
+        ):
+            rc = run_preflight(_make_preflight_args(json_output=True))
+
+        output = capsys.readouterr().out
+        payload = json.loads(output)
+        assert rc == (0 if tracking_ok else 1)
+        assert payload["verdict"] == ("ready" if tracking_ok else "blocked")
+        tracking_checks = [
+            c
+            for c in payload["checks"]
+            if c["name"].startswith("litellm_tracking_worker_")
+        ]
+        assert len(tracking_checks) == 2
+        assert all(
+            c["status"] == ("pass" if tracking_ok else "fail") for c in tracking_checks
+        )
+        assert "sk-do-not-report" not in output
+        probe.assert_called_once_with(
+            "https://tailnet.example", "sk-do-not-report", max_budget=2.0
+        )
+
     @patch("crsbench.cloud.cli._preflight.build_cloud_launch_plan")
     @patch("crsbench.cloud.cli._preflight.load_experiment_config")
     def test_preflight_requires_cloud_config_as_usage_error(
@@ -6335,6 +6403,7 @@ class TestPreflight:
         from crsbench.cloud.models import build_cloud_launch_plan
 
         config = _make_provider_neutral_experiment_config()
+        config.skip_litellm = True
         mock_load_config.return_value = config
 
         launch_plan = build_cloud_launch_plan(config)
@@ -6808,6 +6877,7 @@ class TestPreflight:
         from crsbench.cloud.models import build_cloud_launch_plan
 
         config = _make_provider_neutral_experiment_config()
+        config.skip_litellm = True
         mock_load_config.return_value = config
 
         launch_plan = build_cloud_launch_plan(config)

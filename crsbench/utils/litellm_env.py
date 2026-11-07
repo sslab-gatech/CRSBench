@@ -53,7 +53,7 @@ def resolve_litellm_runtime_env(
     mode: str, environ: Mapping[str, str] | None = None
 ) -> LiteLLMRuntimeEnv:
     """Resolve canonical CRSBench LiteLLM env vars."""
-    env = environ or os.environ
+    env = os.environ if environ is None else environ
     return LiteLLMRuntimeEnv(
         mode=mode,
         base_url=_first_non_empty(

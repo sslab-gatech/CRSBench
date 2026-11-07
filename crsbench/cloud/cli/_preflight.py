@@ -1,4 +1,4 @@
-"""Read-only launch readiness report for provider-neutral cloud configs."""
+"""Launch readiness report without provisioning cloud resources."""
 
 from __future__ import annotations
 
@@ -21,11 +21,17 @@ from crsbench.cloud.providers import (
     provider_adapter_for_launch_plan,
 )
 from crsbench.cloud.quota import QuotaValidator
+from crsbench.utils.litellm_env import (
+    required_env_errors_for_mode,
+    resolve_litellm_runtime_env,
+)
+from crsbench.utils.litellm_preflight import CheckResult, check_tracking_auth
 from crsbench.utils.logger import get_logger
 
 if TYPE_CHECKING:
     import argparse
 
+    from crsbench.cloud.preflight import CloudLaunchPreflight
     from crsbench.validation.schemas import ExperimentConfig
 
 
@@ -37,7 +43,7 @@ _RUNTIME_MANAGED_ENV_KEYS = [
 
 
 def run_preflight(args: argparse.Namespace) -> int:
-    """Print a read-only launch readiness report without provisioning anything."""
+    """Check launch inputs and LiteLLM key management without provisioning VMs."""
     config_path = Path(args.config)
     try:
         config = load_experiment_config(config_path)
@@ -181,6 +187,8 @@ def run_preflight(args: argparse.Namespace) -> int:
         )
     )
 
+    checks.extend(_litellm_tracking_checks(config, preflight))
+
     remote_root_warning = _remote_root_warning_check(config)
     if remote_root_warning is not None:
         checks.append(remote_root_warning)
@@ -192,6 +200,48 @@ def run_preflight(args: argparse.Namespace) -> int:
         checks=checks,
     )
     return _emit_report(report, strict=args.strict, json_output=args.json_output)
+
+
+def _litellm_tracking_checks(
+    config: ExperimentConfig,
+    preflight: CloudLaunchPreflight,
+) -> list[CloudPreflightCheck]:
+    """Probe effective worker credentials once per distinct URL/master-key pair."""
+    if config.skip_litellm or not config.llm_tracking_enabled:
+        return []
+
+    checks = []
+    results: dict[tuple[str, str], CheckResult] = {}
+    for index, placement in enumerate(preflight.resolved_plan.worker_placements):
+        runtime_env = resolve_litellm_runtime_env(
+            config.litellm_mode or "external", placement.env
+        )
+        errors = required_env_errors_for_mode(runtime_env, tracking_enabled=True)
+        base_url = runtime_env.tracking_base_url
+        master_key = runtime_env.master_key
+        if errors or not base_url or not master_key:
+            result = CheckResult(
+                ok=False, message="; ".join(errors) or "Missing LiteLLM URL/master key"
+            )
+        else:
+            identity = (base_url.rstrip("/"), master_key)
+            if identity not in results:
+                results[identity] = check_tracking_auth(
+                    base_url, master_key, max_budget=config.litellm_cost_budget
+                )
+            result = results[identity]
+        checks.append(
+            CloudPreflightCheck(
+                name=f"litellm_tracking_worker_{index}",
+                status=(
+                    CloudPreflightCheckStatus.PASS
+                    if result.ok
+                    else CloudPreflightCheckStatus.FAIL
+                ),
+                summary=f"Worker placement {index}: {result.message}",
+            )
+        )
+    return checks
 
 
 def _build_report(
