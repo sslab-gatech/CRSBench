@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
-import logging
+import logging  # noqa: TID251 - standalone wrapper uses stdlib logging
 from dataclasses import dataclass, field
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 log = logging.getLogger(__name__)
 

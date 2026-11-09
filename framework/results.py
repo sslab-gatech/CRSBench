@@ -8,12 +8,14 @@ import json
 import statistics
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
 
 import yaml
 
-from framework.config import RunnerConfig
 from framework.errors import FrameworkError
+
+if TYPE_CHECKING:
+    from framework.config import RunnerConfig
 
 TRIAL_COLUMNS = [
     "experiment_name",
@@ -155,11 +157,7 @@ def parse_trial(
     raw_povs = store.get("povs") or {}
     if not isinstance(raw_povs, dict):
         raw_povs = {}
-    entries = [
-        entry
-        for entry in raw_povs.values()
-        if isinstance(entry, dict)
-    ]
+    entries = [entry for entry in raw_povs.values() if isinstance(entry, dict)]
     cpv_entries = [entry for entry in entries if entry.get("status") == "cpv"]
     unintended = [
         entry for entry in entries if entry.get("status") == "unintended_crash"
@@ -169,9 +167,7 @@ def parse_trial(
     ]
     errors = [entry for entry in entries if entry.get("status") in {"error", "timeout"}]
     found_cpvs = {
-        str(cpv)
-        for entry in cpv_entries
-        for cpv in (entry.get("cpv_matched") or [])
+        str(cpv) for entry in cpv_entries for cpv in (entry.get("cpv_matched") or [])
     }
     benchmark = str(metadata.get("benchmark", ""))
     harness = str(metadata.get("harness", ""))
@@ -252,9 +248,7 @@ def parse_experiment(
     for trial_dir in trial_dirs:
         if not (trial_dir / "metadata.json").is_file():
             continue
-        row, found, signatures = parse_trial(
-            trial_dir, benchmarks_dir, experiment_name
-        )
+        row, found, signatures = parse_trial(trial_dir, benchmarks_dir, experiment_name)
         found_by_trial[id(row)] = found
         signatures_by_trial[id(row)] = signatures
         trial_rows.append(row)
@@ -275,9 +269,7 @@ def parse_experiment(
             )
         known_total = sum(harness_totals.values())
         found_union = set().union(*(found_by_trial[id(row)] for row in rows))
-        signature_union = set().union(
-            *(signatures_by_trial[id(row)] for row in rows)
-        )
+        signature_union = set().union(*(signatures_by_trial[id(row)] for row in rows))
         known = sum(int(row["known_pov_count"]) for row in rows)
         unintended_count = sum(int(row["unintended_crash_pov_count"]) for row in rows)
         not_vuln = sum(int(row["not_vulnerable_pov_count"]) for row in rows)

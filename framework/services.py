@@ -236,9 +236,22 @@ def _worker_tree_roots(processes: dict[int, tuple[int, str]]) -> set[int]:
         roots.add(root)
 
     for worker_pid, (_parent, command) in processes.items():
-        # If it's an RQ worker for CRSBench, it MUST die regardless of ancestry
-        if "rq:worker:" in command and "crsbench" in command:
+        if "rq:worker:" not in command or "crsbench" not in command:
+            continue
+
+        current = worker_pid
+        visited: set[int] = set()
+        has_launcher_ancestor = False
+        while current in processes and current not in visited:
+            visited.add(current)
+            if current in launchers:
+                has_launcher_ancestor = True
+                break
+            current = processes[current][0]
+
+        if not has_launcher_ancestor:
             roots.add(worker_pid)
+
     return roots
 
 

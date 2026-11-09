@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 from datetime import date
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import yaml
 
-from framework.cleanup import Manifest
-from framework.config import RunnerConfig
 from framework.errors import FrameworkError
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from framework.cleanup import Manifest
+    from framework.config import RunnerConfig
 
 
 def check_benchmarks(cfg: RunnerConfig, repo_root: Path) -> None:

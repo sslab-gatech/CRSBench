@@ -103,11 +103,7 @@ def collect(benchmarks_dir: Path) -> list[dict[str, Any]]:
 def write(rows: list[dict[str, Any]], output: Path | None, delimiter: str) -> None:
     if output:
         output.parent.mkdir(parents=True, exist_ok=True)
-    handle = (
-        output.open("w", newline="", encoding="utf-8")
-        if output
-        else sys.stdout
-    )
+    handle = output.open("w", newline="", encoding="utf-8") if output else sys.stdout
     try:
         writer = csv.DictWriter(
             handle, fieldnames=COLUMNS, delimiter=delimiter, lineterminator="\n"

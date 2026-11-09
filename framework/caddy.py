@@ -3,16 +3,18 @@
 from __future__ import annotations
 
 import json
-import logging
+import logging  # noqa: TID251 - standalone wrapper uses stdlib logging
 import os
 import subprocess
 import time
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Mapping
+from typing import TYPE_CHECKING, Mapping
 
 from framework.config import RunnerConfig, normalize_host
 from framework.errors import FrameworkError
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 log = logging.getLogger(__name__)
 
@@ -77,9 +79,7 @@ def _curl(args: list[str], url: str, timeout: float) -> tuple[int, str]:
         raise FrameworkError(f"curl returned an invalid HTTP status for {url}") from exc
 
 
-def list_models(
-    host: str, api_key: str, timeout: float = LIST_TIMEOUT
-) -> list[str]:
+def list_models(host: str, api_key: str, timeout: float = LIST_TIMEOUT) -> list[str]:
     """curl {host}/v1/models and return the model ids."""
     url = f"{host}/v1/models"
     status, body = _curl(["-H", f"Authorization: Bearer {api_key}"], url, timeout)
