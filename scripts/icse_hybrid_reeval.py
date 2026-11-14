@@ -75,6 +75,8 @@ def inspect_trial(path: Path, record: dict, experiment: str) -> dict:
         if not marker.with_suffix(".tar.gz").is_file():
             problems.append(f"missing complete snapshot: {marker.name}")
     pov_dir = path / "output/povs"
+    if success and not invalid and not pov_dir.is_dir():
+        problems.append("missing output/povs directory in completed execution")
     povs = sorted(p for p in pov_dir.glob("*") if not p.name.startswith("."))
     if any(not p.is_file() for p in povs):
         problems.append("non-file or broken symlink in output/povs")
@@ -84,6 +86,13 @@ def inspect_trial(path: Path, record: dict, experiment: str) -> dict:
             data = json.loads(store.read_text())
             if not isinstance(data.get("povs"), dict):
                 problems.append("invalid POV store")
+            elif (
+                success
+                and not invalid
+                and data["povs"]
+                and not any(p.is_file() for p in povs)
+            ):
+                problems.append("empty output/povs contradicts recorded POVs")
         except (OSError, ValueError, AttributeError):
             problems.append("unreadable POV store")
     return {

@@ -158,13 +158,27 @@ def test_sampling_survives_preparation_path_changes_and_zero_povs(collection, tm
     ).read_bytes()
     for p in (source / "output/povs").iterdir():
         p.unlink()
+    write_json(
+        source / "povs/pov_store.json",
+        {"crs_run_start_time": 1782777600.0, "povs": {}, "cpv_to_first_pov": {}},
+    )
     empty = prepare(audit(plan, inputs), tmp_path / "empty", 3)
     assert not verify(empty)["problems"]
     finalize(empty)
 
 
 @pytest.mark.parametrize(
-    "problem", ["seed", "partial", "unfinished", "metadata", "snapshot", "duplicate"]
+    "problem",
+    [
+        "seed",
+        "partial",
+        "unfinished",
+        "metadata",
+        "snapshot",
+        "missing_povs",
+        "empty_povs",
+        "duplicate",
+    ],
 )
 def test_audit_rejects_invalid_executions_and_corrupt_or_duplicate_collections(
     collection, tmp_path, problem
@@ -182,6 +196,11 @@ def test_audit_rejects_invalid_executions_and_corrupt_or_duplicate_collections(
         write_json(source / "metadata.json", metadata)
     elif problem == "snapshot":
         (source / "snapshot-0001.complete").touch()
+    elif problem == "missing_povs":
+        shutil.rmtree(source / "output/povs")
+    elif problem == "empty_povs":
+        for p in (source / "output/povs").iterdir():
+            p.unlink()
     else:
         root = tmp_path / "duplicate"
         shutil.copytree(inputs["first"][0], root)

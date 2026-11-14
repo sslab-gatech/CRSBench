@@ -8,7 +8,14 @@ A partial collection is not the final study denominator.
 ## Audit collections
 
 Keep each cloud launch's collection separate. For a live fleet, collect into
-a fresh destination; do not overwrite older attempts or tear down the fleet:
+a fresh destination; do not overwrite older attempts or tear down the fleet.
+When collecting the same live launch again, keep both raw snapshots but pass
+only its newest verified snapshot to the audit. First confirm it still contains
+every previously collected completed identity and its raw POV files. Passing
+two snapshots containing the same completed execution intentionally blocks as
+a duplicate; it does not represent an additional scientific trial.
+
+For the current launch:
 
 ```bash
 uv run crsbench cloud \
@@ -70,7 +77,10 @@ the prepared store starts empty. Unsampled original verdicts are not inherited.
 This makes results an explicit sampled re-evaluation rather than a mixture of
 old and new verification. The old `merge_reeval_into_source.py` overlay is not
 used. Trials with a completed CRS run and no POVs remain represented as zero
-findings.
+findings. A zero-POV execution must have an existing empty `output/povs`
+directory; a missing directory is collection damage, not evidence of zero POVs.
+An empty directory that contradicts a nonempty original POV store also blocks
+preparation.
 
 The generated script runs the existing `re-eval --local` CLI in place on that
 isolated tree, then finalizes the stores and generates CSV reports. It uses
@@ -110,7 +120,12 @@ rates or discovery times from the sampled subset.
 invalid runs and pending keys, even though only eligible completed trials
 appear in the prepared analysis tree. Keep it alongside the reports. When
 more cloud trials finish, collect separately and prepare a new destination
-from all collections. Do not overwrite a prepared or already evaluated sample.
+using the first, original remaining and reduced-A collections plus the newest
+verified snapshot of the current launch. Replace the older snapshot argument
+for that same launch; do not pass both snapshots. If the newest snapshot no
+longer contains earlier completed results, retain those earlier identities in
+an explicitly audited staging collection before preparing. Do not overwrite
+a prepared or already evaluated sample.
 The generated config and runner contain absolute local paths; regenerate the
 preparation on another host using its collections and checkout rather than
 running an unchanged local runner on a remote worker.
