@@ -55,14 +55,16 @@ uv run python scripts/icse_hybrid_reeval.py prepare \
   --first .run/icse-hybrid/first \
   --remaining .run/icse-hybrid/remaining .run/icse-hybrid/reduced10-a \
     .run/icse-hybrid/remaining-youngjoon-20-audit-20261114 \
-  --sample-size 100 \
-  --output .run/icse-hybrid/local-reeval-20261114
+  --sample-size 500 \
+  --output .run/icse-hybrid/local-reeval-500-20261114
 
-bash .run/icse-hybrid/local-reeval-20261114/run-local.sh
+bash .run/icse-hybrid/local-reeval-500-20261114/run-local.sh
 ```
 
-The default cap is 100 POV files per trial; use `--sample-size 1000` for the
-larger historical cap or `0` for all files. Files are ordered by modification
+The study cap and default are 500 POV files per trial. The preparation tool
+accepts only caps from 1 through 500; uncapped and larger samples are rejected.
+The earlier 100-file preparation is retained as a separate historical artifact.
+Files are ordered by modification
 time and filename, divided into equal-count buckets, and one file is selected
 from each bucket. The canonical trial key is the random seed, so relocating
 the preparation does not change the sample. The manifest records filenames,
@@ -129,3 +131,53 @@ a prepared or already evaluated sample.
 The generated config and runner contain absolute local paths; regenerate the
 preparation on another host using its collections and checkout rather than
 running an unchanged local runner on a remote worker.
+
+## Other servers and the existing remote re-evaluation paths
+
+Re-evaluation is not tied to cyclonus. An ordinary SSH server can run the
+same `crsbench re-eval --local` command when it has the matching CRSBench
+checkout, pinned OSS-Fuzz helpers, Docker access and benchmark ground-truth
+packages. Transfer collection inputs with `rsync -a` to preserve discovery
+mtimes, transfer the frozen trial plan, and run `prepare` in that server's
+checkout. This regenerates the absolute config/runner paths for that host.
+Keep the 500-file cap, timeout and source/build policy the same. A successful
+SSH or Docker probe alone does not establish that the runtime and ground
+truth match; verify those before starting paper-data verification.
+
+Two existing distributed entry points are also available:
+
+- `crsbench re-eval -c CONFIG --redis-host HOST:6379` submits verification
+  through the configured distributed queues to evaluator processes. This
+  requires a working evaluator runtime and its build prerequisites, not just
+  remote CRS workers.
+- `crsbench cloud --config CONFIG re-eval --from EXPERIMENT_TREE
+  --remote-experiment NAME` packages inputs and provisions a GCE orchestrator
+  and evaluator fleet, without CRS worker VMs. `CONFIG` must contain cloud
+  configuration; the minimal local `reeval.yaml` is not a cloud launch config.
+  Collection uses the existing cloud collection workflow. Do not use the
+  active finding experiment's identity/state for a new re-evaluation fleet.
+
+The cloud implementation is in `crsbench/cloud/reeval_bundle.py`,
+`crsbench/cloud/reeval_remote.py`, and `crsbench/cloud/cli/_reeval.py`. It was
+introduced by `a61ad3b3` (`feat(cloud): add distributed cloud re-eval flow`).
+The old `scripts/orchestrate-workers.sh` targets historical machine/user/path
+layouts and CRS workers; it is not a portable re-evaluation launcher.
+
+There are two study-specific requirements before using distributed execution:
+
+- Set `CRSBENCH_REEVAL_POV_SAMPLE_SIZE=0` in the remote coordinator's effective
+  environment, including any dotenv override. The input is already capped at
+  500; a remote default of 100 would silently reduce it again. Check the
+  returned hashes against the frozen sample manifest before accepting results.
+- The existing cloud bundle selects only trials with nonempty re-evaluation
+  inputs. In the current 80-trial collection it selects 76 trials and skips
+  the four genuine zero-POV executions. Keep those four in the unified
+  analysis tree and audit; do not compute the paper denominator from the
+  remote bundle's selected-trial count. Bring verified stores back to their
+  matching relative paths in that tree, then use `finalize` and the local
+  reporting workflow. Unreturned/error verdicts remain unresolved.
+
+Remote runtime compatibility requires the same committed revision. Ground-truth
+package identity must also be checked; matching benchmark names alone does
+not prove that their data is identical. Server readiness probes and bundle
+checks are inspection only and do not launch verification or provision VMs.

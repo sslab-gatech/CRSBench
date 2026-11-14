@@ -229,3 +229,14 @@ def test_finalize_refuses_missing_error_and_mutated_sample(collection, tmp_path)
     assert not verify(prepared)["problems"]
     pov.write_bytes(b"changed")
     assert verify(prepared)["problems"]
+
+
+@pytest.mark.parametrize("sample_size", [0, -1, 501, 1000])
+def test_preparation_enforces_study_cap_before_writing(
+    collection, tmp_path, sample_size
+):
+    plan, inputs, _ = collection
+    output = tmp_path / "rejected"
+    with pytest.raises(ValueError, match="between 1 and 500"):
+        prepare(audit(plan, inputs), output, sample_size)
+    assert not output.exists()

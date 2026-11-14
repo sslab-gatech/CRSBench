@@ -20,6 +20,8 @@ from crsbench.experiment.trial_selection import _resolve_wrapped_collected_root
 from crsbench.reporting.metrics import resolve_trial_anchor
 from crsbench.reporting.models import TrialMetadataFile
 
+MAX_POV_SAMPLE_SIZE = 500
+
 
 def write_json(path: Path, data: dict) -> None:
     path.write_text(json.dumps(data, indent=2) + "\n")
@@ -176,8 +178,8 @@ def audit(plan: dict, inputs: dict[str, list[Path]]) -> dict:
 
 def prepare(report: dict, output: Path, sample_size: int) -> Path:
     """Copy a frozen sample; fresh verdicts never inherit the undrained live store."""
-    if sample_size < 0:
-        raise ValueError("sample size must be nonnegative (0 means all)")
+    if not 1 <= sample_size <= MAX_POV_SAMPLE_SIZE:
+        raise ValueError(f"sample size must be between 1 and {MAX_POV_SAMPLE_SIZE}")
     if report["blockers"]:
         raise ValueError(f"Resolve collection blockers first: {report['blockers']}")
     if output.exists():
@@ -375,7 +377,7 @@ def main() -> int:
         p.add_argument("--remaining", type=Path, nargs="+", required=True)
         p.add_argument("--output", type=Path, required=True)
         if command == "prepare":
-            p.add_argument("--sample-size", type=int, default=100)
+            p.add_argument("--sample-size", type=int, default=MAX_POV_SAMPLE_SIZE)
     for command in ("verify", "finalize"):
         p = sub.add_parser(command)
         p.add_argument("prepared", type=Path)
