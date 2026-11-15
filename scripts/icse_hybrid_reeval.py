@@ -271,6 +271,9 @@ def prepare(report: dict, output: Path, sample_size: int) -> Path:
                 "source_mode": "pkgs",
                 "inc_build_enabled": False,
                 "per_pov_verify_timeout": 300,
+                # The distributed coordinator drains every sampled POV in one
+                # batch. Its default 7200s is shorter than this workload.
+                "verify_timeout": 172800,
             },
             "storage": {"experiment_filestore": str(output / "experiment-data")},
         }

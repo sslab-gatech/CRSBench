@@ -131,6 +131,10 @@ a prepared or already evaluated sample.
 The generated config and runner contain absolute local paths; regenerate the
 preparation on another host using its collections and checkout rather than
 running an unchanged local runner on a remote worker.
+The generated config sets `verify_timeout` to 48 hours. Distributed re-eval
+drains all sampled POVs in one batch; the engine's default two-hour deadline
+can expire while healthy evaluators still have a large backlog. This deadline
+still bounds stalled runs, and individual POVs retain their 300-second limit.
 
 ## Other servers and the existing remote re-evaluation paths
 

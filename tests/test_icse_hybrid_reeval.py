@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
+import yaml
 from crsbench.evaluation.reeval.cli import _reeval_bug_finding, _resolve_experiment_dir
 from crsbench.evaluation.verification.models import (
     PovVerificationResult,
@@ -90,6 +91,12 @@ def test_prepare_and_actual_local_reeval_preserve_originals_and_first_match(
     assert report["counts"]["selected"] == 1
     assert report["counts"]["undrained"] == 1
     prepared = prepare(report, tmp_path / "prepared", 4)
+    assert (
+        yaml.safe_load((prepared / "reeval.yaml").read_text())["runtime"][
+            "verify_timeout"
+        ]
+        == 172800
+    )
     manifest = json.loads((prepared / "sample-manifest.json").read_text())
     trial = manifest["trials"][0]
     tree = prepared / "experiment-data" / manifest["experiment"]
