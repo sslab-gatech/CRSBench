@@ -487,6 +487,13 @@ variant succeeded before tagging its verification backlog. If startup pre-builds
 are intentionally enabled with strict routing, set `resources.cpu_tag` in the
 evaluator config to the same `TAG`; `--cpu-tag` alone does not tag those jobs.
 
+Evaluator RQ results are compressed losslessly when their serialized value is
+large. POV crash output can otherwise exceed Redis/Valkey's single bulk value
+limit and leave a completed verification job failed without a verdict. The
+coordinator reads the same result structure after decompression. Evaluators
+and the coordinator must run a revision that includes the result payload
+decoder before large compressed results are produced.
+
 Config v2 evaluator defaults use unified knobs:
 - `evaluator.jobs` (default: unset; runtime falls back to one build job when no
   explicit build concurrency is configured)

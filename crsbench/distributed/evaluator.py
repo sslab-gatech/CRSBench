@@ -33,6 +33,7 @@ from crsbench.distributed.queue import (
     resolve_evaluator_local_queue_names,
 )
 from crsbench.distributed.registry import RuntimeRegistration
+from crsbench.distributed.result_payload import compact_result_for_redis
 from crsbench.evaluation.results import TrialResult
 from crsbench.utils.benchmark_utils import filter_benchmarks_by_mode
 from crsbench.utils.cpu_pool import auto_cores_per_job, visible_cpu_count
@@ -766,7 +767,7 @@ def _run_single_job(
                         job,
                         Result.Type.FAILED,
                         ttl=-1,
-                        return_value=result,
+                        return_value=compact_result_for_redis(result),
                         exc_string=exc_string,
                         pipeline=pipeline,
                     )
@@ -796,7 +797,7 @@ def _run_single_job(
                         job,
                         Result.Type.SUCCESSFUL,
                         ttl=-1,
-                        return_value=result,
+                        return_value=compact_result_for_redis(result),
                         pipeline=pipeline,
                     )
                     if execution:
