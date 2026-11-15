@@ -5,6 +5,8 @@ import zlib
 from typing import Any
 
 _COMPRESS_AT_BYTES = 1024 * 1024
+# RQ base64-encodes the value, so leave room below Redis's 512 MiB bulk cap.
+_MAX_STORED_RETURN_BYTES = 380 * 1024 * 1024
 
 
 def _restore_compressed_result(payload: bytes) -> Any:
@@ -36,5 +38,11 @@ def compact_result_for_redis(result: Any) -> Any:
         return result
     compressed = zlib.compress(serialized, level=1)
     if len(compressed) >= len(serialized):
+        if len(serialized) > _MAX_STORED_RETURN_BYTES:
+            raise ValueError(
+                "RQ result exceeds the Redis bulk limit even after compression"
+            )
         return result
+    if len(compressed) > _MAX_STORED_RETURN_BYTES:
+        raise ValueError("Compressed RQ result exceeds the Redis bulk limit")
     return _CompressedResult(compressed)

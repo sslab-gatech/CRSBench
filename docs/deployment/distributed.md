@@ -492,7 +492,9 @@ large. POV crash output can otherwise exceed Redis/Valkey's single bulk value
 limit and leave a completed verification job failed without a verdict. The
 coordinator reads the same result structure after decompression. Evaluators
 and the coordinator must run a revision that includes the result payload
-decoder before large compressed results are produced.
+decoder before large compressed results are produced. An incompressible result
+that still exceeds Redis's bulk limit fails explicitly so it can be handled
+without treating an incomplete verdict as valid.
 
 Config v2 evaluator defaults use unified knobs:
 - `evaluator.jobs` (default: unset; runtime falls back to one build job when no

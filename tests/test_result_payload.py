@@ -3,6 +3,8 @@
 import os
 from unittest.mock import MagicMock
 
+import pytest
+from crsbench.distributed import result_payload
 from crsbench.distributed.result_payload import compact_result_for_redis
 from rq.results import Result
 
@@ -49,3 +51,13 @@ def test_incompressible_result_still_round_trips_through_rq() -> None:
         Result.restore("verify-2", "1-0", redis_payload, MagicMock()).return_value
         == verdict
     )
+
+
+def test_oversized_incompressible_result_fails_with_clear_limit(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(result_payload, "_COMPRESS_AT_BYTES", 1)
+    monkeypatch.setattr(result_payload, "_MAX_STORED_RETURN_BYTES", 512)
+
+    with pytest.raises(ValueError, match="Redis bulk limit"):
+        compact_result_for_redis({"binary_evidence": os.urandom(1024)})
