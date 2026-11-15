@@ -462,10 +462,20 @@ uv run crsbench evaluator \
 | `--verify-cores-per-job` | Advanced split override: CPUs per verify job | From evaluator config/default policy |
 | `--cpuset` | CPU cores (count or range, e.g., `112-127`) | CPU affinity disabled unless set |
 | `--skip-cpuset` | CPUs to exclude (e.g., `0-3,8-11`) | None |
-| `--cpu-tag` | Run only jobs matching this capability tag | None |
+| `--cpu-tag` | Run untagged jobs and jobs matching this capability tag | None |
 | `--idle-timeout` | Exit after N idle seconds once queues drain | `0` |
 | `--worker-name` | Evaluator instance name in logs/metadata | Mode-specific auto-generated name (`configless-evaluator` / `ci-evaluator` / `evaluator-<experiment>`) |
 | `--ci` | Use CI queue aliases (`crsbench_ci_*`) | Off |
+
+For an evaluator dedicated to one set of jobs, set
+`CRSBENCH_EVALUATOR_STRICT_CPU_TAG=1` and pass `--cpu-tag TAG`. It then claims
+only jobs whose Redis metadata contains `cpu_tag=TAG`; untagged evaluators
+already skip tagged jobs. Apply the tag to queued build and verify jobs for the
+same benchmark. Jobs already running elsewhere finish there, so a live routing
+change becomes exclusive after those jobs drain. If the dedicated evaluator
+stops, its tagged jobs stay queued until a matching evaluator returns or an
+operator removes the tag. The strict setting changes only evaluator selection;
+it does not alter build or verdict logic.
 
 Config v2 evaluator defaults use unified knobs:
 - `evaluator.jobs` (default: unset; runtime falls back to one build job when no

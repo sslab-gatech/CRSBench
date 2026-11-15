@@ -571,6 +571,33 @@ class TestCiSupervisorQueues:
         assert candidates == [[]]
         queue.connection.lrem.assert_called_once_with(queue.key, 1, "missing-job")
 
+    def test_strict_cpu_tag_selects_only_dedicated_queue_jobs(self) -> None:
+        """A dedicated evaluator must leave other shared-queue jobs untouched."""
+        from crsbench.distributed.ci_supervisor import _queue_candidates
+
+        queue = _make_mock_queue("crsbench_icse_verify", count=3)
+        queue.get_job_ids.return_value = ["untagged", "dedicated", "other"]
+        jobs = []
+        for job_id, tag in (
+            ("untagged", None),
+            ("dedicated", "ramjet-tika"),
+            ("other", "other-host"),
+        ):
+            job = MagicMock(id=job_id, meta={"cpu_tag": tag} if tag else {})
+            jobs.append(job)
+
+        with (
+            patch.dict("os.environ", {"CRSBENCH_EVALUATOR_STRICT_CPU_TAG": "1"}),
+            patch("crsbench.distributed.ci_supervisor.rq") as mock_rq,
+        ):
+            mock_rq.job.Job.fetch_many.return_value = jobs
+            candidates = _queue_candidates([queue], worker_cpu_tag="ramjet-tika")
+
+        assert [[candidate.job_id for candidate in group] for group in candidates] == [
+            ["dedicated"]
+        ]
+        queue.connection.lrem.assert_not_called()
+
     def test_recover_stuck_fair_claims_restores_abandoned_intermediate_job(
         self,
     ) -> None:
@@ -2113,6 +2140,20 @@ class TestHelperFunctions:
         assert _matches_cpu_tag(untagged_job, "x86-avx2") is True
         assert _matches_cpu_tag(matching_job, "x86-avx2") is True
         assert _matches_cpu_tag(mismatching_job, "x86-avx2") is False
+
+    def test_strict_evaluator_cpu_tag_accepts_only_matching_jobs(self) -> None:
+        """Exclusive evaluators must not claim unrelated untagged jobs."""
+        from crsbench.distributed.ci_supervisor import _matches_cpu_tag
+
+        untagged_job = MagicMock(meta={})
+        matching_job = MagicMock(meta={"cpu_tag": "ramjet-tika"})
+        other_job = MagicMock(meta={"cpu_tag": "other-host"})
+
+        with patch.dict("os.environ", {"CRSBENCH_EVALUATOR_STRICT_CPU_TAG": "1"}):
+            assert _matches_cpu_tag(untagged_job, "ramjet-tika") is False
+            assert _matches_cpu_tag(matching_job, "ramjet-tika") is True
+            assert _matches_cpu_tag(other_job, "ramjet-tika") is False
+            assert _matches_cpu_tag(untagged_job, None) is True
 
     def test_queues_blocked_only_by_cpu_tag_detects_prefiltered_livelock(self) -> None:
         """Helper should report cpu-tag-only backlogs for tagged and untagged workers."""

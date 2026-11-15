@@ -1730,7 +1730,11 @@ def _matches_cpu_tag(job: "rq.job.Job", worker_cpu_tag: Optional[str]) -> bool:
     if not normalized_worker_tag:
         return normalized_job_tag is None
 
-    # Tagged workers can run untagged jobs plus matching tagged jobs.
+    # Opt-in exclusive routing lets a tagged evaluator serve only its own jobs.
+    if os.environ.get("CRSBENCH_EVALUATOR_STRICT_CPU_TAG") == "1":
+        return normalized_job_tag == normalized_worker_tag
+
+    # By default, tagged workers can also run untagged jobs.
     if normalized_job_tag is None:
         return True
     return normalized_job_tag == normalized_worker_tag
