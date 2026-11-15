@@ -118,6 +118,45 @@ class TestRunEvaluatorMain:
         assert result == 0
 
     @patch("crsbench.distributed.evaluator.REDIS_AVAILABLE", new=True)
+    @patch("crsbench.distributed.evaluator._enqueue_pre_builds")
+    @patch("crsbench.distributed.ci_supervisor.run_ci_supervisor")
+    @patch("crsbench.distributed.evaluator_jobs.set_engine")
+    def test_live_queue_evaluator_skips_startup_prebuild(
+        self,
+        mock_set_engine: MagicMock,
+        mock_supervisor: MagicMock,
+        mock_enqueue_pre_builds: MagicMock,
+        monkeypatch,
+    ) -> None:
+        """Joining a live queue must not replace existing build job IDs."""
+        from crsbench.distributed.evaluator import run_evaluator_main
+
+        monkeypatch.setenv("CRSBENCH_EVALUATOR_SKIP_PREBUILD", "1")
+        monkeypatch.setenv("CRSBENCH_EVALUATOR_STRICT_CPU_TAG", "1")
+        mock_supervisor.return_value = 0
+        config = MagicMock()
+        config.oss_fuzz_path = "/tmp/oss-fuzz"
+        config.per_pov_verify_timeout = 180
+
+        with patch("crsbench.evaluation.verification.pov.engine.VerificationEngine"):
+            result = run_evaluator_main(
+                config, "exp-test", build_jobs=2, cpu_tag="ramjet-tika"
+            )
+
+        assert result == 0
+        mock_set_engine.assert_called_once()
+        mock_enqueue_pre_builds.assert_not_called()
+        mock_supervisor.assert_called_once()
+
+    @patch("crsbench.distributed.evaluator.REDIS_AVAILABLE", new=True)
+    def test_strict_evaluator_rejects_missing_cpu_tag(self, monkeypatch) -> None:
+        """A missing tag must never turn exclusive routing into shared routing."""
+        from crsbench.distributed.evaluator import run_evaluator_main
+
+        monkeypatch.setenv("CRSBENCH_EVALUATOR_STRICT_CPU_TAG", "1")
+        assert run_evaluator_main(MagicMock(), "exp-test", build_jobs=2) == 1
+
+    @patch("crsbench.distributed.evaluator.REDIS_AVAILABLE", new=True)
     @patch("crsbench.distributed.ci_supervisor.run_ci_supervisor")
     @patch("crsbench.distributed.evaluator.start_claim_thread")
     @patch("crsbench.distributed.evaluator.start_dispatcher_warmup_thread")

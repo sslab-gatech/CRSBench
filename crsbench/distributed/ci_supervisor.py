@@ -1726,12 +1726,13 @@ def _matches_cpu_tag(job: "rq.job.Job", worker_cpu_tag: Optional[str]) -> bool:
     raw_job_tag = job.meta.get("cpu_tag")
     normalized_job_tag = normalize_cpu_tag(str(raw_job_tag) if raw_job_tag else None)
 
-    # Untagged workers only run untagged jobs.
+    strict_tag = os.environ.get("CRSBENCH_EVALUATOR_STRICT_CPU_TAG") == "1"
+    # A strict evaluator without a tag must fail closed.
     if not normalized_worker_tag:
-        return normalized_job_tag is None
+        return not strict_tag and normalized_job_tag is None
 
     # Opt-in exclusive routing lets a tagged evaluator serve only its own jobs.
-    if os.environ.get("CRSBENCH_EVALUATOR_STRICT_CPU_TAG") == "1":
+    if strict_tag:
         return normalized_job_tag == normalized_worker_tag
 
     # By default, tagged workers can also run untagged jobs.

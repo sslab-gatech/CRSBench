@@ -456,6 +456,12 @@ def run_evaluator_main(
         logger.error("Install with: pip install redis rq")
         return 1
 
+    if os.environ.get(
+        "CRSBENCH_EVALUATOR_STRICT_CPU_TAG"
+    ) == "1" and not normalize_cpu_tag(cpu_tag):
+        logger.error("Strict CPU tag routing requires a non-empty evaluator cpu_tag")
+        return 1
+
     normalized_redis_host = normalize_redis_host(redis_host)
     if normalized_redis_host is None:
         logger.error(
@@ -542,8 +548,14 @@ def run_evaluator_main(
     set_engine(engine)
     set_benchmarks_root(config.benchmarks_root)
 
-    # Pre-build: shared mode keeps legacy one-shot enqueue behavior.
-    if build_jobs is not None and routing_model != ROUTING_MODEL_DISPATCHER:
+    # A worker joining a live queue can use existing build jobs without
+    # re-enqueuing deterministic IDs that may already belong to that run.
+    skip_prebuild = os.environ.get("CRSBENCH_EVALUATOR_SKIP_PREBUILD") == "1"
+    if (
+        build_jobs is not None
+        and routing_model != ROUTING_MODEL_DISPATCHER
+        and not skip_prebuild
+    ):
         enqueued = _enqueue_pre_builds(
             config,
             experiment_name,
@@ -555,6 +567,8 @@ def run_evaluator_main(
             local_image_prefix=resolved_local_prefix,
         )
         logger.info(f"Pre-build: enqueued {enqueued} build jobs")
+    elif skip_prebuild:
+        logger.info("Pre-build skipped by CRSBENCH_EVALUATOR_SKIP_PREBUILD=1")
 
     # Start dual-queue supervisor
     from crsbench.distributed.ci_supervisor import run_ci_supervisor

@@ -476,6 +476,14 @@ change becomes exclusive after those jobs drain. If the dedicated evaluator
 stops, its tagged jobs stay queued until a matching evaluator returns or an
 operator removes the tag. The strict setting changes only evaluator selection;
 it does not alter build or verdict logic.
+Strict routing requires a nonempty evaluator tag and exits on misconfiguration.
+
+When joining an existing shared queue, set `CRSBENCH_EVALUATOR_SKIP_PREBUILD=1`
+to avoid re-enqueuing build jobs with IDs already used by the coordinator.
+Warm the dedicated host's local build variants and confirm that every required
+variant succeeded before tagging its verification backlog. If startup pre-builds
+are intentionally enabled with strict routing, set `resources.cpu_tag` in the
+evaluator config to the same `TAG`; `--cpu-tag` alone does not tag those jobs.
 
 Config v2 evaluator defaults use unified knobs:
 - `evaluator.jobs` (default: unset; runtime falls back to one build job when no

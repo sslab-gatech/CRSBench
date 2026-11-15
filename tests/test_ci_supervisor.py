@@ -2153,7 +2153,7 @@ class TestHelperFunctions:
             assert _matches_cpu_tag(untagged_job, "ramjet-tika") is False
             assert _matches_cpu_tag(matching_job, "ramjet-tika") is True
             assert _matches_cpu_tag(other_job, "ramjet-tika") is False
-            assert _matches_cpu_tag(untagged_job, None) is True
+            assert _matches_cpu_tag(untagged_job, None) is False
 
     def test_queues_blocked_only_by_cpu_tag_detects_prefiltered_livelock(self) -> None:
         """Helper should report cpu-tag-only backlogs for tagged and untagged workers."""
