@@ -477,6 +477,8 @@ stops, its tagged jobs stay queued until a matching evaluator returns or an
 operator removes the tag. The strict setting changes only evaluator selection;
 it does not alter build or verdict logic.
 Strict routing requires a nonempty evaluator tag and exits on misconfiguration.
+New jobs from a continuing producer must receive the same tag at enqueue time;
+retagging an existing backlog does not route future jobs.
 
 When joining an existing shared queue, set `CRSBENCH_EVALUATOR_SKIP_PREBUILD=1`
 to avoid re-enqueuing build jobs with IDs already used by the coordinator.

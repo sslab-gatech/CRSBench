@@ -1269,6 +1269,13 @@ def run_evaluator_configless(
             return 1
         resolved_cpu_tag = distinct_cpu_tags[0] if distinct_cpu_tags else None
 
+    if (
+        os.environ.get("CRSBENCH_EVALUATOR_STRICT_CPU_TAG") == "1"
+        and not resolved_cpu_tag
+    ):
+        logger.error("Strict CPU tag routing requires a non-empty evaluator cpu_tag")
+        return 1
+
     engine_verify_cores_per_job = (
         resolved_verify_cores_per_job
         if resolved_verify_cores_per_job is not None

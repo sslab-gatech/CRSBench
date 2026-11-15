@@ -1124,6 +1124,36 @@ class TestConfiglessEvaluator:
         mock_enqueue.assert_not_called()
 
     @patch("crsbench.distributed.evaluator.REDIS_AVAILABLE", new=True)
+    def test_configless_strict_routing_rejects_missing_tag(self, monkeypatch) -> None:
+        """Configless strict routing must exit before scanning shared queues."""
+        from crsbench.distributed.evaluator import run_evaluator_configless
+        from crsbench.distributed.registry import RuntimeRegistration
+
+        reg = RuntimeRegistration(
+            experiment="exp-42",
+            trial_queue="crsbench_exp-42",
+            build_queue="crsbench_exp-42_build",
+            verify_queue="crsbench_exp-42_verify",
+            benchmarks=["afc-mock-full-01"],
+            benchmarks_root="/tmp/benchmarks",
+            per_pov_verify_timeout=180,
+        )
+        monkeypatch.setenv("CRSBENCH_EVALUATOR_STRICT_CPU_TAG", "1")
+        with (
+            patch(
+                "crsbench.distributed.evaluator.discover_registered_experiments",
+                return_value=(MagicMock(), {"exp-42": reg}),
+            ),
+            patch(
+                "crsbench.distributed.ci_supervisor.run_multi_queue_supervisor"
+            ) as mock_supervisor,
+        ):
+            result = run_evaluator_configless(redis_host="localhost")
+
+        assert result == 1
+        mock_supervisor.assert_not_called()
+
+    @patch("crsbench.distributed.evaluator.REDIS_AVAILABLE", new=True)
     def test_configless_uses_cli_cpu_pinning_only(self) -> None:
         """Configless evaluator uses CLI cpuset/skip-cpuset (no metadata pinning)."""
         from crsbench.distributed.evaluator import run_evaluator_configless
