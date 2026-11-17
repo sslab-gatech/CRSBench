@@ -91,8 +91,41 @@ Seven paper benchmarks did not pass their functionality suite under coverage:
 Two more paper benchmarks could not complete their tests because required
 dependencies were unavailable: `atlanta-batik-delta-01` could not resolve an
 `xmlgraphics-commons` snapshot, and `atlanta-kylin-delta-01` could not resolve
-its configured `repository.kyligence.io` host. No passing-suite coverage
-percentage is reported for these nine cases.
+its configured `repository.kyligence.io` host. No full-suite passing coverage
+percentage is reported for these nine cases; seven have passing-subset values
+below.
+
+## Coverage from passing subsets
+
+The seven paper benchmarks whose full suites failed were rerun with the
+observed failing tests excluded. These are separate measurements of the
+remaining passing tests. The original full-suite `test_failed` status remains
+in the CSV; its `passing_subset_*` columns hold the results below. Test
+selection was changed only in temporary measurement copies; production source
+and tracked benchmark files were not changed.
+
+| Benchmark | Excluded from rerun | Passing subset | Covered / instrumented lines | Line coverage |
+| --- | --- | ---: | ---: | ---: |
+| `atlanta-binutils-delta-01` | 37 failing DejaGnu cases | 283 PASS | 27,966 / 457,518 | 6.11% |
+| `atlanta-jq-delta-01` | `tests/jqtest` | 27 PASS | 18,348 / 28,278 | 64.88% |
+| `atlanta-mongoose-delta-01` | `test_mqtt()` and `test_http_client()` | 1,109 assertions PASS | 2,864 / 3,385 | 84.61% |
+| `atlanta-tmux-delta-01` | Four failing regression scripts | 15 PASS | 12,559 / 37,908 | 33.13% |
+| `afc-log4j2-delta-01` | `SimplePerfTest` (three failing methods) | 705 PASS, 4 SKIP | 9,708 / 15,016 | 64.65% |
+| `afc-pdfbox-delta-01` | `CreatePDFATest.testCreatePDFA` | 1,796 PASS, 12 SKIP | 35,860 / 63,061 | 56.87% |
+| `afc-pdfbox-full-01` | `CreatePDFATest.testCreatePDFA` | 1,788 PASS, 12 SKIP | 35,798 / 62,969 | 56.85% |
+
+The three excluded JVM test classes contain only the originally failing
+active test methods; no other passing JVM tests were removed. The JVM reruns
+used the same reference-patched production source, a host Java truststore for
+PDFBox's HTTPS downloads, and a Maven Central mirror after the default
+repository returned HTTP 429. DejaGnu has no
+per-assertion exclusion switch, so the binutils selection also omits three
+passing cases in the same test calls: the original run had 286 expected passes
+and the subset has 283. The Mongoose selection omits two whole network
+dependent test functions. These scope differences make the subset percentages
+distinct from the full-suite numbers summarized above. With these seven
+additional subset measurements, **122 of 124** paper benchmarks have a
+reported coverage percentage; the two dependency failures still have none.
 
 Among the nine sanity benchmarks, four have measured coverage. The
 `sanity-babynote-delta-01`, `sanity-itoa-delta-01`,
@@ -105,7 +138,9 @@ The committed
 [`functionality-test-coverage-evidence.jsonl`](functionality-test-coverage-evidence.jsonl)
 contains one record per benchmark with the selected raw result, including
 C/C++ file-level counts, and relevant test-log excerpts for unavailable
-results and masked test commands. The CSV's `evidence_host` and
+results and masked test commands. For the seven reruns above, each evidence
+record also contains the passing-subset result, exclusions, test summary, and
+selection script or method-scope evidence. The CSV's `evidence_host` and
 `evidence_result` columns identify the full run directory: local paths are
 relative to `.run/functionality-coverage/`, and remote paths are relative to
 `/home/acorn421/` on the named server. Full execution logs remain in those
