@@ -17,8 +17,8 @@ patched source was mounted into that environment before the script ran.
 
 Line coverage is the number of distinct instrumented project source lines
 executed during `test.sh` divided by the number of instrumented project source
-lines compiled for that test run. It is a percentage of the code built by the
-script, not of every source file in the repository. C/C++ runs used Clang
+lines compiled for that measurement. It is a percentage of the code built for
+the test run, not of every source file in the repository. C/C++ runs used Clang
 coverage instrumentation and `llvm-cov gcov`; JVM runs used JaCoCo line
 counters for production class files. Source paths containing test code or fuzz
 harnesses, along with vendored dependencies, were excluded from C/C++
@@ -53,6 +53,8 @@ their Maven or Gradle JaCoCo integration to avoid corrupting one shared
 execution-data file. Atlanta Tika's prepared source POM was given a transient
 Surefire `@{argLine}` reference so its existing test JVM flags could accept
 the Maven JaCoCo agent; production code and the test script were unchanged.
+NASM and libcue needed their benchmark build step before `test.sh`; their
+denominators include code built in that preparatory step.
 Spring Framework used JaCoCo 0.8.16 for Java 24 class files, excluding test
 classes from agent instrumentation. The Mosquitto metadata lists one patch
 hunk twice; the second identical application was skipped so the measured
@@ -99,8 +101,12 @@ Among the nine sanity benchmarks, four have measured coverage. The
 binaries, leaving no instrumented production source to report.
 `sanity-mock-java-spam-delta-01` contains no functionality tests.
 
-The CSV's `evidence_host` and `evidence_result` columns identify the selected
-raw `result.json` for each row. Local evidence paths are relative to
-`.run/functionality-coverage/`; remote paths are relative to
-`/home/acorn421/` on the named server. Raw execution logs are in the same
-result directories.
+The committed
+[`functionality-test-coverage-evidence.jsonl`](functionality-test-coverage-evidence.jsonl)
+contains one record per benchmark with the selected raw result, including
+C/C++ file-level counts, and relevant test-log excerpts for unavailable
+results and masked test commands. The CSV's `evidence_host` and
+`evidence_result` columns identify the full run directory: local paths are
+relative to `.run/functionality-coverage/`, and remote paths are relative to
+`/home/acorn421/` on the named server. Full execution logs remain in those
+directories.
