@@ -21,10 +21,13 @@ lines compiled for that measurement. It is a percentage of the code built for
 the test run, not of every source file in the repository. C/C++ runs used Clang
 coverage instrumentation and `llvm-cov gcov`; JVM runs used JaCoCo line
 counters for production class files. Source paths containing test code or fuzz
-harnesses, along with vendored dependencies, were excluded from C/C++
-numerators and denominators. JVM test classes were excluded by reporting only
-production class directories. The per-benchmark counts in the CSV are the
-post-exclusion counts.
+harnesses, examples, and benchmark programs, along with vendored dependencies,
+were excluded from C/C++ numerators and denominators. Project-owned features
+such as SQLite's `ext/misc/fuzzer.c` remain included. The exact C/C++ source
+exclusions and their line counts are recorded in each evidence record's
+`line_scope` field. JVM test classes were excluded by reporting only production
+class directories. The per-benchmark counts in the CSV are the post-exclusion
+counts.
 
 A numeric result requires `test.sh` to exit successfully, no reported failure
 in its underlying test suite, usable execution data, and at least one
@@ -65,9 +68,9 @@ once.
 
 | Paper benchmark group | Total | Measured | Median line coverage | Mean line coverage |
 | --- | ---: | ---: | ---: | ---: |
-| C/C++ | 63 | 59 | 60.14% | 45.35% |
+| C/C++ | 63 | 59 | 60.14% | 45.78% |
 | JVM | 61 | 56 | 67.69% | 57.01% |
-| All paper benchmarks | 124 | 115 | 62.84% | 51.03% |
+| All paper benchmarks | 124 | 115 | 63.28% | 51.25% |
 
 These are unweighted summaries across benchmark instances with a valid
 measurement; the nine cases without one are excluded from the median and
@@ -106,8 +109,8 @@ and tracked benchmark files were not changed.
 
 | Benchmark | Excluded from rerun | Passing subset | Covered / instrumented lines | Line coverage |
 | --- | --- | ---: | ---: | ---: |
-| `atlanta-binutils-delta-01` | 37 failing DejaGnu cases | 283 PASS | 27,966 / 457,518 | 6.11% |
-| `atlanta-jq-delta-01` | `tests/jqtest` | 27 PASS | 18,348 / 28,278 | 64.88% |
+| `atlanta-binutils-delta-01` | 37 failing DejaGnu cases | 283 PASS | 26,923 / 453,648 | 5.93% |
+| `atlanta-jq-delta-01` | `tests/jqtest` | 27 PASS | 5,984 / 12,270 | 48.77% |
 | `atlanta-mongoose-delta-01` | `test_mqtt()` and `test_http_client()` | 1,109 assertions PASS | 2,864 / 3,385 | 84.61% |
 | `atlanta-tmux-delta-01` | Four failing regression scripts | 15 PASS | 12,559 / 37,908 | 33.13% |
 | `afc-log4j2-delta-01` | `SimplePerfTest` (three failing methods) | 705 PASS, 4 SKIP | 9,708 / 15,016 | 64.65% |
@@ -140,7 +143,9 @@ contains one record per benchmark with the selected raw result, including
 C/C++ file-level counts, and relevant test-log excerpts for unavailable
 results and masked test commands. For the seven reruns above, each evidence
 record also contains the passing-subset result, exclusions, test summary, and
-selection script or method-scope evidence. The CSV's `evidence_host` and
+selection script or method-scope evidence. C/C++ records additionally list
+the source files excluded from each coverage calculation in `line_scope`.
+The CSV's `evidence_host` and
 `evidence_result` columns identify the full run directory: local paths are
 relative to `.run/functionality-coverage/`, and remote paths are relative to
 `/home/acorn421/` on the named server. Full execution logs remain in those
