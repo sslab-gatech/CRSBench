@@ -25,7 +25,9 @@ harnesses, examples, and benchmark programs, along with vendored dependencies,
 were excluded from C/C++ numerators and denominators. Project-owned features
 such as SQLite's `ext/misc/fuzzer.c` remain included. The exact C/C++ source
 exclusions and their line counts are recorded in each evidence record's
-`line_scope` field. JVM test classes were excluded by reporting only production
+`line_scope` field. Source files compiled through multiple paths were merged
+by source line number; the affected records also list those duplicate groups.
+JVM test classes were excluded by reporting only production
 class directories. The per-benchmark counts in the CSV are the post-exclusion
 counts.
 
@@ -63,14 +65,17 @@ classes from agent instrumentation. The Mosquitto metadata lists one patch
 hunk twice; the second identical application was skipped so the measured
 source had the same final content as applying the distinct reference changes
 once.
+The Atlanta Wireshark line-level verification rerun used `make -j16` in a
+temporary script copy to shorten its build; it ran the same tests against the
+same reference-patched source.
 
 ## Results
 
 | Paper benchmark group | Total | Measured | Median line coverage | Mean line coverage |
 | --- | ---: | ---: | ---: | ---: |
-| C/C++ | 63 | 59 | 60.14% | 45.78% |
+| C/C++ | 63 | 59 | 60.14% | 45.93% |
 | JVM | 61 | 56 | 67.69% | 57.01% |
-| All paper benchmarks | 124 | 115 | 63.28% | 51.25% |
+| All paper benchmarks | 124 | 115 | 63.28% | 51.32% |
 
 These are unweighted summaries across benchmark instances with a valid
 measurement; the nine cases without one are excluded from the median and
