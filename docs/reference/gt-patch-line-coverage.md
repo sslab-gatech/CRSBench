@@ -47,6 +47,10 @@ reference-patched source and functionality tests were rerun to retain module
 JaCoCo XML. Their per-line verdicts are explicitly marked as verification
 reruns in the CSV and evidence. Where a full test suite had failed, the
 passing-subset selection from the original report was reused.
+The original JVM whole-code percentages use JaCoCo aggregate class counters;
+source-file line totals in module XML can differ when classes or source files
+are represented more than once. The module XML is used here only to judge the
+specific GT-changed lines, not to revise those whole-code percentages.
 
 ## Results
 
@@ -60,7 +64,8 @@ Among the 106 benchmarks with at least one instrumented GT-changed source
 line, 78 executed at least one such line and 28 executed none.
 
 Across the 122 benchmarks with a functionality-test coverage result, 3,164
-GT-changed production source lines appear in the line-coverage denominator.
+GT-changed production source lines were instrumented in the saved line-level
+reports.
 Of these, **2,115 were executed and 1,049 were missed**: 66.85% of the
 instrumented changed lines executed. The C/C++ count is 214/521 (41.07%);
 the JVM count is 1,901/2,643 (71.93%). These line-weighted percentages are
@@ -91,7 +96,10 @@ The committed evidence JSONL contains one record for each of the 124 paper
 benchmarks: applied GT patch paths, reference commit, final changed file/line
 numbers, and the per-line coverage verdict. The C/C++ records point to
 compressed `line_coverage.json.gz` files; JVM records point to JaCoCo XML or
-the saved module XMLs from verification reruns. These raw files and test logs
-remain in the local or remote `.run/functionality-coverage/` result directories
-identified in the evidence. The two dependency-blocked cases retain their GT
-patch maps but have no line-coverage record.
+the saved module XMLs from verification reruns. Local raw files are under
+`.run/functionality-coverage/`; some original runs and reruns are under the
+remote `/home/acorn421/functionality-coverage-*` paths recorded in the
+evidence. Test logs remain in the corresponding execution result directories;
+the three JVM verification reruns also record their test-log paths.
+The two dependency-blocked cases retain their GT patch maps but have no
+line-coverage record.
