@@ -5,6 +5,8 @@ This report records source-line coverage produced by each benchmark's existing
 revision `3681ef177df9ad0cce649667265ab3c4252070fe` and was run on
 November 17, 2026. The complete per-benchmark results are in
 [`functionality-test-coverage.csv`](functionality-test-coverage.csv).
+For coverage of the lines changed by GT patches specifically, see the
+[GT patch changed-line report](gt-patch-line-coverage.md).
 
 ## Scope and metric
 
