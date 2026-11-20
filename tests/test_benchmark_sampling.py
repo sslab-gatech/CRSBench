@@ -10,6 +10,7 @@ import yaml
 from crsbench.benchmark.sampling import (
     STRATA,
     add_sample_subparser,
+    allocate_proportional_sizes,
     run_sample,
     sample_benchmarks,
 )
@@ -18,6 +19,33 @@ from crsbench.run_experiment import generate_trial_matrix, resolve_benchmark_har
 from crsbench.validation.schemas import BenchmarkSuiteConfig, ExperimentConfig
 
 REPO = Path(__file__).resolve().parents[1]
+
+
+def test_proportional_allocation_preserves_population_mix_and_total():
+    sizes = dict(zip(STRATA, (46, 17, 41, 20), strict=True))
+    assert allocate_proportional_sizes(sizes, 28) == dict(
+        zip(STRATA, (10, 4, 9, 5), strict=True)
+    )
+    assert allocate_proportional_sizes(sizes, 124) == sizes
+
+
+def test_proportional_allocation_uses_deterministic_tie_breaking():
+    assert allocate_proportional_sizes(dict.fromkeys(STRATA, 3), 6) == dict(
+        zip(STRATA, (2, 2, 1, 1), strict=True)
+    )
+
+
+@pytest.mark.parametrize("size", [0, 3, 13])
+def test_proportional_allocation_rejects_invalid_size(size):
+    with pytest.raises(ValueError, match="between 4 and 12"):
+        allocate_proportional_sizes(dict.fromkeys(STRATA, 3), size)
+
+
+def test_proportional_allocation_requires_all_four_strata():
+    with pytest.raises(ValueError, match="nonempty"):
+        allocate_proportional_sizes(dict(zip(STRATA, (10, 0, 4, 2), strict=True)), 8)
+    with pytest.raises(ValueError, match="increase sample size"):
+        allocate_proportional_sizes(dict(zip(STRATA, (97, 1, 1, 1), strict=True)), 4)
 
 
 @pytest.fixture
@@ -114,6 +142,24 @@ def test_missing_metadata_aborts_instead_of_changing_population(population):
         sample_benchmarks(source, root, seed=42, per_stratum=1)
 
 
+def test_proportional_sample_is_reproducible_and_keeps_all_groups(population):
+    source, root = population
+    selected, audit = sample_benchmarks(source, root, seed=42, size=6)
+    assert len(selected) == len(set(selected)) == 6
+    assert audit["allocation"] == "proportional"
+    assert [details["sample_size"] for details in audit["strata"].values()] == [
+        2,
+        2,
+        1,
+        1,
+    ]
+    assert (selected, audit) == sample_benchmarks(source, root, seed=42, size=6)
+    with pytest.raises(ValueError, match="exactly one"):
+        sample_benchmarks(source, root, seed=42, size=6, per_stratum=2)
+    with pytest.raises(ValueError, match="exactly one"):
+        sample_benchmarks(source, root, seed=42)
+
+
 def test_source_cannot_filter_harnesses_or_cpvs(population):
     source, root = population
     data = yaml.safe_load(source.read_text())
@@ -123,8 +169,9 @@ def test_source_cannot_filter_harnesses_or_cpvs(population):
         sample_benchmarks(source, root, seed=1, per_stratum=1)
 
 
+@pytest.mark.parametrize("allocation", ["--size", "--per-stratum"])
 def test_sample_command_writes_valid_suite_and_protects_existing_draw(
-    population, tmp_path
+    population, tmp_path, allocation
 ):
     source, root = population
     parser = argparse.ArgumentParser()
@@ -140,8 +187,8 @@ def test_sample_command_writes_valid_suite_and_protects_existing_draw(
             str(root),
             "--seed",
             "42",
-            "--per-stratum",
-            "1",
+            allocation,
+            "4" if allocation == "--size" else "1",
             "--output",
             str(output),
             "--manifest",
@@ -169,7 +216,8 @@ def test_frozen_icse_sample_reproduces_from_complete_population():
         REPO / "benchmark-suites/crsbench/all.yaml",
         REPO / "benchmarks",
         seed=20261104,
-        per_stratum=7,
+        size=28,
+        exclude=("afc-curl-delta-01", "atlanta-libxml2-delta-01"),
     )
     suite = yaml.safe_load(
         (REPO / "benchmark-suites/icse/hybrid-random.yaml").read_text()
@@ -182,7 +230,7 @@ def test_frozen_icse_sample_reproduces_from_complete_population():
     )
 
 
-@pytest.mark.parametrize("kind,expected_jobs", [("finding", 171), ("smoke", 4)])
+@pytest.mark.parametrize("kind,expected_jobs", [("finding", 129), ("smoke", 4)])
 def test_icse_configs_expand_to_hybrid_only_cloud_jobs(
     kind, expected_jobs, monkeypatch
 ):
@@ -217,7 +265,25 @@ def test_icse_configs_expand_to_hybrid_only_cloud_jobs(
         assert config.run_timeout == 600
         assert len(plan.worker_placements) == len(plan.evaluator_placements) == 1
     else:
-        assert len(entries) == 28
+        assert len(entries) == 26
         assert config.trials == 3
         assert config.run_timeout == 28800
-        assert sum(t.sanitizer == "memory" for t in trials) == 3
+        assert sum(t.sanitizer == "memory" for t in trials) == 0
+
+
+def test_exclusions_preserve_original_draw_without_replacement(population):
+    source, root = population
+    original, _ = sample_benchmarks(source, root, seed=42, per_stratum=2)
+    excluded = original[0]
+    selected, audit = sample_benchmarks(
+        source, root, seed=42, per_stratum=2, exclude=(excluded,)
+    )
+    assert selected == [name for name in original if name != excluded]
+    assert audit["original_selected"] == original
+    assert audit["original_sample_size"] == 8
+    assert audit["sample_size"] == 7
+    assert audit["exclusions"] == [excluded]
+    with pytest.raises(ValueError, match="not in the original sample"):
+        sample_benchmarks(source, root, seed=42, per_stratum=2, exclude=("unknown",))
+    with pytest.raises(ValueError, match="retain all four strata"):
+        sample_benchmarks(source, root, seed=42, per_stratum=2, exclude=tuple(original))

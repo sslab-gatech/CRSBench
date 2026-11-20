@@ -1,7 +1,8 @@
-# ICSE major revision: 7 randomly sampled benchmarks per C/C++/JVM x delta/full stratum.
+# ICSE major revision: retain 26 benchmarks from the stratified random draw.
+# Retained allocation: C/C++ delta=8, C/C++ full=4, JVM delta=9, JVM full=5.
 # Reproduce the suite with `crsbench benchmark sample`; see docs/experiments/icse-hybrid-random.md.
 # Preserves the previous hybrid model, 3 trials, 8h run, $30 per-trial budget, and fleet.
-# Includes memory sanitizer so randomly selected MSan CPVs are not silently dropped.
+# The runtime selects sanitizers supported by each retained ground-truth harness.
 # The queue can require multiple waves; budgets are per trial, not for the fleet.
 # Requires the suite and bootstrap changes to be available on the remote `icse` ref.
 # Secrets are supplied through .env or the operator environment, never this file.
@@ -40,7 +41,7 @@ crs_compose:
     num_cores: 16
     mem_limit: 64G
     additional_env:
-      ANTHROPIC_MODEL: claude-opus-4-6
+      ANTHROPIC_MODEL: claude-opus-4-6_jiho
 storage:
   experiment_filestore: /data/crsbench/experiment-data/icse-hybrid-random-finding
   report_filestore: /data/crsbench/report-data/icse-hybrid-random-finding
@@ -132,5 +133,5 @@ cloud:
     placements:
     - {}
     - {}
-description: 'ICSE major revision: outcome-independent balanced random sample of 28
-  benchmarks (seed 20261104), all ground-truth harnesses and CPVs, hybrid CRS only.'
+description: 'ICSE major revision: 26 retained benchmarks from an outcome-independent stratified random draw,
+  excluding two targets without standalone results; hybrid CRS only.'

@@ -48,7 +48,7 @@ crs_compose:
     num_cores: 16
     mem_limit: 64G
     additional_env:
-      ANTHROPIC_MODEL: claude-opus-4-6
+      ANTHROPIC_MODEL: claude-opus-4-6_jiho
 storage:
   experiment_filestore: /data/crsbench/experiment-data/icse-hybrid-tailscale-smoke
   report_filestore: /data/crsbench/report-data/icse-hybrid-tailscale-smoke
