@@ -29,10 +29,11 @@ shown above. The original draw yields 10/4/9/5, and post-draw exclusions
 yield 8/4/9/5. The command fails if the requested sample is too small to
 represent all four groups.
 
-Report per-stratum results. For population-wide benchmark averages, weight
-stratum averages by their population shares; integer rounding means sample
-shares are not exactly the population shares. Benchmark IDs are the sampling
-units, so projects with multiple benchmark IDs can appear more than once.
+Report per-stratum results for the retained sample. The two excluded C/C++
+delta benchmarks lack standalone comparison results. An estimate for all
+124 benchmarks would need to account for both missing outcomes. Benchmark
+IDs are the sampling units, so projects with multiple benchmark IDs can
+appear more than once.
 
 Reproduce the frozen selection from the repository root:
 
